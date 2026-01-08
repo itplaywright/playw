@@ -1,8 +1,6 @@
-
-import { config } from "dotenv"
-config({ path: ".env.local" })
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import GitHub from "next-auth/providers/github"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { db } from "@/db"
 import { accounts, sessions, users, verificationTokens } from "@/db/schema"
@@ -17,6 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         verificationTokensTable: verificationTokens,
     }) as any,
     providers: [
+        GitHub,
         Credentials({
             credentials: {
                 email: {},

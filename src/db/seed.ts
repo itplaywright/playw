@@ -1,4 +1,3 @@
-import "./envConfig"
 import { db } from "@/db"
 import { tasks, tracks, results } from "@/db/schema"
 

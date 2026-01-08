@@ -28,36 +28,55 @@ export async function POST(req: Request) {
         }
 
         const testFilePath = path.join(tempDir, "user.spec.ts")
+        const configFilePath = path.join(tempDir, "playwright.config.ts")
         fs.writeFileSync(testFilePath, code)
+
+        // Generate temporary config for remote browser if URL provided
+        const browserServiceUrl = process.env.BROWSER_SERVICE_URL
+        if (browserServiceUrl) {
+            const configContent = `
+import { defineConfig } from '@playwright/test';
+export default defineConfig({
+  use: {
+    connectOptions: {
+      wsEndpoint: '${browserServiceUrl}',
+    },
+  },
+  reporter: 'line',
+});`
+            fs.writeFileSync(configFilePath, configContent)
+        }
 
         let status: "passed" | "failed" = "failed"
         let logs = ""
 
-        // If on Netlify (production), we might not have Playwright browsers installed
-        // We implement a "Mock Execution" that validates basic syntax or presence of assertions
-        if (process.env.NODE_ENV === "production" && !process.env.ENABLE_REAL_TESTS) {
-            logs = "Running in Production Mock Mode...\n"
+        try {
+            const commandPath = testFilePath.replace(/\\/g, "/")
+            const configArg = browserServiceUrl ? `--config="${configFilePath.replace(/\\/g, "/")}"` : ""
 
-            // Using regex for more flexible matching
-            const hasExpect = /expect\s*\(/.test(code)
-            const hasGoto = /page\.goto\s*\(/.test(code)
-            const hasLocator = /(getByRole|getByText|getByPlaceholder|locator)\s*\(/.test(code)
-
-            if (hasGoto || hasLocator || hasExpect) {
-                logs += "✓ Playwright commands detected\n✓ Basic syntax validation passed\n\nResult: Passed (Simulated)"
-                status = "passed"
-            } else {
-                logs += "✗ Error: No active Playwright commands found (e.g., page.goto, expect, or locators).\n\nResult: Failed"
-                status = "failed"
+            // In production without a service URL, we MUST use mock mode to avoid 500
+            if (process.env.NODE_ENV === "production" && !browserServiceUrl) {
+                throw new Error("MOCK_MODE")
             }
-        } else {
-            // Local execution or if browsers are available
-            try {
-                const commandPath = testFilePath.replace(/\\/g, "/")
-                const { stdout, stderr } = await execAsync(`npx playwright test "${commandPath}" --reporter=line`)
-                logs = stdout || stderr
-                status = "passed"
-            } catch (error: any) {
+
+            const { stdout, stderr } = await execAsync(`npx playwright test "${commandPath}" ${configArg} --reporter=line`)
+            logs = stdout || stderr
+            status = "passed"
+        } catch (error: any) {
+            if (error.message === "MOCK_MODE" || (process.env.NODE_ENV === "production" && !browserServiceUrl)) {
+                logs = "Running in Production Mock Mode (Set BROWSER_SERVICE_URL for real execution)...\n"
+                const hasExpect = /expect\s*\(/.test(code)
+                const hasGoto = /page\.goto\s*\(/.test(code)
+                const hasLocator = /(getByRole|getByText|getByPlaceholder|locator)\s*\(/.test(code)
+
+                if (hasGoto || hasLocator || hasExpect) {
+                    logs += "✓ Playwright commands detected\n✓ Basic syntax validation passed\n\nResult: Passed (Simulated)"
+                    status = "passed"
+                } else {
+                    logs += "✗ Error: No active Playwright commands found.\n\nResult: Failed"
+                    status = "failed"
+                }
+            } else {
                 logs = error.stdout || error.stderr || error.message
                 status = "failed"
             }

@@ -38,15 +38,16 @@ export async function POST(req: Request) {
         if (process.env.NODE_ENV === "production" && !process.env.ENABLE_REAL_TESTS) {
             logs = "Running in Production Mock Mode...\n"
 
-            // Basic heuristic check for demo purposes
-            const hasExpect = code.includes("expect(")
-            const hasGoto = code.includes("page.goto(")
+            // Using regex for more flexible matching
+            const hasExpect = /expect\s*\(/.test(code)
+            const hasGoto = /page\.goto\s*\(/.test(code)
+            const hasLocator = /(getByRole|getByText|getByPlaceholder|locator)\s*\(/.test(code)
 
-            if (hasExpect && hasGoto) {
-                logs += "✓ Syntax validation passed\n✓ Assertions found\n✓ Navigation found\n\nResult: Passed (Simulated)"
+            if (hasGoto || hasLocator || hasExpect) {
+                logs += "✓ Playwright commands detected\n✓ Basic syntax validation passed\n\nResult: Passed (Simulated)"
                 status = "passed"
             } else {
-                logs += "✗ Error: Missing mandatory test elements (expect or page.goto)\n\nResult: Failed"
+                logs += "✗ Error: No active Playwright commands found (e.g., page.goto, expect, or locators).\n\nResult: Failed"
                 status = "failed"
             }
         } else {

@@ -1,19 +1,36 @@
-import { pgTable, text, serial, timestamp, integer, boolean, primaryKey } from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
 
-// --- NextAuth Tables ---
+import {
+    timestamp,
+    pgTable,
+    text,
+    primaryKey,
+    integer,
+    serial,
+    boolean,
+    pgEnum,
+} from "drizzle-orm/pg-core"
+import type { AdapterAccountType } from "next-auth/adapters"
+
+export const roleEnum = pgEnum("role", ["user", "admin"])
+export const difficultyEnum = pgEnum("difficulty", ["easy", "medium", "hard"])
+export const statusEnum = pgEnum("status", ["passed", "failed"])
+export const menuTypeEnum = pgEnum("menu_type", ["internal", "external"])
+export const adTypeEnum = pgEnum("ad_type", ["banner", "text", "cta"])
+export const adPlacementEnum = pgEnum("ad_placement", ["global", "task"])
 
 export const users = pgTable("user", {
     id: text("id")
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
     name: text("name"),
-    email: text("email").notNull(),
+    email: text("email").unique(),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
-    role: text("role").default("STUDENT"), // Added custom field
-    githubUsername: text("github_username"), // Added custom field
-});
+    passwordHash: text("password_hash"),
+    role: roleEnum("role").default("user"),
+    isBlocked: boolean("is_blocked").default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+})
 
 export const accounts = pgTable(
     "account",
@@ -21,7 +38,7 @@ export const accounts = pgTable(
         userId: text("userId")
             .notNull()
             .references(() => users.id, { onDelete: "cascade" }),
-        type: text("type").$type<AdapterAccount["type"]>().notNull(),
+        type: text("type").$type<AdapterAccountType>().notNull(),
         provider: text("provider").notNull(),
         providerAccountId: text("providerAccountId").notNull(),
         refresh_token: text("refresh_token"),
@@ -37,7 +54,7 @@ export const accounts = pgTable(
             columns: [account.provider, account.providerAccountId],
         }),
     })
-);
+)
 
 export const sessions = pgTable("session", {
     sessionToken: text("sessionToken").primaryKey(),
@@ -45,7 +62,7 @@ export const sessions = pgTable("session", {
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
     expires: timestamp("expires", { mode: "date" }).notNull(),
-});
+})
 
 export const verificationTokens = pgTable(
     "verificationToken",
@@ -59,43 +76,67 @@ export const verificationTokens = pgTable(
             columns: [verificationToken.identifier, verificationToken.token],
         }),
     })
-);
-
-// --- Application Tables ---
+)
 
 export const tracks = pgTable("tracks", {
     id: serial("id").primaryKey(),
     title: text("title").notNull(),
     description: text("description"),
-    level: text("level").notNull(), // Junior, Middle
     isActive: boolean("is_active").default(true),
-});
-
-export const modules = pgTable("modules", {
-    id: serial("id").primaryKey(),
-    trackId: integer("track_id").references(() => tracks.id, { onDelete: 'cascade' }),
-    title: text("title").notNull(),
-    order: integer("order").notNull(),
-});
+    order: integer("order").default(0),
+})
 
 export const tasks = pgTable("tasks", {
     id: serial("id").primaryKey(),
-    moduleId: integer("module_id").references(() => modules.id, { onDelete: 'cascade' }),
+    trackId: integer("track_id").references(() => tracks.id),
     title: text("title").notNull(),
-    description: text("description"), // Markdown
-    repoTemplateUrl: text("repo_template_url"),
-    instructions: text("instructions"),
+    description: text("description").notNull(), // Markdown
+    difficulty: difficultyEnum("difficulty").default("easy"),
+    initialCode: text("initial_code").notNull(),
+    // For MVP we can store expected result as text or a simple verification script
     expectedResult: text("expected_result"),
-});
+    order: integer("order").default(0),
+    isActive: boolean("is_active").default(true),
+})
 
-export const submissions = pgTable("submissions", {
+export const results = pgTable("results", {
     id: serial("id").primaryKey(),
-    userId: text("user_id").references(() => users.id, { onDelete: 'cascade' }), // Changed to text to match users.id UUID
-    taskId: integer("task_id").references(() => tasks.id, { onDelete: 'cascade' }),
-    status: text("status").notNull(), // PENDING, SUCCESS, FAILED
-    logs: text("logs"),
-    repoUrl: text("repo_url"),
-    attemptCount: integer("attempt_count").default(0),
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+    taskId: integer("task_id").references(() => tasks.id),
+    status: statusEnum("status").notNull(),
+    logs: text("logs"), // stdout/stderr
+    durationMs: integer("duration_ms"),
     createdAt: timestamp("created_at").defaultNow(),
+})
+
+// CMS Tables
+export const settings = pgTable("settings", {
+    id: serial("id").primaryKey(),
+    key: text("key").unique().notNull(),
+    value: text("value"),
     updatedAt: timestamp("updated_at").defaultNow(),
-});
+})
+
+export const menuItems = pgTable("menu_items", {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    type: menuTypeEnum("type").default("internal"),
+    order: integer("order").default(0),
+    isVisible: boolean("is_visible").default(true),
+    createdAt: timestamp("created_at").defaultNow(),
+})
+
+export const adBlocks = pgTable("ad_blocks", {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    type: adTypeEnum("type").default("banner"),
+    placement: adPlacementEnum("placement").default("global"),
+    content: text("content"), // для text/cta - HTML/Markdown
+    imageUrl: text("image_url"), // для banner
+    linkUrl: text("link_url"),
+    buttonText: text("button_text"), // для cta
+    order: integer("order").default(0),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at").defaultNow(),
+})

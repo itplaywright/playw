@@ -6,7 +6,6 @@ import TargetAudience from "@/components/landing/TargetAudience"
 import HowItWorks from "@/components/landing/HowItWorks"
 import Skills from "@/components/landing/Skills"
 import Curriculum from "@/components/landing/Curriculum"
-import Comparison from "@/components/landing/Comparison"
 import DashboardPreview from "@/components/landing/DashboardPreview"
 import WhyPlaywright from "@/components/landing/WhyPlaywright"
 import FAQ from "@/components/landing/FAQ"
@@ -29,12 +28,11 @@ export default async function Home() {
       <Setup />
       <Skills />
       <Curriculum />
-      <Comparison />
       <DashboardPreview />
       <WhyPlaywright />
       <CallToAction />
       <FAQ />
       <Footer />
-    </main>
+    </main >
   )
 }

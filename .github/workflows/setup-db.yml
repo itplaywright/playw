@@ -1,0 +1,23 @@
+name: Sync Database Schema
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/db/schema.ts'
+      - 'drizzle.config.ts'
+
+jobs:
+  sync-db:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Drizzle Push
+        run: npm run db:push
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

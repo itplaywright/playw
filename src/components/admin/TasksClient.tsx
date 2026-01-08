@@ -34,13 +34,13 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
     const [filterTrack, setFilterTrack] = useState<number | "all">("all")
     const router = useRouter()
 
-    const difficultyColors = {
+    const difficultyColors: Record<string, string> = {
         easy: "bg-green-100 text-green-700 border-green-200",
         medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
         hard: "bg-red-100 text-red-700 border-red-200",
     }
 
-    const difficultyLabels = {
+    const difficultyLabels: Record<string, string> = {
         easy: "Легко",
         medium: "Середньо",
         hard: "Складно",

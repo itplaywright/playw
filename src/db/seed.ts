@@ -25,7 +25,7 @@ async function seed() {
         order: 1
     }).returning()
 
-    async function addTasks(trackId: string, data: any[], difficulty: "easy" | "medium" | "hard") {
+    async function addTasks(trackId: number, data: any[], difficulty: "easy" | "medium" | "hard") {
         await db.insert(tasks).values(data.map((t, i) => ({
             trackId, title: t.title, description: t.description,
             difficulty, order: i + 1, initialCode: t.code, expectedResult: "Passed"

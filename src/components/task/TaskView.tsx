@@ -20,7 +20,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
     const [code, setCode] = useState(task.initialCode)
     const [output, setOutput] = useState(
         isProduction
-            ? "У Production-режимі (Netlify) запуск тестів виконується локально у вашому VS Code."
+            ? "Запуск тестів виконується локально у вашому VS Code."
             : "Запустіть тест, щоб побачити результат..."
     )
     const [isRunning, setIsRunning] = useState(false)

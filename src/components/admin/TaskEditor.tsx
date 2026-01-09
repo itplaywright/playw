@@ -12,7 +12,13 @@ import {
     FileText,
     Layout,
     Eye,
-    PenLine
+    PenLine,
+    Bold,
+    Italic,
+    List,
+    Link as LinkIcon,
+    Code2,
+    Heading1
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -37,10 +43,27 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
 
     const [isPreview, setIsPreview] = useState(false)
 
-    // ... (rest of the component state and handlers)
+    const insertText = (before: string, after: string = "") => {
+        const textarea = document.getElementById("description-editor") as HTMLTextAreaElement
+        if (!textarea) return
+
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        const text = formData.description
+        const selectedText = text.substring(start, end)
+
+        const newText = text.substring(0, start) + before + selectedText + after + text.substring(end)
+
+        setFormData({ ...formData, description: newText })
+
+        // Restore selection / focus next tick
+        setTimeout(() => {
+            textarea.focus()
+            textarea.setSelectionRange(start + before.length, end + before.length)
+        }, 0)
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        // ... (existing submit logic)
         e.preventDefault()
         setIsLoading(true)
 
@@ -67,7 +90,6 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 max-w-5xl mx-auto pb-20">
-            {/* ... (Header section remains unchanged, but we need to include it in the replace block contextually or skip it if we can target strictly) */}
             <div className="flex items-center justify-between sticky top-[64px] bg-gray-50 py-4 z-20">
                 <div className="flex items-center space-x-4">
                     <button
@@ -118,23 +140,48 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <label className="block text-sm font-bold text-gray-700">Опис (Markdown)</label>
-                                <div className="flex bg-gray-100 rounded-lg p-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsPreview(false)}
-                                        className={`flex items-center px-3 py-1.5 rounded-md text-xs font-bold transition-all ${!isPreview ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                                    >
-                                        <PenLine className="w-3.5 h-3.5 mr-1.5" />
-                                        Редагувати
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsPreview(true)}
-                                        className={`flex items-center px-3 py-1.5 rounded-md text-xs font-bold transition-all ${isPreview ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                                    >
-                                        <Eye className="w-3.5 h-3.5 mr-1.5" />
-                                        Попередній перегляд
-                                    </button>
+                                <div className="flex items-center space-x-2">
+                                    {!isPreview && (
+                                        <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
+                                            <button type="button" onClick={() => insertText("**", "**")} className="p-1.5 hover:bg-white rounded-md transition-all text-gray-600 hover:text-black" title="Жирний">
+                                                <Bold className="w-4 h-4" />
+                                            </button>
+                                            <button type="button" onClick={() => insertText("*", "*")} className="p-1.5 hover:bg-white rounded-md transition-all text-gray-600 hover:text-black" title="Курсив">
+                                                <Italic className="w-4 h-4" />
+                                            </button>
+                                            <button type="button" onClick={() => insertText("# ")} className="p-1.5 hover:bg-white rounded-md transition-all text-gray-600 hover:text-black" title="Заголовок">
+                                                <Heading1 className="w-4 h-4" />
+                                            </button>
+                                            <button type="button" onClick={() => insertText("- ")} className="p-1.5 hover:bg-white rounded-md transition-all text-gray-600 hover:text-black" title="Список">
+                                                <List className="w-4 h-4" />
+                                            </button>
+                                            <button type="button" onClick={() => insertText("[", "](url)")} className="p-1.5 hover:bg-white rounded-md transition-all text-gray-600 hover:text-black" title="Посилання">
+                                                <LinkIcon className="w-4 h-4" />
+                                            </button>
+                                            <button type="button" onClick={() => insertText("`", "`")} className="p-1.5 hover:bg-white rounded-md transition-all text-gray-600 hover:text-black" title="Код">
+                                                <Code2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div className="flex bg-gray-100 rounded-lg p-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsPreview(false)}
+                                            className={`flex items-center px-3 py-1.5 rounded-md text-xs font-bold transition-all ${!isPreview ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                        >
+                                            <PenLine className="w-3.5 h-3.5 mr-1.5" />
+                                            Редагувати
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsPreview(true)}
+                                            className={`flex items-center px-3 py-1.5 rounded-md text-xs font-bold transition-all ${isPreview ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                        >
+                                            <Eye className="w-3.5 h-3.5 mr-1.5" />
+                                            Попередній перегляд
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -146,6 +193,7 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                                 </div>
                             ) : (
                                 <textarea
+                                    id="description-editor"
                                     required
                                     rows={10}
                                     value={formData.description}

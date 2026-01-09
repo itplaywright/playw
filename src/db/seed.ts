@@ -1,16 +1,21 @@
-import { db } from "@/db"
 import { tasks, tracks, results } from "@/db/schema"
+import { sql } from "drizzle-orm"
+import { config } from "dotenv"
+
+config({ path: ".env.local" })
 
 async function seed() {
+    // Dynamic import to ensure process.env.DATABASE_URL is loaded before DB connection is initialized
+    const { db } = await import("@/db")
+
     console.log("💎 ЗАПУСК ПРЕМІУМ-ОНОВЛЕННЯ З ІМПОРТАМИ (50 УРОКІВ)...")
 
     if (!process.env.DATABASE_URL) {
         throw new Error("DATABASE_URL не знайдено")
     }
 
-    await db.delete(results)
-    await db.delete(tasks)
-    await db.delete(tracks)
+    // Use TRUNCATE to reset IDs so they start from 1
+    await db.execute(sql`TRUNCATE TABLE "results", "tasks", "tracks" RESTART IDENTITY CASCADE`)
 
     const imp = "import { test, expect } from '@playwright/test';\n\n";
     const impPage = "import { test, expect, Page } from '@playwright/test';\n\n";

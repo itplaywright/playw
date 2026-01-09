@@ -16,50 +16,81 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    let taskId: number | undefined;
     try {
-        const { code, taskId } = await req.json()
+        const json = await req.json();
+        const code = json.code;
+        taskId = json.taskId;
 
-        // Use /tmp for Netlify / serverless environments
-        const tempBaseDir = os.tmpdir()
-        const tempDir = path.join(tempBaseDir, "itplatform-tests", `user-${session.user.id}-${Date.now()}`)
+        // HYBRID APPROACH:
+        // Local Dev: Use visible 'tests-runtime' so user can open it in VS Code
+        // Production (Netlify): Use os.tmpdir() because other paths are Read-Only
+        const isDev = process.env.NODE_ENV !== "production";
 
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true })
+        let runtimeDir: string;
+        if (isDev) {
+            runtimeDir = path.join(process.cwd(), "tests-runtime");
+        } else {
+            // Unique dir per request to avoid collisions in concurrent Lambda executions
+            runtimeDir = path.join(os.tmpdir(), "itplatform-tests", `request-${Date.now()}-${Math.random()}`);
         }
 
-        const testFilePath = path.join(tempDir, "user.spec.ts")
-        const configFilePath = path.join(tempDir, "playwright.config.ts")
+        if (!fs.existsSync(runtimeDir)) {
+            fs.mkdirSync(runtimeDir, { recursive: true })
+        }
+
+        // We use a fixed filename 'active.spec.ts' in DEV for ease of use.
+        // In PROD, we use the specific directory created above.
+        const testFilePath = path.join(runtimeDir, "active.spec.ts")
+        const configFilePath = path.join(runtimeDir, "playwright.config.ts")
         fs.writeFileSync(testFilePath, code)
 
-        // Generate temporary config for remote browser if URL provided
+        // Generate temporary config to ensure Playwright looks in the right place
+        // and doesn't rely on project-level config which might ignore temp dirs
         const browserServiceUrl = process.env.BROWSER_SERVICE_URL
-        if (browserServiceUrl) {
-            const configContent = `
+        const configContent = `
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
+  testDir: './',
   use: {
-    connectOptions: {
-      wsEndpoint: '${browserServiceUrl}',
-    },
+    ${browserServiceUrl ? `connectOptions: { wsEndpoint: '${browserServiceUrl}' },` : ''}
+    headless: true,
   },
   reporter: 'line',
 });`
-            fs.writeFileSync(configFilePath, configContent)
-        }
+        fs.writeFileSync(configFilePath, configContent)
 
         let status: "passed" | "failed" = "failed"
         let logs = ""
 
         try {
-            const commandPath = testFilePath.replace(/\\/g, "/")
-            const configArg = browserServiceUrl ? `--config="${configFilePath.replace(/\\/g, "/")}"` : ""
+            // Fix for Windows paths: Playwright/Shell often requires forward slashes or strict escaping
+            const safeTestFilePath = testFilePath.replace(/\\/g, "/")
+            const safeConfigFilePath = configFilePath.replace(/\\/g, "/")
+            const nodeModulesPath = path.join(process.cwd(), "node_modules")
+
+            // ALWAYS use the custom config to ensure isolation
+            const configArg = `--config="${safeConfigFilePath}"`
 
             // In production without a service URL, we MUST use mock mode to avoid 500
             if (process.env.NODE_ENV === "production" && !browserServiceUrl) {
                 throw new Error("MOCK_MODE")
             }
 
-            const { stdout, stderr } = await execAsync(`npx playwright test "${commandPath}" ${configArg} --reporter=line`)
+
+            // Debug logging
+            console.log("Test file path:", safeTestFilePath)
+            console.log("File exists:", fs.existsSync(testFilePath)) // Check original path for existence
+            const command = `npx playwright test "${safeTestFilePath}" ${configArg} --reporter=line`
+            console.log("Executing command:", command)
+
+            const { stdout, stderr } = await execAsync(command, {
+                env: {
+                    ...process.env,
+                    NODE_PATH: nodeModulesPath, // Allow finding modules from project root
+                    npm_config_cache: path.join(os.tmpdir(), ".npm"), // Fix for Netlify/Lambda read-only home
+                }
+            })
             logs = stdout || stderr
             status = "passed"
         } catch (error: any) {
@@ -82,24 +113,43 @@ export default defineConfig({
             }
         }
 
-        // Save result to DB
-        await db.insert(results).values({
-            userId: session.user.id,
-            taskId: taskId,
-            status: status,
-            logs: logs,
-        })
+        // Sanitize logs: remove ANSI escape codes
+        const sanitizedLogs = logs ? logs.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '').trim() : "";
 
-        // Cleanup
         try {
-            fs.rmSync(tempDir, { recursive: true, force: true })
-        } catch (e) {
-            console.error("Cleanup error:", e)
+            // Save result to DB
+            const payload = {
+                userId: session.user.id,
+                taskId: taskId ? Number(taskId) : null,
+                status: status,
+                logs: sanitizedLogs,
+            }
+            await db.insert(results).values(payload);
+        } catch (dbError: any) {
+            console.error("--- DATABASE INSERT FAILED ---");
+            console.error("Payload:", {
+                userId: session.user.id,
+                taskId: taskId,
+                status,
+                logLength: sanitizedLogs?.length
+            })
+            console.error("DB Error Message:", dbError.message);
+            // Non-critical: we still return 200 with logs even if DB logging fails
         }
 
-        return NextResponse.json({ logs, status })
+        // Cleanup - DISABLED so user can see the file in VS Code
+        // try {
+        //     fs.rmSync(runtimeDir, { recursive: true, force: true })
+        // } catch (e) {
+        //     console.error("Cleanup error:", e)
+        // }
+
+        return NextResponse.json({ logs: sanitizedLogs, status })
     } catch (error: any) {
-        console.error("Execution error:", error)
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+        console.error("--- CRITICAL TASK EXECUTION ERROR ---")
+        console.error("Context:", { taskId, userId: session.user.id })
+        console.error("Error Message:", error.message)
+        console.error("--------------------------------------")
+        return NextResponse.json({ error: "Internal Server Error", message: error.message }, { status: 500 })
     }
 }

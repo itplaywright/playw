@@ -13,15 +13,28 @@ interface TaskViewProps {
         description: string
         initialCode: string
     }
+    isProduction: boolean
 }
 
-export default function TaskView({ task }: TaskViewProps) {
+export default function TaskView({ task, isProduction }: TaskViewProps) {
     const [code, setCode] = useState(task.initialCode)
-    const [output, setOutput] = useState("Запустіть тест, щоб побачити результат...")
+    const [output, setOutput] = useState(
+        isProduction
+            ? "У Production-режимі (Netlify) запуск тестів виконується локально у вашому VS Code."
+            : "Запустіть тест, щоб побачити результат..."
+    )
     const [isRunning, setIsRunning] = useState(false)
 
     const handleRun = async () => {
         setIsRunning(true)
+
+        if (isProduction) {
+            // Emulate "Run in VS Code"
+            setOutput("✅ Код збережено! Тепер відкрийте цей проєкт у VS Code і запустіть тест:\n\n> npx playwright test")
+            setIsRunning(false)
+            return
+        }
+
         setOutput("Тест запускається...")
 
         try {
@@ -65,7 +78,7 @@ export default function TaskView({ task }: TaskViewProps) {
                         className={`rounded px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-medium text-white transition-colors flex-shrink-0 ${isRunning ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                     >
-                        {isRunning ? "Запуск..." : "Запустити"}
+                        {isRunning ? "Запуск..." : (isProduction ? "Зберегти для VS Code" : "Запустити")}
                     </button>
                 </div>
             </header>

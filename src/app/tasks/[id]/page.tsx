@@ -21,10 +21,12 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
     if (!task) notFound()
 
+    const isProduction = process.env.NODE_ENV === "production"
+
     return (
         <div>
             <AdBlock placement="task" position="before" />
-            <TaskView task={task} />
+            <TaskView task={task} isProduction={isProduction} />
             <AdBlock placement="task" position="after" />
         </div>
     )

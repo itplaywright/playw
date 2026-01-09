@@ -29,8 +29,13 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
         setIsRunning(true)
 
         if (isProduction) {
-            // Emulate "Run in VS Code"
-            setOutput("✅ Код збережено! Тепер відкрийте цей проєкт у VS Code і запустіть тест:\n\n> npx playwright test")
+            // Web apps cannot write to local files. We must use Clipboard.
+            try {
+                await navigator.clipboard.writeText(code)
+                setOutput("✅ Код скопійовано в буфер обміну!\n\n1. Відкрийте VS Code\n2. Вставте код у файл `tests-runtime/active.spec.ts`\n3. Запустіть: `npx playwright test`")
+            } catch (err) {
+                setOutput("❌ Не вдалося скопіювати автоматично. Будь ласка, скопіюйте код вручну.")
+            }
             setIsRunning(false)
             return
         }
@@ -78,7 +83,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                         className={`rounded px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-medium text-white transition-colors flex-shrink-0 ${isRunning ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                     >
-                        {isRunning ? "Запуск..." : (isProduction ? "Зберегти для VS Code" : "Запустити")}
+                        {isRunning ? "Запуск..." : (isProduction ? "Скопіювати код" : "Запустити")}
                     </button>
                 </div>
             </header>

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -11,8 +10,12 @@ import {
     CheckCircle2,
     Code,
     FileText,
-    Layout
+    Layout,
+    Eye,
+    PenLine
 } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface TaskEditorProps {
     initialData?: any
@@ -32,7 +35,12 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
         isActive: initialData?.isActive ?? true
     })
 
+    const [isPreview, setIsPreview] = useState(false)
+
+    // ... (rest of the component state and handlers)
+
     const handleSubmit = async (e: React.FormEvent) => {
+        // ... (existing submit logic)
         e.preventDefault()
         setIsLoading(true)
 
@@ -59,6 +67,7 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 max-w-5xl mx-auto pb-20">
+            {/* ... (Header section remains unchanged, but we need to include it in the replace block contextually or skip it if we can target strictly) */}
             <div className="flex items-center justify-between sticky top-[64px] bg-gray-50 py-4 z-20">
                 <div className="flex items-center space-x-4">
                     <button
@@ -107,15 +116,44 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Опис (Markdown)</label>
-                            <textarea
-                                required
-                                rows={10}
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium resize-none font-mono text-sm text-gray-900"
-                                placeholder="Використовуйте Markdown для форматування..."
-                            />
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-bold text-gray-700">Опис (Markdown)</label>
+                                <div className="flex bg-gray-100 rounded-lg p-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsPreview(false)}
+                                        className={`flex items-center px-3 py-1.5 rounded-md text-xs font-bold transition-all ${!isPreview ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        <PenLine className="w-3.5 h-3.5 mr-1.5" />
+                                        Редагувати
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsPreview(true)}
+                                        className={`flex items-center px-3 py-1.5 rounded-md text-xs font-bold transition-all ${isPreview ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        <Eye className="w-3.5 h-3.5 mr-1.5" />
+                                        Попередній перегляд
+                                    </button>
+                                </div>
+                            </div>
+
+                            {isPreview ? (
+                                <div className="w-full px-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl prose prose-slate prose-sm max-w-none h-[282px] overflow-y-auto">
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {formData.description || "*Немає опису*"}
+                                    </ReactMarkdown>
+                                </div>
+                            ) : (
+                                <textarea
+                                    required
+                                    rows={10}
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium resize-none font-mono text-sm text-gray-900"
+                                    placeholder="Використовуйте Markdown для форматування..."
+                                />
+                            )}
                         </div>
                     </div>
 

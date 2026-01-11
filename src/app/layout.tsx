@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import DynamicHeader from "@/components/layout/DynamicHeader";
+import { Toaster } from "sonner";
 import { auth } from "@/lib/auth";
 
 const geistSans = Geist({
@@ -33,6 +34,7 @@ export default async function RootLayout({
       >
         <DynamicHeader user={session?.user} />
         {children}
+        <Toaster />
       </body>
     </html>
   );

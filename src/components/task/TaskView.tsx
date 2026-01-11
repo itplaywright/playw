@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import CodeEditor from "@/components/editor/Monaco"
@@ -32,8 +33,10 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             // Web apps cannot write to local files. We must use Clipboard.
             try {
                 await navigator.clipboard.writeText(code)
-                setOutput("✅ Код скопійовано в буфер обміну!\n\n1. Відкрийте VS Code\n2. Вставте код у файл `tests-runtime/active.spec.ts`\n3. Запустіть: `npx playwright test`")
+                toast.success("Код скопійовано! Вставте його у active.spec.ts")
+                setOutput("✅ Код скопійовано в буфер обміну.\n\nТепер вставте його у VS Code.")
             } catch (err) {
+                toast.error("Не вдалося скопіювати код")
                 setOutput("❌ Не вдалося скопіювати автоматично. Будь ласка, скопіюйте код вручну.")
             }
             setIsRunning(false)

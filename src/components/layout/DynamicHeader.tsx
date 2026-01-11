@@ -142,7 +142,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className={`text-sm font-bold leading-none ${textClass}`}>{user.email?.split('@')[0]}</span>
-                                        <span className="text-[10px] text-gray-500 font-medium mt-0.5">Студент</span>
+                                        <span className="text-[10px] text-gray-500 font-medium mt-0.5">
+                                            {user.role === 'admin' ? 'Адміністратор' : 'Студент'}
+                                        </span>
                                     </div>
                                 </div>
                                 <button

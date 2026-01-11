@@ -1,7 +1,7 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { tasks } from "@/db/schema"
+import { tasks, tracks } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import TaskView from "@/components/task/TaskView"
@@ -20,6 +20,18 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
     })
 
     if (!task) notFound()
+
+    // Access control: non-admins cannot see inactive tasks or tasks in inactive tracks
+    if ((session.user as any).role !== "admin") {
+        if (!task.isActive) notFound()
+
+        if (task.trackId) {
+            const track = await db.query.tracks.findFirst({
+                where: eq(tracks.id, task.trackId)
+            })
+            if (!track || !track.isActive) notFound()
+        }
+    }
 
     const isProduction = process.env.NODE_ENV === "production"
 

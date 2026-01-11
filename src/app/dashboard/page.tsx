@@ -18,6 +18,11 @@ export default async function Dashboard() {
     const allTasks = await db.select().from(tasks).orderBy(tasks.order)
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
 
+    const isAdmin = (session.user as any).role === "admin"
+
+    const visibleTracks = isAdmin ? allTracks : allTracks.filter(t => t.isActive)
+    const visibleTasks = isAdmin ? allTasks : allTasks.filter(t => t.isActive)
+
     const getStatus = (taskId: number) => {
         const taskResults = userResults.filter(r => r.taskId === taskId)
         if (taskResults.some(r => r.status === 'passed')) return { label: 'Виконано', color: 'bg-green-100 text-green-800' }
@@ -49,7 +54,7 @@ export default async function Dashboard() {
                     </p>
                 </div>
 
-                {allTracks.map((track) => (
+                {visibleTracks.map((track) => (
                     <div key={track.id} className="mb-20">
                         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-border pb-6 gap-4">
                             <div>
@@ -57,11 +62,11 @@ export default async function Dashboard() {
                                 <p className="text-muted-foreground mt-2 text-lg">{track.description}</p>
                             </div>
                             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                                <span>{allTasks.filter(t => t.trackId === track.id).length} завдань</span>
+                                <span>{visibleTasks.filter(t => t.trackId === track.id).length} завдань</span>
                             </div>
                         </div>
                         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                            {allTasks
+                            {visibleTasks
                                 .filter(task => task.trackId === track.id)
                                 .map((task) => {
                                     const status = getStatus(task.id)

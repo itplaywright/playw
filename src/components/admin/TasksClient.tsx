@@ -32,6 +32,7 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
     const [tasks, setTasks] = useState(initialTasks)
     const [searchTerm, setSearchTerm] = useState("")
     const [filterTrack, setFilterTrack] = useState<number | "all">("all")
+    const [isSeeding, setIsSeeding] = useState(false)
     const router = useRouter()
 
     const difficultyColors: Record<string, string> = {
@@ -96,6 +97,26 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
         }
     }
 
+    const handleSeed = async () => {
+        if (!confirm("УВАГА! Це перезапише всі завдання та треки. Всі результати користувачів можуть бути втрачені або розсинхронізовані. Продовжити?")) return
+
+        setIsSeeding(true)
+        try {
+            const res = await fetch("/api/admin/seed", { method: "POST" })
+            if (res.ok) {
+                alert("Базу даних успішно оновлено!")
+                window.location.reload()
+            } else {
+                alert("Помилка при оновленні бази даних")
+            }
+        } catch (error) {
+            console.error("Error seeding database:", error)
+            alert("Помилка при оновленні бази даних")
+        } finally {
+            setIsSeeding(false)
+        }
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -103,13 +124,23 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
                     <h1 className="text-2xl font-bold text-gray-900">Управління завданнями</h1>
                     <p className="text-sm text-gray-500 mt-1">Керуйте контентом та складністю навчання</p>
                 </div>
-                <button
-                    onClick={() => router.push('/admin/tasks/new')}
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95 whitespace-nowrap"
-                >
-                    <Plus className="mr-2 h-5 w-5" />
-                    Нове завдання
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleSeed}
+                        disabled={isSeeding}
+                        className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all shadow-md active:scale-95 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSeeding ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Loader2 className="mr-2 h-5 w-5" />}
+                        {isSeeding ? "Оновлення..." : "Оновити БД"}
+                    </button>
+                    <button
+                        onClick={() => router.push('/admin/tasks/new')}
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95 whitespace-nowrap"
+                    >
+                        <Plus className="mr-2 h-5 w-5" />
+                        Нове завдання
+                    </button>
+                </div>
             </div>
 
             {/* Filters bar */}

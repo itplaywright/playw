@@ -51,7 +51,10 @@ async function seed() {
         { title: "1.12 Hover: Наведення", description: "## Hover 🖱️\nДля випадаючих меню.", code: imp + "test('hover', async ({ page }) => { });" },
         { title: "1.13 Focus: Активність", description: "## focus() 🎯\nПеревірка активного елемента.", code: imp + "test('focus', async ({ page }) => { });" },
         { title: "1.14 Keyboard: Клавіші", description: "## Keyboard API ⌨️\nНатискання Enter, Escape тощо.", code: imp + "test('keyboard', async ({ page }) => { });" },
-        { title: "1.15 Viewport: Mobile", description: "## Мобільна версія 📱\nЕмуляція пристроїв.", code: imp + "test('mobile', async ({ page }) => {\n  await page.setViewportSize({ width: 375, height: 667 });\n});" }
+        { title: "1.15 Viewport: Mobile", description: "## Мобільна версія 📱\nЕмуляція пристроїв.", code: imp + "test('mobile', async ({ page }) => {\n  await page.setViewportSize({ width: 375, height: 667 });\n});" },
+        { title: "1.16 Asserts: Visibility", description: "## Видимість 👀\nПеревірка того, що елемент видимий.", code: imp + "test('visible', async ({ page }) => {\n  await page.goto('https://finmore.netlify.app/');\n  // Перевірте видимість логотипу\n});" },
+        { title: "1.17 Asserts: Text", description: "## Точний текст 📝\nПеревірка тексту елемента.", code: imp + "test('text', async ({ page }) => {\n  await page.goto('https://finmore.netlify.app/');\n  // Перевірте заголовок сторінки\n});" },
+        { title: "1.18 Navigation: Reload", description: "## Навігація 🧭\nПерезавантаження сторінки.", code: imp + "test('reload', async ({ page }) => {\n  await page.goto('https://finmore.netlify.app/');\n  // Перезавантажте сторінку\n});" }
     ], "easy")
 
     // Рівень 2 (12 завдань)
@@ -68,7 +71,10 @@ async function seed() {
         { title: "2.9 test.step: Звіти", description: "## Кроки 🪜\nДля зручного дебагу.", code: imp + "test('steps', async ({ page }) => {\n  await test.step('крок 1', async () => { });\n});" },
         { title: "2.10 Screenshots: Докази", description: "## Скріншоти 📸", code: imp + "test('screenshot', async ({ page }) => { });" },
         { title: "2.11 Multi-page:Tabs", description: "## Tabs 🗂️\nНові вікна.", code: imp + "test('tabs', async ({ context }) => { });" },
-        { title: "2.12 console: Логи", description: "## Консоль ⚠️\nПерехоплення помилок JS.", code: imp + "test('console', async ({ page }) => { });" }
+        { title: "2.12 console: Логи", description: "## Консоль ⚠️\nПерехоплення помилок JS.", code: imp + "test('console', async ({ page }) => { });" },
+        { title: "2.13 Annotations: Skip", description: "## Пропуск тестів ⏭️\nКоли тест ще не готовий.", code: imp + "test('skip', async ({ page }) => {\n  test.skip(true, 'Work in progress');\n});" },
+        { title: "2.14 Grouping: Describe", description: "## Групування 📦\nОб'єднання схожих тестів.", code: imp + "test.describe('group', () => {\n  test('test 1', async ({ page }) => { });\n});" },
+        { title: "2.15 Soft Assertions", description: "## Soft Assertions 🧽\nНе зупиняти тест при помилці.", code: imp + "test('soft', async ({ page }) => {\n  expect.soft(1).toBe(2);\n});" }
     ], "medium")
 
     // Рівень 3 (13 завдань)
@@ -86,7 +92,10 @@ async function seed() {
         { title: "3.10 Download", description: "## Скачування 📥", code: imp + "test('download', async ({ page }) => { });" },
         { title: "3.11 Upload", description: "## Вивантаження 📤", code: imp + "test('upload', async ({ page }) => { });" },
         { title: "3.12 Блокування мережі", description: "## abort() ❌", code: imp + "test('abort', async ({ page }) => { });" },
-        { title: "3.13 Trace Viewer", description: "## Трейси 🕵️", code: imp + "test('trace', async ({ page }) => { });" }
+        { title: "3.13 Trace Viewer", description: "## Трейси 🕵️", code: imp + "test('trace', async ({ page }) => { });" },
+        { title: "3.14 Clock: Час", description: "## Керування часом ⏰\nПрискорення таймерів.", code: imp + "test('clock', async ({ page }) => {\n  await page.clock.install();\n});" },
+        { title: "3.15 Permissions", description: "## Дозволи 🔒\nГеолокація та сповіщення.", code: imp + "test('geo', async ({ context }) => {\n  await context.grantPermissions(['geolocation']);\n});" },
+        { title: "3.16 Visual Comparisons", description: "## Скріншоти 📸\nПорівняння пікселів.", code: imp + "test('visual', async ({ page }) => {\n  await expect(page).toHaveScreenshot();\n});" }
     ], "hard")
 
     // Рівень 4 (10 завдань)
@@ -101,7 +110,9 @@ async function seed() {
         { title: "4.7 Reporters", description: "## Звіти 📊", code: "// reporter config" },
         { title: "4.8 Retries", description: "## Flaky tests 🧪", code: "// retries config" },
         { title: "4.9 Global Setup", description: "## Setup 🌏", code: "async function globalSetup() { ... }" },
-        { title: "4.10 Projects", description: "## Projects 🌐", code: "// projects config" }
+        { title: "4.10 Projects", description: "## Projects 🌐", code: "// projects config" },
+        { title: "4.11 Serial Mode", description: "## Послідовний запуск ⛓️", code: imp + "test.describe.configure({ mode: 'serial' });" },
+        { title: "4.12 Sharding", description: "## Шардінг 🧩\nРозподіл тестів на машини.", code: "// npx playwright test --shard=1/3" }
     ], "hard")
 
     console.log("🏁✅ ОНОВЛЕННЯ ЗАВЕРШЕНЕ! 50 завдань з імпортами завантажені.")

@@ -28,13 +28,24 @@ export async function POST(req: Request) {
 
         if (type === "description") {
             systemPrompt = `You are an expert Playwright automation instructor. 
-            Generate a concise, engaging, and educational Markdown description for a learning task. 
+            Generate a comprehensive and educational Markdown description for a learning task IN UKRAINIAN language.
+            
             Structure:
             1. ## Title (with emoji)
-            2. Short explanation of the concept (Why it's important).
-            3. ### Task (What the student needs to do).
-            4. Keep it under 200 words.
-            5. Use formatting (bold, code blocks) to make it readable.`
+            2. **Theory**: Explain the concept clearly. Why is it important? How does it work?
+            3. **Example**: Provide a code block showing how to use the specific method/locator.
+               ALWAYS start code blocks with:
+               \`\`\`typescript
+               import { test, expect } from '@playwright/test';
+               
+               test('example', async ({ page }) => {
+                 // code here
+               });
+               \`\`\`
+            4. ### Task: Clear instructions on what the student needs to do in the editor.
+            
+            Keep the tone encouraging and professional.
+            Use formatting (bold, code blocks) to make it readable.`
 
             userPrompt = `Create a description for a task titled: "${prompt}".`
         }

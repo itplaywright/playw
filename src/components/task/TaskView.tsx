@@ -29,21 +29,12 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
     const handleRun = async () => {
         setIsRunning(true)
 
+        // Web apps cannot write to local files. We must use Clipboard for manual copy if needed.
         if (isProduction) {
-            // Web apps cannot write to local files. We must use Clipboard.
-            try {
-                await navigator.clipboard.writeText(code)
-                toast.success("Код скопійовано! Вставте його у active.spec.ts")
-                setOutput("✅ Код скопійовано в буфер обміну.\n\nТепер вставте його у VS Code.")
-            } catch (err) {
-                toast.error("Не вдалося скопіювати код")
-                setOutput("❌ Не вдалося скопіювати автоматично. Будь ласка, скопіюйте код вручну.")
-            }
-            setIsRunning(false)
-            return
+            setOutput("⏳ Запуск симуляції (перевірка синтаксису)...")
+        } else {
+            setOutput("Тест запускається...")
         }
-
-        setOutput("Тест запускається...")
 
         try {
             const res = await fetch("/api/tasks/run", {
@@ -58,6 +49,15 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             setOutput(`Помилка: ${err.message}`)
         } finally {
             setIsRunning(false)
+        }
+    }
+
+    const copyToClipboard = async () => {
+        try {
+            await navigator.clipboard.writeText(code)
+            toast.success("Код скопійовано! Вставте його у active.spec.ts")
+        } catch (err) {
+            toast.error("Не вдалося скопіювати код")
         }
     }
 

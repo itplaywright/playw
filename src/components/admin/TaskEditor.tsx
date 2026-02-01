@@ -18,7 +18,8 @@ import {
     List,
     Link as LinkIcon,
     Code2,
-    Heading1
+    Heading1,
+    Sparkles
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -31,6 +32,7 @@ interface TaskEditorProps {
 export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const [isGenerating, setIsGenerating] = useState(false)
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
         description: initialData?.description || "",
@@ -88,6 +90,39 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
         }
     }
 
+    const handleGenerateDescription = async () => {
+        if (!formData.title) {
+            alert("Будь ласка, введіть назву завдання для генерації опису.")
+            return
+        }
+
+        setIsGenerating(true)
+        try {
+            const res = await fetch("/api/admin/ai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    prompt: formData.title,
+                    type: "description"
+                })
+            })
+
+            const data = await res.json()
+
+            if (data.content) {
+                setFormData(prev => ({ ...prev, description: data.content }))
+            } else {
+                alert("Не вдалося згенерувати контент: " + (data.error || "Unknown error"))
+            }
+
+        } catch (error) {
+            console.error("Error generating content:", error)
+            alert("Помилка генерації")
+        } finally {
+            setIsGenerating(false)
+        }
+    }
+
     return (
         <form onSubmit={handleSubmit} className="space-y-8 max-w-5xl mx-auto pb-20">
             <div className="flex items-center justify-between sticky top-[64px] bg-gray-50 py-4 z-20">
@@ -141,6 +176,17 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                             <div className="flex items-center justify-between mb-2">
                                 <label className="block text-sm font-bold text-gray-700">Опис (Markdown)</label>
                                 <div className="flex items-center space-x-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleGenerateDescription}
+                                        disabled={isGenerating}
+                                        className="flex items-center px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-bold hover:bg-purple-200 transition-colors disabled:opacity-50"
+                                        title="Згенерувати опис за допомогою AI"
+                                    >
+                                        {isGenerating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
+                                        AI Generate
+                                    </button>
+
                                     {!isPreview && (
                                         <div className="flex bg-gray-100 rounded-lg p-1 mr-2">
                                             <button type="button" onClick={() => insertText("**", "**")} className="p-1.5 hover:bg-white rounded-md transition-all text-gray-600 hover:text-black" title="Жирний">

@@ -146,6 +146,21 @@ export const adBlocks = pgTable("ad_blocks", {
     createdAt: timestamp("created_at").defaultNow(),
 })
 
+export const questions = pgTable("questions", {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    taskId: integer("task_id")
+        .notNull()
+        .references(() => tasks.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    answer: text("answer"),
+    status: questionStatusEnum("status").default("pending"),
+    createdAt: timestamp("created_at").defaultNow(),
+    answeredAt: timestamp("answered_at"),
+})
+
 import { relations } from "drizzle-orm"
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -172,18 +187,3 @@ export const questionRelations = relations(questions, ({ one }) => ({
         references: [tasks.id],
     }),
 }))
-
-export const questions = pgTable("questions", {
-    id: serial("id").primaryKey(),
-    userId: text("user_id")
-        .notNull()
-        .references(() => users.id, { onDelete: "cascade" }),
-    taskId: integer("task_id")
-        .notNull()
-        .references(() => tasks.id, { onDelete: "cascade" }),
-    content: text("content").notNull(),
-    answer: text("answer"),
-    status: questionStatusEnum("status").default("pending"),
-    createdAt: timestamp("created_at").defaultNow(),
-    answeredAt: timestamp("answered_at"),
-})

@@ -119,7 +119,7 @@ export default function AdminQuestionsPage() {
                                     <div className="flex flex-col space-y-3">
                                         <textarea
                                             placeholder="Введіть вашу відповідь..."
-                                            className="w-full p-4 rounded-xl border border-gray-200 outline-none focus:border-blue-500 transition-all text-sm min-h-[100px]"
+                                            className="w-full p-4 rounded-xl border border-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-base font-medium text-gray-900 bg-gray-50/30 min-h-[120px] resize-none shadow-inner"
                                             value={answers[q.id] || ""}
                                             onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                                         />

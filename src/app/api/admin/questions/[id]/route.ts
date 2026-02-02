@@ -6,8 +6,9 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     const session = await auth();
     if ((session?.user as any)?.role !== "admin") {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,7 +16,7 @@ export async function PATCH(
 
     try {
         const { answer } = await req.json();
-        const questionId = parseInt(params.id);
+        const questionId = parseInt(id);
 
         if (isNaN(questionId) || !answer) {
             return NextResponse.json({ error: "Invalid data" }, { status: 400 });

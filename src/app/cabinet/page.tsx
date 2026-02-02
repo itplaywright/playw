@@ -18,7 +18,7 @@ export default function UserCabinetPage() {
         try {
             const res = await fetch("/api/questions")
             const data = await res.json()
-            setQuestions(data)
+            setQuestions(Array.isArray(data) ? data : [])
         } catch (error) {
             toast.error("Не вдалося завантажити ваші питання")
         } finally {

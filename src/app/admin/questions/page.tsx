@@ -19,7 +19,7 @@ export default function AdminQuestionsPage() {
         try {
             const res = await fetch("/api/admin/questions")
             const data = await res.json()
-            setQuestions(data)
+            setQuestions(Array.isArray(data) ? data : [])
         } catch (error) {
             toast.error("Не вдалося завантажити питання")
         } finally {

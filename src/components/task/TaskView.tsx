@@ -29,6 +29,8 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             : "Запустіть тест, щоб побачити результат..."
     )
     const [isRunning, setIsRunning] = useState(false)
+    const [questionContent, setQuestionContent] = useState("")
+    const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false)
 
     const handleRun = async () => {
         setIsRunning(true)
@@ -81,6 +83,31 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             toast.success("Код скопійовано! Вставте його у active.spec.ts")
         } catch (err) {
             toast.error("Не вдалося скопіювати код")
+        }
+    }
+
+    const handleSubmitQuestion = async () => {
+        if (!questionContent.trim()) {
+            toast.error("Будь ласка, введіть запитання")
+            return
+        }
+        setIsSubmittingQuestion(true)
+        try {
+            const res = await fetch("/api/questions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ taskId: task.id, content: questionContent }),
+            })
+            if (res.ok) {
+                toast.success("Ваше запитання надіслано! Очікуйте відповіді в кабінеті.")
+                setQuestionContent("")
+            } else {
+                toast.error("Не вдалося надіслати запитання")
+            }
+        } catch (err) {
+            toast.error("Помилка при відправці")
+        } finally {
+            setIsSubmittingQuestion(false)
         }
     }
 
@@ -158,6 +185,33 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                             </div>
                         </div>
                     )}
+
+                    <div className="mt-8 pt-6 border-t border-gray-100 mb-8 pb-8">
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
+                            💬 Поставити запитання
+                        </h3>
+                        <div className="space-y-4">
+                            <textarea
+                                value={questionContent}
+                                onChange={(e) => setQuestionContent(e.target.value)}
+                                placeholder="Ваше запитання до ментора (наприклад, чому цей селектор кращий?)"
+                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all min-h-[120px] resize-none text-sm text-gray-700 bg-gray-50/50"
+                            />
+                            <button
+                                onClick={handleSubmitQuestion}
+                                disabled={isSubmittingQuestion}
+                                className={`w-full py-3.5 rounded-xl font-bold text-white transition-all transform active:scale-[0.98] ${isSubmittingQuestion
+                                        ? "bg-blue-300 cursor-not-allowed"
+                                        : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
+                                    }`}
+                            >
+                                {isSubmittingQuestion ? "Надсилаємо..." : "Надіслати запитання"}
+                            </button>
+                            <p className="text-[11px] text-center text-gray-400 font-medium">
+                                Відповідь з’явиться у вашому <Link href="/cabinet" className="text-blue-500 hover:underline">особистому кабінеті</Link>.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Right/Bottom: Editor or Quiz Feedback */}

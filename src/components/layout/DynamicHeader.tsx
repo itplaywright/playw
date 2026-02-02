@@ -147,6 +147,13 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                         </span>
                                     </div>
                                 </div>
+                                <Link
+                                    href="/cabinet"
+                                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
+                                    title="Мій кабінет"
+                                >
+                                    <User className="h-5 w-5" />
+                                </Link>
                                 <button
                                     onClick={() => logoutAction()}
                                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
@@ -195,7 +202,10 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="text-sm font-bold text-gray-900">{user.email}</span>
-                                            <button onClick={() => logoutAction()} className="text-xs text-red-500 font-bold mt-1 text-left">Вийти з акаунту</button>
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <Link href="/cabinet" onClick={() => setMobileMenuOpen(false)} className="text-xs text-blue-600 font-bold hover:underline">Мій кабінет</Link>
+                                                <button onClick={() => logoutAction()} className="text-xs text-red-500 font-bold">Вийти</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

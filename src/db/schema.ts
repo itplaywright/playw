@@ -17,6 +17,7 @@ export const statusEnum = pgEnum("status", ["passed", "failed"])
 export const menuTypeEnum = pgEnum("menu_type", ["internal", "external"])
 export const adTypeEnum = pgEnum("ad_type", ["banner", "text", "cta"])
 export const adPlacementEnum = pgEnum("ad_placement", ["global", "task"])
+export const questionStatusEnum = pgEnum("question_status", ["pending", "answered"])
 
 export const users = pgTable("user", {
     id: text("id")
@@ -143,4 +144,46 @@ export const adBlocks = pgTable("ad_blocks", {
     order: integer("order").default(0),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow(),
+})
+
+import { relations } from "drizzle-orm"
+
+export const userRelations = relations(users, ({ many }) => ({
+    questions: many(questions),
+    results: many(results),
+}))
+
+export const taskRelations = relations(tasks, ({ one, many }) => ({
+    track: one(tracks, {
+        fields: [tasks.trackId],
+        references: [tracks.id],
+    }),
+    questions: many(questions),
+    results: many(results),
+}))
+
+export const questionRelations = relations(questions, ({ one }) => ({
+    user: one(users, {
+        fields: [questions.userId],
+        references: [users.id],
+    }),
+    task: one(tasks, {
+        fields: [questions.taskId],
+        references: [tasks.id],
+    }),
+}))
+
+export const questions = pgTable("questions", {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    taskId: integer("task_id")
+        .notNull()
+        .references(() => tasks.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    answer: text("answer"),
+    status: questionStatusEnum("status").default("pending"),
+    createdAt: timestamp("created_at").defaultNow(),
+    answeredAt: timestamp("answered_at"),
 })

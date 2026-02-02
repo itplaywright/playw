@@ -97,6 +97,10 @@ export const tasks = pgTable("tasks", {
     expectedResult: text("expected_result"),
     order: integer("order").default(0),
     isActive: boolean("is_active").default(true),
+    // Quiz fields
+    type: text("type", { enum: ["code", "quiz"] }).default("code").notNull(),
+    options: text("options").array(), // For quiz answers
+    correctAnswer: text("correct_answer"), // For quiz validation
 })
 
 export const results = pgTable("results", {

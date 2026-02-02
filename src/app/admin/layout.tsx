@@ -29,7 +29,7 @@ export default async function AdminLayout({
         { name: "Панель", href: "/admin", icon: LayoutDashboard },
         { name: "Треки", href: "/admin/tracks", icon: Layers },
         { name: "Завдання", href: "/admin/tasks", icon: BookOpen },
-        { name: "Запитання", href: "/admin/questions", icon: MessageCircle },
+        { name: "Питання", href: "/admin/questions", icon: MessageCircle },
         { name: "Користувачі", href: "/admin/users", icon: Users },
         { name: "Спроби", href: "/admin/attempts", icon: History },
     ]

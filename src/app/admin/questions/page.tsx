@@ -21,7 +21,7 @@ export default function AdminQuestionsPage() {
             const data = await res.json()
             setQuestions(data)
         } catch (error) {
-            toast.error("Не вдалося завантажити запитання")
+            toast.error("Не вдалося завантажити питання")
         } finally {
             setIsLoading(false)
         }
@@ -60,16 +60,16 @@ export default function AdminQuestionsPage() {
     return (
         <div className="max-w-5xl mx-auto">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Запитання користувачів</h1>
-                <p className="text-gray-500">Відповідайте на запитання для покращення навчання.</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Питання студентів</h1>
+                <p className="text-gray-500">Відповідайте на питання для покращення навчання.</p>
             </div>
 
             <div className="space-y-6">
                 {questions.length === 0 ? (
                     <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-100">
                         <MessageCircle className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900">Запитань поки немає</h3>
-                        <p className="text-gray-500 mt-1">Ми повідомимо вас, коли користувачі щось запитають.</p>
+                        <h3 className="text-lg font-medium text-gray-900">Питань поки немає</h3>
+                        <p className="text-gray-500 mt-1">Ми повідомимо вас, коли студенти щось запитають.</p>
                     </div>
                 ) : (
                     questions.map((q) => (
@@ -95,7 +95,7 @@ export default function AdminQuestionsPage() {
                                     </div>
                                     <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${q.status === "pending" ? "bg-amber-100 text-amber-600" : "bg-green-100 text-green-600"
                                         }`}>
-                                        {q.status === "pending" ? "Очікує" : "Відповіли"}
+                                        {q.status === "pending" ? "Очікує" : "Дано відповідь"}
                                     </div>
                                 </div>
 

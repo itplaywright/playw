@@ -88,7 +88,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
 
     const handleSubmitQuestion = async () => {
         if (!questionContent.trim()) {
-            toast.error("Будь ласка, введіть запитання")
+            toast.error("Будь ласка, введіть ваше питання")
             return
         }
         setIsSubmittingQuestion(true)
@@ -99,10 +99,10 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                 body: JSON.stringify({ taskId: task.id, content: questionContent }),
             })
             if (res.ok) {
-                toast.success("Ваше запитання надіслано! Очікуйте відповіді в кабінеті.")
+                toast.success("Ваше питання надіслано! Очікуйте відповіді в кабінеті.")
                 setQuestionContent("")
             } else {
-                toast.error("Не вдалося надіслати запитання")
+                toast.error("Не вдалося надіслати питання")
             }
         } catch (err) {
             toast.error("Помилка при відправці")
@@ -188,13 +188,13 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
 
                     <div className="mt-8 pt-6 border-t border-gray-100 mb-8 pb-8">
                         <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
-                            💬 Поставити запитання
+                            💬 Задати питання
                         </h3>
                         <div className="space-y-4">
                             <textarea
                                 value={questionContent}
                                 onChange={(e) => setQuestionContent(e.target.value)}
-                                placeholder="Ваше запитання до ментора (наприклад, чому цей селектор кращий?)"
+                                placeholder="Ваше питання до ментора (наприклад, чому цей селектор кращий?)"
                                 className="w-full p-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all min-h-[120px] resize-none text-sm text-gray-700 bg-gray-50/50"
                             />
                             <button
@@ -205,7 +205,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                                         : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
                                     }`}
                             >
-                                {isSubmittingQuestion ? "Надсилаємо..." : "Надіслати запитання"}
+                                {isSubmittingQuestion ? "Надсилаємо..." : "Надіслати питання"}
                             </button>
                             <p className="text-[11px] text-center text-gray-400 font-medium">
                                 Відповідь з’явиться у вашому <Link href="/cabinet" className="text-blue-500 hover:underline">особистому кабінеті</Link>.

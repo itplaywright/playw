@@ -20,7 +20,7 @@ export default function UserCabinetPage() {
             const data = await res.json()
             setQuestions(data)
         } catch (error) {
-            toast.error("Не вдалося завантажити ваші запитання")
+            toast.error("Не вдалося завантажити ваші питання")
         } finally {
             setIsLoading(false)
         }
@@ -38,7 +38,7 @@ export default function UserCabinetPage() {
                 <div className="flex items-center justify-between mb-10">
                     <div>
                         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Мій кабінет</h1>
-                        <p className="text-gray-500 mt-2 font-medium">Керуйте своїми запитаннями та переглядайте відповіді менторів.</p>
+                        <p className="text-gray-500 mt-2 font-medium">Керуйте своїми питаннями та переглядайте відповіді менторів.</p>
                     </div>
                     <Link
                         href="/dashboard"
@@ -52,13 +52,13 @@ export default function UserCabinetPage() {
                 <div className="space-y-6">
                     <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                         <MessageCircle className="w-5 h-5 text-blue-500" />
-                        Мої запитання
+                        Мої питання
                     </h2>
 
                     {questions.length === 0 ? (
                         <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">
                             <div className="text-5xl mb-6">💬</div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Ви ще не ставили запитань</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Ви ще не ставили питань</h3>
                             <p className="text-gray-500 max-w-sm mx-auto mb-8">
                                 Якщо у вас виникнуть труднощі під час виконання завдань, ви завжди можете запитати ментора.
                             </p>
@@ -89,7 +89,7 @@ export default function UserCabinetPage() {
                                     </div>
 
                                     <div className="mb-6">
-                                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Ваше запитання:</div>
+                                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Ваше питання:</div>
                                         <p className="text-gray-900 font-bold text-lg leading-snug">
                                             "{q.content}"
                                         </p>
@@ -113,7 +113,7 @@ export default function UserCabinetPage() {
                                         <div className="flex items-center justify-center p-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                                             <p className="text-xs text-gray-400 font-medium flex items-center">
                                                 <span className="flex h-2 w-2 rounded-full bg-amber-400 mr-2 animate-pulse" />
-                                                Ментор скоро перегляне ваше запитання та надасть відповідь тут.
+                                                Ментор скоро перегляне ваше питання та надасть відповідь тут.
                                             </p>
                                         </div>
                                     )}

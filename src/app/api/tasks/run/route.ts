@@ -100,7 +100,8 @@ export default defineConfig({
                 const validationResult = validatePlaywrightCode(code);
 
                 if (validationResult.isValid) {
-                    logs += "✓ Playwright commands detected\n✓ Basic syntax validation passed\n\nResult: Passed (Simulated)"
+                    console.log("Validation passed for code:", code.substring(0, 100));
+                    logs += "✓ Playwright commands detected\n✓ Advanced syntax validation passed\n\nResult: Passed (Simulated)"
                     status = "passed"
                 } else {
                     logs += `✗ Error: ${validationResult.error}\n\nResult: Failed`

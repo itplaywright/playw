@@ -157,6 +157,8 @@ export const questions = pgTable("questions", {
     content: text("content").notNull(),
     answer: text("answer"),
     status: questionStatusEnum("status").default("pending"),
+    isReadByUser: boolean("is_read_by_user").default(true),
+    isReadByAdmin: boolean("is_read_by_admin").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     answeredAt: timestamp("answered_at"),
 })

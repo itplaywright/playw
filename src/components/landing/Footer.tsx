@@ -16,6 +16,8 @@ export default function Footer() {
                         <Link href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors font-medium">Як це працює</Link>
                         <Link href="#program" className="text-muted-foreground hover:text-primary transition-colors font-medium">Програма</Link>
                         <Link href="#faq" className="text-muted-foreground hover:text-primary transition-colors font-medium">FAQ</Link>
+                        <Link href="/api/auth/signin" className="text-muted-foreground hover:text-primary transition-colors font-medium">Логін</Link>
+                        <Link href="/register" className="text-muted-foreground hover:text-primary transition-colors font-medium">Реєстрація</Link>
                     </nav>
 
                     <div className="text-muted-foreground text-sm font-medium">

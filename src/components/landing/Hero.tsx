@@ -44,7 +44,7 @@ export default function Hero() {
                             href="/register"
                             className="group relative inline-flex h-14 items-center justify-center overflow-hidden rounded-2xl bg-blue-600 px-10 text-lg font-bold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_30px_-5px_rgba(37,99,235,0.5)] active:scale-95"
                         >
-                            <span>Почати практику безкоштовно</span>
+                            <span>Почати навчання</span>
                             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                         </Link>
 

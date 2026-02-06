@@ -19,6 +19,11 @@ export default function UserCabinetPage() {
             const res = await fetch("/api/questions")
             const data = await res.json()
             setQuestions(Array.isArray(data) ? data : [])
+
+            // Mark as read if there are unread questions
+            if (Array.isArray(data) && data.some(q => q.status === 'answered' && !q.isReadByUser)) {
+                await fetch("/api/questions/mark-read", { method: "POST" })
+            }
         } catch (error) {
             toast.error("Не вдалося завантажити ваші питання")
         } finally {

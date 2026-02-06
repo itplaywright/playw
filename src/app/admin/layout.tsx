@@ -13,6 +13,7 @@ import {
     ChevronRight,
     MessageCircle
 } from "lucide-react"
+import AdminSidebarItems from "@/components/admin/AdminSidebarItems"
 
 export default async function AdminLayout({
     children,
@@ -26,12 +27,12 @@ export default async function AdminLayout({
     }
 
     const navigation = [
-        { name: "Панель", href: "/admin", icon: LayoutDashboard },
-        { name: "Треки", href: "/admin/tracks", icon: Layers },
-        { name: "Завдання", href: "/admin/tasks", icon: BookOpen },
-        { name: "Питання", href: "/admin/questions", icon: MessageCircle },
-        { name: "Користувачі", href: "/admin/users", icon: Users },
-        { name: "Спроби", href: "/admin/attempts", icon: History },
+        { name: "Панель", href: "/admin", icon: "LayoutDashboard" },
+        { name: "Треки", href: "/admin/tracks", icon: "Layers" },
+        { name: "Завдання", href: "/admin/tasks", icon: "BookOpen" },
+        { name: "Питання", href: "/admin/questions", icon: "MessageCircle" },
+        { name: "Користувачі", href: "/admin/users", icon: "Users" },
+        { name: "Спроби", href: "/admin/attempts", icon: "History" },
     ]
 
     const settingsNav = [
@@ -49,35 +50,23 @@ export default async function AdminLayout({
                     <span className="font-bold text-xl text-gray-900 tracking-tight">Admin CMS</span>
                 </div>
 
-                <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-                    {navigation.map((item) => (
+                <AdminSidebarItems navigation={navigation} />
+
+                <div className="px-4 py-4 space-y-1">
+                    <div className="flex items-center px-3 py-2 text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Налаштування
+                    </div>
+                    {settingsNav.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-blue-600 transition-all group"
+                            className="flex items-center px-3 py-2 ml-6 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-blue-600 transition-all"
                         >
-                            <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
                             {item.name}
-                            <ChevronRight className="ml-auto h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </Link>
                     ))}
-
-                    <div className="pt-4 mt-4 border-t border-gray-100">
-                        <div className="flex items-center px-3 py-2 text-xs font-black text-gray-400 uppercase tracking-widest">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Налаштування
-                        </div>
-                        {settingsNav.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className="flex items-center px-3 py-2 ml-6 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-blue-600 transition-all"
-                            >
-                                {item.name}
-                            </Link>
-                        ))}
-                    </div>
-                </nav>
+                </div>
 
                 <div className="p-4 border-t border-gray-100">
                     <div className="flex items-center p-2 mb-4">

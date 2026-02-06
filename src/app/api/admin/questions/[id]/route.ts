@@ -26,6 +26,7 @@ export async function PATCH(
             .set({
                 answer,
                 status: "answered",
+                isReadByUser: false,
                 answeredAt: new Date(),
             })
             .where(eq(questions.id, questionId))

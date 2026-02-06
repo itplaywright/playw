@@ -1,7 +1,6 @@
 
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
-import OpenAI from "openai"
 
 export async function POST(req: Request) {
     try {
@@ -12,16 +11,12 @@ export async function POST(req: Request) {
 
         const { prompt, type } = await req.json()
 
-        if (!process.env.OPENAI_API_KEY) {
+        if (!process.env.GEMINI_API_KEY) {
             return NextResponse.json(
-                { error: "OpenAI API Key not configured" },
+                { error: "Google Gemini API Key not configured" },
                 { status: 500 }
             )
         }
-
-        const openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
-        })
 
         let systemPrompt = ""
         let userPrompt = ""
@@ -50,15 +45,68 @@ export async function POST(req: Request) {
             userPrompt = `Create a description for a task titled: "${prompt}".`
         }
 
-        const completion = await openai.chat.completions.create({
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: userPrompt },
-            ],
-            model: "gpt-4o-mini",
-        })
+        const apiKey = process.env.GEMINI_API_KEY!.trim()
+        const fullPrompt = `${systemPrompt}\n\n${userPrompt}`
 
-        const content = completion.choices[0].message.content
+        // 1. Discover available models for this specific API key
+        console.log("Discovering available Gemini models...");
+        const modelsResponse = await fetch(
+            `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`
+        )
+        const modelsData = await modelsResponse.json()
+
+        if (modelsData.error) {
+            throw new Error(`Gemini API Discovery Error: ${modelsData.error.message} (${modelsData.error.status})`)
+        }
+
+        // Find the best available model that supports generation
+        const availableModels = modelsData.models || []
+        const supportedModels = availableModels.filter((m: any) =>
+            m.supportedGenerationMethods?.includes("generateContent")
+        )
+
+        console.log(`Found ${supportedModels.length} supported models:`, supportedModels.map((m: any) => m.name).join(", "))
+
+        if (supportedModels.length === 0) {
+            throw new Error("No models available for this API key that support content generation. Please check if 'Generative Language API' is enabled in your Google project.")
+        }
+
+        // Prefer 1.5-flash, then 1.5-pro, then anything available
+        const preferredModels = ["models/gemini-1.5-flash", "models/gemini-1.5-flash-latest", "models/gemini-1.5-pro", "models/gemini-pro"]
+        let selectedModel = supportedModels[0].name
+
+        for (const pref of preferredModels) {
+            if (supportedModels.find((m: any) => m.name === pref)) {
+                selectedModel = pref
+                break
+            }
+        }
+
+        console.log(`Using discovered model: ${selectedModel}`)
+
+        // 2. Generate content using the discovered model
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1/${selectedModel}:generateContent?key=${apiKey}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: fullPrompt }] }]
+                })
+            }
+        )
+
+        const result = await response.json()
+
+        if (result.error) {
+            throw new Error(`Gemini Generation Error (${selectedModel}): ${result.error.message}`)
+        }
+
+        const content = result.candidates?.[0]?.content?.parts?.[0]?.text
+
+        if (!content) {
+            throw new Error(`Model ${selectedModel} returned no content. Response: ${JSON.stringify(result)}`)
+        }
 
         return NextResponse.json({ content })
     } catch (error: any) {

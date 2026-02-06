@@ -121,7 +121,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                         )}
                         {user && (
                             <span className={`text-xl font-bold ${textClass} tracking-tight`}>
-                                {(settings.header_platform_name || "Playwright Platform") + " (V3)"}
+                                {settings.header_platform_name || "Playwright Platform"}
                             </span>
                         )}
                     </Link>

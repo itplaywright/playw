@@ -32,6 +32,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([])
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const [unreadCount, setUnreadCount] = useState(0)
     const pathname = usePathname()
 
     const isTaskPage = pathname?.startsWith("/tasks/")
@@ -41,7 +42,24 @@ export default function DynamicHeader({ user }: { user?: any }) {
 
     useEffect(() => {
         loadConfig()
-    }, [])
+        if (user) {
+            fetchUnreadCount()
+            const interval = setInterval(fetchUnreadCount, 60000)
+            return () => clearInterval(interval)
+        }
+    }, [user])
+
+    const fetchUnreadCount = async () => {
+        try {
+            const res = await fetch("/api/questions/unread-count")
+            if (res.ok) {
+                const data = await res.json()
+                setUnreadCount(data.count)
+            }
+        } catch (err) {
+            console.error("Error fetching unread count:", err)
+        }
+    }
 
     const loadConfig = async () => {
         try {
@@ -103,7 +121,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                         )}
                         {user && (
                             <span className={`text-xl font-bold ${textClass} tracking-tight`}>
-                                {settings.header_platform_name || "Playwright Platform"}
+                                {(settings.header_platform_name || "Playwright Platform") + " (V2)"}
                             </span>
                         )}
                     </Link>
@@ -149,10 +167,15 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                 </div>
                                 <Link
                                     href="/cabinet"
-                                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
+                                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all relative group/cabinet"
                                     title="Мій кабінет"
                                 >
                                     <User className="h-5 w-5" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in duration-300">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
                                 </Link>
                                 <button
                                     onClick={() => logoutAction()}
@@ -164,7 +187,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                             </div>
                         ) : (
                             <div className="flex items-center gap-4">
-                                <Link href="/login" className={`text-sm font-bold ${linkClass}`}>Вхід</Link>
+                                <Link href="/api/auth/signin" className={`text-sm font-bold ${linkClass}`}>Вхід</Link>
                                 <Link href="/register" className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20 active:scale-95">Реєстрація</Link>
                             </div>
                         )}
@@ -203,7 +226,14 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                         <div className="flex flex-col">
                                             <span className="text-sm font-bold text-gray-900">{user.email}</span>
                                             <div className="flex items-center gap-3 mt-1">
-                                                <Link href="/cabinet" onClick={() => setMobileMenuOpen(false)} className="text-xs text-blue-600 font-bold hover:underline">Мій кабінет</Link>
+                                                <Link href="/cabinet" onClick={() => setMobileMenuOpen(false)} className="text-xs text-blue-600 font-bold hover:underline flex items-center gap-2">
+                                                    Мій кабінет
+                                                    {unreadCount > 0 && (
+                                                        <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full min-w-[16px] h-4 flex items-center justify-center font-bold">
+                                                            {unreadCount}
+                                                        </span>
+                                                    )}
+                                                </Link>
                                                 <button onClick={() => logoutAction()} className="text-xs text-red-500 font-bold">Вийти</button>
                                             </div>
                                         </div>

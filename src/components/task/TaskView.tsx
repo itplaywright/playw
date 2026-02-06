@@ -138,7 +138,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                         className={`rounded px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-medium text-white transition-colors flex-shrink-0 ${isRunning ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                     >
-                        {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати код (V2)" : (task.type === "quiz" ? "Виберіть відповідь" : "Запустити"))}
+                        {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати код (V3)" : (task.type === "quiz" ? "Виберіть відповідь" : "Запустити"))}
                     </button>
                 </div>
             </header>

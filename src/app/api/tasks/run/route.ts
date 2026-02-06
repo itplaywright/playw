@@ -96,15 +96,14 @@ export default defineConfig({
         } catch (error: any) {
             if (error.message === "MOCK_MODE" || (process.env.NODE_ENV === "production" && !browserServiceUrl)) {
                 logs = "Running in Production Mock Mode (Set BROWSER_SERVICE_URL for real execution)...\n"
-                const hasExpect = /expect\s*\(/.test(code)
-                const hasGoto = /page\.goto\s*\(/.test(code)
-                const hasLocator = /(getByRole|getByText|getByPlaceholder|locator)\s*\(/.test(code)
 
-                if (hasGoto || hasLocator || hasExpect) {
+                const validationResult = validatePlaywrightCode(code);
+
+                if (validationResult.isValid) {
                     logs += "✓ Playwright commands detected\n✓ Basic syntax validation passed\n\nResult: Passed (Simulated)"
                     status = "passed"
                 } else {
-                    logs += "✗ Error: No active Playwright commands found.\n\nResult: Failed"
+                    logs += `✗ Error: ${validationResult.error}\n\nResult: Failed`
                     status = "failed"
                 }
             } else {
@@ -152,4 +151,58 @@ export default defineConfig({
         console.error("--------------------------------------")
         return NextResponse.json({ error: "Internal Server Error", message: error.message }, { status: 500 })
     }
+}
+
+function validatePlaywrightCode(code: string): { isValid: boolean, error?: string } {
+    const commonMethods = [
+        // Page actions
+        'goto', 'click', 'fill', 'press', 'check', 'uncheck', 'selectOption', 'hover', 'focus', 'type', 'screenshot', 'waitForSelector', 'waitForLoadState', 'setContent',
+        // Locators
+        'locator', 'getByRole', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'getByTestId', 'frameLocator',
+        // Assertions (web first)
+        'toBeAttached', 'toBeChecked', 'toBeDisabled', 'toBeEditable', 'toBeEmpty', 'toBeEnabled', 'toBeFocused', 'toBeHidden', 'toBeInViewport', 'toBeVisible',
+        'toContainText', 'toHaveAttribute', 'toHaveClass', 'toHaveCount', 'toHaveCSS', 'toHaveId', 'toHaveJSProperty', 'toHaveText', 'toHaveValue', 'toHaveValues',
+        'toHaveTitle', 'toHaveURL', 'toBeOK',
+        // Standard Jest/Playwright matchers
+        'toBe', 'toEqual', 'toContain', 'toBeTruthy', 'toBeFalsy', 'toBeNull', 'toBeDefined', 'toBeUndefined', 'toMatch', 'toHaveLength', 'toHaveProperty', 'toBeGreaterThan', 'toBeLessThan'
+    ];
+
+    // Check for obvious Playwright usage
+    const hasExpect = /expect\s*\(/.test(code);
+    const hasTest = /test\s*\(/.test(code);
+    const hasPage = /page\./.test(code);
+
+    if (!hasExpect && !hasTest && !hasPage) {
+        return { isValid: false, error: "No active Playwright commands found." };
+    }
+
+    // Extract all method calls: .something(
+    const methodCallRegex = /\.\s*([a-zA-Z0-9_]+)\s*\(/g;
+    let match;
+    const detectedMethods: string[] = [];
+
+    while ((match = methodCallRegex.exec(code)) !== null) {
+        const methodName = match[1];
+        // Ignore internal or common JS methods that are not strictly Playwright
+        if (['then', 'catch', 'finally', 'json', 'log', 'error', 'warn'].includes(methodName)) continue;
+        detectedMethods.push(methodName);
+    }
+
+    // Validate methods against whitelist
+    for (const method of detectedMethods) {
+        if (!commonMethods.includes(method)) {
+            // Check for common typos or case sensitivity issues
+            const suggestion = commonMethods.find(m => m.toLowerCase() === method.toLowerCase());
+            if (suggestion) {
+                return { isValid: false, error: `Unknown method "${method}". Did you mean "${suggestion}"?` };
+            }
+
+            // Hardcoded common typos for better UX if needed, or stick to the case-insensitive check
+            if (method === 'taeTitle') return { isValid: false, error: 'Unknown method "taeTitle". Did you mean "toHaveTitle"?' };
+
+            return { isValid: false, error: `Unknown or disallowed method "${method}".` };
+        }
+    }
+
+    return { isValid: true };
 }

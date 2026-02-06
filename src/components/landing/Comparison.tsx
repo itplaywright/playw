@@ -7,7 +7,7 @@ const comparisons = [
     { feature: "Практика в браузері", usual: false, ours: true },
     { feature: "Реальні сценарії", usual: "Рідко", ours: "Завжди" },
     { feature: "Миттєва перевірка", usual: false, ours: true },
-    { feature: "Підтримка ментора", usual: "За графіком", ours: "24/7 AI-помічник" },
+    { feature: "Підтримка ментора", usual: "За графіком", ours: "24/7 підтримка" },
     { feature: "Ціна", usual: "$300 - $1000+", ours: "Доступно кожному" },
 ]
 

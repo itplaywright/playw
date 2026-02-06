@@ -56,7 +56,7 @@ export default function RegisterPage() {
 
                     <div className="mb-10 text-center">
                         <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Реєстрація</h1>
-                        <p className="text-muted-foreground">Почніть свій шлях в автоматизації безкоштовно</p>
+                        <p className="text-muted-foreground">Почніть свій шлях в автоматизації прямо зараз</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">

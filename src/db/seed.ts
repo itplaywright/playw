@@ -1,17 +1,16 @@
-import { config } from "dotenv"
-import { seedDatabase } from "@/db/seed-data"
-
-config({ path: ".env.local" })
+import { config } from "dotenv";
+config({ path: ".env.local" });
 
 async function seed() {
-    // Dynamic import to ensure process.env.DATABASE_URL is loaded before DB connection is initialized
-    await import("@/db")
+    console.log("Loading modules...");
+    const { seedDatabase } = await import("./seed-data");
 
     if (!process.env.DATABASE_URL) {
-        throw new Error("DATABASE_URL не знайдено")
+        throw new Error("DATABASE_URL не знайдено");
     }
 
-    await seedDatabase()
+    console.log("Seeding started...");
+    await seedDatabase();
 }
 
 seed().catch(console.error).finally(() => process.exit(0))

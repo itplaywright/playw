@@ -8,6 +8,7 @@ import {
     serial,
     boolean,
     pgEnum,
+    uniqueIndex,
 } from "drizzle-orm/pg-core"
 import type { AdapterAccountType } from "next-auth/adapters"
 
@@ -85,7 +86,9 @@ export const tracks = pgTable("tracks", {
     description: text("description"),
     isActive: boolean("is_active").default(true),
     order: integer("order").default(0),
-})
+}, (table) => ({
+    titleIdx: uniqueIndex("track_title_idx").on(table.title),
+}))
 
 export const tasks = pgTable("tasks", {
     id: serial("id").primaryKey(),
@@ -102,7 +105,9 @@ export const tasks = pgTable("tasks", {
     type: text("type", { enum: ["code", "quiz"] }).default("code").notNull(),
     options: text("options").array(), // For quiz answers
     correctAnswer: text("correct_answer"), // For quiz validation
-})
+}, (table) => ({
+    trackTitleIdx: uniqueIndex("task_track_title_idx").on(table.trackId, table.title),
+}))
 
 export const results = pgTable("results", {
     id: serial("id").primaryKey(),

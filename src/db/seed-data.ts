@@ -5,8 +5,8 @@ import { sql } from "drizzle-orm"
 export async function seedDatabase() {
     console.log("💎 ЗАПУСК ПРЕМІУМ-ОНОВЛЕННЯ З ІМПОРТАМИ (50 УРОКІВ)...")
 
-    // Use TRUNCATE to reset IDs so they start from 1
-    await db.execute(sql`TRUNCATE TABLE "results", "tasks", "tracks" RESTART IDENTITY CASCADE`)
+    // We no longer use TRUNCATE to preserve user data (results, questions, etc.)
+    // await db.execute(sql`TRUNCATE TABLE "results", "tasks", "tracks" RESTART IDENTITY CASCADE`)
 
     const imp = "import { test, expect } from '@playwright/test';\n\n";
     const impPage = "import { test, expect, Page } from '@playwright/test';\n\n";
@@ -18,10 +18,17 @@ export async function seedDatabase() {
         title: "Рівень 1 — Base (Основи майстерності)",
         description: "Фундамент автоматизації: від першого кліку до мобільної емуляції.",
         order: 1
+    }).onConflictDoUpdate({
+        target: tracks.title,
+        set: {
+            description: "Фундамент автоматизації: від першого кліку до мобільної емуляції.",
+            order: 1
+        }
     }).returning()
 
     // Helper to add tasks to a track
     async function addTasks(trackId: number, tasksList: { title: string, description: string, code: string, type?: "code" | "quiz", options?: string[], correctAnswer?: string }[], difficulty: "easy" | "medium" | "hard" = "easy") {
+        let currentOrder = 1;
         for (const t of tasksList) {
             await db.insert(tasks).values({
                 trackId,
@@ -31,7 +38,19 @@ export async function seedDatabase() {
                 difficulty,
                 type: t.type || "code",
                 options: t.options || null,
-                correctAnswer: t.correctAnswer || null
+                correctAnswer: t.correctAnswer || null,
+                order: currentOrder++
+            }).onConflictDoUpdate({
+                target: [tasks.trackId, tasks.title],
+                set: {
+                    description: t.description,
+                    initialCode: t.code,
+                    difficulty,
+                    type: t.type || "code",
+                    options: t.options || null,
+                    correctAnswer: t.correctAnswer || null,
+                    order: currentOrder - 1 // use the value before incrementing
+                }
             })
         }
     }
@@ -256,7 +275,11 @@ export async function seedDatabase() {
     ], "easy")
 
     // Рівень 2 (12 завдань)
-    const [level2] = await db.insert(tracks).values({ title: "Рівень 2 — Structure (Архітектор)", description: "Створення масштабованих систем.", order: 2 }).returning()
+    const [level2] = await db.insert(tracks).values({ title: "Рівень 2 — Structure (Архітектор)", description: "Створення масштабованих систем.", order: 2 })
+        .onConflictDoUpdate({
+            target: tracks.title,
+            set: { description: "Створення масштабованих систем.", order: 2 }
+        }).returning()
     await addTasks(level2.id, [
         {
             title: "2.1 POM: Оголошення властивостей",
@@ -441,7 +464,11 @@ export async function seedDatabase() {
     ], "medium")
 
     // Рівень 3 (13 завдань)
-    const [level3] = await db.insert(tracks).values({ title: "Рівень 3 — Advanced (Senior)", description: "Інтеграції та мокінг.", order: 3 }).returning()
+    const [level3] = await db.insert(tracks).values({ title: "Рівень 3 — Advanced (Senior)", description: "Інтеграції та мокінг.", order: 3 })
+        .onConflictDoUpdate({
+            target: tracks.title,
+            set: { description: "Інтеграції та мокінг.", order: 3 }
+        }).returning()
     await addTasks(level3.id, [
         {
             title: "3.1 API: request.get()",
@@ -638,7 +665,11 @@ export async function seedDatabase() {
     ], "hard")
 
     // Рівень 4 (10 завдань)
-    const [level4] = await db.insert(tracks).values({ title: "Рівень 4 — Best Practices (Lead)", description: "Інфраструктура та CI/CD.", order: 4 }).returning()
+    const [level4] = await db.insert(tracks).values({ title: "Рівень 4 — Best Practices (Lead)", description: "Інфраструктура та CI/CD.", order: 4 })
+        .onConflictDoUpdate({
+            target: tracks.title,
+            set: { description: "Інфраструктура та CI/CD.", order: 4 }
+        }).returning()
     await addTasks(level4.id, [
         {
             title: "4.1 Parallel Mode",
@@ -787,7 +818,11 @@ export async function seedDatabase() {
     ], "hard")
 
     // Рівень 5 (Challenge)
-    const [level5] = await db.insert(tracks).values({ title: "Рівень 5 — Real World (Виклики)", description: "Реальні сценарії з багами та складнощами.", order: 5 }).returning()
+    const [level5] = await db.insert(tracks).values({ title: "Рівень 5 — Real World (Виклики)", description: "Реальні сценарії з багами та складнощами.", order: 5 })
+        .onConflictDoUpdate({
+            target: tracks.title,
+            set: { description: "Реальні сценарії з багами та складнощами.", order: 5 }
+        }).returning()
     await addTasks(level5.id, [
         {
             title: "5.1 E-commerce: Кошик",
@@ -852,7 +887,11 @@ export async function seedDatabase() {
     ], "hard")
 
     // Рівень 6 (Quiz)
-    const [level6] = await db.insert(tracks).values({ title: "Рівень 6 — Quiz (Тести)", description: "Перевірка знань без написання коду.", order: 6 }).returning()
+    const [level6] = await db.insert(tracks).values({ title: "Рівень 6 — Quiz (Тести)", description: "Перевірка знань без написання коду.", order: 6 })
+        .onConflictDoUpdate({
+            target: tracks.title,
+            set: { description: "Перевірка знань без написання коду.", order: 6 }
+        }).returning()
     await addTasks(level6.id, [
         {
             title: "6.1 Локатори",

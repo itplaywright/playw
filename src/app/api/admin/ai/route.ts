@@ -78,7 +78,9 @@ export async function POST(req: Request) {
             "models/gemini-2.0-flash-lite-preview-02-05",
             "models/gemini-1.5-flash",
             "models/gemini-1.5-flash-latest",
+            "models/gemini-1.5-flash-8b",
             "models/gemini-1.5-pro",
+            "models/gemini-1.0-pro",
             "models/gemini-pro"
         ]
 
@@ -102,52 +104,65 @@ export async function POST(req: Request) {
         console.log("Fallback sequence:", modelsToTry.join(" -> "))
 
         let lastErrorMsg = ""
+        const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-        // 2. Try models in sequence until one succeeds
+        // 2. Try models in sequence
         for (const modelName of modelsToTry) {
-            try {
-                console.log(`AI: Trying model ${modelName}...`)
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1/${modelName}:generateContent?key=${apiKey}`,
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: fullPrompt }] }]
-                        }),
-                        signal: AbortSignal.timeout(30000)
-                    }
-                )
-
-                const result = await response.json()
-
-                if (result.error) {
-                    const errorMsg = result.error.message || "Unknown error"
-                    const isQuotaError = result.error.status === "RESOURCE_EXHAUSTED" || errorMsg.includes("quota")
-
-                    console.warn(`AI: Model ${modelName} failed: ${errorMsg}`)
-
-                    if (isQuotaError) {
-                        lastErrorMsg = `Перевищено ліміт запитів (Quota) для всіх спробованих моделей. Будь ласка, зачекайте кілька хвилин.`
-                        continue // Silently try next model
+            // Try each model up to 2 times (initial + 1 retry) if it's a quota error
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    if (attempt > 1) {
+                        console.log(`AI: Retrying ${modelName} after 2s delay (Attempt ${attempt})...`);
+                        await delay(2000);
+                    } else {
+                        console.log(`AI: Trying model ${modelName}...`)
                     }
 
-                    lastErrorMsg = `Помилка моделі ${modelName}: ${errorMsg}`
-                    continue // Try next model for other errors too (service unavailable, etc.)
-                }
+                    const response = await fetch(
+                        `https://generativelanguage.googleapis.com/v1/${modelName}:generateContent?key=${apiKey}`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: fullPrompt }] }]
+                            }),
+                            signal: AbortSignal.timeout(30000)
+                        }
+                    )
 
-                const content = result.candidates?.[0]?.content?.parts?.[0]?.text
-                if (content) {
-                    console.log(`AI: Successfully generated content using ${modelName}`)
-                    return NextResponse.json({ content })
-                } else {
-                    console.warn(`AI: Model ${modelName} returned empty content.`)
-                    lastErrorMsg = `Модель ${modelName} повернула порожній результат.`
+                    const result = await response.json()
+
+                    if (result.error) {
+                        const errorMsg = result.error.message || "Unknown error"
+                        const isQuotaError = result.error.status === "RESOURCE_EXHAUSTED" || errorMsg.includes("quota")
+
+                        console.warn(`AI: Model ${modelName} failed on attempt ${attempt}: ${errorMsg}`)
+
+                        if (isQuotaError) {
+                            lastErrorMsg = `Перевищено ліміт запитів (Quota) для всіх спробованих моделей. Будь ласка, зачекайте кілька хвилин.`
+                            if (attempt === 1) continue; // Try retry for this model
+                            break; // Move to next model after 2 attempts
+                        }
+
+                        lastErrorMsg = `Помилка моделі ${modelName}: ${errorMsg}`
+                        break; // Move to next model for other errors
+                    }
+
+                    const content = result.candidates?.[0]?.content?.parts?.[0]?.text
+                    if (content) {
+                        console.log(`AI: Successfully generated content using ${modelName}`)
+                        return NextResponse.json({ content })
+                    } else {
+                        console.warn(`AI: Model ${modelName} returned empty content on attempt ${attempt}.`)
+                        lastErrorMsg = `Модель ${modelName} повернула порожній результат.`
+                        break; // Move to next model
+                    }
+                } catch (err: any) {
+                    console.error(`AI: Error with model ${modelName} on attempt ${attempt}:`, err.message)
+                    lastErrorMsg = `Помилка зв'язку з моделлю ${modelName}: ${err.message}`
+                    if (attempt === 1) continue; // Try retry
+                    break; // Move to next model
                 }
-            } catch (err: any) {
-                console.error(`AI: Error with model ${modelName}:`, err.message)
-                lastErrorMsg = `Помилка зв'язку з моделлю ${modelName}: ${err.message}`
-                continue
             }
         }
 

@@ -43,13 +43,13 @@ export async function seedDatabase() {
             }).onConflictDoUpdate({
                 target: [tasks.trackId, tasks.title],
                 set: {
-                    description: t.description,
-                    initialCode: t.code,
+                    // description: t.description, // PRESERVE EXISTING
+                    // initialCode: t.code,      // PRESERVE EXISTING
                     difficulty,
                     type: t.type || "code",
                     options: t.options || null,
                     correctAnswer: t.correctAnswer || null,
-                    order: currentOrder - 1 // use the value before incrementing
+                    order: currentOrder - 1
                 }
             })
         }

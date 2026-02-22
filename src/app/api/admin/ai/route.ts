@@ -11,13 +11,6 @@ export async function POST(req: Request) {
 
         const { prompt, type } = await req.json()
 
-        if (!process.env.GEMINI_API_KEY) {
-            return NextResponse.json(
-                { error: "Google Gemini API Key not configured" },
-                { status: 500 }
-            )
-        }
-
         let systemPrompt = ""
         let userPrompt = ""
 
@@ -45,136 +38,161 @@ export async function POST(req: Request) {
             userPrompt = `Create a description for a task titled: "${prompt}".`
         }
 
-        const apiKey = process.env.GEMINI_API_KEY!.trim()
+        // 1. Collect all available API keys
+        const apiKeys = [
+            process.env.GEMINI_API_KEY,
+            process.env.GEMINI_API_KEY_2,
+            process.env.GEMINI_API_KEY_3
+        ].map(k => k?.trim()).filter(Boolean) as string[]
+
+        if (apiKeys.length === 0) {
+            return NextResponse.json(
+                { error: "Google Gemini API Key not configured" },
+                { status: 500 }
+            )
+        }
+
         const fullPrompt = `${systemPrompt}\n\n${userPrompt}`
-
-        // 1. Discover available models for this specific API key
-        console.log("Discovering available Gemini models...");
-        const modelsResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`
-        )
-        const modelsData = await modelsResponse.json()
-
-        if (modelsData.error) {
-            throw new Error(`Gemini API Discovery Error: ${modelsData.error.message} (${modelsData.error.status})`)
-        }
-
-        // Find the best available models that support generation
-        const availableModels = modelsData.models || []
-        const supportedModels = availableModels.filter((m: any) =>
-            m.supportedGenerationMethods?.includes("generateContent")
-        )
-
-        console.log(`Found ${supportedModels.length} supported models:`, supportedModels.map((m: any) => m.name).join(", "))
-
-        if (supportedModels.length === 0) {
-            throw new Error("No models available for this API key that support content generation.")
-        }
-
-        // Define our preferred models in order of preference
-        const preferredModelsOrder = [
-            "models/gemini-2.0-flash",
-            "models/gemini-2.0-flash-exp",
-            "models/gemini-2.0-flash-lite-preview-02-05",
-            "models/gemini-1.5-flash",
-            "models/gemini-1.5-flash-latest",
-            "models/gemini-1.5-flash-8b",
-            "models/gemini-1.5-pro",
-            "models/gemini-1.0-pro",
-            "models/gemini-pro"
-        ]
-
-        // Create an ordered list of models to try based on availability and preference
-        const modelsToTry: string[] = []
-
-        // First, add models from our preference list that are actually available
-        for (const pref of preferredModelsOrder) {
-            if (supportedModels.find((m: any) => m.name === pref)) {
-                modelsToTry.push(pref)
-            }
-        }
-
-        // Then, add any other supported models we haven't included yet
-        for (const m of supportedModels) {
-            if (!modelsToTry.includes(m.name)) {
-                modelsToTry.push(m.name)
-            }
-        }
-
-        console.log("Fallback sequence:", modelsToTry.join(" -> "))
-
         let lastErrorMsg = ""
         const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-        // 2. Try models in sequence
-        for (const modelName of modelsToTry) {
-            // Try each model up to 2 times (initial + 1 retry) if it's a quota error
-            for (let attempt = 1; attempt <= 2; attempt++) {
-                try {
-                    if (attempt > 1) {
-                        console.log(`AI: Retrying ${modelName} after 2s delay (Attempt ${attempt})...`);
-                        await delay(2000);
-                    } else {
-                        console.log(`AI: Trying model ${modelName}...`)
-                    }
+        // Helper to shuffle array (Fisher-Yates)
+        const shuffle = <T,>(array: T[]): T[] => {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
+        };
 
-                    const response = await fetch(
-                        `https://generativelanguage.googleapis.com/v1/${modelName}:generateContent?key=${apiKey}`,
-                        {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                contents: [{ parts: [{ text: fullPrompt }] }]
-                            }),
-                            signal: AbortSignal.timeout(30000)
-                        }
-                    )
+        // 2. Iterate through API keys
+        for (let keyIndex = 0; keyIndex < apiKeys.length; keyIndex++) {
+            const apiKey = apiKeys[keyIndex];
+            const keyLabel = `Key #${keyIndex + 1}`;
 
-                    const result = await response.json()
+            try {
+                console.log(`AI: Checking available models for ${keyLabel}...`);
+                const modelsResponse = await fetch(
+                    `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`
+                );
+                const modelsData = await modelsResponse.json();
 
-                    if (result.error) {
-                        const errorMsg = result.error.message || "Unknown error"
-                        const isQuotaError = result.error.status === "RESOURCE_EXHAUSTED" || errorMsg.includes("quota")
-
-                        console.warn(`AI: Model ${modelName} failed on attempt ${attempt}: ${errorMsg}`)
-
-                        if (isQuotaError) {
-                            lastErrorMsg = `Перевищено ліміт запитів (Quota) для всіх спробованих моделей. Будь ласка, зачекайте кілька хвилин.`
-                            if (attempt === 1) continue; // Try retry for this model
-                            break; // Move to next model after 2 attempts
-                        }
-
-                        lastErrorMsg = `Помилка моделі ${modelName}: ${errorMsg}`
-                        break; // Move to next model for other errors
-                    }
-
-                    const content = result.candidates?.[0]?.content?.parts?.[0]?.text
-                    if (content) {
-                        console.log(`AI: Successfully generated content using ${modelName}`)
-                        return NextResponse.json({ content })
-                    } else {
-                        console.warn(`AI: Model ${modelName} returned empty content on attempt ${attempt}.`)
-                        lastErrorMsg = `Модель ${modelName} повернула порожній результат.`
-                        break; // Move to next model
-                    }
-                } catch (err: any) {
-                    console.error(`AI: Error with model ${modelName} on attempt ${attempt}:`, err.message)
-                    lastErrorMsg = `Помилка зв'язку з моделлю ${modelName}: ${err.message}`
-                    if (attempt === 1) continue; // Try retry
-                    break; // Move to next model
+                if (modelsData.error) {
+                    console.warn(`AI: ${keyLabel} - Discovery Error: ${modelsData.error.message}`);
+                    lastErrorMsg = `Помилка Discovery (${keyLabel}): ${modelsData.error.message}`;
+                    continue; // Try next key
                 }
+
+                const supportedModels = (modelsData.models || []).filter((m: any) =>
+                    m.supportedGenerationMethods?.includes("generateContent")
+                ).map((m: any) => m.name);
+
+                if (supportedModels.length === 0) {
+                    console.warn(`AI: ${keyLabel} - No supported models found.`);
+                    continue;
+                }
+
+                // 3. Define and shuffle models to try
+                const preferredModelsOrder = [
+                    "models/gemini-2.0-flash",
+                    "models/gemini-2.0-flash-exp",
+                    "models/gemini-2.0-flash-lite-preview-02-05",
+                    "models/gemini-1.5-flash",
+                    "models/gemini-1.5-flash-latest",
+                    "models/gemini-1.5-flash-8b",
+                    "models/gemini-1.5-pro",
+                    "models/gemini-1.0-pro",
+                    "models/gemini-pro"
+                ].filter(m => supportedModels.includes(m));
+
+                // Add any other supported models
+                for (const m of supportedModels) {
+                    if (!preferredModelsOrder.includes(m)) {
+                        preferredModelsOrder.push(m);
+                    }
+                }
+
+                // Shuffling helps distribute load on the free tier
+                const modelsToTry = shuffle(preferredModelsOrder);
+                console.log(`AI: ${keyLabel} - Fallback sequence (shuffled):`, modelsToTry.join(" -> "));
+
+                // 4. Try models for this key
+                for (const modelName of modelsToTry) {
+                    for (let attempt = 1; attempt <= 2; attempt++) {
+                        try {
+                            if (attempt > 1) {
+                                await delay(2000);
+                                console.log(`AI: ${keyLabel} - Retrying ${modelName} (Attempt ${attempt})...`);
+                            } else {
+                                console.log(`AI: ${keyLabel} - Trying ${modelName}...`);
+                            }
+
+                            const response = await fetch(
+                                `https://generativelanguage.googleapis.com/v1/${modelName}:generateContent?key=${apiKey}`,
+                                {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        contents: [{ parts: [{ text: fullPrompt }] }]
+                                    }),
+                                    signal: AbortSignal.timeout(30000)
+                                }
+                            );
+
+                            const result = await response.json();
+
+                            if (result.error) {
+                                const errorMsg = result.error.message || "Unknown error";
+                                const isQuotaError = result.error.status === "RESOURCE_EXHAUSTED" || errorMsg.includes("quota");
+
+                                console.warn(`AI: ${keyLabel} - ${modelName} failed on attempt ${attempt}: ${errorMsg}`);
+
+                                if (isQuotaError) {
+                                    lastErrorMsg = `Перевищено ліміт запитів (Quota) для всіх спробованих ключів та моделей.`;
+                                    if (attempt === 1) continue; // Try retry
+                                    break; // Try next model
+                                }
+
+                                lastErrorMsg = `Помилка ${modelName}: ${errorMsg}`;
+                                break; // Try next model
+                            }
+
+                            const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                            if (content) {
+                                console.log(`AI: ${keyLabel} - Success with ${modelName}`);
+                                return NextResponse.json({ content });
+                            } else {
+                                console.warn(`AI: ${keyLabel} - ${modelName} returned no content.`);
+                                lastErrorMsg = `Модель ${modelName} повернула порожній результат.`;
+                                break;
+                            }
+                        } catch (err: any) {
+                            console.error(`AI: ${keyLabel} - ${modelName} connectivity error:`, err.message);
+                            lastErrorMsg = `Помилка зв'язку: ${err.message}`;
+                            if (attempt === 1) continue;
+                            break;
+                        }
+                    }
+                }
+
+                console.warn(`AI: ${keyLabel} exhausted. Trying next API key if available...`);
+
+            } catch (err: any) {
+                console.error(`AI: Critical error with ${keyLabel}:`, err.message);
+                lastErrorMsg = `Критична помилка ключа: ${err.message}`;
             }
         }
 
-        // 3. If we reached here, all models failed
+        // 5. All keys and models failed
         return NextResponse.json(
-            { error: lastErrorMsg || "Всі доступні AI моделі наразі перевантажені або недоступні. Спробуйте пізніше." },
+            { error: lastErrorMsg || "Всі AI моделі та ключі наразі недоступні через обмеження лімітів. Спробуйте через 10 хвилин." },
             { status: 500 }
         )
     } catch (error: any) {
-        console.error("Critical AI Error:", error)
+        console.error("Critical AI Route Error:", error)
         return NextResponse.json(
-            { error: "Сталася внутрішня помилка при з'єднанні з AI. Перевірте консоль Vercel для деталей." },
+            { error: "Сталася внутрішня помилка при з'єднанні з AI. Перевірте /api/diag або консоль." },
             { status: 500 }
         )
     }

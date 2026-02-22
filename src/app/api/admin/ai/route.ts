@@ -59,7 +59,7 @@ export async function POST(req: Request) {
             throw new Error(`Gemini API Discovery Error: ${modelsData.error.message} (${modelsData.error.status})`)
         }
 
-        // Find the best available model that supports generation
+        // Find the best available models that support generation
         const availableModels = modelsData.models || []
         const supportedModels = availableModels.filter((m: any) =>
             m.supportedGenerationMethods?.includes("generateContent")
@@ -68,47 +68,92 @@ export async function POST(req: Request) {
         console.log(`Found ${supportedModels.length} supported models:`, supportedModels.map((m: any) => m.name).join(", "))
 
         if (supportedModels.length === 0) {
-            throw new Error("No models available for this API key that support content generation. Please check if 'Generative Language API' is enabled in your Google project.")
+            throw new Error("No models available for this API key that support content generation.")
         }
 
-        // Prefer 1.5-flash, then 1.5-pro, then anything available
-        const preferredModels = ["models/gemini-1.5-flash", "models/gemini-1.5-flash-latest", "models/gemini-1.5-pro", "models/gemini-pro"]
-        let selectedModel = supportedModels[0].name
+        // Define our preferred models in order of preference
+        const preferredModelsOrder = [
+            "models/gemini-2.0-flash",
+            "models/gemini-2.0-flash-exp",
+            "models/gemini-2.0-flash-lite-preview-02-05",
+            "models/gemini-1.5-flash",
+            "models/gemini-1.5-flash-latest",
+            "models/gemini-1.5-pro",
+            "models/gemini-pro"
+        ]
 
-        for (const pref of preferredModels) {
+        // Create an ordered list of models to try based on availability and preference
+        const modelsToTry: string[] = []
+
+        // First, add models from our preference list that are actually available
+        for (const pref of preferredModelsOrder) {
             if (supportedModels.find((m: any) => m.name === pref)) {
-                selectedModel = pref
-                break
+                modelsToTry.push(pref)
             }
         }
 
-        console.log(`Using discovered model: ${selectedModel}`)
-
-        // 2. Generate content using the discovered model
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/${selectedModel}:generateContent?key=${apiKey}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: fullPrompt }] }]
-                })
+        // Then, add any other supported models we haven't included yet
+        for (const m of supportedModels) {
+            if (!modelsToTry.includes(m.name)) {
+                modelsToTry.push(m.name)
             }
-        )
-
-        const result = await response.json()
-
-        if (result.error) {
-            throw new Error(`Gemini Generation Error (${selectedModel}): ${result.error.message}`)
         }
 
-        const content = result.candidates?.[0]?.content?.parts?.[0]?.text
+        console.log("Fallback sequence:", modelsToTry.join(" -> "))
 
-        if (!content) {
-            throw new Error(`Model ${selectedModel} returned no content. Response: ${JSON.stringify(result)}`)
+        let lastError = null
+        let content = null
+
+        // 2. Try models in sequence until one succeeds
+        for (const modelName of modelsToTry) {
+            try {
+                console.log(`Trying model: ${modelName}`)
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1/${modelName}:generateContent?key=${apiKey}`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: fullPrompt }] }]
+                        }),
+                        signal: AbortSignal.timeout(30000) // 30s timeout
+                    }
+                )
+
+                const result = await response.json()
+
+                if (result.error) {
+                    const errorMsg = result.error.message || "Unknown error"
+                    const isQuotaError = result.error.status === "RESOURCE_EXHAUSTED" || errorMsg.includes("quota")
+
+                    console.warn(`Model ${modelName} failed: ${errorMsg} (${result.error.status})`)
+
+                    if (isQuotaError) {
+                        lastError = new Error(`Quota exceeded for ${modelName}. Trying next model...`)
+                        continue // Try next model
+                    }
+
+                    throw new Error(`Gemini Generation Error (${modelName}): ${errorMsg}`)
+                }
+
+                content = result.candidates?.[0]?.content?.parts?.[0]?.text
+                if (content) {
+                    console.log(`Successfully generated content using ${modelName}`)
+                    return NextResponse.json({ content })
+                } else {
+                    console.warn(`Model ${modelName} returned empty content.`)
+                    lastError = new Error(`Model ${modelName} returned no content.`)
+                }
+            } catch (err: any) {
+                console.error(`Error with model ${modelName}:`, err.message)
+                lastError = err
+                // If it's a timeout or network error, it's worth trying the next model
+                continue
+            }
         }
 
-        return NextResponse.json({ content })
+        // 3. If we reached here, all models failed
+        throw lastError || new Error("All AI models failed to generate content.")
     } catch (error: any) {
         console.error("Error generating AI content:", error)
         return NextResponse.json(

@@ -101,13 +101,12 @@ export async function POST(req: Request) {
 
         console.log("Fallback sequence:", modelsToTry.join(" -> "))
 
-        let lastError = null
-        let content = null
+        let lastErrorMsg = ""
 
         // 2. Try models in sequence until one succeeds
         for (const modelName of modelsToTry) {
             try {
-                console.log(`Trying model: ${modelName}`)
+                console.log(`AI: Trying model ${modelName}...`)
                 const response = await fetch(
                     `https://generativelanguage.googleapis.com/v1/${modelName}:generateContent?key=${apiKey}`,
                     {
@@ -116,7 +115,7 @@ export async function POST(req: Request) {
                         body: JSON.stringify({
                             contents: [{ parts: [{ text: fullPrompt }] }]
                         }),
-                        signal: AbortSignal.timeout(30000) // 30s timeout
+                        signal: AbortSignal.timeout(30000)
                     }
                 )
 
@@ -126,38 +125,41 @@ export async function POST(req: Request) {
                     const errorMsg = result.error.message || "Unknown error"
                     const isQuotaError = result.error.status === "RESOURCE_EXHAUSTED" || errorMsg.includes("quota")
 
-                    console.warn(`Model ${modelName} failed: ${errorMsg} (${result.error.status})`)
+                    console.warn(`AI: Model ${modelName} failed: ${errorMsg}`)
 
                     if (isQuotaError) {
-                        lastError = new Error(`Quota exceeded for ${modelName}. Trying next model...`)
-                        continue // Try next model
+                        lastErrorMsg = `Перевищено ліміт запитів (Quota) для всіх спробованих моделей. Будь ласка, зачекайте кілька хвилин.`
+                        continue // Silently try next model
                     }
 
-                    throw new Error(`Gemini Generation Error (${modelName}): ${errorMsg}`)
+                    lastErrorMsg = `Помилка моделі ${modelName}: ${errorMsg}`
+                    continue // Try next model for other errors too (service unavailable, etc.)
                 }
 
-                content = result.candidates?.[0]?.content?.parts?.[0]?.text
+                const content = result.candidates?.[0]?.content?.parts?.[0]?.text
                 if (content) {
-                    console.log(`Successfully generated content using ${modelName}`)
+                    console.log(`AI: Successfully generated content using ${modelName}`)
                     return NextResponse.json({ content })
                 } else {
-                    console.warn(`Model ${modelName} returned empty content.`)
-                    lastError = new Error(`Model ${modelName} returned no content.`)
+                    console.warn(`AI: Model ${modelName} returned empty content.`)
+                    lastErrorMsg = `Модель ${modelName} повернула порожній результат.`
                 }
             } catch (err: any) {
-                console.error(`Error with model ${modelName}:`, err.message)
-                lastError = err
-                // If it's a timeout or network error, it's worth trying the next model
+                console.error(`AI: Error with model ${modelName}:`, err.message)
+                lastErrorMsg = `Помилка зв'язку з моделлю ${modelName}: ${err.message}`
                 continue
             }
         }
 
         // 3. If we reached here, all models failed
-        throw lastError || new Error("All AI models failed to generate content.")
-    } catch (error: any) {
-        console.error("Error generating AI content:", error)
         return NextResponse.json(
-            { error: error.message || "Failed to generate content" },
+            { error: lastErrorMsg || "Всі доступні AI моделі наразі перевантажені або недоступні. Спробуйте пізніше." },
+            { status: 500 }
+        )
+    } catch (error: any) {
+        console.error("Critical AI Error:", error)
+        return NextResponse.json(
+            { error: "Сталася внутрішня помилка при з'єднанні з AI. Перевірте консоль Vercel для деталей." },
             { status: 500 }
         )
     }

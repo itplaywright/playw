@@ -7,6 +7,7 @@ export async function GET() {
         const result = await db.execute(sql`SELECT count(*) FROM results`);
         const tasks = await db.execute(sql`SELECT count(*) FROM tasks`);
         const users = await db.execute(sql`SELECT count(*) FROM "user"`);
+        const tracks = await db.execute(sql`SELECT count(*) FROM tracks`);
 
         return NextResponse.json({
             status: "success",
@@ -15,7 +16,8 @@ export async function GET() {
             counts: {
                 results: result.rows[0].count,
                 tasks: tasks.rows[0].count,
-                users: users.rows[0].count
+                users: users.rows[0].count,
+                tracks: tracks.rows[0].count
             }
         });
     } catch (error: any) {

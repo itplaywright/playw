@@ -157,8 +157,15 @@ export default defineConfig({
 
 function validatePlaywrightCode(code: string): { isValid: boolean, error?: string } {
     // 1. Basic Syntax Check using VM
+    // Strip import/export lines first — vm.Script runs as CommonJS script, 
+    // so it rejects ES module syntax even if the code is valid Playwright test code.
+    const codeForSyntaxCheck = code
+        .split('\n')
+        .filter(line => !line.trim().startsWith('import ') && !line.trim().startsWith('export '))
+        .join('\n');
+
     try {
-        new vm.Script(code);
+        new vm.Script(codeForSyntaxCheck);
     } catch (e: any) {
         return { isValid: false, error: `JS Syntax Error: ${e.message}` };
     }

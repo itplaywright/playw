@@ -70,26 +70,33 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             return
         }
 
-        // Web apps cannot write to local files. We must use Clipboard for manual copy if needed.
+        // Always attempt validation/run via API
         if (isProduction) {
             setOutput("⏳ Запуск симуляції (перевірка синтаксису)...")
-            await copyToClipboard()
-            setOutput("✅ Код скопійовано! Вставте його у файл tests/active.spec.ts та запустіть npx playwright test для перевірки.")
         } else {
             setOutput("Тест запускається...")
-            try {
-                const res = await fetch("/api/tasks/run", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ code, taskId: task.id }),
-                })
-
-                const data = await res.json()
-                setOutput(data.logs || data.error || "Тест завершено")
-            } catch (err: any) {
-                setOutput(`Помилка: ${err.message}`)
-            }
         }
+
+        try {
+            const res = await fetch("/api/tasks/run", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code, taskId: task.id }),
+            })
+
+            const data = await res.json()
+            const finalOutput = data.logs || data.error || "Тест завершено"
+            setOutput(finalOutput)
+
+            // In production, if validation passed, copy to clipboard
+            if (isProduction && data.status === "passed") {
+                await copyToClipboard()
+                setOutput(prev => prev + "\n\n✅ Код підтверджено та скопійовано! Вставте його у файл tests/active.spec.ts та запустіть npx playwright test для перевірки.")
+            }
+        } catch (err: any) {
+            setOutput(`Помилка: ${err.message}`)
+        }
+
         setIsRunning(false)
     }
 

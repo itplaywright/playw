@@ -7,17 +7,23 @@ declare module "next-auth" {
         user: {
             id: string
             role: string
+            onboardingCompleted: boolean
+            learningPath?: string | null
         } & DefaultSession["user"]
     }
 
     interface User extends DefaultUser {
         role: string
+        onboardingCompleted: boolean
+        learningPath?: string | null
     }
 }
 
 declare module "next-auth/adapters" {
     interface AdapterUser extends DefaultAdapterUser {
         role: string
+        onboardingCompleted: boolean
+        learningPath?: string | null
     }
 }
 
@@ -25,5 +31,7 @@ declare module "next-auth/jwt" {
     interface JWT {
         id: string
         role: string
+        onboardingCompleted: boolean
+        learningPath?: string | null
     }
 }

@@ -14,6 +14,14 @@ export default async function Dashboard() {
         redirect("/")
     }
 
+    if (!(session.user as any).onboardingCompleted) {
+        redirect("/onboarding")
+    }
+
+    if ((session.user as any).learningPath === "theory") {
+        redirect("/theory")
+    }
+
     const allTracks = await db.select().from(tracks).orderBy(tracks.order)
     const allTasks = await db.select().from(tasks).orderBy(tasks.order)
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))

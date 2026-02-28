@@ -48,6 +48,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     id: user.id,
                     email: user.email,
                     role: user.role || "user",
+                    onboardingCompleted: user.onboardingCompleted ?? false,
+                    learningPath: user.learningPath,
                 }
             },
         }),
@@ -57,14 +59,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             if (user) {
                 token.id = user.id
                 token.role = (user as any).role
+                token.onboardingCompleted = (user as any).onboardingCompleted ?? false
+                token.learningPath = (user as any).learningPath
             } else if (token.id) {
                 const existingUser = await db.query.users.findFirst({
                     where: eq(users.id, token.id as string),
-                    columns: { isBlocked: true }
+                    columns: { isBlocked: true, onboardingCompleted: true, learningPath: true }
                 })
 
                 if (existingUser?.isBlocked) {
                     return null // Invalidate session
+                }
+                if (existingUser) {
+                    token.onboardingCompleted = existingUser.onboardingCompleted ?? false
+                    token.learningPath = existingUser.learningPath
                 }
             }
             return token
@@ -72,7 +80,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         async session({ session, token }) {
             if (session.user && token) {
                 session.user.id = token.id as string
-                (session.user as any).role = token.role as string
+                    ; (session.user as any).role = token.role as string
+                    ; (session.user as any).onboardingCompleted = token.onboardingCompleted as boolean
+                    ; (session.user as any).learningPath = token.learningPath as string | null
             }
             return session
         },

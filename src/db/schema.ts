@@ -19,6 +19,9 @@ export const menuTypeEnum = pgEnum("menu_type", ["internal", "external"])
 export const adTypeEnum = pgEnum("ad_type", ["banner", "text", "cta"])
 export const adPlacementEnum = pgEnum("ad_placement", ["global", "task"])
 export const questionStatusEnum = pgEnum("question_status", ["pending", "answered"])
+export const learningPathEnum = pgEnum("learning_path", ["theory", "practice"])
+export const productTypeEnum = pgEnum("product_type", ["course", "disk", "other"])
+export const purchaseStatusEnum = pgEnum("purchase_status", ["active", "expired", "cancelled"])
 
 export const users = pgTable("user", {
     id: text("id")
@@ -31,6 +34,8 @@ export const users = pgTable("user", {
     passwordHash: text("password_hash"),
     role: roleEnum("role").default("user"),
     isBlocked: boolean("is_blocked").default(false),
+    onboardingCompleted: boolean("onboarding_completed").default(false),
+    learningPath: learningPathEnum("learning_path"),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
@@ -168,11 +173,31 @@ export const questions = pgTable("questions", {
     answeredAt: timestamp("answered_at"),
 })
 
+export const products = pgTable("products", {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    description: text("description"),
+    price: integer("price").default(0).notNull(), // Amount in smallest currency unit
+    type: productTypeEnum("type").default("course").notNull(),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at").defaultNow(),
+})
+
+export const userProducts = pgTable("user_products", {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+    status: purchaseStatusEnum("status").default("active"),
+    purchasedAt: timestamp("purchased_at").defaultNow(),
+    expiresAt: timestamp("expires_at"),
+})
+
 import { relations } from "drizzle-orm"
 
 export const userRelations = relations(users, ({ many }) => ({
     questions: many(questions),
     results: many(results),
+    userProducts: many(userProducts),
 }))
 
 export const taskRelations = relations(tasks, ({ one, many }) => ({
@@ -192,5 +217,20 @@ export const questionRelations = relations(questions, ({ one }) => ({
     task: one(tasks, {
         fields: [questions.taskId],
         references: [tasks.id],
+    }),
+}))
+
+export const productRelations = relations(products, ({ many }) => ({
+    userProducts: many(userProducts),
+}))
+
+export const userProductRelations = relations(userProducts, ({ one }) => ({
+    user: one(users, {
+        fields: [userProducts.userId],
+        references: [users.id],
+    }),
+    product: one(products, {
+        fields: [userProducts.productId],
+        references: [products.id],
     }),
 }))

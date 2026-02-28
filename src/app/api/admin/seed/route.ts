@@ -1,6 +1,6 @@
 
 import { auth } from "@/lib/auth"
-import { seedDatabase } from "@/db/seed-data"
+// import { seedDatabase } from "@/db/seed-data"
 import { NextResponse } from "next/server"
 
 export async function POST() {
@@ -10,9 +10,11 @@ export async function POST() {
             return new NextResponse("Unauthorized", { status: 401 })
         }
 
-        await seedDatabase()
-
-        return NextResponse.json({ success: true, message: "Database seeded successfully" })
+        // await seedDatabase()
+        return NextResponse.json({
+            success: false,
+            message: "Automatic seeding is disabled to protect manual edits. Please add tasks manually."
+        }, { status: 403 })
     } catch (error) {
         console.error("Error seeding database:", error)
         return NextResponse.json(

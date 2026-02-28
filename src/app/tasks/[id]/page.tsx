@@ -17,7 +17,12 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
     const task = await db.query.tasks.findFirst({
         where: eq(tasks.id, taskId),
-    })
+        with: {
+            taskQuestions: {
+                orderBy: (t, { asc }) => [asc(t.order)],
+            },
+        },
+    }) as any;
 
     if (!task) notFound()
 

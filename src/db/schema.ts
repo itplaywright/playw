@@ -114,6 +114,16 @@ export const tasks = pgTable("tasks", {
     trackTitleIdx: uniqueIndex("task_track_title_idx").on(table.trackId, table.title),
 }))
 
+export const taskQuestions = pgTable("task_questions", {
+    id: serial("id").primaryKey(),
+    taskId: integer("task_id").references(() => tasks.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    options: text("options").array().notNull(),
+    correctAnswer: text("correct_answer").notNull(),
+    order: integer("order").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+})
+
 export const results = pgTable("results", {
     id: serial("id").primaryKey(),
     userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
@@ -207,6 +217,14 @@ export const taskRelations = relations(tasks, ({ one, many }) => ({
     }),
     questions: many(questions),
     results: many(results),
+    taskQuestions: many(taskQuestions),
+}))
+
+export const taskQuestionRelations = relations(taskQuestions, ({ one }) => ({
+    task: one(tasks, {
+        fields: [taskQuestions.taskId],
+        references: [tasks.id],
+    }),
 }))
 
 export const questionRelations = relations(questions, ({ one }) => ({

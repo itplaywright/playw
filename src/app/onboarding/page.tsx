@@ -22,7 +22,7 @@ export default function OnboardingPage() {
 
             if (res.ok) {
                 // Force a hard navigation so session updates correctly from the server
-                window.location.href = path === "theory" ? "/theory" : "/dashboard"
+                window.location.href = "/dashboard"
             } else {
                 setIsLoading(false)
                 setSelectedPath(null)
@@ -61,8 +61,8 @@ export default function OnboardingPage() {
                         onClick={() => handleSelect("theory")}
                         disabled={isLoading}
                         className={`group relative flex flex-col items-center p-8 rounded-3xl border-2 transition-all duration-300 text-left ${selectedPath === "theory"
-                                ? "border-purple-500 bg-purple-500/10"
-                                : "border-border bg-muted/30 hover:border-purple-500/50 hover:bg-purple-500/5"
+                            ? "border-purple-500 bg-purple-500/10"
+                            : "border-border bg-muted/30 hover:border-purple-500/50 hover:bg-purple-500/5"
                             }`}
                     >
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
@@ -90,8 +90,8 @@ export default function OnboardingPage() {
                         onClick={() => handleSelect("practice")}
                         disabled={isLoading}
                         className={`group relative flex flex-col items-center p-8 rounded-3xl border-2 transition-all duration-300 text-left ${selectedPath === "practice"
-                                ? "border-blue-500 bg-blue-500/10"
-                                : "border-border bg-muted/30 hover:border-blue-500/50 hover:bg-blue-500/5"
+                            ? "border-blue-500 bg-blue-500/10"
+                            : "border-border bg-muted/30 hover:border-blue-500/50 hover:bg-blue-500/5"
                             }`}
                     >
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">

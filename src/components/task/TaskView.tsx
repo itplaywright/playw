@@ -74,6 +74,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
         if (isProduction) {
             setOutput("⏳ Запуск симуляції (перевірка синтаксису)...")
             await copyToClipboard()
+            setOutput("✅ Код скопійовано! Вставте його у файл tests/active.spec.ts та запустіть npx playwright test для перевірки.")
         } else {
             setOutput("Тест запускається...")
             try {

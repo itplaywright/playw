@@ -7,6 +7,7 @@ import { exec } from "child_process"
 import { promisify } from "util"
 import { db } from "@/db"
 import { results } from "@/db/schema"
+import vm from "node:vm"
 
 const execAsync = promisify(exec)
 
@@ -155,9 +156,33 @@ export default defineConfig({
 }
 
 function validatePlaywrightCode(code: string): { isValid: boolean, error?: string } {
+    // 1. Basic Syntax Check using VM
+    try {
+        new vm.Script(code);
+    } catch (e: any) {
+        return { isValid: false, error: `JS Syntax Error: ${e.message}` };
+    }
+
+    // 2. Keyword Typo Detection (Keywords outside strings)
+    const keywords = ['await', 'expect', 'test', 'async'];
+    const codesLines = code.split('\n');
+    for (const line of codesLines) {
+        // Simple check for common typos like awaits, expectt
+        for (const kw of keywords) {
+            const typoRegex = new RegExp(`\\b${kw}[a-z]+\\b`, 'gi');
+            const match = line.match(typoRegex);
+            if (match) {
+                const found = match[0].toLowerCase();
+                if (found !== kw) {
+                    return { isValid: false, error: `Unknown keyword "${found}". Did you mean "${kw}"?` };
+                }
+            }
+        }
+    }
+
     const commonMethods = [
         // Page actions
-        'goto', 'click', 'fill', 'press', 'check', 'uncheck', 'selectOption', 'hover', 'focus', 'type', 'screenshot', 'waitForSelector', 'waitForLoadState', 'setContent',
+        'goto', 'click', 'fill', 'press', 'check', 'uncheck', 'selectOption', 'hover', 'focus', 'type', 'screenshot', 'waitForSelector', 'waitForLoadState', 'setContent', 'reload', 'goBack', 'goForward',
         // Locators
         'locator', 'getByRole', 'getByText', 'getByLabel', 'getByPlaceholder', 'getByAltText', 'getByTitle', 'getByTestId', 'frameLocator',
         // Assertions (web first)
@@ -185,7 +210,7 @@ function validatePlaywrightCode(code: string): { isValid: boolean, error?: strin
     while ((match = methodCallRegex.exec(code)) !== null) {
         const methodName = match[1];
         // Ignore internal or common JS methods that are not strictly Playwright
-        if (['then', 'catch', 'finally', 'json', 'log', 'error', 'warn'].includes(methodName)) continue;
+        if (['then', 'catch', 'finally', 'json', 'log', 'error', 'warn', 'stringify', 'parse', 'push', 'pop', 'shift', 'unshift', 'map', 'filter', 'reduce'].includes(methodName)) continue;
         detectedMethods.push(methodName);
     }
 
@@ -198,12 +223,10 @@ function validatePlaywrightCode(code: string): { isValid: boolean, error?: strin
                 return { isValid: false, error: `Unknown method "${method}". Did you mean "${suggestion}"?` };
             }
 
-            // Hardcoded common typos for better UX if needed, or stick to the case-insensitive check
-            if (method === 'taeTitle') return { isValid: false, error: 'Unknown method "taeTitle". Did you mean "toHaveTitle"?' };
-
             return { isValid: false, error: `Unknown or disallowed method "${method}".` };
         }
     }
 
     return { isValid: true };
 }
+

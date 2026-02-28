@@ -170,11 +170,50 @@ function validatePlaywrightCode(code: string): { isValid: boolean, error?: strin
         return { isValid: false, error: `JS Syntax Error: ${e.message}` };
     }
 
-    // 2. Keyword Typo Detection (Keywords outside strings)
+    // 2. Standalone function call validation (catches tedd(), expectt(), etc.)
+    // Extract standalone function calls (not preceded by a dot, so not method calls)
+    const standaloneFnRegex = /(?<![.\w])([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+    const allowedStandaloneFns = new Set([
+        'test', 'expect', 'describe', 'it', 'beforeEach', 'afterEach', 'beforeAll', 'afterAll',
+        'require', 'console', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+        'Promise', 'parseInt', 'parseFloat', 'JSON', 'Math', 'Date', 'String', 'Number', 'Boolean', 'Array', 'Object'
+    ]);
+    const knownKeywords = ['test', 'expect', 'describe', 'it'];
+
+    let fnMatch;
+    const standaloneCalls: string[] = [];
+    const reStandalone = /(?<![.\w])([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+    // Only check code without import/export lines
+    const codeLines = code.split('\n').filter(l => !l.trim().startsWith('import ') && !l.trim().startsWith('export '));
+    const codeForFnCheck = codeLines.join('\n');
+
+    while ((fnMatch = reStandalone.exec(codeForFnCheck)) !== null) {
+        const fn = fnMatch[1];
+        // Skip if it's a known allowed function or starts with uppercase (constructor)
+        if (/^[A-Z]/.test(fn)) continue;
+        if (allowedStandaloneFns.has(fn)) continue;
+        // Check if it looks like a typo of a known keyword (similar length, 1-2 chars different)
+        for (const kw of knownKeywords) {
+            if (Math.abs(fn.length - kw.length) <= 2) {
+                // Simple character similarity check
+                let matches = 0;
+                const shorter = fn.length < kw.length ? fn : kw;
+                const longer = fn.length < kw.length ? kw : fn;
+                for (let i = 0; i < shorter.length; i++) {
+                    if (longer.includes(shorter[i])) matches++;
+                }
+                const similarity = matches / longer.length;
+                if (similarity > 0.5) {
+                    return { isValid: false, error: `Unknown function "${fn}". Did you mean "${kw}"?` };
+                }
+            }
+        }
+    }
+
+    // 3. Keyword suffix typo check (awaits, expectt, etc.)
     const keywords = ['await', 'expect', 'test', 'async'];
-    const codesLines = code.split('\n');
-    for (const line of codesLines) {
-        // Simple check for common typos like awaits, expectt
+    const codeAllLines = code.split('\n');
+    for (const line of codeAllLines) {
         for (const kw of keywords) {
             const typoRegex = new RegExp(`\\b${kw}[a-z]+\\b`, 'gi');
             const match = line.match(typoRegex);

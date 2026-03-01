@@ -29,7 +29,7 @@ const PRIORITY_COLORS = {
     critical: "text-red-500 bg-red-50 border-red-100",
 }
 
-export default function TaskCard({ task, isOverlay }: Props) {
+export default function TaskCard({ task, isOverlay, isAdmin }: Props) {
     const {
         setNodeRef,
         attributes,

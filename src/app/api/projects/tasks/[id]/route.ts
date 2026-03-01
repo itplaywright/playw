@@ -7,14 +7,15 @@ import { eq } from "drizzle-orm"
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth()
     if (!session?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const taskId = parseInt(params.id)
+    const { id } = await params
+    const taskId = parseInt(id)
     const data = await req.json()
 
     // Authorization check: Only admin or the assignee can update the task
@@ -50,7 +51,7 @@ export async function PATCH(
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth()
     if (!session?.user || (session.user as any).role !== "admin") {
@@ -58,7 +59,8 @@ export async function DELETE(
     }
 
     try {
-        await db.delete(projectTasks).where(eq(projectTasks.id, parseInt(params.id)))
+        const { id } = await params
+        await db.delete(projectTasks).where(eq(projectTasks.id, parseInt(id)))
         return NextResponse.json({ success: true })
     } catch (error) {
         return NextResponse.json({ error: "Failed to delete task" }, { status: 500 })

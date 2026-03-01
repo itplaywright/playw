@@ -1,65 +1,20 @@
+"use client"
 
-import { auth } from "@/lib/auth"
-import { db } from "@/db"
-import { projectBoards, projectColumns, projectTasks, users as usersTable } from "@/db/schema"
-import { eq, asc } from "drizzle-orm"
-import { notFound, redirect } from "next/navigation"
-import KanbanBoard from "@/components/projects/KanbanBoard"
+import { useState } from "react"
 import Link from "next/link"
 import { LayoutGrid, ChevronLeft, Plus, Settings } from "lucide-react"
-
-export default async function ProjectBoardPage({ params }: { params: { id: string } }) {
-    const session = await auth()
-    if (!session?.user) {
-        redirect("/")
-    }
-
-    const boardId = parseInt(params.id)
-    const board = await db.query.projectBoards.findFirst({
-        where: eq(projectBoards.id, boardId),
-        with: {
-            columns: {
-                orderBy: (columns, { asc }) => [asc(columns.order)],
-            },
-        },
-    })
-
-    if (!board) {
-        notFound()
-    }
-
-    const tasks = await db.query.projectTasks.findMany({
-        where: eq(projectTasks.boardId, boardId),
-        with: {
-            assignee: {
-                columns: {
-                    name: true,
-                    image: true,
-                },
-            },
-        },
-    })
-
-    const isAdmin = (session.user as any).role === "admin"
-    const allUsers = isAdmin ? await db.select().from(usersTable) : []
-
-    return (
-        <ProjectBoardContent
-            board={board}
-            initialTasks={tasks}
-            isAdmin={isAdmin}
-            users={allUsers as any}
-        />
-    )
-}
-
-// Separate client component part for state handling (dialogs etc)
-"use client"
-import { useState } from "react"
+import KanbanBoard from "@/components/projects/KanbanBoard"
 import TaskDialog from "@/components/projects/TaskDialog"
 import { useRouter } from "next/navigation"
 
-function ProjectBoardContent({ board, initialTasks, isAdmin, users }: any) {
+interface Props {
+    board: any
+    initialTasks: any[]
+    isAdmin: boolean
+    users: any[]
+}
+
+export default function ProjectBoardContent({ board, initialTasks, isAdmin, users }: Props) {
     const [showAddDialog, setShowAddDialog] = useState(false)
     const router = useRouter()
 

@@ -35,7 +35,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
     const [unreadCount, setUnreadCount] = useState(0)
     const pathname = usePathname()
 
-    const isTaskPage = pathname?.startsWith("/tasks/")
+    const isTaskPage = pathname?.startsWith("/tasks/") || pathname?.startsWith("/projects/")
     const displayMenuItems = user
         ? menuItems.filter(item => !LANDING_MENU.some(l => l.url === item.url))
         : LANDING_MENU

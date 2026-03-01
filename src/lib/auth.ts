@@ -64,7 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             } else if (token.id) {
                 const existingUser = await db.query.users.findFirst({
                     where: eq(users.id, token.id as string),
-                    columns: { isBlocked: true, onboardingCompleted: true, learningPath: true }
+                    columns: { isBlocked: true, onboardingCompleted: true, learningPath: true, role: true }
                 })
 
                 if (existingUser?.isBlocked) {
@@ -73,6 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 if (existingUser) {
                     token.onboardingCompleted = existingUser.onboardingCompleted ?? false
                     token.learningPath = existingUser.learningPath
+                    token.role = existingUser.role
                 }
             }
             return token

@@ -7,6 +7,7 @@ import { Plus, X, User, AlertCircle } from "lucide-react"
 interface User {
     id: string
     name: string | null
+    email: string | null
     image: string | null
 }
 
@@ -79,7 +80,7 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Наприклад: Реалізувати авторизацію"
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-semibold text-slate-900"
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-semibold text-slate-900 bg-white"
                         />
                     </div>
 
@@ -90,37 +91,41 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Деталі завдання..."
                             rows={4}
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none text-sm font-medium text-slate-900"
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none text-sm font-medium text-slate-900 bg-white"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="text-xs font-black uppercase tracking-widest text-slate-500">Пріоритет</label>
-                            <select
-                                value={priority}
-                                onChange={(e) => setPriority(e.target.value as any)}
-                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm text-slate-900"
-                            >
-                                <option value="low">Низький</option>
-                                <option value="medium">Середній</option>
-                                <option value="high">Високий</option>
-                                <option value="critical">Критичний</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={priority}
+                                    onChange={(e) => setPriority(e.target.value as any)}
+                                    className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm text-slate-900"
+                                >
+                                    <option value="low">Низький</option>
+                                    <option value="medium">Середній</option>
+                                    <option value="high">Високий</option>
+                                    <option value="critical">Критичний</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-xs font-black uppercase tracking-widest text-slate-500">Виконавець</label>
-                            <select
-                                value={assigneeId}
-                                onChange={(e) => setAssigneeId(e.target.value)}
-                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm text-slate-900"
-                            >
-                                <option value="">Не призначено</option>
-                                {users.map(u => (
-                                    <option key={u.id} value={u.id}>{u.name || u.id}</option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={assigneeId}
+                                    onChange={(e) => setAssigneeId(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm text-slate-900"
+                                >
+                                    <option value="">Не призначено</option>
+                                    {users.map(u => (
+                                        <option key={u.id} value={u.id}>{u.name || u.email || u.id}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
 

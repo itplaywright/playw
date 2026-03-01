@@ -112,9 +112,15 @@ export default function TaskCard({ task, isOverlay, isAdmin }: Props) {
                 )}
             </div>
 
-            <h3 className="font-bold text-slate-800 text-sm leading-tight group-hover:text-blue-600 transition-colors mb-3">
+            <h3 className="font-bold text-slate-800 text-sm leading-tight group-hover:text-blue-600 transition-colors mb-2">
                 {task.title}
             </h3>
+
+            {task.description && (
+                <p className="text-slate-500 text-xs line-clamp-2 mb-4">
+                    {task.description}
+                </p>
+            )}
 
             <div className="flex items-center justify-between mt-auto">
                 <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-semibold">

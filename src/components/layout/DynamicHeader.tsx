@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LogOut, User } from "lucide-react"
+import { Menu, X, LogOut, User, LayoutGrid } from "lucide-react"
 import { logoutAction } from "@/app/actions"
 
 const LANDING_MENU: MenuItem[] = [
@@ -128,6 +128,12 @@ export default function DynamicHeader({ user }: { user?: any }) {
 
                     {/* Navigation */}
                     <nav className="hidden md:flex items-center space-x-8">
+                        {user && (
+                            <Link href="/projects" className={`text-sm font-bold transition-all hover:-translate-y-0.5 ${linkClass} flex items-center gap-2`}>
+                                <LayoutGrid className="w-4 h-4" />
+                                <span>Проєкти</span>
+                            </Link>
+                        )}
                         {displayMenuItems.map((item: MenuItem) => (
                             item.type === "internal" ? (
                                 <Link
@@ -207,6 +213,16 @@ export default function DynamicHeader({ user }: { user?: any }) {
                 {mobileMenuOpen && (
                     <nav className="md:hidden py-4 border-t border-gray-100 animate-in slide-in-from-top-2">
                         <div className="flex flex-col space-y-3">
+                            {user && (
+                                <Link
+                                    href="/projects"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`font-bold transition-colors px-4 py-3 rounded-xl hover:bg-gray-50 ${linkClass} flex items-center gap-3`}
+                                >
+                                    <LayoutGrid className="w-5 h-5 flex-shrink-0" />
+                                    <span>Проєкти</span>
+                                </Link>
+                            )}
                             {displayMenuItems.map((item: MenuItem) => (
                                 <Link
                                     key={item.id}

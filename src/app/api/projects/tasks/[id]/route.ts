@@ -27,12 +27,8 @@ export async function PATCH(
         return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
-    const isAdmin = (session.user as any).role === "admin"
-    const isAssignee = task.assigneeId === session.user.id
-
-    if (!isAdmin && !isAssignee) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // Any authenticated user can currently update tasks (move across columns, etc.)
+    // In a more complex system, we would check project membership here.
 
     try {
         const [updatedTask] = await db.update(projectTasks)

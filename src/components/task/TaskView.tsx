@@ -161,20 +161,37 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
     return (
         <div className="flex flex-col h-screen bg-white overflow-hidden">
             {/* Header */}
-            <header className="flex h-auto min-h-[3.5rem] py-2 lg:py-0 items-center justify-between border-b px-4 lg:px-6 bg-gray-50 flex-wrap gap-2">
-                <div className="flex items-center space-x-3 lg:space-x-4 min-w-0">
-                    <Link href="/dashboard" className="text-gray-500 hover:text-black flex-shrink-0">
-                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <header className="flex-shrink-0 h-14 bg-[#0f172a] border-b border-white/10 flex items-center px-4 lg:px-6 gap-4">
+                {/* Logo */}
+                <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 group">
+                    <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                    </Link>
-                    <h1 className="text-base lg:text-lg font-semibold truncate">{task.title}</h1>
+                    </div>
+                    <span className="text-white font-bold text-sm tracking-tight hidden sm:block">IT Playwright</span>
+                </Link>
+
+                {/* Divider + back */}
+                <div className="h-5 w-px bg-white/10 flex-shrink-0 hidden sm:block" />
+                <Link href="/dashboard" className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors flex-shrink-0 text-xs font-medium">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span className="hidden sm:inline">Назад</span>
+                </Link>
+
+                {/* Task title */}
+                <div className="flex-1 min-w-0">
+                    <h1 className="text-white text-sm font-semibold truncate">{task.title}</h1>
                 </div>
-                <div className="flex items-center space-x-2 lg:space-x-3">
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-2 flex-shrink-0">
                     {task.type === "code" && (
                         <button
                             onClick={() => setCode(task.initialCode)}
-                            className="rounded bg-gray-200 px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-medium hover:bg-gray-300"
+                            className="rounded-lg bg-white/10 hover:bg-white/20 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white transition-all"
                         >
                             Скинути
                         </button>
@@ -182,7 +199,9 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                     <button
                         onClick={handleRun}
                         disabled={isRunning || (task.type === "quiz" && isCompleted)}
-                        className={`rounded px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-medium text-white transition-colors flex-shrink-0 ${isRunning || (task.type === "quiz" && isCompleted) ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                        className={`rounded-lg px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 ${isRunning || (task.type === "quiz" && isCompleted)
+                            ? 'bg-blue-500/50 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30'
                             }`}
                     >
                         {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати код" : (task.type === "quiz" ? (isCompleted ? "Виконано" : "Надіслати") : "Запустити"))}
@@ -241,7 +260,8 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                                 </div>
                             )}
                         </div>
-                    )}
+                    )
+                    }
 
                     <div className="mt-8 pt-6 border-t border-gray-100 mb-8 pb-8">
                         <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
@@ -269,50 +289,52 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                             </p>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 {/* Right/Bottom: Editor or Quiz Feedback */}
-                <div className="w-full lg:w-1/2 h-[60%] lg:h-full flex flex-col bg-[#1e1e1e]">
-                    {task.type === "code" ? (
-                        <>
-                            <div className="flex-1 min-h-0">
-                                <CodeEditor
-                                    defaultValue={task.initialCode}
-                                    onChange={(val) => setCode(val || "")}
-                                />
-                            </div>
-                            {/* Console Output */}
-                            <div className="h-32 lg:h-40 border-t border-gray-700 bg-[#1e1e1e] p-3 lg:p-4 font-mono text-xs lg:text-sm overflow-y-auto">
-                                <div className="text-gray-500 mb-1 lg:mb-2">Консоль виводу:</div>
-                                <pre className="text-gray-300 whitespace-pre-wrap">{output}</pre>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="flex-1 flex items-center justify-center p-8 text-center">
-                            <div className="max-w-md">
-                                <div className="text-6xl mb-4">{output.includes("✅") ? "🎉" : (output.includes("❌") ? "🤔" : "📝")}</div>
-                                <h2 className="text-2xl font-bold text-white mb-2">
-                                    {isCompleted ? "Чудова робота!" : (output === "Запустіть тест, щоб побачити результат..." ? "Чекаємо на вашу відповідь" : (output.includes("✅") ? "Правильно!" : "Спробуйте ще раз"))}
-                                </h2>
-                                <p className="text-gray-400">{output}</p>
-                                {isCompleted && (
-                                    <div className="mt-8 space-y-4">
-                                        <div className="flex items-center justify-center gap-2 text-green-400 font-bold">
-                                            <span>Знання підтверджено</span>
-                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                            </svg>
+                < div className="w-full lg:w-1/2 h-[60%] lg:h-full flex flex-col bg-[#1e1e1e]" >
+                    {
+                        task.type === "code" ? (
+                            <>
+                                <div className="flex-1 min-h-0">
+                                    <CodeEditor
+                                        defaultValue={task.initialCode}
+                                        onChange={(val) => setCode(val || "")}
+                                    />
+                                </div>
+                                {/* Console Output */}
+                                <div className="h-32 lg:h-40 border-t border-gray-700 bg-[#1e1e1e] p-3 lg:p-4 font-mono text-xs lg:text-sm overflow-y-auto">
+                                    <div className="text-gray-500 mb-1 lg:mb-2">Консоль виводу:</div>
+                                    <pre className="text-gray-300 whitespace-pre-wrap">{output}</pre>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center p-8 text-center">
+                                <div className="max-w-md">
+                                    <div className="text-6xl mb-4">{output.includes("✅") ? "🎉" : (output.includes("❌") ? "🤔" : "📝")}</div>
+                                    <h2 className="text-2xl font-bold text-white mb-2">
+                                        {isCompleted ? "Чудова робота!" : (output === "Запустіть тест, щоб побачити результат..." ? "Чекаємо на вашу відповідь" : (output.includes("✅") ? "Правильно!" : "Спробуйте ще раз"))}
+                                    </h2>
+                                    <p className="text-gray-400">{output}</p>
+                                    {isCompleted && (
+                                        <div className="mt-8 space-y-4">
+                                            <div className="flex items-center justify-center gap-2 text-green-400 font-bold">
+                                                <span>Знання підтверджено</span>
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <Link href="/dashboard" className="inline-block bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                                                До наступного завдання
+                                            </Link>
                                         </div>
-                                        <Link href="/dashboard" className="inline-block bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">
-                                            До наступного завдання
-                                        </Link>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                        )
+                    }
+                </div >
+            </div >
+        </div >
     )
 }

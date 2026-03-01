@@ -1,10 +1,10 @@
-
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { tasks, tracks, results, projectBoards, users } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq, asc } from "drizzle-orm"
 import DashboardClient from "@/components/dashboard/DashboardClient"
+import { checkHasAccess } from "@/lib/access"
 
 export default async function Dashboard() {
     const session = await auth()
@@ -23,6 +23,14 @@ export default async function Dashboard() {
             dynamicRole: true
         }
     })
+
+    // Check free trial / subscription access
+    const hasAccess = await checkHasAccess(
+        session.user.id!,
+        (session.user as any).role,
+        userWithRole?.createdAt ?? null
+    )
+    if (!hasAccess) redirect("/pricing")
 
     const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))
     const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order))

@@ -36,6 +36,7 @@ export default async function AdminLayout({
     ]
 
     const settingsNav = [
+        { name: "Загальні", href: "/admin/settings/general" },
         { name: "Ролі", href: "/admin/roles" },
         { name: "Товари", href: "/admin/products" },
         { name: "Header", href: "/admin/settings/header" },

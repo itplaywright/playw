@@ -4,6 +4,7 @@ import { projectBoards, tasks, tracks, results, users } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq, desc, asc } from "drizzle-orm"
 import ProjectsClient from "@/components/projects/ProjectsClient"
+import { checkHasAccess } from "@/lib/access"
 
 export default async function ProjectsPage() {
     const session = await auth()
@@ -17,6 +18,14 @@ export default async function ProjectsPage() {
             dynamicRole: true
         }
     })
+
+    // Check free trial / subscription access
+    const hasAccess = await checkHasAccess(
+        session.user.id!,
+        (session.user as any).role,
+        userWithRole?.createdAt ?? null
+    )
+    if (!hasAccess) redirect("/pricing")
 
     const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))
     const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order))

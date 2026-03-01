@@ -39,7 +39,7 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete }:
         transition,
         isDragging,
     } = useSortable({
-        id: task.id,
+        id: `task-${task.id}`,
         data: {
             type: "Task",
             task,

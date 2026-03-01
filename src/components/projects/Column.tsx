@@ -41,7 +41,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
         transition,
         isDragging,
     } = useSortable({
-        id: column.id,
+        id: `column-${column.id}`,
         data: {
             type: "Column",
             column,
@@ -97,7 +97,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
             </div>
 
             <div className="flex flex-1 flex-col gap-3 p-3 overflow-y-auto scrollbar-hide min-h-[150px]">
-                <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                <SortableContext items={tasks.map(t => `task-${t.id}`)} strategy={verticalListSortingStrategy}>
                     {tasks.map((task) => (
                         <TaskCard
                             key={task.id}

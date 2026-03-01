@@ -81,13 +81,19 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
         const { active, over } = event
         if (!over) return
 
-        const activeId = active.id
-        const overId = over.id
+        const activeIdStr = active.id as string
+        const overIdStr = over.id as string
 
-        if (activeId === overId) return
+        if (activeIdStr === overIdStr) return
+
+        const activeId = parseInt(activeIdStr.split('-')[1])
+        const overId = overIdStr.toString().startsWith('column-')
+            ? parseInt(overIdStr.split('-')[1])
+            : parseInt(overIdStr.split('-')[1])
 
         const isActiveATask = active.data.current?.type === "Task"
         const isOverATask = over.data.current?.type === "Task"
+        const isOverAColumn = over.data.current?.type === "Column"
 
         if (!isActiveATask) return
 
@@ -95,7 +101,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
         if (isActiveATask && isOverATask) {
             setTasks((items) => {
                 const oldIndex = items.findIndex((t) => t.id === activeId)
-                const newIndex = items.findIndex((t) => t.id === overId)
+                const newIndex = items.findIndex((t) => t.id === parseInt(overIdStr.split('-')[1]))
 
                 if (items[oldIndex].columnId !== items[newIndex].columnId) {
                     const newItems = [...items]
@@ -108,12 +114,12 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
         }
 
         // Drop task over a column
-        const isOverAColumn = over.data.current?.type === "Column"
         if (isActiveATask && isOverAColumn) {
             setTasks((items) => {
                 const oldIndex = items.findIndex((t) => t.id === activeId)
+                const colId = parseInt(overIdStr.split('-')[1])
                 const newItems = [...items]
-                newItems[oldIndex] = { ...newItems[oldIndex], columnId: overId as number }
+                newItems[oldIndex] = { ...newItems[oldIndex], columnId: colId }
                 return arrayMove(newItems, oldIndex, oldIndex)
             })
         }
@@ -124,7 +130,8 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
         const { active, over } = event
         if (!over) return
 
-        const draggedTask = tasks.find(t => t.id === active.id)
+        const activeId = parseInt((active.id as string).split('-')[1])
+        const draggedTask = tasks.find(t => t.id === activeId)
         if (!draggedTask) return
 
         // Persist change to backend

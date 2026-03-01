@@ -3,7 +3,7 @@
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import TaskCard from "./TaskCard"
-import { Plus } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 
 interface Task {
     id: number
@@ -26,9 +26,13 @@ interface Props {
     column: ColumnData
     tasks: Task[]
     isAdmin: boolean
+    onEditTask?: (task: Task) => void
+    onDeleteTask?: (id: number) => void
+    onAddTask?: (columnId: number) => void
+    onRemoveColumn?: (id: number) => void
 }
 
-export default function Column({ column, tasks, isAdmin }: Props) {
+export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTask, onAddTask, onRemoveColumn }: Props) {
     const {
         setNodeRef,
         attributes,
@@ -71,16 +75,37 @@ export default function Column({ column, tasks, isAdmin }: Props) {
                     </span>
                 </div>
                 {isAdmin && (
-                    <button className="p-1 rounded-lg hover:bg-slate-200/50 text-slate-400 transition-colors">
-                        <Plus className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => onAddTask?.(column.id)}
+                            className="p-1 rounded-lg hover:bg-slate-200/50 text-slate-400 transition-colors"
+                        >
+                            <Plus className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (confirm("Видалити цю колонку? Усі задачі в ній також будуть видалені.")) {
+                                    onRemoveColumn?.(column.id)
+                                }
+                            }}
+                            className="p-1 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                    </div>
                 )}
             </div>
 
             <div className="flex flex-1 flex-col gap-3 p-3 overflow-y-auto scrollbar-hide min-h-[150px]">
                 <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
                     {tasks.map((task) => (
-                        <TaskCard key={task.id} task={task} isAdmin={isAdmin} />
+                        <TaskCard
+                            key={task.id}
+                            task={task}
+                            isAdmin={isAdmin}
+                            onEdit={onEditTask}
+                            onDelete={onDeleteTask}
+                        />
                     ))}
                 </SortableContext>
             </div>

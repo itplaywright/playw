@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import {
     DndContext,
     DragOverlay,
@@ -16,14 +16,15 @@ import {
 } from "@dnd-kit/core"
 import {
     arrayMove,
-    SortableContext,
     sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import Column from "./Column"
 import TaskCard from "./TaskCard"
 import { createPortal } from "react-dom"
 import { toast } from "sonner"
+import { Plus } from "lucide-react"
+import CreateColumnDialog from "./CreateColumnDialog"
+import TaskDialog from "./TaskDialog"
 
 interface Task {
     id: number
@@ -47,11 +48,16 @@ interface Props {
     columns: ColumnData[]
     isAdmin: boolean
     boardId: number
+    users: any[]
 }
 
-export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId }: Props) {
+export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, users }: Props) {
     const [tasks, setTasks] = useState<Task[]>(initialTasks)
     const [activeTask, setActiveTask] = useState<Task | null>(null)
+    const [editingTask, setEditingTask] = useState<Task | null>(null)
+    const [activeColumnId, setActiveColumnId] = useState<number | null>(null)
+    const [showTaskDialog, setShowTaskDialog] = useState(false)
+    const [showColumnDialog, setShowColumnDialog] = useState(false)
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -118,21 +124,20 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId }:
         const { active, over } = event
         if (!over) return
 
-        const activeTask = tasks.find(t => t.id === active.id)
-        if (!activeTask) return
+        const draggedTask = tasks.find(t => t.id === active.id)
+        if (!draggedTask) return
 
         // Persist change to backend
         try {
-            const res = await fetch(`/api/projects/tasks/${activeTask.id}`, {
+            const res = await fetch(`/api/projects/tasks/${draggedTask.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ columnId: activeTask.columnId }),
+                body: JSON.stringify({ columnId: draggedTask.columnId }),
             })
             if (!res.ok) throw new Error("Failed to save")
             toast.success("Статус оновлено")
         } catch (error) {
             toast.error("Помилка збереження")
-            // Ideally rollback UI state here
         }
     }
 
@@ -146,35 +151,89 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId }:
                 onDragEnd={onDragEnd}
             >
                 <div className="flex gap-4">
-                    <SortableContext items={tasks.map(t => t.id)}>
-                        {columns.map((col) => (
-                            <Column
-                                key={col.id}
-                                column={col}
-                                tasks={tasks.filter((t) => t.columnId === col.id)}
-                                isAdmin={isAdmin}
-                            />
-                        ))}
-                    </SortableContext>
+                    {columns.sort((a, b) => (a.order || 0) - (b.order || 0)).map((col) => (
+                        <Column
+                            key={col.id}
+                            column={col}
+                            tasks={tasks.filter((t) => t.columnId === col.id)}
+                            isAdmin={isAdmin}
+                            onEditTask={(t) => {
+                                setEditingTask(t)
+                                setShowTaskDialog(true)
+                            }}
+                            onDeleteTask={async (id) => {
+                                if (!confirm("Видалити цю задачу?")) return
+                                try {
+                                    const res = await fetch(`/api/projects/tasks/${id}`, { method: 'DELETE' })
+                                    if (res.ok) {
+                                        setTasks(prev => prev.filter(t => t.id !== id))
+                                        toast.success("Видалено")
+                                    }
+                                } catch (e) { toast.error("Помилка") }
+                            }}
+                            onAddTask={(colId) => {
+                                setActiveColumnId(colId)
+                                setEditingTask(null)
+                                setShowTaskDialog(true)
+                            }}
+                            onRemoveColumn={async (id) => {
+                                try {
+                                    const res = await fetch(`/api/projects/columns/${id}`, { method: 'DELETE' })
+                                    if (res.ok) {
+                                        toast.success("Колонку видалено")
+                                        window.location.reload()
+                                    }
+                                } catch (e) { toast.error("Помилка при видаленні") }
+                            }}
+                        />
+                    ))}
+
+                    {isAdmin && (
+                        <button
+                            onClick={() => setShowColumnDialog(true)}
+                            className="flex h-[150px] w-80 min-w-[320px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all text-slate-400 hover:text-blue-600 gap-2 shrink-0"
+                        >
+                            <Plus className="w-8 h-8" />
+                            <span className="font-black text-xs uppercase tracking-widest">Додати колонку</span>
+                        </button>
+                    )}
                 </div>
 
                 {typeof document !== 'undefined' && createPortal(
                     <DragOverlay dropAnimation={{
                         sideEffects: defaultDropAnimationSideEffects({
                             styles: {
-                                active: {
-                                    opacity: "0.5",
-                                },
+                                active: { opacity: "0.5" },
                             },
                         }),
                     }}>
-                        {activeTask ? (
-                            <TaskCard task={activeTask} isOverlay />
-                        ) : null}
+                        {activeTask ? <TaskCard task={activeTask} isOverlay /> : null}
                     </DragOverlay>,
                     document.body
                 )}
             </DndContext>
+
+            {showColumnDialog && (
+                <CreateColumnDialog
+                    boardId={boardId}
+                    onClose={() => setShowColumnDialog(false)}
+                    onSuccess={() => window.location.reload()}
+                />
+            )}
+
+            {showTaskDialog && (
+                <TaskDialog
+                    boardId={boardId}
+                    columnId={activeColumnId || (columns.length > 0 ? columns[0].id : 0)}
+                    users={users}
+                    task={editingTask as any}
+                    onClose={() => {
+                        setShowTaskDialog(false)
+                        setEditingTask(null)
+                    }}
+                    onSuccess={() => window.location.reload()}
+                />
+            )}
         </div>
     )
 }

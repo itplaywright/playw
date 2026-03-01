@@ -11,19 +11,29 @@ interface User {
     image: string | null
 }
 
+interface Task {
+    id: number
+    columnId: number
+    title: string
+    description: string | null
+    priority: "low" | "medium" | "high" | "critical"
+    assigneeId: string | null
+}
+
 interface Props {
     boardId: number
     columnId: number
     users: User[]
+    task?: Task // Optional task for editing
     onSuccess: () => void
     onClose: () => void
 }
 
-export default function TaskDialog({ boardId, columnId, users, onSuccess, onClose }: Props) {
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
-    const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">("medium")
-    const [assigneeId, setAssigneeId] = useState<string>("")
+export default function TaskDialog({ boardId, columnId, users, task, onSuccess, onClose }: Props) {
+    const [title, setTitle] = useState(task?.title || "")
+    const [description, setDescription] = useState(task?.description || "")
+    const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">(task?.priority || "medium")
+    const [assigneeId, setAssigneeId] = useState<string>(task?.assigneeId || "")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -34,9 +44,13 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
         }
 
         setIsSubmitting(true)
+        const isEditing = !!task
+        const url = isEditing ? `/api/projects/tasks/${task.id}` : "/api/projects/tasks"
+        const method = isEditing ? "PATCH" : "POST"
+
         try {
-            const res = await fetch("/api/projects/tasks", {
-                method: "POST",
+            const res = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     boardId,
@@ -49,14 +63,14 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
             })
 
             if (res.ok) {
-                toast.success("Задачу створено")
+                toast.success(isEditing ? "Задачу оновлено" : "Задачу створено")
                 onSuccess()
                 onClose()
             } else {
                 throw new Error("Failed")
             }
         } catch (error) {
-            toast.error("Помилка при створенні")
+            toast.error(isEditing ? "Помилка при оновленні" : "Помилка при створенні")
         } finally {
             setIsSubmitting(false)
         }
@@ -66,7 +80,9 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in duration-200">
                 <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Нова задача</h2>
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                        {task ? "Редагувати задачу" : "Нова задача"}
+                    </h2>
                     <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
                         <X className="w-5 h-5" />
                     </button>
@@ -134,7 +150,7 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
                         disabled={isSubmitting}
                         className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-600/20 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isSubmitting ? "Створення..." : "Створити задачу"}
+                        {isSubmitting ? "Збереження..." : (task ? "Оновити задачу" : "Створити задачу")}
                     </button>
                 </form>
             </div>

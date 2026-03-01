@@ -19,6 +19,7 @@ interface Props {
     task: Task
     isOverlay?: boolean
     isAdmin?: boolean
+    onEdit?: (task: Task) => void
     onDelete?: (id: number) => void
 }
 
@@ -29,7 +30,7 @@ const PRIORITY_COLORS = {
     critical: "text-red-500 bg-red-50 border-red-100",
 }
 
-export default function TaskCard({ task, isOverlay, isAdmin }: Props) {
+export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete }: Props) {
     const {
         setNodeRef,
         attributes,
@@ -89,19 +90,20 @@ export default function TaskCard({ task, isOverlay, isAdmin }: Props) {
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onPointerDown={(e) => e.stopPropagation()}
-                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-all"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onEdit?.(task)
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-all font-bold"
                         >
                             <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
-                            onPointerDown={(e) => {
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
                                 e.stopPropagation()
                                 if (confirm("Видалити цю задачу?")) {
-                                    fetch(`/api/projects/tasks/${task.id}`, { method: 'DELETE' })
-                                        .then(() => {
-                                            toast.success("Видалено")
-                                            window.location.reload() // Simple reload for MVP
-                                        })
+                                    onDelete?.(task.id)
                                 }
                             }}
                             className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"

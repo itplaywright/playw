@@ -68,6 +68,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     columns={board.columns.map((c: any) => ({ ...c, order: c.order ?? 0 }))}
                     isAdmin={isAdmin}
                     boardId={board.id}
+                    users={users}
                 />
             </main>
 

@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { projectBoards, tasks, tracks, results } from "@/db/schema"
 import { redirect } from "next/navigation"
-import { eq } from "drizzle-orm"
+import { eq, desc } from "drizzle-orm"
 import ProjectsClient from "@/components/projects/ProjectsClient"
 
 export default async function ProjectsPage() {
@@ -14,7 +14,7 @@ export default async function ProjectsPage() {
     const allTracks = await db.select().from(tracks).orderBy(tracks.order)
     const allTasks = await db.select().from(tasks).orderBy(tasks.order)
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
-    const boards = await db.select().from(projectBoards).orderBy((boards, { desc }) => [desc(boards.createdAt)])
+    const boards = await db.select().from(projectBoards).orderBy(desc(projectBoards.createdAt))
 
     const isAdmin = (session.user as any).role === "admin"
     const visibleTracks = isAdmin ? allTracks : allTracks.filter(t => t.isActive)

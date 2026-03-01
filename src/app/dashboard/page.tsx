@@ -1,9 +1,9 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { tasks, tracks, results, projectBoards } from "@/db/schema"
+import { tasks, tracks, results, projectBoards, users } from "@/db/schema"
 import { redirect } from "next/navigation"
-import { eq } from "drizzle-orm"
+import { eq, asc } from "drizzle-orm"
 import DashboardClient from "@/components/dashboard/DashboardClient"
 
 export default async function Dashboard() {
@@ -17,8 +17,15 @@ export default async function Dashboard() {
         redirect("/onboarding")
     }
 
-    const allTracks = await db.select().from(tracks).orderBy(tracks.order)
-    const allTasks = await db.select().from(tasks).orderBy(tasks.order)
+    const userWithRole = await db.query.users.findFirst({
+        where: eq(users.id, session.user.id!),
+        with: {
+            dynamicRole: true
+        }
+    })
+
+    const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))
+    const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order))
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
     const boards = await db.select().from(projectBoards)
 
@@ -49,6 +56,7 @@ export default async function Dashboard() {
             userName={session.user.name}
             userImage={session.user.image}
             projects={boards as any}
+            role={userWithRole?.dynamicRole}
         />
     )
 }

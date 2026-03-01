@@ -1,4 +1,3 @@
-
 import {
     timestamp,
     pgTable,
@@ -34,6 +33,7 @@ export const users = pgTable("user", {
     image: text("image"),
     passwordHash: text("password_hash"),
     role: roleEnum("role").default("user"),
+    dynamicRoleId: integer("dynamic_role_id").references(() => roles.id, { onDelete: "set null" }),
     isBlocked: boolean("is_blocked").default(false),
     onboardingCompleted: boolean("onboarding_completed").default(false),
     learningPath: learningPathEnum("learning_path"),
@@ -85,6 +85,15 @@ export const verificationTokens = pgTable(
         }),
     })
 )
+
+export const roles = pgTable("roles", {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull().unique(),
+    description: text("description"),
+    maxTrackOrder: integer("max_track_order").default(0),
+    isDefault: boolean("is_default").default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+})
 
 export const tracks = pgTable("tracks", {
     id: serial("id").primaryKey(),
@@ -189,7 +198,8 @@ export const products = pgTable("products", {
     title: text("title").notNull(),
     description: text("description"),
     price: integer("price").default(0).notNull(), // Amount in smallest currency unit
-    type: productTypeEnum("type").default("course").notNull(),
+    type: productTypeEnum("product_type").default("course").notNull(),
+    grantedRoleId: integer("granted_role_id").references(() => roles.id, { onDelete: "set null" }),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow(),
 })
@@ -233,10 +243,19 @@ export const projectTasks = pgTable("project_tasks", {
 
 import { relations } from "drizzle-orm"
 
-export const userRelations = relations(users, ({ many }) => ({
+export const userRelations = relations(users, ({ one, many }) => ({
     questions: many(questions),
     results: many(results),
     userProducts: many(userProducts),
+    dynamicRole: one(roles, {
+        fields: [users.dynamicRoleId],
+        references: [roles.id],
+    }),
+}))
+
+export const roleRelations = relations(roles, ({ many }) => ({
+    users: many(users),
+    products: many(products),
 }))
 
 export const taskRelations = relations(tasks, ({ one, many }) => ({
@@ -267,8 +286,12 @@ export const questionRelations = relations(questions, ({ one }) => ({
     }),
 }))
 
-export const productRelations = relations(products, ({ many }) => ({
+export const productRelations = relations(products, ({ one, many }) => ({
     userProducts: many(userProducts),
+    grantedRole: one(roles, {
+        fields: [products.grantedRoleId],
+        references: [roles.id],
+    }),
 }))
 
 export const userProductRelations = relations(userProducts, ({ one }) => ({

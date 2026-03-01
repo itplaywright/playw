@@ -47,6 +47,11 @@ interface Props {
     userName?: string | null
     userImage?: string | null
     projects: Project[]
+    role?: {
+        id: number
+        name: string
+        maxTrackOrder: number | null
+    } | null
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -67,7 +72,7 @@ const STATUS_STYLES: Record<string, string> = {
     "Не розпочато": "bg-slate-100 text-slate-500",
 }
 
-export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, projects }: Props) {
+export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, projects, role }: Props) {
     const [selectedTrackId, setSelectedTrackId] = useState<number>(tracks[0]?.id ?? 0)
     const [activeTab, setActiveTab] = useState<"quiz" | "code">("code")
 
@@ -88,7 +93,11 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const quizCount = trackTasks.filter(t => t.type === "quiz" || (t.options && t.options.length > 0)).length
     const codeCount = trackTasks.filter(t => t.type === "code").length
 
-    const isProTrack = (order: number | null) => (order ?? 0) >= 3
+    const isProTrack = (order: number | null) => {
+        if (isAdmin) return false
+        const maxOrder = role?.maxTrackOrder ?? 2
+        return (order ?? 0) > maxOrder
+    }
 
     const totalDone = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).done, 0)
     const totalAll = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).total, 0)
@@ -150,6 +159,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                     selectedTrackId={selectedTrackId}
                     setSelectedTrackId={setSelectedTrackId}
                     isAdmin={isAdmin}
+                    role={role}
                     currentPath="/dashboard"
                 />
 

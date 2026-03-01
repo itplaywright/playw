@@ -30,6 +30,11 @@ interface Props {
     statusMap: Record<number, any>
     userName?: string | null
     userImage?: string | null
+    role?: {
+        id: number
+        name: string
+        maxTrackOrder: number | null
+    } | null
 }
 
 export default function ProjectsClient({
@@ -39,7 +44,8 @@ export default function ProjectsClient({
     tasks,
     statusMap,
     userName,
-    userImage
+    userImage,
+    role
 }: Props) {
     const [boards, setBoards] = useState<Board[]>(initialBoards)
     const [showCreateDialog, setShowCreateDialog] = useState(false)
@@ -103,6 +109,7 @@ export default function ProjectsClient({
                     tracks={tracks}
                     getTrackProgress={getTrackProgress}
                     isAdmin={isAdmin}
+                    role={role}
                     currentPath="/projects"
                 />
 

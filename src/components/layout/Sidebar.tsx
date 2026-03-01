@@ -11,12 +11,19 @@ interface Track {
     order: number | null
 }
 
+interface Role {
+    id: number
+    name: string
+    maxTrackOrder: number | null
+}
+
 interface SidebarProps {
     tracks: Track[]
     getTrackProgress: (trackId: number) => { done: number, total: number }
     selectedTrackId?: number
     setSelectedTrackId?: (id: number) => void
     isAdmin: boolean
+    role?: Role | null
     currentPath: string
 }
 
@@ -26,9 +33,14 @@ export default function Sidebar({
     selectedTrackId,
     setSelectedTrackId,
     isAdmin,
+    role,
     currentPath
 }: SidebarProps) {
-    const isProTrack = (order: number | null) => (order ?? 0) >= 3
+    const isProTrack = (order: number | null) => {
+        if (isAdmin) return false
+        const maxOrder = role?.maxTrackOrder ?? 2 // Default to 2 if no role/sub
+        return (order ?? 0) > maxOrder
+    }
 
     return (
         <aside className="w-64 flex-shrink-0 bg-[#0f172a] flex flex-col h-full">
@@ -53,8 +65,8 @@ export default function Sidebar({
                 <Link
                     href="/setup"
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${currentPath === "/setup"
-                            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
                         }`}
                 >
                     <Layers className="w-4 h-4 flex-shrink-0" />
@@ -64,8 +76,8 @@ export default function Sidebar({
                 <Link
                     href="/projects"
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${currentPath === "/projects"
-                            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
                         }`}
                 >
                     <LayoutGrid className="w-4 h-4 flex-shrink-0" />
@@ -113,8 +125,8 @@ export default function Sidebar({
                 <Link
                     href="/cabinet"
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${currentPath === "/cabinet"
-                            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
                         }`}
                 >
                     <BarChart2 className="w-4 h-4" />

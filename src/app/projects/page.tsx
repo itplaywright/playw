@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { projectBoards, tasks, tracks, results } from "@/db/schema"
+import { projectBoards, tasks, tracks, results, users } from "@/db/schema"
 import { redirect } from "next/navigation"
-import { eq, desc } from "drizzle-orm"
+import { eq, desc, asc } from "drizzle-orm"
 import ProjectsClient from "@/components/projects/ProjectsClient"
 
 export default async function ProjectsPage() {
@@ -11,8 +11,15 @@ export default async function ProjectsPage() {
         redirect("/")
     }
 
-    const allTracks = await db.select().from(tracks).orderBy(tracks.order)
-    const allTasks = await db.select().from(tasks).orderBy(tasks.order)
+    const userWithRole = await db.query.users.findFirst({
+        where: eq(users.id, session.user.id!),
+        with: {
+            dynamicRole: true
+        }
+    })
+
+    const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))
+    const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order))
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
     const boards = await db.select().from(projectBoards).orderBy(desc(projectBoards.createdAt))
 
@@ -42,6 +49,7 @@ export default async function ProjectsPage() {
             statusMap={statusMap}
             userName={session.user.name}
             userImage={session.user.image}
+            role={userWithRole?.dynamicRole}
         />
     )
 }

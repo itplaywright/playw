@@ -9,20 +9,28 @@ import {
     Search,
     Calendar,
     Award,
-    Trash2
+    Trash2,
+    Crown
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface UserData {
     id: string
     email: string | null
     role: "user" | "admin" | null
+    dynamicRoleId: number | null
     isBlocked: boolean | null
     createdAt: Date | null
     passedTasks: number
 }
 
-export default function UsersClient({ initialUsers }: { initialUsers: UserData[] }) {
+interface Role {
+    id: number
+    name: string
+}
+
+export default function UsersClient({ initialUsers, roles }: { initialUsers: UserData[], roles: Role[] }) {
     const [users, setUsers] = useState(initialUsers)
     const [searchTerm, setSearchTerm] = useState("")
     const [filter, setFilter] = useState<"all" | "admin" | "blocked">("all")
@@ -48,6 +56,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserData[]
             if (res.ok) {
                 router.refresh()
                 setUsers(users.map(u => u.id === user.id ? { ...u, isBlocked: !u.isBlocked } : u))
+                toast.success(user.isBlocked ? "Користувача розблоковано" : "Користувача заблоковано")
             }
         } catch (error) {
             console.error("Error toggling block status:", error)
@@ -62,6 +71,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserData[]
             if (res.ok) {
                 router.refresh()
                 setUsers(users.filter(u => u.id !== id))
+                toast.success("Користувача видалено")
             }
         } catch (error) {
             console.error("Error deleting user:", error)
@@ -81,9 +91,30 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserData[]
             if (res.ok) {
                 router.refresh()
                 setUsers(users.map(u => u.id === userId ? { ...u, passedTasks: 0 } : u))
+                toast.success("Прогрес скинуто")
             }
         } catch (error) {
             console.error("Error resetting progress:", error)
+        }
+    }
+
+    const updateUserRole = async (userId: string, roleId: string) => {
+        try {
+            const res = await fetch("/api/admin/users/role", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, dynamicRoleId: roleId === "none" ? null : parseInt(roleId) })
+            })
+
+            if (res.ok) {
+                router.refresh()
+                setUsers(users.map(u => u.id === userId ? { ...u, dynamicRoleId: roleId === "none" ? null : parseInt(roleId) } : u))
+                toast.success("Роль користувача оновлено")
+            } else {
+                toast.error("Помилка при оновленні ролі")
+            }
+        } catch (error) {
+            toast.error("Помилка при оновленні ролі")
         }
     }
 
@@ -136,37 +167,37 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserData[]
                                 <div className={`h-12 w-12 rounded-2xl flex items-center justify-center font-bold text-lg ${user.role === 'admin' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
                                     {user.email?.[0].toUpperCase()}
                                 </div>
-                                <div className="ml-4">
+                                <div className="ml-4 overflow-hidden">
                                     <div className="flex items-center space-x-2">
-                                        <p className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{user.email}</p>
+                                        <p className="text-sm font-bold text-gray-900 truncate max-w-[120px]" title={user.email || ""}>{user.email}</p>
                                         {user.role === 'admin' && (
-                                            <span className="bg-amber-100 text-amber-700 text-[10px] font-black uppercase px-1.5 py-0.5 rounded">Admin</span>
+                                            <Crown className="w-3.5 h-3.5 text-amber-500" />
                                         )}
                                     </div>
-                                    <p className="text-xs text-gray-500 flex items-center mt-1">
+                                    <p className="text-xs text-gray-500 flex items-center mt-0.5">
                                         <Calendar className="h-3 w-3 mr-1" />
                                         {new Date(user.createdAt!).toLocaleDateString('uk-UA')}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex space-x-1">
+                            <div className="flex space-x-0.5">
                                 <button
                                     onClick={() => resetProgress(user.id)}
-                                    className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all"
+                                    className="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
                                     title="Скинути прогрес"
                                 >
                                     <RefreshCcw className="h-4 w-4" />
                                 </button>
                                 <button
                                     onClick={() => toggleBlock(user)}
-                                    className={`p-2 rounded-xl transition-all ${user.isBlocked ? 'text-red-600 bg-red-50 hover:bg-red-100' : 'text-gray-400 hover:text-red-600 hover:bg-red-50'}`}
+                                    className={`p-1.5 rounded-lg transition-all ${user.isBlocked ? 'text-red-600 bg-red-50 hover:bg-red-100' : 'text-gray-400 hover:text-red-600 hover:bg-red-50'}`}
                                     title={user.isBlocked ? "Розблокувати" : "Заблокувати"}
                                 >
                                     {user.isBlocked ? <ShieldOff className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
                                 </button>
                                 <button
                                     onClick={() => deleteUser(user.id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                     title="Видалити"
                                 >
                                     <Trash2 className="h-4 w-4" />
@@ -174,7 +205,22 @@ export default function UsersClient({ initialUsers }: { initialUsers: UserData[]
                             </div>
                         </div>
 
-                        <div className="pt-4 border-t border-gray-100 mt-4">
+                        {/* Role selector */}
+                        <div className="mb-4">
+                            <label className="block text-[10px] font-black uppercase text-gray-400 mb-1 ml-1">Підписка / Роль</label>
+                            <select
+                                value={user.dynamicRoleId || "none"}
+                                onChange={(e) => updateUserRole(user.id, e.target.value)}
+                                className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-xs font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                            >
+                                <option value="none">Без підписки</option>
+                                {roles.map(role => (
+                                    <option key={role.id} value={role.id}>{role.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="pt-4 border-t border-gray-100">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center">
                                     <Award className="h-3.5 w-3.5 mr-1.5 text-blue-500" />

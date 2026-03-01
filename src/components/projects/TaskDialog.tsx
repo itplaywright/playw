@@ -79,7 +79,7 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Наприклад: Реалізувати авторизацію"
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-semibold"
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-semibold text-slate-900"
                         />
                     </div>
 
@@ -90,7 +90,7 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Деталі завдання..."
                             rows={4}
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none text-sm font-medium"
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none text-sm font-medium text-slate-900"
                         />
                     </div>
 
@@ -100,7 +100,7 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
                             <select
                                 value={priority}
                                 onChange={(e) => setPriority(e.target.value as any)}
-                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm"
+                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm text-slate-900"
                             >
                                 <option value="low">Низький</option>
                                 <option value="medium">Середній</option>
@@ -114,7 +114,7 @@ export default function TaskDialog({ boardId, columnId, users, onSuccess, onClos
                             <select
                                 value={assigneeId}
                                 onChange={(e) => setAssigneeId(e.target.value)}
-                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm"
+                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all appearance-none bg-slate-50 font-bold text-sm text-slate-900"
                             >
                                 <option value="">Не призначено</option>
                                 {users.map(u => (

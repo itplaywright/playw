@@ -1,7 +1,7 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { projectBoards } from "@/db/schema"
+import { projectBoards, projectColumns } from "@/db/schema"
 import { redirect } from "next/navigation"
 
 export default async function ProjectsPage() {
@@ -39,8 +39,14 @@ export default async function ProjectsPage() {
                             description: "Система таск-менеджменту для реальної практики",
                         }).returning()
 
-                        // We need to add default columns too, similar to route.ts
-                        // For brevity in MVP I'll just redirect and let the user add columns or use a better bootstrap
+                        const defaultColumns = [
+                            { title: "To Do", order: 1, color: "#94a3b8", boardId: newBoard.id },
+                            { title: "In Progress", order: 2, color: "#3b82f6", boardId: newBoard.id },
+                            { title: "Review", order: 3, color: "#eab308", boardId: newBoard.id },
+                            { title: "Done", order: 4, color: "#22c55e", boardId: newBoard.id },
+                        ]
+
+                        await db.insert(projectColumns).values(defaultColumns)
                         redirect(`/projects/${newBoard.id}`)
                     }}>
                         <button className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-blue-600/20 transition-all">

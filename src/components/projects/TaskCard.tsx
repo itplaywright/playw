@@ -21,6 +21,7 @@ interface Props {
     isAdmin?: boolean
     onEdit?: (task: Task) => void
     onDelete?: (id: number) => void
+    onView?: (task: Task) => void
 }
 
 const PRIORITY_COLORS = {
@@ -30,7 +31,7 @@ const PRIORITY_COLORS = {
     critical: "text-red-500 bg-red-50 border-red-100",
 }
 
-export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete }: Props) {
+export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, onView }: Props) {
     const {
         setNodeRef,
         attributes,
@@ -77,11 +78,14 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete }:
         <div
             ref={setNodeRef}
             style={style}
-            {...attributes}
-            {...listeners}
-            className="group relative flex flex-col p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-grab active:cursor-grabbing"
+            onClick={() => onView?.(task)}
+            className="group relative flex flex-col p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
         >
-            <div className="flex items-start justify-between mb-2">
+            <div
+                {...attributes}
+                {...listeners}
+                className="flex items-start justify-between mb-2 cursor-grab active:cursor-grabbing"
+            >
                 <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${PRIORITY_COLORS[task.priority]}`}>
                     {task.priority}
                 </span>

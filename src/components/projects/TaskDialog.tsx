@@ -25,11 +25,12 @@ interface Props {
     columnId: number
     users: User[]
     task?: Task // Optional task for editing
+    mode?: 'create' | 'edit' | 'view'
     onSuccess: () => void
     onClose: () => void
 }
 
-export default function TaskDialog({ boardId, columnId, users, task, onSuccess, onClose }: Props) {
+export default function TaskDialog({ boardId, columnId, users, task, mode = 'create', onSuccess, onClose }: Props) {
     const [title, setTitle] = useState(task?.title || "")
     const [description, setDescription] = useState(task?.description || "")
     const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">(task?.priority || "medium")
@@ -81,7 +82,7 @@ export default function TaskDialog({ boardId, columnId, users, task, onSuccess, 
             <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in duration-200">
                 <div className="flex items-center justify-between p-6 border-b border-slate-100">
                     <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                        {task ? "Редагувати задачу" : "Нова задача"}
+                        {mode === 'view' ? "Перегляд задачі" : task ? "Редагувати задачу" : "Нова задача"}
                     </h2>
                     <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
                         <X className="w-5 h-5" />
@@ -91,30 +92,47 @@ export default function TaskDialog({ boardId, columnId, users, task, onSuccess, 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     <div className="space-y-2">
                         <label className="text-xs font-black uppercase tracking-widest text-slate-500">Назва задачі</label>
-                        <input
-                            autoFocus
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Наприклад: Реалізувати авторизацію"
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-semibold text-slate-900 bg-white"
-                        />
+                        {mode === 'view' ? (
+                            <div className="text-lg font-bold text-slate-900">{title}</div>
+                        ) : (
+                            <input
+                                autoFocus
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                placeholder="Наприклад: Реалізувати авторизацію"
+                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-semibold text-slate-900 bg-white"
+                            />
+                        )}
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-slate-500">Опис (Markdown)</label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Деталі завдання..."
-                            rows={4}
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none text-sm font-medium text-slate-900 bg-white"
-                        />
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500">Опис</label>
+                        {mode === 'view' ? (
+                            <div className="text-sm font-medium text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-100 min-h-[100px]">
+                                {description || <span className="text-slate-400 italic">Опис відсутній</span>}
+                            </div>
+                        ) : (
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Деталі завдання..."
+                                rows={4}
+                                className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none text-sm font-medium text-slate-900 bg-white"
+                            />
+                        )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className="text-xs font-black uppercase tracking-widest text-slate-500">Пріоритет</label>
-                            <div className="relative">
+                            {mode === 'view' ? (
+                                <div className="px-4 py-2 bg-slate-50 rounded-xl font-bold text-sm text-slate-900 border border-slate-100">
+                                    {priority === 'low' && "Низький"}
+                                    {priority === 'medium' && "Середній"}
+                                    {priority === 'high' && "Високий"}
+                                    {priority === 'critical' && "Критичний"}
+                                </div>
+                            ) : (
                                 <select
                                     value={priority}
                                     onChange={(e) => setPriority(e.target.value as any)}
@@ -125,12 +143,16 @@ export default function TaskDialog({ boardId, columnId, users, task, onSuccess, 
                                     <option value="high">Високий</option>
                                     <option value="critical">Критичний</option>
                                 </select>
-                            </div>
+                            )}
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-xs font-black uppercase tracking-widest text-slate-500">Виконавець</label>
-                            <div className="relative">
+                            {mode === 'view' ? (
+                                <div className="px-4 py-2 bg-slate-50 rounded-xl font-bold text-sm text-slate-900 border border-slate-100">
+                                    {users.find(u => u.id === assigneeId)?.name || "Не призначено"}
+                                </div>
+                            ) : (
                                 <select
                                     value={assigneeId}
                                     onChange={(e) => setAssigneeId(e.target.value)}
@@ -141,17 +163,19 @@ export default function TaskDialog({ boardId, columnId, users, task, onSuccess, 
                                         <option key={u.id} value={u.id}>{u.name || u.email || u.id}</option>
                                     ))}
                                 </select>
-                            </div>
+                            )}
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-600/20 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isSubmitting ? "Збереження..." : (task ? "Оновити задачу" : "Створити задачу")}
-                    </button>
+                    {mode !== 'view' && (
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-600/20 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isSubmitting ? "Збереження..." : (task ? "Оновити задачу" : "Створити задачу")}
+                        </button>
+                    )}
                 </form>
             </div>
         </div>

@@ -30,6 +30,7 @@ interface Props {
     onDeleteTask?: (id: number) => void
     onAddTask?: (columnId: number) => void
     onRemoveColumn?: (id: number) => void
+    onViewTask?: (task: Task) => void
 }
 
 export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTask, onAddTask, onRemoveColumn }: Props) {
@@ -105,6 +106,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
                             isAdmin={isAdmin}
                             onEdit={onEditTask}
                             onDelete={onDeleteTask}
+                            onView={onViewTask}
                         />
                     ))}
                 </SortableContext>

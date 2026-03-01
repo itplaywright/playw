@@ -59,6 +59,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [activeColumn, setActiveColumn] = useState<ColumnData | null>(null)
     const [editingTask, setEditingTask] = useState<Task | null>(null)
+    const [taskDialogMode, setTaskDialogMode] = useState<'create' | 'edit' | 'view'>('create')
     const [activeColumnId, setActiveColumnId] = useState<number | null>(null)
     const [showTaskDialog, setShowTaskDialog] = useState(false)
     const [showColumnDialog, setShowColumnDialog] = useState(false)
@@ -225,6 +226,12 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                                 isAdmin={isAdmin}
                                 onEditTask={(t) => {
                                     setEditingTask(t)
+                                    setTaskDialogMode('edit')
+                                    setShowTaskDialog(true)
+                                }}
+                                onViewTask={(t) => {
+                                    setEditingTask(t)
+                                    setTaskDialogMode('view')
                                     setShowTaskDialog(true)
                                 }}
                                 onDeleteTask={async (id) => {
@@ -240,6 +247,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                                 onAddTask={(colId) => {
                                     setActiveColumnId(colId)
                                     setEditingTask(null)
+                                    setTaskDialogMode('create')
                                     setShowTaskDialog(true)
                                 }}
                                 onRemoveColumn={async (id) => {
@@ -305,6 +313,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                     columnId={activeColumnId || (localColumns.length > 0 ? localColumns[0].id : 0)}
                     users={users}
                     task={editingTask as any}
+                    mode={taskDialogMode}
                     onClose={() => {
                         setShowTaskDialog(false)
                         setEditingTask(null)

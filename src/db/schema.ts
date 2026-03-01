@@ -91,6 +91,7 @@ export const roles = pgTable("roles", {
     name: text("name").notNull().unique(),
     description: text("description"),
     maxTrackOrder: integer("max_track_order").default(0),
+    hasPracticeAccess: boolean("has_practice_access").default(false),
     isDefault: boolean("is_default").default(false),
     createdAt: timestamp("created_at").defaultNow(),
 })

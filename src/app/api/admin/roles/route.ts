@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json()
-        const { name, description, maxTrackOrder, isDefault } = body
+        const { name, description, maxTrackOrder, isDefault, hasPracticeAccess } = body
 
         if (!name) {
             return NextResponse.json({ error: "Name is required" }, { status: 400 })
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         }
 
         const newRole = await db.insert(roles)
-            .values({ name, description, maxTrackOrder, isDefault })
+            .values({ name, description, maxTrackOrder, isDefault, hasPracticeAccess })
             .returning()
 
         return NextResponse.json(newRole[0])
@@ -55,7 +55,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, name, description, maxTrackOrder, isDefault } = body
+        const { id, name, description, maxTrackOrder, isDefault, hasPracticeAccess } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
@@ -66,7 +66,7 @@ export async function PATCH(req: Request) {
         }
 
         const updatedRole = await db.update(roles)
-            .set({ name, description, maxTrackOrder, isDefault })
+            .set({ name, description, maxTrackOrder, isDefault, hasPracticeAccess })
             .where(eq(roles.id, id))
             .returning()
 

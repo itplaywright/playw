@@ -3,7 +3,7 @@ import { db } from "@/db"
 import { products, roles } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { desc, asc } from "drizzle-orm"
-import ProductsClient from "@/components/admin/ProductsClient"
+import ProductsClient from "../../../components/admin/ProductsClient"
 
 export default async function AdminProductsPage() {
     const session = await auth()

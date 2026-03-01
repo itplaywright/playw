@@ -20,6 +20,7 @@ interface Role {
     name: string
     description: string | null
     maxTrackOrder: number | null
+    hasPracticeAccess: boolean | null
     isDefault: boolean | null
 }
 
@@ -31,6 +32,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
         name: "",
         description: "",
         maxTrackOrder: 0,
+        hasPracticeAccess: false,
         isDefault: false
     })
     const router = useRouter()
@@ -42,6 +44,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                 name: role.name,
                 description: role.description || "",
                 maxTrackOrder: role.maxTrackOrder || 0,
+                hasPracticeAccess: role.hasPracticeAccess || false,
                 isDefault: role.isDefault || false
             })
         } else {
@@ -50,6 +53,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                 name: "",
                 description: "",
                 maxTrackOrder: 0,
+                hasPracticeAccess: false,
                 isDefault: false
             })
         }
@@ -169,6 +173,15 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                 </div>
                                 <span className="text-sm font-black text-blue-600">До рівня {role.maxTrackOrder}</span>
                             </div>
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="flex items-center gap-2">
+                                    {role.hasPracticeAccess ? <Unlock className="w-3.5 h-3.5 text-green-500" /> : <Lock className="w-3.5 h-3.5 text-gray-400" />}
+                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Доступ до Практики</span>
+                                </div>
+                                <span className={`text-sm font-black ${role.hasPracticeAccess ? "text-green-600" : "text-gray-400"}`}>
+                                    {role.hasPracticeAccess ? "Так" : "Ні"}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -220,6 +233,16 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                     <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
                                     Користувач зможе бачити тільки ті треки, у яких поле 'Order' менше або дорівнює цьому значенню.
                                 </p>
+                            </div>
+                            <div className="flex items-center gap-3 p-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, hasPracticeAccess: !formData.hasPracticeAccess })}
+                                    className={`w-11 h-6 rounded-full transition-all relative ${formData.hasPracticeAccess ? "bg-blue-600" : "bg-gray-200"}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.hasPracticeAccess ? "left-6" : "left-1"}`} />
+                                </button>
+                                <span className="text-sm font-bold text-gray-700">Надати доступ до Практики (Проєкти)</span>
                             </div>
                             <div className="flex items-center gap-3 p-1">
                                 <button

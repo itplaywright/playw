@@ -33,7 +33,7 @@ interface Props {
     onViewTask?: (task: Task) => void
 }
 
-export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTask, onAddTask, onRemoveColumn }: Props) {
+export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTask, onAddTask, onRemoveColumn, onViewTask }: Props) {
     const {
         setNodeRef,
         attributes,
@@ -47,7 +47,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
             type: "Column",
             column,
         },
-        disabled: false,
+        disabled: !isAdmin,
     })
 
     const style = {

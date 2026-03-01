@@ -64,9 +64,27 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
     const [showTaskDialog, setShowTaskDialog] = useState(false)
     const [showColumnDialog, setShowColumnDialog] = useState(false)
 
-    // Load local order on mount and when columns prop changes
+    // Load local order on mount and when columns/tasks prop changes
     useEffect(() => {
-        const savedOrder = localStorage.getItem(`kanban-column-order-${boardId}`)
+        const boardKey = `kanban-task-positions-${boardId}`
+        const savedPositions = localStorage.getItem(boardKey)
+        let mergedTasks = [...initialTasks]
+
+        if (savedPositions) {
+            try {
+                const localPositions = JSON.parse(savedPositions) as Record<number, number>
+                mergedTasks = initialTasks.map(t => ({
+                    ...t,
+                    columnId: localPositions[t.id] ?? t.columnId
+                }))
+            } catch (e) {
+                console.error("Failed to parse local positions")
+            }
+        }
+        setTasks(mergedTasks)
+
+        const colOrderKey = `kanban-column-order-${boardId}`
+        const savedOrder = localStorage.getItem(colOrderKey)
         let baseColumns = [...columns]
 
         if (savedOrder) {
@@ -75,7 +93,6 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                 baseColumns.sort((a, b) => {
                     const indexA = orderIds.indexOf(a.id)
                     const indexB = orderIds.indexOf(b.id)
-                    // New columns (not in local saved order) go to the end
                     if (indexA === -1 && indexB === -1) return (a.order || 0) - (b.order || 0)
                     if (indexA === -1) return 1
                     if (indexB === -1) return -1
@@ -88,10 +105,18 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
             baseColumns.sort((a, b) => (a.order || 0) - (b.order || 0))
         }
         setLocalColumns(baseColumns)
-    }, [columns, boardId])
+    }, [columns, initialTasks, boardId])
 
     const saveColumnOrder = (newCols: ColumnData[]) => {
         localStorage.setItem(`kanban-column-order-${boardId}`, JSON.stringify(newCols.map(c => c.id)))
+    }
+
+    const saveTaskPositions = (allTasks: Task[]) => {
+        const positions: Record<number, number> = {}
+        allTasks.forEach(t => {
+            positions[t.id] = t.columnId
+        })
+        localStorage.setItem(`kanban-task-positions-${boardId}`, JSON.stringify(positions))
     }
 
     const sensors = useSensors(
@@ -110,7 +135,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
             setActiveTask(event.active.data.current.task)
             return
         }
-        if (event.active.data.current?.type === "Column") {
+        if (event.active.data.current?.type === "Column" && isAdmin) {
             setActiveColumn(event.active.data.current.column)
             return
         }
@@ -173,18 +198,9 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
             const draggedTask = tasks.find(t => t.id === activeId)
             if (!draggedTask) return
 
-            // Persist change to backend
-            try {
-                const res = await fetch(`/api/projects/tasks/${draggedTask.id}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ columnId: draggedTask.columnId }),
-                })
-                if (!res.ok) throw new Error("Failed to save")
-                toast.success("Статус оновлено")
-            } catch (error) {
-                toast.error("Помилка збереження")
-            }
+            // Persist change LOCAL ONLY as requested
+            saveTaskPositions(tasks)
+            toast.success("Збережено локально")
             return
         }
 

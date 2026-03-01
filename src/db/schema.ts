@@ -22,6 +22,7 @@ export const questionStatusEnum = pgEnum("question_status", ["pending", "answere
 export const learningPathEnum = pgEnum("learning_path", ["theory", "practice"])
 export const productTypeEnum = pgEnum("product_type", ["course", "disk", "other"])
 export const purchaseStatusEnum = pgEnum("purchase_status", ["active", "expired", "cancelled"])
+export const projectPriorityEnum = pgEnum("project_priority", ["low", "medium", "high", "critical"])
 
 export const users = pgTable("user", {
     id: text("id")
@@ -202,6 +203,34 @@ export const userProducts = pgTable("user_products", {
     expiresAt: timestamp("expires_at"),
 })
 
+export const projectBoards = pgTable("project_boards", {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow(),
+})
+
+export const projectColumns = pgTable("project_columns", {
+    id: serial("id").primaryKey(),
+    boardId: integer("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    order: integer("order").default(0),
+    color: text("color"),
+})
+
+export const projectTasks = pgTable("project_tasks", {
+    id: serial("id").primaryKey(),
+    boardId: integer("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
+    columnId: integer("column_id").notNull().references(() => projectColumns.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description"),
+    priority: projectPriorityEnum("priority").default("medium"),
+    assigneeId: text("assignee_id").references(() => users.id, { onDelete: "set null" }),
+    creatorId: text("creator_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+})
+
 import { relations } from "drizzle-orm"
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -250,5 +279,37 @@ export const userProductRelations = relations(userProducts, ({ one }) => ({
     product: one(products, {
         fields: [userProducts.productId],
         references: [products.id],
+    }),
+}))
+
+export const projectBoardRelations = relations(projectBoards, ({ many }) => ({
+    columns: many(projectColumns),
+    tasks: many(projectTasks),
+}))
+
+export const projectColumnRelations = relations(projectColumns, ({ one, many }) => ({
+    board: one(projectBoards, {
+        fields: [projectColumns.boardId],
+        references: [projectBoards.id],
+    }),
+    tasks: many(projectTasks),
+}))
+
+export const projectTaskRelations = relations(projectTasks, ({ one }) => ({
+    board: one(projectBoards, {
+        fields: [projectTasks.boardId],
+        references: [projectBoards.id],
+    }),
+    column: one(projectColumns, {
+        fields: [projectTasks.columnId],
+        references: [projectColumns.id],
+    }),
+    assignee: one(users, {
+        fields: [projectTasks.assigneeId],
+        references: [users.id],
+    }),
+    creator: one(users, {
+        fields: [projectTasks.creatorId],
+        references: [users.id],
     }),
 }))

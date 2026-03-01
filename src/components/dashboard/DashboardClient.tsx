@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import {
     BookOpen, Code2, ArrowRight, CheckCircle2, Clock, ChevronRight,
-    BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search
+    BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid
 } from "lucide-react"
 
 interface Task {
@@ -157,6 +157,14 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                         >
                             <Layers className="w-4 h-4 flex-shrink-0" />
                             <span className="truncate">Крок 0. Налаштування</span>
+                        </Link>
+
+                        <Link
+                            href="/projects"
+                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:bg-white/5 hover:text-white text-sm font-medium transition-all"
+                        >
+                            <LayoutGrid className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">Проєкти (Jira)</span>
                         </Link>
 
                         {tracks.map(track => {

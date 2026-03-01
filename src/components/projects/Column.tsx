@@ -1,6 +1,6 @@
 "use client"
 
-import { useSortable } from "@dnd-kit/sortable"
+import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import TaskCard from "./TaskCard"
 import { Plus } from "lucide-react"
@@ -42,12 +42,13 @@ export default function Column({ column, tasks, isAdmin }: Props) {
             type: "Column",
             column,
         },
-        disabled: true, // Don't sort columns for now
+        disabled: true,
     })
 
     const style = {
         transition,
         transform: CSS.Translate.toString(transform),
+        opacity: isDragging ? 0.5 : 1,
     }
 
     return (
@@ -56,9 +57,8 @@ export default function Column({ column, tasks, isAdmin }: Props) {
             style={style}
             className="flex h-full w-80 min-w-[320px] flex-col rounded-xl bg-slate-50/50 border border-slate-200/60 shadow-sm"
         >
-            {/* Column Header */}
             <div className="flex items-center justify-between p-4 bg-white/40 rounded-t-xl border-b border-slate-100">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" {...attributes} {...listeners}>
                     <div
                         className="w-2.5 h-2.5 rounded-full"
                         style={{ backgroundColor: column.color || '#94a3b8' }}
@@ -77,11 +77,12 @@ export default function Column({ column, tasks, isAdmin }: Props) {
                 )}
             </div>
 
-            {/* Column Body */}
             <div className="flex flex-1 flex-col gap-3 p-3 overflow-y-auto scrollbar-hide min-h-[150px]">
-                {tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} isAdmin={isAdmin} />
-                ))}
+                <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                    {tasks.map((task) => (
+                        <TaskCard key={task.id} task={task} isAdmin={isAdmin} />
+                    ))}
+                </SortableContext>
             </div>
         </div>
     )

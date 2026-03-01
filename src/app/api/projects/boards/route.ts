@@ -3,24 +3,6 @@ import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { projectBoards, projectColumns } from "@/db/schema"
 import { NextResponse } from "next/server"
-import { eq } from "drizzle-orm"
-
-export async function GET() {
-    const session = await auth()
-    if (!session?.user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const boards = await db.query.projectBoards.findMany({
-        with: {
-            columns: {
-                orderBy: (columns, { asc }) => [asc(columns.order)],
-            },
-        },
-    })
-
-    return NextResponse.json(boards)
-}
 
 export async function POST(req: Request) {
     const session = await auth()
@@ -31,12 +13,15 @@ export async function POST(req: Request) {
     try {
         const { title, description } = await req.json()
 
+        if (!title) {
+            return NextResponse.json({ error: "Title is required" }, { status: 400 })
+        }
+
         const [newBoard] = await db.insert(projectBoards).values({
             title,
             description,
         }).returning()
 
-        // Create default columns
         const defaultColumns = [
             { title: "To Do", order: 1, color: "#94a3b8", boardId: newBoard.id },
             { title: "In Progress", order: 2, color: "#3b82f6", boardId: newBoard.id },
@@ -48,6 +33,19 @@ export async function POST(req: Request) {
 
         return NextResponse.json(newBoard)
     } catch (error) {
-        return NextResponse.json({ error: "Failed to create board" }, { status: 500 })
+        return NextResponse.json({ error: "Failed to create project" }, { status: 500 })
     }
+}
+
+export async function GET() {
+    const session = await auth()
+    if (!session?.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const boards = await db.query.projectBoards.findMany({
+        orderBy: (boards, { desc }) => [desc(boards.createdAt)],
+    })
+
+    return NextResponse.json(boards)
 }

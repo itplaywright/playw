@@ -82,31 +82,33 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId }:
 
         const isActiveATask = active.data.current?.type === "Task"
         const isOverATask = over.data.current?.type === "Task"
-        const isOverAColumn = over.data.current?.type === "Column"
 
         if (!isActiveATask) return
 
-        // Dropping a Task over another Task
+        // Drop task over another task
         if (isActiveATask && isOverATask) {
-            setTasks((tasks) => {
-                const activeIndex = tasks.findIndex((t) => t.id === activeId)
-                const overIndex = tasks.findIndex((t) => t.id === overId)
+            setTasks((items) => {
+                const oldIndex = items.findIndex((t) => t.id === activeId)
+                const newIndex = items.findIndex((t) => t.id === overId)
 
-                if (tasks[activeIndex].columnId !== tasks[overIndex].columnId) {
-                    tasks[activeIndex].columnId = tasks[overIndex].columnId
-                    return arrayMove(tasks, activeIndex, overIndex - 1)
+                if (items[oldIndex].columnId !== items[newIndex].columnId) {
+                    const newItems = [...items]
+                    newItems[oldIndex] = { ...newItems[oldIndex], columnId: items[newIndex].columnId }
+                    return arrayMove(newItems, oldIndex, newIndex)
                 }
 
-                return arrayMove(tasks, activeIndex, overIndex)
+                return arrayMove(items, oldIndex, newIndex)
             })
         }
 
-        // Dropping a Task over a Column
+        // Drop task over a column
+        const isOverAColumn = over.data.current?.type === "Column"
         if (isActiveATask && isOverAColumn) {
-            setTasks((tasks) => {
-                const activeIndex = tasks.findIndex((t) => t.id === activeId)
-                tasks[activeIndex].columnId = overId as number
-                return arrayMove(tasks, activeIndex, activeIndex)
+            setTasks((items) => {
+                const oldIndex = items.findIndex((t) => t.id === activeId)
+                const newItems = [...items]
+                newItems[oldIndex] = { ...newItems[oldIndex], columnId: overId as number }
+                return arrayMove(newItems, oldIndex, oldIndex)
             })
         }
     }
@@ -144,14 +146,16 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId }:
                 onDragEnd={onDragEnd}
             >
                 <div className="flex gap-4">
-                    {columns.map((col) => (
-                        <Column
-                            key={col.id}
-                            column={col}
-                            tasks={tasks.filter((t) => t.columnId === col.id)}
-                            isAdmin={isAdmin}
-                        />
-                    ))}
+                    <SortableContext items={tasks.map(t => t.id)}>
+                        {columns.map((col) => (
+                            <Column
+                                key={col.id}
+                                column={col}
+                                tasks={tasks.filter((t) => t.columnId === col.id)}
+                                isAdmin={isAdmin}
+                            />
+                        ))}
+                    </SortableContext>
                 </div>
 
                 {typeof document !== 'undefined' && createPortal(

@@ -65,7 +65,7 @@ const STATUS_STYLES: Record<string, string> = {
     "Не розпочато": "bg-slate-100 text-slate-500",
 }
 
-export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage }: Props) {
+export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, projects }: Props) {
     const [selectedTrackId, setSelectedTrackId] = useState<number>(tracks[0]?.id ?? 0)
     const [activeTab, setActiveTab] = useState<"quiz" | "code">("code")
 

@@ -65,11 +65,6 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const selectedTrack = tracks.find(t => t.id === selectedTrackId)
     const trackTasks = tasks.filter(t => t.trackId === selectedTrackId)
 
-    console.log("Track tasks count:", trackTasks.length)
-    if (trackTasks.length > 0) {
-        console.log("First task options type:", typeof trackTasks[0].options)
-        console.log("First task options value:", trackTasks[0].options)
-    }
 
     // Per-track progress
     const getTrackProgress = (trackId: number) => {
@@ -237,9 +232,6 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
                                                 {selectedTrack.title}
                                             </h1>
-                                            <div className="text-[10px] text-red-500 bg-red-100 p-1 rounded">
-                                                Debug: Tasks total={trackTasks.length}, With Options={trackTasks.filter(t => t.options && t.options.length > 0).length}
-                                            </div>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black uppercase tracking-wider">
                                                     <Star className="w-2.5 h-2.5 fill-current" /> Pro

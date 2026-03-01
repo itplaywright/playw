@@ -22,9 +22,6 @@ export default async function Dashboard() {
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
 
     const isAdmin = (session.user as any).role === "admin"
-    console.log("Server side allTasks count:", allTasks.length)
-    console.log("Server side first task title:", allTasks[0]?.title)
-    console.log("Server side first task options:", allTasks[0]?.options)
 
     const visibleTracks = isAdmin ? allTracks : allTracks.filter(t => t.isActive)
     const visibleTasks = isAdmin ? allTasks : allTasks.filter(t => t.isActive)

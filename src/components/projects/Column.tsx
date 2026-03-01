@@ -46,7 +46,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
             type: "Column",
             column,
         },
-        disabled: true,
+        disabled: false,
     })
 
     const style = {

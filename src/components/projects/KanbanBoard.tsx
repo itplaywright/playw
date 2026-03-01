@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     DndContext,
     DragOverlay,
@@ -17,6 +17,8 @@ import {
 import {
     arrayMove,
     sortableKeyboardCoordinates,
+    SortableContext,
+    horizontalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import Column from "./Column"
 import TaskCard from "./TaskCard"
@@ -53,11 +55,43 @@ interface Props {
 
 export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, users }: Props) {
     const [tasks, setTasks] = useState<Task[]>(initialTasks)
+    const [localColumns, setLocalColumns] = useState<ColumnData[]>([])
     const [activeTask, setActiveTask] = useState<Task | null>(null)
+    const [activeColumn, setActiveColumn] = useState<ColumnData | null>(null)
     const [editingTask, setEditingTask] = useState<Task | null>(null)
     const [activeColumnId, setActiveColumnId] = useState<number | null>(null)
     const [showTaskDialog, setShowTaskDialog] = useState(false)
     const [showColumnDialog, setShowColumnDialog] = useState(false)
+
+    // Load local order on mount and when columns prop changes
+    useEffect(() => {
+        const savedOrder = localStorage.getItem(`kanban-column-order-${boardId}`)
+        let baseColumns = [...columns]
+
+        if (savedOrder) {
+            try {
+                const orderIds = JSON.parse(savedOrder) as number[]
+                baseColumns.sort((a, b) => {
+                    const indexA = orderIds.indexOf(a.id)
+                    const indexB = orderIds.indexOf(b.id)
+                    // New columns (not in local saved order) go to the end
+                    if (indexA === -1 && indexB === -1) return (a.order || 0) - (b.order || 0)
+                    if (indexA === -1) return 1
+                    if (indexB === -1) return -1
+                    return indexA - indexB
+                })
+            } catch (e) {
+                baseColumns.sort((a, b) => (a.order || 0) - (b.order || 0))
+            }
+        } else {
+            baseColumns.sort((a, b) => (a.order || 0) - (b.order || 0))
+        }
+        setLocalColumns(baseColumns)
+    }, [columns, boardId])
+
+    const saveColumnOrder = (newCols: ColumnData[]) => {
+        localStorage.setItem(`kanban-column-order-${boardId}`, JSON.stringify(newCols.map(c => c.id)))
+    }
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -75,6 +109,10 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
             setActiveTask(event.active.data.current.task)
             return
         }
+        if (event.active.data.current?.type === "Column") {
+            setActiveColumn(event.active.data.current.column)
+            return
+        }
     }
 
     const onDragOver = (event: DragOverEvent) => {
@@ -86,22 +124,20 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
 
         if (activeIdStr === overIdStr) return
 
-        const activeId = parseInt(activeIdStr.split('-')[1])
-        const overId = overIdStr.toString().startsWith('column-')
-            ? parseInt(overIdStr.split('-')[1])
-            : parseInt(overIdStr.split('-')[1])
-
         const isActiveATask = active.data.current?.type === "Task"
         const isOverATask = over.data.current?.type === "Task"
         const isOverAColumn = over.data.current?.type === "Column"
 
         if (!isActiveATask) return
 
+        const activeId = parseInt(activeIdStr.split('-')[1])
+
         // Drop task over another task
         if (isActiveATask && isOverATask) {
             setTasks((items) => {
+                const overId = parseInt(overIdStr.split('-')[1])
                 const oldIndex = items.findIndex((t) => t.id === activeId)
-                const newIndex = items.findIndex((t) => t.id === parseInt(overIdStr.split('-')[1]))
+                const newIndex = items.findIndex((t) => t.id === overId)
 
                 if (items[oldIndex].columnId !== items[newIndex].columnId) {
                     const newItems = [...items]
@@ -126,25 +162,47 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
     }
 
     const onDragEnd = async (event: DragEndEvent) => {
-        setActiveTask(null)
         const { active, over } = event
-        if (!over) return
 
-        const activeId = parseInt((active.id as string).split('-')[1])
-        const draggedTask = tasks.find(t => t.id === activeId)
-        if (!draggedTask) return
+        if (activeTask) {
+            setActiveTask(null)
+            if (!over) return
 
-        // Persist change to backend
-        try {
-            const res = await fetch(`/api/projects/tasks/${draggedTask.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ columnId: draggedTask.columnId }),
-            })
-            if (!res.ok) throw new Error("Failed to save")
-            toast.success("Статус оновлено")
-        } catch (error) {
-            toast.error("Помилка збереження")
+            const activeId = parseInt((active.id as string).split('-')[1])
+            const draggedTask = tasks.find(t => t.id === activeId)
+            if (!draggedTask) return
+
+            // Persist change to backend
+            try {
+                const res = await fetch(`/api/projects/tasks/${draggedTask.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ columnId: draggedTask.columnId }),
+                })
+                if (!res.ok) throw new Error("Failed to save")
+                toast.success("Статус оновлено")
+            } catch (error) {
+                toast.error("Помилка збереження")
+            }
+            return
+        }
+
+        if (activeColumn) {
+            setActiveColumn(null)
+            if (!over) return
+
+            const activeId = parseInt((active.id as string).split('-')[1])
+            const overId = parseInt((over.id as string).split('-')[1])
+
+            if (activeId !== overId) {
+                setLocalColumns((cols) => {
+                    const oldIndex = cols.findIndex((c) => c.id === activeId)
+                    const newIndex = cols.findIndex((c) => c.id === overId)
+                    const newCols = arrayMove(cols, oldIndex, newIndex)
+                    saveColumnOrder(newCols)
+                    return newCols
+                })
+            }
         }
     }
 
@@ -158,42 +216,45 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                 onDragEnd={onDragEnd}
             >
                 <div className="flex gap-4">
-                    {columns.sort((a, b) => (a.order || 0) - (b.order || 0)).map((col) => (
-                        <Column
-                            key={col.id}
-                            column={col}
-                            tasks={tasks.filter((t) => t.columnId === col.id)}
-                            isAdmin={isAdmin}
-                            onEditTask={(t) => {
-                                setEditingTask(t)
-                                setShowTaskDialog(true)
-                            }}
-                            onDeleteTask={async (id) => {
-                                if (!confirm("Видалити цю задачу?")) return
-                                try {
-                                    const res = await fetch(`/api/projects/tasks/${id}`, { method: 'DELETE' })
-                                    if (res.ok) {
-                                        setTasks(prev => prev.filter(t => t.id !== id))
-                                        toast.success("Видалено")
-                                    }
-                                } catch (e) { toast.error("Помилка") }
-                            }}
-                            onAddTask={(colId) => {
-                                setActiveColumnId(colId)
-                                setEditingTask(null)
-                                setShowTaskDialog(true)
-                            }}
-                            onRemoveColumn={async (id) => {
-                                try {
-                                    const res = await fetch(`/api/projects/columns/${id}`, { method: 'DELETE' })
-                                    if (res.ok) {
-                                        toast.success("Колонку видалено")
-                                        window.location.reload()
-                                    }
-                                } catch (e) { toast.error("Помилка при видаленні") }
-                            }}
-                        />
-                    ))}
+                    <SortableContext items={localColumns.map(c => `column-${c.id}`)} strategy={horizontalListSortingStrategy}>
+                        {localColumns.map((col) => (
+                            <Column
+                                key={col.id}
+                                column={col}
+                                tasks={tasks.filter((t) => t.columnId === col.id)}
+                                isAdmin={isAdmin}
+                                onEditTask={(t) => {
+                                    setEditingTask(t)
+                                    setShowTaskDialog(true)
+                                }}
+                                onDeleteTask={async (id) => {
+                                    if (!confirm("Видалити цю задачу?")) return
+                                    try {
+                                        const res = await fetch(`/api/projects/tasks/${id}`, { method: 'DELETE' })
+                                        if (res.ok) {
+                                            setTasks(prev => prev.filter(t => t.id !== id))
+                                            toast.success("Видалено")
+                                        }
+                                    } catch (e) { toast.error("Помилка") }
+                                }}
+                                onAddTask={(colId) => {
+                                    setActiveColumnId(colId)
+                                    setEditingTask(null)
+                                    setShowTaskDialog(true)
+                                }}
+                                onRemoveColumn={async (id) => {
+                                    if (!confirm("Видалити цю колонку? Усі задачі в ній також будуть видалені.")) return
+                                    try {
+                                        const res = await fetch(`/api/projects/columns/${id}`, { method: 'DELETE' })
+                                        if (res.ok) {
+                                            toast.success("Колонку видалено")
+                                            window.location.reload()
+                                        }
+                                    } catch (e) { toast.error("Помилка при видаленні") }
+                                }}
+                            />
+                        ))}
+                    </SortableContext>
 
                     {isAdmin && (
                         <button
@@ -214,7 +275,17 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                             },
                         }),
                     }}>
-                        {activeTask ? <TaskCard task={activeTask} isOverlay /> : null}
+                        {activeTask ? (
+                            <TaskCard task={activeTask} isOverlay />
+                        ) : activeColumn ? (
+                            <div className="opacity-80">
+                                <Column
+                                    column={activeColumn}
+                                    tasks={tasks.filter(t => t.columnId === activeColumn.id)}
+                                    isAdmin={isAdmin}
+                                />
+                            </div>
+                        ) : null}
                     </DragOverlay>,
                     document.body
                 )}
@@ -231,7 +302,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
             {showTaskDialog && (
                 <TaskDialog
                     boardId={boardId}
-                    columnId={activeColumnId || (columns.length > 0 ? columns[0].id : 0)}
+                    columnId={activeColumnId || (localColumns.length > 0 ? localColumns[0].id : 0)}
                     users={users}
                     task={editingTask as any}
                     onClose={() => {

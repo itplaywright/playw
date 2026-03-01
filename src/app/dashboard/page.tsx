@@ -45,6 +45,8 @@ export default async function Dashboard() {
             tasks={visibleTasks as any}
             statusMap={statusMap}
             isAdmin={isAdmin}
+            userName={session.user.name}
+            userImage={session.user.image}
         />
     )
 }

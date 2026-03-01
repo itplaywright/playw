@@ -206,7 +206,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                     required
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                     placeholder="Наприклад: Gold Покупець"
                                 />
                             </div>
@@ -215,7 +215,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-24"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-24"
                                     placeholder="Короткий опис можливостей цієї ролі..."
                                 />
                             </div>
@@ -227,7 +227,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                     min="0"
                                     value={formData.maxTrackOrder}
                                     onChange={(e) => setFormData({ ...formData, maxTrackOrder: parseInt(e.target.value) || 0 })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 />
                                 <p className="text-[10px] text-gray-400 mt-1.5 ml-1 flex items-start gap-1">
                                     <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />

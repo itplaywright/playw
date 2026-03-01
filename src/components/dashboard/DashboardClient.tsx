@@ -27,6 +27,12 @@ interface Track {
     isActive: boolean | null
 }
 
+interface Project {
+    id: number
+    title: string
+    description: string | null
+}
+
 interface TaskStatus {
     label: "Виконано" | "В процесі" | "Не розпочато"
 }
@@ -38,6 +44,7 @@ interface Props {
     isAdmin: boolean
     userName?: string | null
     userImage?: string | null
+    projects: Project[]
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -282,6 +289,33 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                             </div>
 
                             {/* Task list */}
+                            {activeTab === "code" && projects.length > 0 && (
+                                <div className="mb-8">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <LayoutGrid className="w-4 h-4 text-slate-400" />
+                                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Ваші Проєкти (Jira)</h2>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {projects.map(project => (
+                                            <Link
+                                                key={project.id}
+                                                href={`/projects?boardId=${project.id}`}
+                                                className="group block p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
+                                            >
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className="p-2 rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors">
+                                                        <LayoutGrid className="w-5 h-5 text-blue-600" />
+                                                    </div>
+                                                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                                                </div>
+                                                <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{project.title}</h3>
+                                                <p className="text-slate-500 text-xs mt-1 line-clamp-2">{project.description}</p>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {filteredTasks.length === 0 ? (
                                 <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
                                     <Code2 className="w-8 h-8 text-slate-200 mx-auto mb-3" />

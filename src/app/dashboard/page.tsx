@@ -1,7 +1,7 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { tasks, tracks, results } from "@/db/schema"
+import { tasks, tracks, results, projectBoards } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq } from "drizzle-orm"
 import DashboardClient from "@/components/dashboard/DashboardClient"
@@ -20,6 +20,7 @@ export default async function Dashboard() {
     const allTracks = await db.select().from(tracks).orderBy(tracks.order)
     const allTasks = await db.select().from(tasks).orderBy(tasks.order)
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
+    const boards = await db.select().from(projectBoards)
 
     const isAdmin = (session.user as any).role === "admin"
 
@@ -47,6 +48,7 @@ export default async function Dashboard() {
             isAdmin={isAdmin}
             userName={session.user.name}
             userImage={session.user.image}
+            projects={boards as any}
         />
     )
 }

@@ -23,6 +23,8 @@ export async function POST(req: Request) {
         const blob = await put(filename, file, {
             access: "public",
             contentType: "audio/webm",
+            addRandomSuffix: false,
+            allowOverwrite: true,
         })
 
         return NextResponse.json({ url: blob.url })

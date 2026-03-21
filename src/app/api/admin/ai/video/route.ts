@@ -108,6 +108,8 @@ ${initialCode?.substring(0, 800) || "Немає коду"}
                                 const blob = await put(filename, finalBuffer, {
                                     access: "public",
                                     contentType: "audio/mpeg",
+                                    addRandomSuffix: false,
+                                    allowOverwrite: true,
                                 })
 
                                 return NextResponse.json({

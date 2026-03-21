@@ -4,6 +4,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import PseudoVideoPlayer from "./PseudoVideoPlayer"
 import CodeEditor from "@/components/editor/Monaco"
 import Link from "next/link"
 
@@ -217,19 +218,11 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
 
                     {/* Ukrainian Voiceover Player */}
                     {task.videoUrl && (
-                        <div className="not-prose mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-4">
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="text-lg">🎬</span>
-                                <span className="text-sm font-bold text-blue-800">Відео-пояснення (🇺🇦 українська)</span>
-                            </div>
-                            <audio
-                                controls
-                                src={task.videoUrl}
-                                className="w-full"
-                                style={{ height: '40px' }}
-                                onLoadedMetadata={(e) => {
-                                    (e.target as HTMLAudioElement).playbackRate = 1.25;
-                                }}
+                        <div className="not-prose mt-2 mb-6">
+                            <PseudoVideoPlayer
+                                videoUrl={task.videoUrl!}
+                                initialCode={task.initialCode}
+                                title={task.title}
                             />
                         </div>
                     )}

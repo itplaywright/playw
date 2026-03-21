@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import * as googleTTS from "google-tts-api"
+import { put } from "@vercel/blob"
 
 export async function POST(req: Request) {
     try {
@@ -8,7 +10,7 @@ export async function POST(req: Request) {
             return new NextResponse("Unauthorized", { status: 401 })
         }
 
-        const { title, description, initialCode } = await req.json()
+        const { taskId, title, description, initialCode } = await req.json()
 
         const systemPrompt = `Ти - експерт-викладач з Playwright та автоматизації тестування.
 Твоє завдання - написати КОРОТКИЙ і ЗРОЗУМІЛИЙ текст для озвучки навчального відео українською мовою.
@@ -88,7 +90,34 @@ ${initialCode?.substring(0, 800) || "Немає коду"}
                         const data = await res.json()
                         const script = data.candidates?.[0]?.content?.parts?.[0]?.text
                         if (script) {
-                            return NextResponse.json({ script })
+                            // 2. Generate Audio via Google Translate TTS
+                            try {
+                                const results = await googleTTS.getAllAudioBase64(script, {
+                                    lang: 'uk',
+                                    slow: false,
+                                    host: 'https://translate.google.com',
+                                    splitPunct: ',.?',
+                                })
+
+                                // Concatenate all base64 chunks into one MP3 buffer
+                                const buffers = results.map(res => Buffer.from(res.base64, 'base64'))
+                                const finalBuffer = Buffer.concat(buffers)
+
+                                // 3. Upload to Vercel Blob
+                                const filename = `task-videos/task-${taskId || "new-" + Date.now()}.mp3`
+                                const blob = await put(filename, finalBuffer, {
+                                    access: "public",
+                                    contentType: "audio/mpeg",
+                                })
+
+                                return NextResponse.json({
+                                    script,
+                                    videoUrl: blob.url
+                                })
+                            } catch (ttsErr: any) {
+                                console.error("TTS or Upload Error:", ttsErr)
+                                return NextResponse.json({ error: "Скрипт згенеровано, але помилка озвучки: " + ttsErr.message }, { status: 500 })
+                            }
                         }
                         lastError = data.error?.message || "Порожня відповідь"
                     } catch (err: any) {

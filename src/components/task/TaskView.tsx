@@ -242,12 +242,12 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                             onClick={handleCodeReview}
                             disabled={isReviewing}
                             className={`rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 ${isReviewing
-                                    ? 'bg-purple-500/50 cursor-not-allowed'
-                                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-600/30'
+                                ? 'bg-purple-500/50 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-600/30'
                                 }`}
-                            title="Отримати фідбек від ШІ-Техліда"
+                            title="Отримати фідбек від ментора"
                         >
-                            <span>🧑‍💻</span>
+                            <span>👨‍🏫</span>
                             <span className="hidden lg:inline">{isReviewing ? "Аналізуємо..." : "Code Review"}</span>
                         </button>
                     )}
@@ -393,16 +393,16 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                 </div >
             </div >
 
-            {/* AI Code Review Modal */}
+            {/* Code Review Modal */}
             {isReviewModalOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-[#131b2c] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
                         <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-indigo-900/20">
                             <div className="flex items-center gap-3">
-                                <div className="text-2xl">🧑‍💻</div>
+                                <div className="text-2xl">👨‍🏫</div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-white tracking-tight">AI Tech Lead</h2>
-                                    <p className="text-xs text-purple-300 font-medium tracking-wide">АВТОМАТИЧНЕ CODE REVIEW</p>
+                                    <h2 className="text-xl font-bold text-white tracking-tight">Code Review</h2>
+                                    <p className="text-xs text-purple-300 font-medium tracking-wide">ВІДГУК МЕНТОРА</p>
                                 </div>
                             </div>
                             <button
@@ -419,8 +419,8 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                             {isReviewing ? (
                                 <div className="flex flex-col items-center justify-center p-12 text-center h-full space-y-4">
                                     <div className="text-6xl animate-bounce">🤔</div>
-                                    <h3 className="text-xl font-bold text-white">Техлід перевіряє ваш код...</h3>
-                                    <p className="text-slate-400">Шукаємо hardcoded waits, погані селектори та інші антипатерни.</p>
+                                    <h3 className="text-xl font-bold text-white">Ментор перевіряє ваш код...</h3>
+                                    <p className="text-slate-400">Аналізуємо структуру, селектори та Best Practices.</p>
                                     <div className="flex gap-1 mt-4">
                                         <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
                                         <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }} />

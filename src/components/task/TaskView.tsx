@@ -26,9 +26,10 @@ interface TaskViewProps {
         }[]
     }
     isProduction: boolean
+    nextTaskId?: number | null
 }
 
-export default function TaskView({ task, isProduction }: TaskViewProps) {
+export default function TaskView({ task, isProduction, nextTaskId }: TaskViewProps) {
     const [code, setCode] = useState(task.initialCode)
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [answeredQuestions, setAnsweredQuestions] = useState<Record<number, string>>({})
@@ -231,8 +232,12 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                 <div className="flex items-center gap-2 flex-shrink-0">
                     {task.type === "code" && (
                         <button
-                            onClick={() => setCode(task.initialCode)}
-                            className="rounded-lg bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-all"
+                            onClick={() => {
+                                if (confirm("Скинути код до початкового стану?")) {
+                                    setCode(task.initialCode || "")
+                                }
+                            }}
+                            className="rounded-lg bg-slate-800 hover:bg-slate-700 border border-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:text-white transition-all shadow-sm"
                         >
                             Скинути
                         </button>
@@ -261,73 +266,87 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                             <span className="hidden lg:inline">{isReviewing ? "Аналізуємо..." : "Code Review"}</span>
                         </button>
                     )}
+                    {nextTaskId && (
+                        <Link
+                            href={`/tasks/${nextTaskId}`}
+                            className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 shadow-lg shadow-emerald-600/30"
+                        >
+                            <span>Далі</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                            </svg>
+                        </Link>
+                    )}
                 </div>
             </header>
 
             {/* Main Content */}
-            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+            < div className="flex flex-col lg:flex-row flex-1 overflow-hidden" >
                 {/* Left/Top: Description */}
-                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/10 p-4 lg:p-8 prose prose-invert prose-sm lg:prose-base max-w-none bg-[#0a0a0a]">
+                < div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/10 p-4 lg:p-8 prose prose-invert prose-sm lg:prose-base max-w-none bg-[#0a0a0a]" >
 
                     {/* Ukrainian Voiceover Player */}
-                    {task.videoUrl && (
-                        <div className="not-prose mt-2 mb-6">
-                            <PseudoVideoPlayer
-                                videoUrl={task.videoUrl!}
-                                initialCode={task.initialCode}
-                                title={task.title}
-                            />
-                        </div>
-                    )}
+                    {
+                        task.videoUrl && (
+                            <div className="not-prose mt-2 mb-6">
+                                <PseudoVideoPlayer
+                                    videoUrl={task.videoUrl!}
+                                    initialCode={task.initialCode}
+                                    title={task.title}
+                                />
+                            </div>
+                        )
+                    }
 
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{task.description}</ReactMarkdown>
 
-                    {totalQuestions > 0 && (
-                        <div className="mt-8 pt-6 border-t border-gray-100">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold flex items-center gap-2">
-                                    🧠 Перевірка знань
-                                </h3>
-                                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                                    {Object.keys(answeredQuestions).length} / {totalQuestions}
-                                </span>
-                            </div>
+                    {
+                        totalQuestions > 0 && (
+                            <div className="mt-8 pt-6 border-t border-gray-100">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-bold flex items-center gap-2">
+                                        🧠 Перевірка знань
+                                    </h3>
+                                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                                        {Object.keys(answeredQuestions).length} / {totalQuestions}
+                                    </span>
+                                </div>
 
-                            {!isCompleted ? (
-                                <div className="space-y-4">
-                                    <p className="text-sm font-semibold text-slate-200">{currentQuestion.text}</p>
-                                    <div className="space-y-3">
-                                        {currentQuestion.options.map((option, index) => (
-                                            <button
-                                                key={index}
-                                                onClick={() => handleOptionClick(option)}
-                                                className={`w-full text-left p-4 rounded-xl border transition-all ${selectedOption === option
-                                                    ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500/50 ring-1 ring-emerald-500/50" : "bg-red-500/10 border-red-500/50 ring-1 ring-red-500/50")
-                                                    : "bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10"
-                                                    }`}
-                                            >
-                                                <div className="flex items-center">
-                                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${selectedOption === option
-                                                        ? (option === currentQuestion.correctAnswer ? "border-green-500 bg-green-500" : "border-red-500 bg-red-500")
-                                                        : "border-gray-300"
-                                                        }`}>
-                                                        {selectedOption === option && <div className="w-2 h-2 bg-white rounded-full" />}
+                                {!isCompleted ? (
+                                    <div className="space-y-4">
+                                        <p className="text-sm font-semibold text-slate-200">{currentQuestion.text}</p>
+                                        <div className="space-y-3">
+                                            {currentQuestion.options.map((option, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleOptionClick(option)}
+                                                    className={`w-full text-left p-4 rounded-xl border transition-all ${selectedOption === option
+                                                        ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500/50 ring-1 ring-emerald-500/50" : "bg-red-500/10 border-red-500/50 ring-1 ring-red-500/50")
+                                                        : "bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10"
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center">
+                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${selectedOption === option
+                                                            ? (option === currentQuestion.correctAnswer ? "border-green-500 bg-green-500" : "border-red-500 bg-red-500")
+                                                            : "border-gray-300"
+                                                            }`}>
+                                                            {selectedOption === option && <div className="w-2 h-2 bg-white rounded-full" />}
+                                                        </div>
+                                                        <span className="font-medium text-slate-200">{option}</span>
                                                     </div>
-                                                    <span className="font-medium text-slate-200">{option}</span>
-                                                </div>
-                                            </button>
-                                        ))}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20 text-center">
-                                    <div className="text-4xl mb-2">🎉</div>
-                                    <h4 className="font-bold text-emerald-400">Всі питання пройдені!</h4>
-                                    <p className="text-sm text-emerald-500/80">Ви успішно підтвердили свої знання.</p>
-                                </div>
-                            )}
-                        </div>
-                    )
+                                ) : (
+                                    <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20 text-center">
+                                        <div className="text-4xl mb-2">🎉</div>
+                                        <h4 className="font-bold text-emerald-400">Всі питання пройдені!</h4>
+                                        <p className="text-sm text-emerald-500/80">Ви успішно підтвердили свої знання.</p>
+                                    </div>
+                                )}
+                            </div>
+                        )
                     }
 
                     <div className="mt-8 pt-6 border-t border-white/10 mb-8 pb-8">
@@ -404,59 +423,61 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             </div >
 
             {/* Code Review Modal */}
-            {isReviewModalOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-[#131b2c] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-                        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-indigo-900/20">
-                            <div className="flex items-center gap-3">
-                                <div className="text-2xl">👨‍🏫</div>
-                                <div>
-                                    <h2 className="text-xl font-bold text-white tracking-tight">Code Review</h2>
-                                    <p className="text-xs text-purple-300 font-medium tracking-wide">ВІДГУК МЕНТОРА</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsReviewModalOpen(false)}
-                                className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-full transition-colors"
-                            >
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div className="p-6 md:p-8 overflow-y-auto prose prose-invert prose-sm md:prose-base max-w-none flex-1">
-                            {isReviewing ? (
-                                <div className="flex flex-col items-center justify-center p-12 text-center h-full space-y-4">
-                                    <div className="text-6xl animate-bounce">🤔</div>
-                                    <h3 className="text-xl font-bold text-white">Ментор перевіряє ваш код...</h3>
-                                    <p className="text-slate-400">Аналізуємо структуру, селектори та Best Practices.</p>
-                                    <div className="flex gap-1 mt-4">
-                                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+            {
+                isReviewModalOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <div className="bg-[#131b2c] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-indigo-900/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-2xl">👨‍🏫</div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white tracking-tight">Code Review</h2>
+                                        <p className="text-xs text-purple-300 font-medium tracking-wide">ВІДГУК МЕНТОРА</p>
                                     </div>
                                 </div>
-                            ) : (
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                    {reviewResult || "Жодного результату. Спробуйте ще раз."}
-                                </ReactMarkdown>
-                            )}
-                        </div>
-
-                        {!isReviewing && (
-                            <div className="p-4 border-t border-white/10 bg-[#0f172a] text-center">
                                 <button
                                     onClick={() => setIsReviewModalOpen(false)}
-                                    className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95"
+                                    className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-full transition-colors"
                                 >
-                                    {reviewStatus === "SAFE" ? "Дякую, менторе!" : "Зрозуміло, йду виправляти"}
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
                                 </button>
                             </div>
-                        )}
+
+                            <div className="p-6 md:p-8 overflow-y-auto prose prose-invert prose-sm md:prose-base max-w-none flex-1">
+                                {isReviewing ? (
+                                    <div className="flex flex-col items-center justify-center p-12 text-center h-full space-y-4">
+                                        <div className="text-6xl animate-bounce">🤔</div>
+                                        <h3 className="text-xl font-bold text-white">Ментор перевіряє ваш код...</h3>
+                                        <p className="text-slate-400">Аналізуємо структуру, селектори та Best Practices.</p>
+                                        <div className="flex gap-1 mt-4">
+                                            <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                            <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                            <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {reviewResult || "Жодного результату. Спробуйте ще раз."}
+                                    </ReactMarkdown>
+                                )}
+                            </div>
+
+                            {!isReviewing && (
+                                <div className="p-4 border-t border-white/10 bg-[#0f172a] text-center">
+                                    <button
+                                        onClick={() => setIsReviewModalOpen(false)}
+                                        className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95"
+                                    >
+                                        {reviewStatus === "SAFE" ? "Дякую, менторе!" : "Зрозуміло, йду виправляти"}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
         </div >
     )
 }

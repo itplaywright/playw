@@ -50,10 +50,25 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
     const isProduction = process.env.NODE_ENV === "production"
 
+    // Find next task in the same track
+    let nextTaskId = null
+    if (task.trackId) {
+        const nextTask = await db.query.tasks.findFirst({
+            where: (t, { and, eq, gt }) => and(
+                eq(t.trackId, task.trackId),
+                gt(t.order, task.order),
+                eq(t.isActive, true)
+            ),
+            orderBy: (t, { asc }) => [asc(t.order)],
+            columns: { id: true }
+        })
+        if (nextTask) nextTaskId = nextTask.id
+    }
+
     return (
         <div>
             <AdBlock placement="task" position="before" />
-            <TaskView task={task} isProduction={isProduction} />
+            <TaskView task={task} isProduction={isProduction} nextTaskId={nextTaskId} />
             <AdBlock placement="task" position="after" />
         </div>
     )

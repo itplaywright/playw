@@ -227,6 +227,9 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                                 src={task.videoUrl}
                                 className="w-full"
                                 style={{ height: '40px' }}
+                                onLoadedMetadata={(e) => {
+                                    (e.target as HTMLAudioElement).playbackRate = 1.25;
+                                }}
                             />
                         </div>
                     )}

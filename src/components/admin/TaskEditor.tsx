@@ -409,6 +409,9 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                                     controls
                                     src={videoUrl}
                                     className="w-full rounded-xl"
+                                    onLoadedMetadata={(e) => {
+                                        (e.target as HTMLAudioElement).playbackRate = 1.25;
+                                    }}
                                 />
                                 <p className="text-[10px] text-gray-400 text-center">
                                     Відео збережеться після натискання «Зберегти»

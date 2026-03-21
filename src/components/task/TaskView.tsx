@@ -42,6 +42,11 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
     const [questionContent, setQuestionContent] = useState("")
     const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false)
 
+    // AI Code Review States
+    const [isReviewing, setIsReviewing] = useState(false)
+    const [reviewResult, setReviewResult] = useState<string | null>(null)
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
+
     // Combine legacy single question with the new taskQuestions if present
     const allQuestions = [
         ...(task.options && task.correctAnswer ? [{
@@ -160,6 +165,30 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
         }
     }
 
+    const handleCodeReview = async () => {
+        setIsReviewing(true)
+        setIsReviewModalOpen(true)
+        setReviewResult(null)
+        try {
+            const res = await fetch("/api/tasks/review", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code, taskId: task.id }),
+            })
+
+            const data = await res.json()
+            if (res.ok && data.review) {
+                setReviewResult(data.review)
+            } else {
+                setReviewResult(`Помилка: ${data.error || "Не вдалося отримати рев'ю"}`)
+            }
+        } catch (err: any) {
+            setReviewResult(`Помилка: ${err.message}`)
+        } finally {
+            setIsReviewing(false)
+        }
+    }
+
     return (
         <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
             {/* Header */}
@@ -206,8 +235,22 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                             : 'bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30'
                             }`}
                     >
-                        {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати код" : (task.type === "quiz" ? (isCompleted ? "Виконано" : "Надіслати") : "Запустити"))}
+                        {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати" : (task.type === "quiz" ? (isCompleted ? "Виконано" : "Надіслати") : "Запустити"))}
                     </button>
+                    {task.type === "code" && (
+                        <button
+                            onClick={handleCodeReview}
+                            disabled={isReviewing}
+                            className={`rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 ${isReviewing
+                                    ? 'bg-purple-500/50 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-600/30'
+                                }`}
+                            title="Отримати фідбек від ШІ-Техліда"
+                        >
+                            <span>🧑‍💻</span>
+                            <span className="hidden lg:inline">{isReviewing ? "Аналізуємо..." : "Code Review"}</span>
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -349,6 +392,61 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                     }
                 </div >
             </div >
+
+            {/* AI Code Review Modal */}
+            {isReviewModalOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#131b2c] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-indigo-900/20">
+                            <div className="flex items-center gap-3">
+                                <div className="text-2xl">🧑‍💻</div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-white tracking-tight">AI Tech Lead</h2>
+                                    <p className="text-xs text-purple-300 font-medium tracking-wide">АВТОМАТИЧНЕ CODE REVIEW</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsReviewModalOpen(false)}
+                                className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-full transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="p-6 md:p-8 overflow-y-auto prose prose-invert prose-sm md:prose-base max-w-none flex-1">
+                            {isReviewing ? (
+                                <div className="flex flex-col items-center justify-center p-12 text-center h-full space-y-4">
+                                    <div className="text-6xl animate-bounce">🤔</div>
+                                    <h3 className="text-xl font-bold text-white">Техлід перевіряє ваш код...</h3>
+                                    <p className="text-slate-400">Шукаємо hardcoded waits, погані селектори та інші антипатерни.</p>
+                                    <div className="flex gap-1 mt-4">
+                                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                                    </div>
+                                </div>
+                            ) : (
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {reviewResult || "Жодного результату. Спробуйте ще раз."}
+                                </ReactMarkdown>
+                            )}
+                        </div>
+
+                        {!isReviewing && (
+                            <div className="p-4 border-t border-white/10 bg-[#0f172a] text-center">
+                                <button
+                                    onClick={() => setIsReviewModalOpen(false)}
+                                    className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95"
+                                >
+                                    Зрозуміло, йду виправляти
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div >
     )
 }

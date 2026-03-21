@@ -121,6 +121,7 @@ export const tasks = pgTable("tasks", {
     type: text("type", { enum: ["code", "quiz"] }).default("code").notNull(),
     options: text("options").array(), // For quiz answers
     correctAnswer: text("correct_answer"), // For quiz validation
+    videoUrl: text("video_url"), // Auto-generated Ukrainian voiceover video
 }, (table) => ({
     trackTitleIdx: uniqueIndex("task_track_title_idx").on(table.trackId, table.title),
 }))

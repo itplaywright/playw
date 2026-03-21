@@ -16,6 +16,7 @@ interface TaskViewProps {
         type: "code" | "quiz"
         options?: string[] | null
         correctAnswer?: string | null
+        videoUrl?: string | null
         taskQuestions?: {
             id: number
             text: string
@@ -213,6 +214,23 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                 {/* Left/Top: Description */}
                 <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 lg:p-8 prose prose-slate prose-sm lg:prose-base max-w-none bg-white">
+
+                    {/* Ukrainian Voiceover Player */}
+                    {task.videoUrl && (
+                        <div className="not-prose mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-lg">🎬</span>
+                                <span className="text-sm font-bold text-blue-800">Відео-пояснення (🇺🇦 українська)</span>
+                            </div>
+                            <audio
+                                controls
+                                src={task.videoUrl}
+                                className="w-full"
+                                style={{ height: '40px' }}
+                            />
+                        </div>
+                    )}
+
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{task.description}</ReactMarkdown>
 
                     {totalQuestions > 0 && (

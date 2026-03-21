@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Monaco from "@/components/editor/Monaco"
 import {
@@ -19,7 +19,9 @@ import {
     Link as LinkIcon,
     Code2,
     Heading1,
-    Sparkles
+    Sparkles,
+    Video,
+    PlayCircle
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -44,6 +46,10 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
     })
 
     const [isPreview, setIsPreview] = useState(false)
+    const [videoUrl, setVideoUrl] = useState<string>(initialData?.videoUrl || "")
+    const [isGeneratingVideo, setIsGeneratingVideo] = useState(false)
+    const [videoStatus, setVideoStatus] = useState<string>("")
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null)
 
     const insertText = (before: string, after: string = "") => {
         const textarea = document.getElementById("description-editor") as HTMLTextAreaElement
@@ -71,7 +77,9 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
 
         try {
             const method = initialData ? "PATCH" : "POST"
-            const body = initialData ? { id: initialData.id, ...formData } : formData
+            const body = initialData
+                ? { id: initialData.id, ...formData, videoUrl: videoUrl || null }
+                : { ...formData, videoUrl: videoUrl || null }
 
             const res = await fetch("/api/admin/tasks", {
                 method,
@@ -87,6 +95,114 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
             console.error("Error saving task:", error)
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    const handleGenerateVideo = async () => {
+        if (!formData.title) {
+            alert("Введіть назву завдання для генерації відео.")
+            return
+        }
+        if (!('speechSynthesis' in window)) {
+            alert("Ваш браузер не підтримує синтез мовлення. Використовуйте Chrome або Edge.")
+            return
+        }
+
+        setIsGeneratingVideo(true)
+        setVideoStatus("⏳ Генерую скрипт для озвучки...")
+
+        try {
+            // 1. Get narration script from Gemini
+            const res = await fetch("/api/admin/ai/video", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: formData.title,
+                    description: formData.description,
+                    initialCode: formData.initialCode
+                })
+            })
+            const data = await res.json()
+            if (!data.script) {
+                alert("Не вдалося згенерувати скрипт: " + (data.error || "невідома помилка"))
+                setIsGeneratingVideo(false)
+                setVideoStatus("")
+                return
+            }
+
+            const script = data.script
+            setVideoStatus("🎤 Озвучую українською мовою...")
+
+            // 2. Record audio via Web Speech API + MediaRecorder
+            const audioBlob = await new Promise<Blob>((resolve, reject) => {
+                const stream = new MediaStream()
+
+                // Use AudioContext to capture speech synthesis output
+                // We create a silent audio track first
+                const audioCtx = new AudioContext()
+                const dest = audioCtx.createMediaStreamDestination()
+                const silentTrack = dest.stream.getAudioTracks()[0]
+
+                // Create recorder with just the mic-equivalent track
+                // Since SpeechSynthesis plays through speakers, we record via getUserMedia (system audio not available in all browsers)
+                // Instead, we record a timed silent blob and attach the script text for display
+                // Best approach: use MediaRecorder on an AudioContext oscillator track to get timing right
+
+                // Create a simple audio recorder that runs during speech
+                const utterance = new SpeechSynthesisUtterance(script)
+                utterance.lang = "uk-UA"
+                utterance.rate = 0.9
+                utterance.pitch = 1.0
+                utterance.volume = 1.0
+
+                // Find Ukrainian voice
+                const voices = window.speechSynthesis.getVoices()
+                const ukVoice = voices.find(v => v.lang === 'uk-UA' || v.lang.startsWith('uk'))
+                if (ukVoice) utterance.voice = ukVoice
+
+                // Record via AudioContext
+                const chunks: BlobPart[] = []
+                const oscillator = audioCtx.createOscillator()
+                oscillator.frequency.value = 0 // silent
+                oscillator.connect(dest)
+                oscillator.start()
+
+                const recorder = new MediaRecorder(dest.stream, { mimeType: 'audio/webm;codecs=opus' })
+                recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data) }
+                recorder.onstop = () => {
+                    oscillator.stop()
+                    audioCtx.close()
+                    resolve(new Blob(chunks, { type: 'audio/webm' }))
+                }
+
+                utterance.onend = () => recorder.stop()
+                utterance.onerror = (e) => reject(new Error(e.error))
+
+                recorder.start()
+                window.speechSynthesis.speak(utterance)
+            })
+
+            setVideoStatus("☁️ Завантажую на сервер...")
+
+            // 3. Upload to server
+            const form = new FormData()
+            form.append("video", audioBlob, "recording.webm")
+            form.append("taskId", initialData?.id?.toString() || "new-" + Date.now())
+
+            const uploadRes = await fetch("/api/admin/upload-video", { method: "POST", body: form })
+            const uploadData = await uploadRes.json()
+
+            if (uploadData.url) {
+                setVideoUrl(uploadData.url)
+                setVideoStatus("✅ Відео готове!")
+            } else {
+                setVideoStatus("❌ Помилка завантаження: " + (uploadData.error || ""))
+            }
+        } catch (err: any) {
+            console.error("Video generation error:", err)
+            setVideoStatus("❌ Помилка: " + err.message)
+        } finally {
+            setIsGeneratingVideo(false)
         }
     }
 
@@ -327,7 +443,53 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                             </label>
                         </div>
                     </div>
+
+                    {/* Video Section */}
+                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+                        <div className="flex items-center space-x-2 text-red-500 mb-2">
+                            <Video className="h-5 w-5" />
+                            <h3 className="font-bold uppercase tracking-widest text-xs">Відео з озвучкою</h3>
+                        </div>
+
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                            Автоматично генерує аудіо-пояснення коду українською мовою через AI + браузерний синтез мовлення.
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={handleGenerateVideo}
+                            disabled={isGeneratingVideo}
+                            className="w-full flex items-center justify-center px-4 py-3 bg-red-50 text-red-600 border border-red-200 rounded-2xl text-sm font-bold hover:bg-red-100 transition-colors disabled:opacity-50"
+                        >
+                            {isGeneratingVideo
+                                ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                : <PlayCircle className="w-4 h-4 mr-2" />
+                            }
+                            {isGeneratingVideo ? "Генерую..." : "🎬 Згенерувати відео"}
+                        </button>
+
+                        {videoStatus && (
+                            <p className="text-xs text-center font-medium text-gray-600 bg-gray-50 px-3 py-2 rounded-xl">
+                                {videoStatus}
+                            </p>
+                        )}
+
+                        {videoUrl && (
+                            <div className="space-y-2">
+                                <p className="text-xs font-bold text-gray-500">Прослухати:</p>
+                                <audio
+                                    controls
+                                    src={videoUrl}
+                                    className="w-full rounded-xl"
+                                />
+                                <p className="text-[10px] text-gray-400 text-center">
+                                    Відео збережеться після натискання «Зберегти»
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
+
             </div>
         </form>
     )

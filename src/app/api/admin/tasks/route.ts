@@ -63,7 +63,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, title, description, trackId, difficulty, initialCode, order, isActive } = body
+        const { id, title, description, trackId, difficulty, initialCode, order, isActive, videoUrl } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
@@ -77,7 +77,8 @@ export async function PATCH(req: Request) {
                 difficulty,
                 initialCode,
                 order,
-                isActive
+                isActive,
+                videoUrl: videoUrl ?? undefined
             })
             .where(eq(tasks.id, id))
             .returning()

@@ -317,7 +317,7 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
 
                 {/* Sidebar Settings */}
                 <div className="space-y-6">
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6 sticky top-[140px]">
+                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6 sticky top-[100px] max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar">
                         <div className="flex items-center space-x-2 text-green-600 mb-2">
                             <Layout className="h-5 w-5" />
                             <h3 className="font-bold uppercase tracking-widest text-xs">Параметри</h3>
@@ -377,7 +377,7 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                             </label>
                         </div>
 
-                        {/* Video Section - Moved inside the card for better layout and visibility */}
+                        {/* Video Section - Improved layout to prevent overlaps */}
                         <div className="mt-8 pt-8 border-t border-gray-100 space-y-4">
                             <div className="flex items-center space-x-2 text-rose-500 mb-2">
                                 <Video className="h-5 w-5" />
@@ -385,7 +385,7 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                             </div>
 
                             <p className="text-xs text-gray-500 leading-relaxed">
-                                Автоматично генерує аудіо-пояснення коду українською мовою через AI.
+                                Автоматично генерує аудіо-пояснення коду через AI.
                             </p>
 
                             <button
@@ -401,53 +401,53 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                                 {isGeneratingVideo ? "Генерую..." : "🎬 Згенерувати відео"}
                             </button>
 
-                            {videoStatus && (
+                            {videoStatus && !videoUrl && (
                                 <p className="text-[10px] text-center font-bold text-rose-600 bg-rose-50/50 px-3 py-2 rounded-xl border border-rose-100/50 animate-pulse">
                                     {videoStatus}
                                 </p>
                             )}
-                        </div>
 
-                        {videoUrl && (
-                            <div className="space-y-4 bg-gray-50 p-6 rounded-2xl border border-gray-100 shadow-inner">
-                                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-                                    <span className="text-gray-400">Технологія:</span>
-                                    <span className={ttsProvider === "ElevenLabs" ? "text-emerald-600 px-2 py-0.5 bg-emerald-50 rounded-full" : "text-amber-600 px-2 py-0.5 bg-amber-50 rounded-full"}>
-                                        {ttsProvider || "Авто"}
-                                    </span>
-                                </div>
-
-                                {ttsError && ttsProvider === "GoogleTTS" && (
-                                    <div className="p-2 bg-amber-50 border border-amber-100 rounded-lg text-[10px] text-amber-700 leading-tight">
-                                        <p className="font-bold mb-1">ElevenLabs fallback:</p>
-                                        <p className="opacity-80">{ttsError}</p>
+                            {videoUrl && (
+                                <div className="space-y-4 bg-gray-50 p-5 rounded-2xl border border-gray-100 shadow-inner mt-4">
+                                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
+                                        <span className="text-gray-400">Технологія:</span>
+                                        <span className={ttsProvider === "ElevenLabs" ? "text-emerald-600 px-2 py-0.5 bg-emerald-50 rounded-full" : "text-amber-600 px-2 py-0.5 bg-amber-50 rounded-full"}>
+                                            {ttsProvider || "Авто"}
+                                        </span>
                                     </div>
-                                )}
 
-                                <p className="text-xs font-bold text-gray-500">Прослухати:</p>
-                                <audio
-                                    controls
-                                    src={videoUrl}
-                                    className="w-full rounded-xl"
-                                    onLoadedMetadata={(e) => {
-                                        (e.target as HTMLAudioElement).playbackRate = 1.25;
-                                    }}
-                                />
-                                <div className="pt-2 border-t border-gray-50">
-                                    <a
-                                        href="https://elevenlabs.io"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-1 text-[10px] text-gray-400 hover:text-blue-500 transition-colors"
-                                    >
-                                        Керувати голосами на <span className="font-bold underline">elevenlabs.io</span>
-                                    </a>
+                                    {ttsError && ttsProvider === "GoogleTTS" && (
+                                        <div className="p-2 bg-amber-50 border border-amber-100 rounded-lg text-[10px] text-amber-700 leading-tight">
+                                            <p className="font-bold mb-1">ElevenLabs fallback:</p>
+                                            <p className="opacity-80">{ttsError}</p>
+                                        </div>
+                                    )}
+
+                                    <p className="text-xs font-bold text-gray-500 mb-1">Прослухати:</p>
+                                    <audio
+                                        controls
+                                        src={videoUrl}
+                                        className="w-full h-8 rounded-lg"
+                                        onLoadedMetadata={(e) => {
+                                            (e.target as HTMLAudioElement).playbackRate = 1.25;
+                                        }}
+                                    />
+                                    <div className="pt-2 border-t border-gray-100 flex flex-col gap-2">
+                                        <a
+                                            href="https://elevenlabs.io"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-center gap-1 text-[10px] text-gray-400 hover:text-blue-500 transition-colors"
+                                        >
+                                            Керувати на <span className="font-bold underline">elevenlabs.io</span>
+                                        </a>
+                                        <p className="text-[9px] text-gray-400 text-center italic">
+                                            Натисніть «Зберегти» для фіксації
+                                        </p>
+                                    </div>
                                 </div>
-                                <p className="text-[10px] text-gray-400 text-center italic">
-                                    Відео збережеться після натискання «Зберегти»
-                                </p>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
 

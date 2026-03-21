@@ -48,6 +48,8 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
     const [reviewResult, setReviewResult] = useState<string | null>(null)
     const [reviewStatus, setReviewStatus] = useState<"SAFE" | "ISSUES" | null>(null)
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
+    const [isQuizModalOpen, setIsQuizModalOpen] = useState(false)
+    const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false)
 
     // Combine legacy single question with the new taskQuestions if present
     const allQuestions = [
@@ -268,6 +270,22 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                     >
                         {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати" : (task.type === "quiz" ? (isCompleted ? "Виконано" : "Надіслати") : "Запустити"))}
                     </button>
+                    {totalQuestions > 0 && (
+                        <button
+                            onClick={() => setIsQuizModalOpen(true)}
+                            className="rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 relative overflow-hidden group bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+                        >
+                            <span className="relative z-10">🧠</span>
+                            <span className="hidden lg:inline relative z-10">Тест</span>
+                        </button>
+                    )}
+                    <button
+                        onClick={() => setIsQuestionModalOpen(true)}
+                        className="rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 relative overflow-hidden group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_20px_rgba(79,70,229,0.5)]"
+                    >
+                        <span className="relative z-10">💬</span>
+                        <span className="hidden lg:inline relative z-10">Питання</span>
+                    </button>
                     {task.type === "code" && (
                         <button
                             onClick={handleCodeReview}
@@ -340,81 +358,6 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                             </ReactMarkdown>
                         </div>
 
-                        {
-                            totalQuestions > 0 && (
-                                <div className="mt-8 pt-6 border-t border-gray-100">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-lg font-bold flex items-center gap-2">
-                                            🧠 Перевірка знань
-                                        </h3>
-                                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                                            {Object.keys(answeredQuestions).length} / {totalQuestions}
-                                        </span>
-                                    </div>
-
-                                    {!isCompleted ? (
-                                        <div className="space-y-4">
-                                            <p className="text-sm font-semibold text-slate-200">{currentQuestion.text}</p>
-                                            <div className="space-y-3">
-                                                {currentQuestion.options.map((option, index) => (
-                                                    <button
-                                                        key={index}
-                                                        onClick={() => handleOptionClick(option)}
-                                                        className={`w-full text-left p-4 rounded-xl border transition-all ${selectedOption === option
-                                                            ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500/50 ring-1 ring-emerald-500/50" : "bg-red-500/10 border-red-500/50 ring-1 ring-red-500/50")
-                                                            : "bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10"
-                                                            }`}
-                                                    >
-                                                        <div className="flex items-center">
-                                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${selectedOption === option
-                                                                ? (option === currentQuestion.correctAnswer ? "border-green-500 bg-green-500" : "border-red-500 bg-red-500")
-                                                                : "border-gray-300"
-                                                                }`}>
-                                                                {selectedOption === option && <div className="w-2 h-2 bg-white rounded-full" />}
-                                                            </div>
-                                                            <span className="font-medium text-slate-200">{option}</span>
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20 text-center">
-                                            <div className="text-4xl mb-2">🎉</div>
-                                            <h4 className="font-bold text-emerald-400">Всі питання пройдені!</h4>
-                                            <p className="text-sm text-emerald-500/80">Ви успішно підтвердили свої знання.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            )
-                        }
-
-                        <div className="mt-8 pt-6 border-t border-white/10 mb-8 pb-8">
-                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-200">
-                                💬 Задати питання
-                            </h3>
-                            <div className="space-y-4">
-                                <textarea
-                                    value={questionContent}
-                                    onChange={(e) => setQuestionContent(e.target.value)}
-                                    placeholder="Ваше питання до ментора (наприклад, чому цей селектор кращий?)"
-                                    className="w-full p-4 rounded-xl border border-white/10 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all min-h-[120px] resize-none text-sm text-slate-200 bg-[#1e1e1e]"
-                                />
-                                <button
-                                    onClick={handleSubmitQuestion}
-                                    disabled={isSubmittingQuestion}
-                                    className={`w-full py-3.5 rounded-xl font-bold text-white transition-all transform active:scale-[0.98] ${isSubmittingQuestion
-                                        ? "bg-blue-300 cursor-not-allowed"
-                                        : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
-                                        }`}
-                                >
-                                    {isSubmittingQuestion ? "Надсилаємо..." : "Надіслати питання"}
-                                </button>
-                                <p className="text-[11px] text-center text-slate-500 font-medium">
-                                    Відповідь з’явиться у вашому <Link href="/cabinet" className="text-blue-500 hover:underline">особистому кабінеті</Link>.
-                                </p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -511,11 +454,9 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                             <div className="p-6 md:p-8 overflow-y-auto prose prose-invert prose-sm md:prose-base max-w-none flex-1">
                                 {isReviewing ? (
                                     <div className="flex flex-col items-center justify-center p-12 text-center h-full space-y-6 relative overflow-hidden">
-                                        {/* Scanning Line Animation */}
                                         <div className="absolute inset-0 pointer-events-none z-0">
                                             <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-40 animate-scan shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
                                         </div>
-
                                         <div className="text-6xl animate-bounce relative z-10">🤔</div>
                                         <div className="space-y-2 relative z-10">
                                             <h3 className="text-xl font-bold text-white">Ментор аналізує ваш код...</h3>
@@ -550,6 +491,139 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                     </div>
                 )
             }
-        </div >
+
+            {/* Quiz Modal */}
+            {
+                isQuizModalOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <div className="bg-[#0f172a] w-full max-w-2xl flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-emerald-900/30 to-teal-900/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-2xl">🧠</div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white tracking-tight">Перевірка знань</h2>
+                                        <p className="text-xs text-emerald-300 font-medium tracking-wide uppercase">Прогрес: {Object.keys(answeredQuestions).length} / {totalQuestions}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setIsQuizModalOpen(false)}
+                                    className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-full transition-colors"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="p-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                                {!isCompleted ? (
+                                    <div className="space-y-6">
+                                        <div className="bg-white/5 p-6 rounded-2xl border border-white/5">
+                                            <p className="text-base font-semibold text-slate-100 leading-relaxed">{currentQuestion.text}</p>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {currentQuestion.options.map((option, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleOptionClick(option)}
+                                                    className={`w-full text-left p-5 rounded-2xl border transition-all transform active:scale-[0.99] ${selectedOption === option
+                                                        ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/20 border-emerald-500/50 ring-1 ring-emerald-500/50" : "bg-red-500/20 border-red-500/50 ring-1 ring-red-500/50")
+                                                        : "bg-white/5 border-white/10 hover:border-emerald-500/30 hover:bg-emerald-500/5"
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center">
+                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 transition-colors ${selectedOption === option
+                                                            ? (option === currentQuestion.correctAnswer ? "border-emerald-500 bg-emerald-500" : "border-red-500 bg-red-500")
+                                                            : "border-slate-600"
+                                                            }`}>
+                                                            {selectedOption === option && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
+                                                        </div>
+                                                        <span className={`font-medium transition-colors ${selectedOption === option ? "text-white" : "text-slate-300"}`}>{option}</span>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-emerald-500/10 p-10 rounded-3xl border border-emerald-500/20 text-center space-y-4">
+                                        <div className="text-6xl animate-bounce">🎉</div>
+                                        <h4 className="text-2xl font-bold text-emerald-400">Всі питання пройдені!</h4>
+                                        <p className="text-slate-400">Ви успішно підтвердили свої знання з цієї теми. Тепер ви готові до практики!</p>
+                                        <button
+                                            onClick={() => setIsQuizModalOpen(false)}
+                                            className="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-10 py-3.5 rounded-2xl transition-all shadow-lg shadow-emerald-600/20"
+                                        >
+                                            Чудово, продовжуємо!
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Question Modal */}
+            {
+                isQuestionModalOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <div className="bg-[#0a0a0a] w-full max-w-xl flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-indigo-900/30 to-blue-900/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-2xl">💬</div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white tracking-tight">Задати питання</h2>
+                                        <p className="text-xs text-indigo-300 font-medium tracking-wide uppercase">Ментор на зв'язку</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setIsQuestionModalOpen(false)}
+                                    className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-full transition-colors"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="p-8 space-y-6">
+                                <p className="text-slate-400 text-sm leading-relaxed">
+                                    Маєте запитання щодо теорії або коду? Опишіть вашу проблему, і ментор допоможе розібратися.
+                                </p>
+                                <textarea
+                                    value={questionContent}
+                                    onChange={(e) => setQuestionContent(e.target.value)}
+                                    placeholder="Ваше питання (наприклад: чому ми використовуємо саме цей селектор?)"
+                                    className="w-full p-5 rounded-2xl border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all min-h-[180px] resize-none text-base text-slate-100 bg-[#1e1e1e] placeholder-slate-600"
+                                />
+                                <div className="space-y-4">
+                                    <button
+                                        onClick={async () => {
+                                            await handleSubmitQuestion();
+                                            if (questionContent === "") setIsQuestionModalOpen(false);
+                                        }}
+                                        disabled={isSubmittingQuestion}
+                                        className={`w-full py-4 rounded-2xl font-bold text-white transition-all transform active:scale-[0.98] ${isSubmittingQuestion
+                                            ? "bg-slate-700 cursor-not-allowed"
+                                            : "bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 shadow-xl shadow-indigo-600/20"
+                                            }`}
+                                    >
+                                        {isSubmittingQuestion ? (
+                                            <div className="flex items-center justify-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <span>Надсилаємо...</span>
+                                            </div>
+                                        ) : "Надіслати питання ментору"}
+                                    </button>
+                                    <p className="text-xs text-center text-slate-500 font-medium">
+                                        Відповідь з’явиться у вашому <Link href="/cabinet" className="text-indigo-400 hover:text-indigo-300 hover:underline">особистому кабінеті</Link>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        </div>
     )
 }

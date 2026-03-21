@@ -49,6 +49,8 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
     const [videoUrl, setVideoUrl] = useState<string>(initialData?.videoUrl || "")
     const [isGeneratingVideo, setIsGeneratingVideo] = useState(false)
     const [videoStatus, setVideoStatus] = useState<string>("")
+    const [ttsProvider, setTtsProvider] = useState<string>("")
+    const [ttsError, setTtsError] = useState<string>("")
 
     const insertText = (before: string, after: string = "") => {
         const textarea = document.getElementById("description-editor") as HTMLTextAreaElement
@@ -122,8 +124,12 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
             if (data.videoUrl) {
                 setVideoUrl(data.videoUrl)
                 setVideoStatus("✅ Відео-озвучка успішно згенерована!")
+                setTtsProvider(data.provider || "")
+                setTtsError(data.elevenLabsError || "")
             } else {
                 setVideoStatus("❌ Помилка: " + (data.error || "Невідома помилка"))
+                setTtsProvider("")
+                setTtsError("")
                 alert(data.error || "Не вдалося згенерувати озвучку")
             }
         } catch (err: any) {
@@ -370,40 +376,54 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                                 <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900 transition-colors">Завдання активне</span>
                             </label>
                         </div>
-                    </div>
 
-                    {/* Video Section */}
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-                        <div className="flex items-center space-x-2 text-red-500 mb-2">
-                            <Video className="h-5 w-5" />
-                            <h3 className="font-bold uppercase tracking-widest text-xs">Відео з озвучкою</h3>
+                        {/* Video Section - Moved inside the card for better layout and visibility */}
+                        <div className="mt-8 pt-8 border-t border-gray-100 space-y-4">
+                            <div className="flex items-center space-x-2 text-rose-500 mb-2">
+                                <Video className="h-5 w-5" />
+                                <h3 className="font-bold uppercase tracking-widest text-xs">Відео з озвучкою</h3>
+                            </div>
+
+                            <p className="text-xs text-gray-500 leading-relaxed">
+                                Автоматично генерує аудіо-пояснення коду українською мовою через AI.
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={handleGenerateVideo}
+                                disabled={isGeneratingVideo}
+                                className="w-full flex items-center justify-center px-4 py-3 bg-rose-50 text-rose-600 border border-rose-200 rounded-2xl text-sm font-bold hover:bg-rose-100 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                            >
+                                {isGeneratingVideo
+                                    ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    : <PlayCircle className="w-4 h-4 mr-2" />
+                                }
+                                {isGeneratingVideo ? "Генерую..." : "🎬 Згенерувати відео"}
+                            </button>
+
+                            {videoStatus && (
+                                <p className="text-[10px] text-center font-bold text-rose-600 bg-rose-50/50 px-3 py-2 rounded-xl border border-rose-100/50 animate-pulse">
+                                    {videoStatus}
+                                </p>
+                            )}
                         </div>
 
-                        <p className="text-xs text-gray-500 leading-relaxed">
-                            Автоматично генерує аудіо-пояснення коду українською мовою через AI + браузерний синтез мовлення.
-                        </p>
-
-                        <button
-                            type="button"
-                            onClick={handleGenerateVideo}
-                            disabled={isGeneratingVideo}
-                            className="w-full flex items-center justify-center px-4 py-3 bg-red-50 text-red-600 border border-red-200 rounded-2xl text-sm font-bold hover:bg-red-100 transition-colors disabled:opacity-50"
-                        >
-                            {isGeneratingVideo
-                                ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                : <PlayCircle className="w-4 h-4 mr-2" />
-                            }
-                            {isGeneratingVideo ? "Генерую..." : "🎬 Згенерувати відео"}
-                        </button>
-
-                        {videoStatus && (
-                            <p className="text-xs text-center font-medium text-gray-600 bg-gray-50 px-3 py-2 rounded-xl">
-                                {videoStatus}
-                            </p>
-                        )}
-
                         {videoUrl && (
-                            <div className="space-y-2">
+                            <div className="space-y-4 bg-gray-50 p-6 rounded-2xl border border-gray-100 shadow-inner">
+                                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
+                                    <span className="text-gray-400">Технологія:</span>
+                                    <span className={ttsProvider === "ElevenLabs" ? "text-emerald-600 px-2 py-0.5 bg-emerald-50 rounded-full" : "text-amber-600 px-2 py-0.5 bg-amber-50 rounded-full"}>
+                                        {ttsProvider || "Авто"}
+                                    </span>
+                                </div>
+
+                                {ttsError && ttsProvider === "GoogleTTS" && (
+                                    <div className="p-2 bg-amber-50 border border-amber-100 rounded-lg text-[10px] text-amber-700 leading-tight">
+                                        <p className="font-bold mb-1">ElevenLabs fallback:</p>
+                                        <p className="opacity-80">{ttsError}</p>
+                                    </div>
+                                )}
+
                                 <p className="text-xs font-bold text-gray-500">Прослухати:</p>
                                 <audio
                                     controls
@@ -413,7 +433,17 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                                         (e.target as HTMLAudioElement).playbackRate = 1.25;
                                     }}
                                 />
-                                <p className="text-[10px] text-gray-400 text-center">
+                                <div className="pt-2 border-t border-gray-50">
+                                    <a
+                                        href="https://elevenlabs.io"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-1 text-[10px] text-gray-400 hover:text-blue-500 transition-colors"
+                                    >
+                                        Керувати голосами на <span className="font-bold underline">elevenlabs.io</span>
+                                    </a>
+                                </div>
+                                <p className="text-[10px] text-gray-400 text-center italic">
                                     Відео збережеться після натискання «Зберегти»
                                 </p>
                             </div>

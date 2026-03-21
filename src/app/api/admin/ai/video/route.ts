@@ -94,6 +94,7 @@ ${initialCode?.substring(0, 800) || "Немає коду"}
                                 let finalBuffer: Buffer | null = null;
                                 const elevenLabsKey = process.env.ELEVENLABS_API_KEY || "sk_a8854adc6484b26ea51084aa26b1f16f62ec796cf9d52792";
                                 let usedElevenLabs = false;
+                                let elevenLabsError = "";
 
                                 // 2A. Try ElevenLabs API first for premium voice
                                 if (elevenLabsKey) {
@@ -119,11 +120,15 @@ ${initialCode?.substring(0, 800) || "Немає коду"}
                                             finalBuffer = Buffer.from(arrayBuffer);
                                             usedElevenLabs = true;
                                         } else {
-                                            console.warn("ElevenLabs returned error, falling back to Google:", await elRes.text());
+                                            elevenLabsError = await elRes.text();
+                                            console.warn("ElevenLabs returned error, falling back to Google:", elevenLabsError);
                                         }
-                                    } catch (elErr) {
+                                    } catch (elErr: any) {
+                                        elevenLabsError = elErr.message;
                                         console.warn("ElevenLabs fetch failed, falling back to Google:", elErr);
                                     }
+                                } else {
+                                    elevenLabsError = "ELEVENLABS_API_KEY is not configured";
                                 }
 
                                 // 2B. Fallback to Google Translate TTS
@@ -149,7 +154,9 @@ ${initialCode?.substring(0, 800) || "Немає коду"}
 
                                 return NextResponse.json({
                                     script,
-                                    videoUrl: blob.url
+                                    videoUrl: blob.url,
+                                    provider: usedElevenLabs ? "ElevenLabs" : "GoogleTTS",
+                                    elevenLabsError: !usedElevenLabs ? elevenLabsError : null
                                 })
                             } catch (ttsErr: any) {
                                 console.error("TTS or Upload Error:", ttsErr)

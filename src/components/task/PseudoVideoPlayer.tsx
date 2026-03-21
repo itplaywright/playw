@@ -63,8 +63,8 @@ export default function PseudoVideoPlayer({ videoUrl, initialCode, title }: { vi
             </button>
 
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 lg:p-12 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="relative w-full max-w-5xl h-full lg:h-[85vh] flex flex-col bg-slate-900 rounded-3xl overflow-hidden border border-slate-700 shadow-2xl">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 lg:p-12 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="relative w-full max-w-5xl h-full lg:h-[85vh] flex flex-col bg-[#0f172a] rounded-3xl overflow-hidden border border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.15)] ring-1 ring-white/10">
 
                         {/* Hidden Audio Element */}
                         <audio
@@ -94,10 +94,10 @@ export default function PseudoVideoPlayer({ videoUrl, initialCode, title }: { vi
                         </div>
 
                         {/* Visuals - Code Editor Style */}
-                        <div className="flex-1 p-4 lg:p-12 flex flex-col items-center justify-center relative bg-[#090b10]">
-                            <div className="absolute inset-0 bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
+                        <div className="flex-1 p-4 lg:p-12 flex flex-col items-center justify-center relative bg-[#0a0f1d]">
+                            <div className="absolute inset-0 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-                            <div className="w-full max-w-4xl bg-[#1e1e1e] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative z-10 opacity-95">
+                            <div className="w-full max-w-4xl bg-[#1e1e1e] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative z-10 opacity-95">
                                 {/* Editor Header */}
                                 <div className="h-10 bg-[#2d2d2d] flex items-center px-4 border-b border-slate-700">
                                     <div className="flex gap-2">

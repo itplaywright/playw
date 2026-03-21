@@ -89,8 +89,15 @@ ${code}
                 const preferred = [
                     "models/gemini-2.0-flash",
                     "models/gemini-1.5-flash",
+                    "models/gemini-1.5-flash-latest",
+                    "models/gemini-1.5-flash-8b",
                     "models/gemini-1.5-pro",
                 ].filter(m => modelsArr.includes(m))
+
+                // If preferred is empty, just use whatever text-generation models are available
+                for (const other of modelsArr) {
+                    if (!preferred.includes(other)) preferred.push(other)
+                }
 
                 if (preferred.length === 0) continue;
 
@@ -113,8 +120,17 @@ ${code}
                         if (reviewText) {
                             return NextResponse.json({ review: reviewText })
                         }
+                        if (res.status === 429) {
+                            lastError = `Rate limit on ${model}. ` + (data.error?.message || "")
+                            // Break out of model loop and try NEXT API KEY?
+                            // Actually, quota is usually per-project, so trying different models on same key MIGHT work if the quota is per-model.
+                            // We will continue the model loop.
+                            continue;
+                        }
+
                         lastError = data.error?.message || "Порожня відповідь від ШІ"
-                        // If rate limit (429), it will set lastError and continue the loop to the next model
+
+                        // If it's a 400 Bad Request, we probably shouldn't try other models with the same prompt, but 500s we should.
                     } catch (err: any) {
                         lastError = err.message
                     }

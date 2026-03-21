@@ -161,7 +161,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-white overflow-hidden">
+        <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
             {/* Header */}
             <header className="flex-shrink-0 h-14 bg-[#0f172a] border-b border-white/10 flex items-center px-4 lg:px-6 gap-4">
                 {/* Logo */}
@@ -193,7 +193,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                     {task.type === "code" && (
                         <button
                             onClick={() => setCode(task.initialCode)}
-                            className="rounded-lg bg-white/10 hover:bg-white/20 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white transition-all"
+                            className="rounded-lg bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white transition-all"
                         >
                             Скинути
                         </button>
@@ -214,7 +214,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
             {/* Main Content */}
             <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                 {/* Left/Top: Description */}
-                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 lg:p-8 prose prose-slate prose-sm lg:prose-base max-w-none bg-white">
+                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/10 p-4 lg:p-8 prose prose-invert prose-sm lg:prose-base max-w-none bg-[#0a0a0a]">
 
                     {/* Ukrainian Voiceover Player */}
                     {task.videoUrl && (
@@ -242,15 +242,15 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
 
                             {!isCompleted ? (
                                 <div className="space-y-4">
-                                    <p className="text-sm font-semibold text-gray-700">{currentQuestion.text}</p>
+                                    <p className="text-sm font-semibold text-slate-200">{currentQuestion.text}</p>
                                     <div className="space-y-3">
                                         {currentQuestion.options.map((option, index) => (
                                             <button
                                                 key={index}
                                                 onClick={() => handleOptionClick(option)}
                                                 className={`w-full text-left p-4 rounded-xl border transition-all ${selectedOption === option
-                                                    ? (option === currentQuestion.correctAnswer ? "bg-green-50 border-green-500 ring-1 ring-green-500" : "bg-red-50 border-red-500 ring-1 ring-red-500")
-                                                    : "bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                                                    ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500/50 ring-1 ring-emerald-500/50" : "bg-red-500/10 border-red-500/50 ring-1 ring-red-500/50")
+                                                    : "bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-blue-500/10"
                                                     }`}
                                             >
                                                 <div className="flex items-center">
@@ -260,25 +260,25 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                                                         }`}>
                                                         {selectedOption === option && <div className="w-2 h-2 bg-white rounded-full" />}
                                                     </div>
-                                                    <span className="font-medium text-gray-800">{option}</span>
+                                                    <span className="font-medium text-slate-200">{option}</span>
                                                 </div>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
                             ) : (
-                                <div className="bg-green-50 p-6 rounded-2xl border border-green-200 text-center">
+                                <div className="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/20 text-center">
                                     <div className="text-4xl mb-2">🎉</div>
-                                    <h4 className="font-bold text-green-800">Всі питання пройдені!</h4>
-                                    <p className="text-sm text-green-700">Ви успішно підтвердили свої знання.</p>
+                                    <h4 className="font-bold text-emerald-400">Всі питання пройдені!</h4>
+                                    <p className="text-sm text-emerald-500/80">Ви успішно підтвердили свої знання.</p>
                                 </div>
                             )}
                         </div>
                     )
                     }
 
-                    <div className="mt-8 pt-6 border-t border-gray-100 mb-8 pb-8">
-                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-800">
+                    <div className="mt-8 pt-6 border-t border-white/10 mb-8 pb-8">
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-200">
                             💬 Задати питання
                         </h3>
                         <div className="space-y-4">
@@ -286,7 +286,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                                 value={questionContent}
                                 onChange={(e) => setQuestionContent(e.target.value)}
                                 placeholder="Ваше питання до ментора (наприклад, чому цей селектор кращий?)"
-                                className="w-full p-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all min-h-[120px] resize-none text-sm text-gray-700 bg-gray-50/50"
+                                className="w-full p-4 rounded-xl border border-white/10 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all min-h-[120px] resize-none text-sm text-slate-200 bg-[#1e1e1e]"
                             />
                             <button
                                 onClick={handleSubmitQuestion}
@@ -298,7 +298,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                             >
                                 {isSubmittingQuestion ? "Надсилаємо..." : "Надіслати питання"}
                             </button>
-                            <p className="text-[11px] text-center text-gray-400 font-medium">
+                            <p className="text-[11px] text-center text-slate-500 font-medium">
                                 Відповідь з’явиться у вашому <Link href="/cabinet" className="text-blue-500 hover:underline">особистому кабінеті</Link>.
                             </p>
                         </div>
@@ -338,7 +338,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                                 </svg>
                                             </div>
-                                            <Link href="/dashboard" className="inline-block bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                                            <Link href="/dashboard" className="inline-block bg-blue-600 text-white shadow-lg shadow-blue-600/20 px-8 py-3 rounded-xl font-bold hover:bg-blue-500 transition-all">
                                                 До наступного завдання
                                             </Link>
                                         </div>

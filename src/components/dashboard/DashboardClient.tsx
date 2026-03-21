@@ -105,7 +105,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
 
     return (
-        <div className="flex flex-col h-screen bg-[#f8fafc] overflow-hidden">
+        <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
             {/* Top Header */}
             <header className="flex-shrink-0 h-14 bg-[#0f172a] border-b border-white/10 flex items-center px-6 gap-6">
                 {/* Brand */}
@@ -172,7 +172,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
                                         <div className="flex items-center gap-3 mb-2">
-                                            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                                            <h1 className="text-2xl font-extrabold text-white tracking-tight">
                                                 {selectedTrack.title}
                                             </h1>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
@@ -184,8 +184,8 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                         <p className="text-slate-500 text-sm">{selectedTrack.description}</p>
                                     </div>
                                     {/* Track mini-stats */}
-                                    <div className="flex-shrink-0 bg-white rounded-2xl border border-slate-100 px-5 py-3 shadow-sm text-right">
-                                        <p className="text-2xl font-extrabold text-slate-900">
+                                    <div className="flex-shrink-0 bg-[#131b2c] rounded-2xl border border-white/10 px-5 py-3 shadow-sm text-right">
+                                        <p className="text-2xl font-extrabold text-white">
                                             {getTrackProgress(selectedTrackId).done}
                                             <span className="text-slate-300 font-bold">/{getTrackProgress(selectedTrackId).total}</span>
                                         </p>
@@ -199,8 +199,8 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <button
                                     onClick={() => setActiveTab("code")}
                                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "code"
-                                        ? "bg-[#0f172a] text-white shadow-lg"
-                                        : "bg-white text-slate-500 border border-slate-100 hover:border-slate-200 hover:text-slate-700"
+                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                                        : "bg-white/5 text-slate-400 border border-white/10 hover:border-white/20 hover:text-white"
                                         }`}
                                 >
                                     <Code2 className="w-4 h-4" />
@@ -212,8 +212,8 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <button
                                     onClick={() => setActiveTab("quiz")}
                                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "quiz"
-                                        ? "bg-[#0f172a] text-white shadow-lg"
-                                        : "bg-white text-slate-500 border border-slate-100 hover:border-slate-200 hover:text-slate-700"
+                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                                        : "bg-white/5 text-slate-400 border border-white/10 hover:border-white/20 hover:text-white"
                                         }`}
                                 >
                                     <BookOpen className="w-4 h-4" />
@@ -236,7 +236,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                             <Link
                                                 key={project.id}
                                                 href={`/projects?boardId=${project.id}`}
-                                                className="group block p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
+                                                className="group block p-5 bg-[#131b2c] rounded-2xl border border-white/10 shadow-sm hover:shadow-md hover:border-blue-500/50 transition-all"
                                             >
                                                 <div className="flex items-start justify-between mb-2">
                                                     <div className="p-2 rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors">
@@ -244,7 +244,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                     </div>
                                                     <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                                                 </div>
-                                                <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{project.title}</h3>
+                                                <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors">{project.title}</h3>
                                                 <p className="text-slate-500 text-xs mt-1 line-clamp-2">{project.description}</p>
                                             </Link>
                                         ))}
@@ -253,7 +253,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                             )}
 
                             {filteredTasks.length === 0 ? (
-                                <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
+                                <div className="bg-[#131b2c] rounded-2xl border border-white/10 p-12 text-center">
                                     <Code2 className="w-8 h-8 text-slate-200 mx-auto mb-3" />
                                     <p className="text-slate-400 font-medium text-sm">
                                         У цьому рівні поки немає завдань типу "{activeTab === "code" ? "Практика" : "Теорія"}".
@@ -269,7 +269,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                             <Link
                                                 key={task.id}
                                                 href={`/tasks/${task.id}`}
-                                                className="group flex items-center gap-4 bg-white rounded-2xl border border-slate-100 px-5 py-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
+                                                className="group flex items-center gap-4 bg-[#131b2c] rounded-2xl border border-white/10 px-5 py-4 shadow-sm hover:shadow-md hover:border-blue-500/50 transition-all"
                                             >
                                                 {/* Done indicator */}
                                                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${isDone ? "bg-emerald-100" : "bg-slate-100"}`}>
@@ -284,7 +284,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
 
                                                 {/* Title */}
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`font-semibold text-sm truncate group-hover:text-blue-600 transition-colors ${isDone ? "text-slate-400" : "text-slate-900"}`}>
+                                                    <p className={`font-semibold text-sm truncate group-hover:text-blue-400 transition-colors ${isDone ? "text-slate-500" : "text-white"}`}>
                                                         {task.title}
                                                     </p>
                                                     <p className="text-slate-400 text-xs truncate mt-0.5">

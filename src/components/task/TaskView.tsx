@@ -45,6 +45,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
     // AI Code Review States
     const [isReviewing, setIsReviewing] = useState(false)
     const [reviewResult, setReviewResult] = useState<string | null>(null)
+    const [reviewStatus, setReviewStatus] = useState<"SAFE" | "ISSUES" | null>(null)
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
 
     // Combine legacy single question with the new taskQuestions if present
@@ -175,10 +176,19 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code, taskId: task.id }),
             })
-
             const data = await res.json()
             if (res.ok && data.review) {
-                setReviewResult(data.review)
+                const fullText = data.review as string
+                if (fullText.startsWith("STATUS: SAFE")) {
+                    setReviewStatus("SAFE")
+                    setReviewResult(fullText.replace("STATUS: SAFE", "").trim())
+                } else if (fullText.startsWith("STATUS: ISSUES")) {
+                    setReviewStatus("ISSUES")
+                    setReviewResult(fullText.replace("STATUS: ISSUES", "").trim())
+                } else {
+                    setReviewStatus("ISSUES") // fallback
+                    setReviewResult(fullText)
+                }
             } else {
                 setReviewResult(`Помилка: ${data.error || "Не вдалося отримати рев'ю"}`)
             }
@@ -440,7 +450,7 @@ export default function TaskView({ task, isProduction }: TaskViewProps) {
                                     onClick={() => setIsReviewModalOpen(false)}
                                     className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95"
                                 >
-                                    Зрозуміло, йду виправляти
+                                    {reviewStatus === "SAFE" ? "Дякую, менторе!" : "Зрозуміло, йду виправляти"}
                                 </button>
                             </div>
                         )}

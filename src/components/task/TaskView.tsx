@@ -387,7 +387,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                             <>
                                 <div className="flex-1 min-h-0">
                                     <CodeEditor
-                                        defaultValue={task.initialCode}
+                                        value={code}
                                         onChange={(val) => setCode(val || "")}
                                     />
                                 </div>

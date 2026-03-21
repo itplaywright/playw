@@ -26,10 +26,10 @@ interface TaskViewProps {
         }[]
     }
     isProduction: boolean
-    nextTaskId?: number | null
+    nextTask?: { id: number; title: string } | null
 }
 
-export default function TaskView({ task, isProduction, nextTaskId }: TaskViewProps) {
+export default function TaskView({ task, isProduction, nextTask }: TaskViewProps) {
     const [code, setCode] = useState(task.initialCode)
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [answeredQuestions, setAnsweredQuestions] = useState<Record<number, string>>({})
@@ -223,9 +223,23 @@ export default function TaskView({ task, isProduction, nextTaskId }: TaskViewPro
                     <span className="hidden sm:inline">Назад</span>
                 </Link>
 
-                {/* Task title */}
-                <div className="flex-1 min-w-0">
+                {/* Task title + Next Task */}
+                <div className="flex-1 min-w-0 flex items-center gap-3">
                     <h1 className="text-white text-sm font-semibold truncate">{task.title}</h1>
+                    {nextTask && (
+                        <>
+                            <div className="h-3 w-px bg-white/10 flex-shrink-0" />
+                            <Link
+                                href={`/tasks/${nextTask.id}`}
+                                className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors flex-shrink-0 text-xs font-medium group"
+                            >
+                                <span className="hidden sm:inline truncate max-w-[150px]">{nextTask.title}</span>
+                                <svg className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Action buttons */}
@@ -265,17 +279,6 @@ export default function TaskView({ task, isProduction, nextTaskId }: TaskViewPro
                             <span>👨‍🏫</span>
                             <span className="hidden lg:inline">{isReviewing ? "Аналізуємо..." : "Code Review"}</span>
                         </button>
-                    )}
-                    {nextTaskId && (
-                        <Link
-                            href={`/tasks/${nextTaskId}`}
-                            className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 shadow-lg shadow-emerald-600/30"
-                        >
-                            <span>Далі</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                            </svg>
-                        </Link>
                     )}
                 </div>
             </header>

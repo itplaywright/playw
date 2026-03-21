@@ -69,9 +69,11 @@ ${code}
 
         let lastError = ""
 
-        for (const apiKey of apiKeys) {
+        // Shuffle keys to distribute load
+        const shuffledKeys = [...apiKeys].sort(() => Math.random() - 0.5);
+
+        for (const apiKey of shuffledKeys) {
             try {
-                // Discover models
                 const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`)
                 const modelsData = await modelsRes.json()
 
@@ -91,24 +93,32 @@ ${code}
                 ].filter(m => modelsArr.includes(m))
 
                 if (preferred.length === 0) continue;
-                const model = preferred[0]
 
-                const res = await fetch(
-                    `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`,
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] }),
-                        signal: AbortSignal.timeout(30000)
+                // Shuffle preferred models so we don't always spam gemini-2.0-flash simultaneously
+                // Actually, let's keep the priority but just loop over them
+                for (const model of preferred) {
+                    try {
+                        const res = await fetch(
+                            `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`,
+                            {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ contents: [{ parts: [{ text: fullPrompt }] }] }),
+                                signal: AbortSignal.timeout(30000)
+                            }
+                        )
+                        const data = await res.json()
+                        const reviewText = data.candidates?.[0]?.content?.parts?.[0]?.text
+
+                        if (reviewText) {
+                            return NextResponse.json({ review: reviewText })
+                        }
+                        lastError = data.error?.message || "Порожня відповідь від ШІ"
+                        // If rate limit (429), it will set lastError and continue the loop to the next model
+                    } catch (err: any) {
+                        lastError = err.message
                     }
-                )
-                const data = await res.json()
-                const reviewText = data.candidates?.[0]?.content?.parts?.[0]?.text
-
-                if (reviewText) {
-                    return NextResponse.json({ review: reviewText })
                 }
-                lastError = data.error?.message || "Порожня відповідь від ШІ"
             } catch (err: any) {
                 lastError = err.message
             }

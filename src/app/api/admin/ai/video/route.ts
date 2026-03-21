@@ -92,7 +92,7 @@ ${initialCode?.substring(0, 800) || "Немає коду"}
                         if (script) {
                             try {
                                 let finalBuffer: Buffer | null = null;
-                                const elevenLabsKey = process.env.ELEVENLABS_API_KEY || "sk_a8854adc6484b26ea51084aa26b1f16f62ec796cf9d52792";
+                                const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
                                 let usedElevenLabs = false;
                                 let elevenLabsError = "";
 

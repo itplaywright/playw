@@ -85,7 +85,7 @@ export default function PseudoVideoPlayer({ videoUrl, initialCode, title }: { vi
                                 </div>
                                 <div>
                                     <h3 className="text-white font-bold text-sm lg:text-lg drop-shadow-md">{title}</h3>
-                                    <p className="text-blue-300 text-xs font-medium">ШІ-ментор (🇺🇦)</p>
+                                    <p className="text-blue-300 text-xs font-medium">Ментор (🇺🇦)</p>
                                 </div>
                             </div>
                             <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white p-2 border border-white/10 rounded-full hover:bg-white/10 transition-colors bg-black/50 backdrop-blur-sm">
@@ -124,7 +124,7 @@ export default function PseudoVideoPlayer({ videoUrl, initialCode, title }: { vi
                                     <div className="w-1 bg-blue-400 rounded-full animate-pulse" style={{ height: isPlaying ? '80%' : '4px', animationDelay: '300ms' }} />
                                     <div className="w-1 bg-blue-400 rounded-full animate-pulse" style={{ height: isPlaying ? '40%' : '4px', animationDelay: '450ms' }} />
                                 </div>
-                                <span className="text-blue-200 text-sm font-semibold tracking-wide">AI пояснює код...</span>
+                                <span className="text-blue-200 text-sm font-semibold tracking-wide">Ментор пояснює код...</span>
                             </div>
                         </div>
 

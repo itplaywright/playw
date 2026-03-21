@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
-import { writeFile, mkdir } from "fs/promises"
-import path from "path"
+import { put } from "@vercel/blob"
 
 export async function POST(req: Request) {
     try {
@@ -18,19 +17,15 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Відео або taskId відсутній" }, { status: 400 })
         }
 
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
+        const filename = `task-videos/task-${taskId}.webm`
 
-        // Save to public/videos/
-        const videosDir = path.join(process.cwd(), "public", "videos")
-        await mkdir(videosDir, { recursive: true })
+        // Upload to Vercel Blob
+        const blob = await put(filename, file, {
+            access: "public",
+            contentType: "audio/webm",
+        })
 
-        const filename = `task-${taskId}.webm`
-        const filepath = path.join(videosDir, filename)
-        await writeFile(filepath, buffer)
-
-        const url = `/videos/${filename}`
-        return NextResponse.json({ url })
+        return NextResponse.json({ url: blob.url })
 
     } catch (err: any) {
         console.error("Upload error:", err)

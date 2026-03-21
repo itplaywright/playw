@@ -90,18 +90,53 @@ ${initialCode?.substring(0, 800) || "Немає коду"}
                         const data = await res.json()
                         const script = data.candidates?.[0]?.content?.parts?.[0]?.text
                         if (script) {
-                            // 2. Generate Audio via Google Translate TTS
                             try {
-                                const results = await googleTTS.getAllAudioBase64(script, {
-                                    lang: 'uk',
-                                    slow: false,
-                                    host: 'https://translate.google.com',
-                                    splitPunct: ',.?',
-                                })
+                                let finalBuffer: Buffer | null = null;
+                                const elevenLabsKey = process.env.ELEVENLABS_API_KEY || "sk_a8854adc6484b26ea51084aa26b1f16f62ec796cf9d52792";
+                                let usedElevenLabs = false;
 
-                                // Concatenate all base64 chunks into one MP3 buffer
-                                const buffers = results.map(res => Buffer.from(res.base64, 'base64'))
-                                const finalBuffer = Buffer.concat(buffers)
+                                // 2A. Try ElevenLabs API first for premium voice
+                                if (elevenLabsKey) {
+                                    try {
+                                        const voiceId = "pNInz6obpgDQGcFmaJcg"; // Adam - professional male voice
+                                        const elRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Accept': 'audio/mpeg',
+                                                'xi-api-key': elevenLabsKey,
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                text: script,
+                                                model_id: "eleven_multilingual_v2",
+                                                voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+                                            }),
+                                            signal: AbortSignal.timeout(60000)
+                                        });
+
+                                        if (elRes.ok) {
+                                            const arrayBuffer = await elRes.arrayBuffer();
+                                            finalBuffer = Buffer.from(arrayBuffer);
+                                            usedElevenLabs = true;
+                                        } else {
+                                            console.warn("ElevenLabs returned error, falling back to Google:", await elRes.text());
+                                        }
+                                    } catch (elErr) {
+                                        console.warn("ElevenLabs fetch failed, falling back to Google:", elErr);
+                                    }
+                                }
+
+                                // 2B. Fallback to Google Translate TTS
+                                if (!finalBuffer) {
+                                    const results = await googleTTS.getAllAudioBase64(script, {
+                                        lang: 'uk',
+                                        slow: false,
+                                        host: 'https://translate.google.com',
+                                        splitPunct: ',.?',
+                                    })
+                                    const buffers = results.map(res => Buffer.from(res.base64, 'base64'))
+                                    finalBuffer = Buffer.concat(buffers)
+                                }
 
                                 // 3. Upload to Vercel Blob
                                 const filename = `task-videos/task-${taskId || "new-" + Date.now()}.mp3`

@@ -146,10 +146,7 @@ export default function SetupPage() {
                         </ul>
                     </div>
 
-                    <div className="pt-6 border-t border-border mt-10 text-center">
-                        <h4 className="text-2xl font-bold text-foreground mb-4">Готові писати код?</h4>
-                        <FinishButton />
-                    </div>
+
 
                 </div>
             )
@@ -204,6 +201,17 @@ export default function SetupPage() {
                                     {activeStep === step.id && <ChevronRight className="w-5 h-5 text-indigo-500" />}
                                 </button>
                             ))}
+
+                            <div className="pt-8 mt-8 border-t border-border">
+                                <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 backdrop-blur-sm">
+                                    <h4 className="text-sm font-bold text-emerald-500 uppercase tracking-widest mb-4">Завершення</h4>
+                                    <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+                                        Коли все буде готово, натисніть кнопку нижче, щоб перейти до навчання.
+                                    </p>
+                                    <FinishButton />
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -248,7 +256,7 @@ function FinishButton() {
         try {
             await completeOnboarding()
             toast.success("Ви готові до випробувань!")
-            router.push("/tasks/1")
+            router.push("/dashboard")
         } catch (error) {
             toast.error("Щось пішло не так")
         } finally {
@@ -260,7 +268,7 @@ function FinishButton() {
         <button
             onClick={handleFinish}
             disabled={isPending}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 transition-all hover:scale-105 disabled:scale-100 disabled:opacity-70 group"
+            className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 transition-all hover:scale-105 disabled:scale-100 disabled:opacity-70 group"
         >
             {isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

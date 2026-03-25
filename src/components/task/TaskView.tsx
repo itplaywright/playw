@@ -35,9 +35,11 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
     const [answeredQuestions, setAnsweredQuestions] = useState<Record<number, string>>({})
     const [selectedOption, setSelectedOption] = useState<string | null>(null)
     const [output, setOutput] = useState(
-        isProduction
-            ? "Запуск тестів виконується локально у вашому VS Code."
-            : "Запустіть тест, щоб побачити результат..."
+        task.type === "quiz"
+            ? "Оберіть правильну відповідь для перевірки знань."
+            : (isProduction
+                ? "Запуск тестів виконується локально у вашому VS Code."
+                : "Запустіть тест, щоб побачити результат...")
     )
     const [isRunning, setIsRunning] = useState(false)
     const [questionContent, setQuestionContent] = useState("")
@@ -270,7 +272,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                     >
                         {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати" : (task.type === "quiz" ? (isCompleted ? "Виконано" : "Надіслати") : "Запустити"))}
                     </button>
-                    {totalQuestions > 0 && (
+                    {totalQuestions > 0 && task.type !== "quiz" && (
                         <button
                             onClick={() => setIsQuizModalOpen(true)}
                             className="rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 relative overflow-hidden group bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]"
@@ -406,29 +408,68 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex items-center justify-center p-8 text-center bg-gradient-to-b from-[#1e1e1e] to-[#0a0a0a]">
-                            <div className="max-w-md">
-                                <div className="text-6xl mb-4">{output.includes("✅") ? "🎉" : (output.includes("❌") ? "🤔" : "📝")}</div>
-                                <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
-                                    {isCompleted ? "Чудова робота!" : (output === "Запустіть тест, щоб побачити результат..." ? "Чекаємо на вашу відповідь" : (output.includes("✅") ? "Правильно!" : "Спробуйте ще раз"))}
-                                </h2>
-                                <p className="text-slate-400 font-medium">{output}</p>
-                                {isCompleted && (
-                                    <div className="mt-8 space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
-                                        <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold bg-emerald-500/10 py-2 px-4 rounded-full border border-emerald-500/20">
-                                            <span>Знання підтверджено</span>
-                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                            </svg>
+                        <div className="flex-1 flex flex-col bg-gradient-to-b from-[#1e1e1e] to-[#0a0a0a] overflow-y-auto custom-scrollbar">
+                            {!isCompleted && currentQuestion ? (
+                                <div className="p-8 lg:p-12 max-w-2xl mx-auto w-full space-y-8 animate-in mt-1">
+                                    <div className="bg-white/5 p-8 rounded-3xl border border-white/10 shadow-2xl">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs ring-1 ring-emerald-500/30">
+                                                {currentQuestionIndex + 1}
+                                            </div>
+                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Питання {currentQuestionIndex + 1} з {totalQuestions}</span>
                                         </div>
-                                        {nextTask && (
-                                            <Link href={`/tasks/${nextTask.id}`} className="inline-block bg-blue-600 text-white shadow-lg shadow-blue-600/20 px-8 py-3 rounded-xl font-bold hover:bg-blue-500 transition-all transform hover:scale-105 active:scale-95">
-                                                До наступного завдання
-                                            </Link>
+                                        <h3 className="text-xl lg:text-2xl font-bold text-white leading-tight">{currentQuestion.text}</h3>
+                                    </div>
+
+                                    <div className="grid gap-4">
+                                        {currentQuestion.options.map((option, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => handleOptionClick(option)}
+                                                className={`w-full text-left p-6 rounded-2xl border-2 transition-all transform active:scale-[0.98] group relative overflow-hidden ${selectedOption === option
+                                                    ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-red-500/10 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]")
+                                                    : "bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-white/10 shadow-sm"
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selectedOption === option
+                                                        ? (option === currentQuestion.correctAnswer ? "border-emerald-500 bg-emerald-500" : "border-red-500 bg-red-500")
+                                                        : "border-slate-600 group-hover:border-blue-400"
+                                                        }`}>
+                                                        {selectedOption === option && <div className="w-2 h-2 bg-white rounded-full" />}
+                                                    </div>
+                                                    <span className={`text-base font-bold transition-colors ${selectedOption === option ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
+                                                        {option}
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex-1 flex items-center justify-center p-8 text-center">
+                                    <div className="max-w-md">
+                                        <div className="text-6xl mb-6">{output.includes("✅") ? "🎉" : (output.includes("❌") ? "🤔" : "📝")}</div>
+                                        <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">
+                                            {isCompleted ? "Чудова робота!" : (output.includes("✅") ? "Правильно!" : "Спробуйте ще раз")}
+                                        </h2>
+                                        <p className="text-slate-400 font-medium text-lg mb-8">{output}</p>
+                                        {isCompleted && (
+                                            <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
+                                                <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold bg-emerald-500/10 py-3 px-6 rounded-2xl border border-emerald-500/20">
+                                                    <span>Знання підтверджено</span>
+                                                    <CheckCircle2 className="w-5 h-5" />
+                                                </div>
+                                                {nextTask && (
+                                                    <Link href={`/tasks/${nextTask.id}`} className="block w-full bg-blue-600 text-white shadow-xl shadow-blue-600/30 px-8 py-4 rounded-2xl font-black hover:bg-blue-500 transition-all transform hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wider">
+                                                        До наступного завдання
+                                                    </Link>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

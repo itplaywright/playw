@@ -35,11 +35,13 @@ export async function seedDatabase() {
     await db.insert(tracks).values({
         title: "Рівень 1 — Base (Основи майстерності)",
         description: "Фундамент автоматизації: від першого кліку до мобільної емуляції.",
-        order: 1
+        order: 1,
+        isActive: true
     }).onDuplicateKeyUpdate({
         set: {
             description: "Фундамент автоматизації: від першого кліку до мобільної емуляції.",
-            order: 1
+            order: 1,
+            isActive: true
         }
     })
     
@@ -61,14 +63,16 @@ export async function seedDatabase() {
                 type: (t.type as "code" | "quiz") || "code",
                 options: null, // Always use task_questions table now
                 correctAnswer: null,
-                order: currentOrder++
+                order: currentOrder++,
+                isActive: true
             }).onDuplicateKeyUpdate({
                 set: {
                     difficulty,
                     type: (t.type as "code" | "quiz") || "code",
                     options: null,
                     correctAnswer: null,
-                    order: currentOrder - 1
+                    order: currentOrder - 1,
+                    isActive: true
                 }
             })
 
@@ -113,9 +117,9 @@ export async function seedDatabase() {
     ], "easy")
 
     // Рівень 2 (12 завдань)
-    await db.insert(tracks).values({ title: "Рівень 2 — Structure (Архітектор)", description: "Створення масштабованих систем.", order: 2 })
+    await db.insert(tracks).values({ title: "Рівень 2 — Structure (Архітектор)", description: "Створення масштабованих систем.", order: 2, isActive: true })
         .onDuplicateKeyUpdate({
-            set: { description: "Створення масштабованих систем.", order: 2 }
+            set: { description: "Створення масштабованих систем.", order: 2, isActive: true }
         })
     const [level2] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 2 — Structure (Архітектор)"));
     await addTasks(level2.id, [
@@ -125,9 +129,9 @@ export async function seedDatabase() {
     ], "medium")
 
     // Рівень 3 (13 завдань)
-    await db.insert(tracks).values({ title: "Рівень 3 — Advanced (Senior)", description: "Інтеграції та мокінг.", order: 3 })
+    await db.insert(tracks).values({ title: "Рівень 3 — Advanced (Senior)", description: "Інтеграції та мокінг.", order: 3, isActive: true })
         .onDuplicateKeyUpdate({
-            set: { description: "Інтеграції та мокінг.", order: 3 }
+            set: { description: "Інтеграції та мокінг.", order: 3, isActive: true }
         })
     const [level3] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 3 — Advanced (Senior)"));
     await addTasks(level3.id, [
@@ -136,9 +140,9 @@ export async function seedDatabase() {
     ], "hard")
 
     // Рівень 4 (10 завдань)
-    await db.insert(tracks).values({ title: "Рівень 4 — Best Practices (Lead)", description: "Інфраструктура та CI/CD.", order: 4 })
+    await db.insert(tracks).values({ title: "Рівень 4 — Best Practices (Lead)", description: "Інфраструктура та CI/CD.", order: 4, isActive: true })
         .onDuplicateKeyUpdate({
-            set: { description: "Інфраструктура та CI/CD.", order: 4 }
+            set: { description: "Інфраструктура та CI/CD.", order: 4, isActive: true }
         })
     const [level4] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 4 — Best Practices (Lead)"));
     await addTasks(level4.id, [
@@ -148,9 +152,9 @@ export async function seedDatabase() {
 
 
     // Рівень 5 (Challenge)
-    await db.insert(tracks).values({ title: "Рівень 5 — Real World (Виклики)", description: "Реальні сценарії з багами та складнощами.", order: 5 })
+    await db.insert(tracks).values({ title: "Рівень 5 — Real World (Виклики)", description: "Реальні сценарії з багами та складнощами.", order: 5, isActive: true })
         .onDuplicateKeyUpdate({
-            set: { description: "Реальні сценарії з багами та складнощами.", order: 5 }
+            set: { description: "Реальні сценарії з багами та складнощами.", order: 5, isActive: true }
         })
     const [level5] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 5 — Real World (Виклики)"));
     await addTasks(level5.id, [
@@ -159,9 +163,9 @@ export async function seedDatabase() {
     ], "hard")
 
     // Рівень 6 (Quiz)
-    await db.insert(tracks).values({ title: "Рівень 6 — Quiz (Тести)", description: "Перевірка знань без написання коду.", order: 6 })
+    await db.insert(tracks).values({ title: "Рівень 6 — Quiz (Тести)", description: "Перевірка знань без написання коду.", order: 6, isActive: true })
         .onDuplicateKeyUpdate({
-            set: { description: "Перевірка знань без написання коду.", order: 6 }
+            set: { description: "Перевірка знань без написання коду.", order: 6, isActive: true }
         })
     const [level6] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 6 — Quiz (Тести)"));
     await addTasks(level6.id, [

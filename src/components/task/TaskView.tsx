@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm"
 import PseudoVideoPlayer from "./PseudoVideoPlayer"
 import CodeEditor from "@/components/editor/Monaco"
 import Link from "next/link"
+import { CheckCircle2, Clock } from "lucide-react"
 
 interface TaskViewProps {
     task: {

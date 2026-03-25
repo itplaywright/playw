@@ -90,15 +90,8 @@ export default function Sidebar({
                     const isSelected = track.id === selectedTrackId
                     const isPro = isProTrack(track.order)
 
-                    return (
-                        <button
-                            key={track.id}
-                            onClick={() => setSelectedTrackId?.(track.id)}
-                            className={`w-full flex flex-col gap-1.5 px-4 py-3 rounded-xl transition-all text-left ${isSelected
-                                ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                                : "text-slate-400 hover:bg-white/5 hover:text-white"
-                                }`}
-                        >
+                    const content = (
+                        <div className="flex flex-col gap-1.5 w-full">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-semibold truncate flex-1">{track.title}</span>
                                 {isPro && !isAdmin && (
@@ -115,7 +108,34 @@ export default function Sidebar({
                             <span className={`text-[10px] font-bold ${isSelected ? "text-blue-100" : "text-slate-500"}`}>
                                 {done}/{total} виконано
                             </span>
-                        </button>
+                        </div>
+                    )
+
+                    const baseClass = `flex flex-col gap-1.5 px-4 py-3 rounded-xl transition-all text-left ${isSelected
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        }`
+
+                    if (setSelectedTrackId) {
+                        return (
+                            <button
+                                key={track.id}
+                                onClick={() => setSelectedTrackId(track.id)}
+                                className={baseClass}
+                            >
+                                {content}
+                            </button>
+                        )
+                    }
+
+                    return (
+                        <Link
+                            key={track.id}
+                            href={`/dashboard?trackId=${track.id}`}
+                            className={baseClass}
+                        >
+                            {content}
+                        </Link>
                     )
                 })}
             </nav>

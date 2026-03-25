@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import {
     BookOpen, Code2, ArrowRight, CheckCircle2, Clock, ChevronRight,
     BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid, Sparkles
@@ -73,7 +74,18 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, projects, role }: Props) {
-    const [selectedTrackId, setSelectedTrackId] = useState<number>(tracks[0]?.id ?? 0)
+    const searchParams = useSearchParams()
+    const urlTrackId = searchParams.get("trackId")
+    const [selectedTrackId, setSelectedTrackId] = useState<number>(
+        urlTrackId ? parseInt(urlTrackId) : (tracks[0]?.id ?? 0)
+    )
+
+    useEffect(() => {
+        if (urlTrackId) {
+            const id = parseInt(urlTrackId)
+            if (!isNaN(id)) setSelectedTrackId(id)
+        }
+    }, [urlTrackId])
 
     const selectedTrack = tracks.find(t => t.id === selectedTrackId)
     const trackTasks = tasks.filter(t => t.trackId === selectedTrackId)

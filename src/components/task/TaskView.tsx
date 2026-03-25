@@ -86,7 +86,8 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
 
         // Always attempt validation/run via API
         if (isProduction) {
-            setOutput("⏳ Запуск симуляції (перевірка синтаксису)...")
+            await copyToClipboard()
+            setOutput("⏳ Код скопійовано! Запуск симуляції (перевірка синтаксису)...")
         } else {
             setOutput("Тест запускається...")
         }
@@ -100,15 +101,13 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
 
             const data = await res.json()
             const finalOutput = data.logs || data.error || "Тест завершено"
-            setOutput(finalOutput)
+            setOutput(prev => isProduction ? prev + "\n\n" + finalOutput : finalOutput)
 
-            // In production, if validation passed, copy to clipboard
             if (isProduction && data.status === "passed") {
-                await copyToClipboard()
-                setOutput(prev => prev + "\n\n✅ Код підтверджено та скопійовано! Вставте його у файл tests/active.spec.ts та запустіть npx playwright test для перевірки.")
+                setOutput(prev => prev + "\n\n✅ Код підтверджено! Ви можете переходити до наступного завдання.")
             }
         } catch (err: any) {
-            setOutput(`Помилка: ${err.message}`)
+            setOutput(prev => isProduction ? prev + `\n\nПомилка: ${err.message}` : `Помилка: ${err.message}`)
         }
 
         setIsRunning(false)

@@ -332,14 +332,20 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={{
-                                    code({ node, inline, className, children, ...props }: any) {
-                                        if (inline) {
-                                            return <code className="bg-white/10 px-1 rounded text-blue-400" {...props}>{children}</code>
+                                    code({ node, className, children, ...props }: any) {
+                                        const match = /language-(\w+)/.exec(className || '');
+                                        const hasNewline = String(children).includes('\n');
+                                        const isInline = !match && !hasNewline;
+
+                                        if (isInline) {
+                                            return <code className="bg-white/10 px-1 rounded text-blue-400 font-mono" {...props}>{children}</code>
                                         }
                                         return (
                                             <div className="border border-white/5 rounded-xl overflow-hidden shadow-2xl my-6">
                                                 <div className="bg-[#121212] flex items-center justify-between px-4 py-2 border-b border-white/5">
-                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Example Code</span>
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                                        {match ? `Example Code (${match[1]})` : "Example Code"}
+                                                    </span>
                                                     <div className="flex gap-1">
                                                         <div className="w-2 h-2 rounded-full bg-red-500/50" />
                                                         <div className="w-2 h-2 rounded-full bg-yellow-500/50" />

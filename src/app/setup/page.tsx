@@ -2,8 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Terminal, Download, Code2, ArrowLeft, CheckCircle2, ChevronRight, Boxes, Sparkles, ArrowRight } from "lucide-react"
+import { Terminal, Download, Code2, ArrowLeft, CheckCircle2, ChevronRight, Boxes, Sparkles, ArrowRight, Loader2 } from "lucide-react"
+import { completeOnboarding } from "./actions"
+import { toast } from "sonner"
+
 
 export default function SetupPage() {
     const [activeStep, setActiveStep] = useState(1)
@@ -144,14 +148,9 @@ export default function SetupPage() {
 
                     <div className="pt-6 border-t border-border mt-10 text-center">
                         <h4 className="text-2xl font-bold text-foreground mb-4">Готові писати код?</h4>
-                        <Link
-                            href="/dashboard"
-                            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all hover:scale-105"
-                        >
-                            Повернутися до завдань
-                            <ArrowRight className="w-5 h-5" />
-                        </Link>
+                        <FinishButton />
                     </div>
+
                 </div>
             )
         }
@@ -239,3 +238,39 @@ export default function SetupPage() {
         </div>
     )
 }
+
+function FinishButton() {
+    const [isPending, setIsPending] = useState(false)
+    const router = useRouter()
+
+    const handleFinish = async () => {
+        setIsPending(true)
+        try {
+            await completeOnboarding()
+            toast.success("Ви готові до випробувань!")
+            router.push("/tasks/1")
+        } catch (error) {
+            toast.error("Щось пішло не так")
+        } finally {
+            setIsPending(false)
+        }
+    }
+
+    return (
+        <button
+            onClick={handleFinish}
+            disabled={isPending}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/25 transition-all hover:scale-105 disabled:scale-100 disabled:opacity-70 group"
+        >
+            {isPending ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+                <>
+                    Налаштовано
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </>
+            )}
+        </button>
+    )
+}
+

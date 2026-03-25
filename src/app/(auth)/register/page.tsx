@@ -2,7 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import Link from "next/link"
+
 import { motion } from "framer-motion"
 import { UserPlus, Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
 
@@ -30,7 +32,19 @@ export default function RegisterPage() {
                 throw new Error(data.error || "Помилка реєстрації")
             }
 
-            router.push("/login")
+            // Automatical sign in after registration
+            const signInRes = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            })
+
+            if (signInRes?.error) {
+                router.push("/login")
+            } else {
+                router.push("/setup")
+            }
+
         } catch (err: any) {
             setError(err.message)
         } finally {

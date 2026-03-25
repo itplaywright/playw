@@ -11,7 +11,7 @@ export default async function TheoryPage() {
     }
 
     if (!(session.user as any).onboardingCompleted) {
-        redirect("/onboarding")
+        redirect("/setup")
     }
 
     return (

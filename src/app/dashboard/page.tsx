@@ -14,7 +14,7 @@ export default async function Dashboard() {
     }
 
     if (!(session.user as any).onboardingCompleted) {
-        redirect("/onboarding")
+        redirect("/setup")
     }
 
     const userWithRole = await db.select({

@@ -46,7 +46,7 @@ export async function seedDatabase() {
     const [level1] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 1 — Base (Основи майстерності)"));
 
     // Helper to add tasks to a track
-    async function addTasks(trackId: number, tasksList: { title: string, description: string, code: string, type?: "code" | "quiz", options?: string[], correctAnswer?: string }[], difficulty: "easy" | "medium" | "hard" = "easy") {
+    async function addTasks(trackId: number, tasksList: any[], difficulty: "easy" | "medium" | "hard" = "easy") {
         const quizQuestionsPath = path.join(process.cwd(), "src/db/data/quiz-questions.json");
         const quizQuestions = JSON.parse(fs.readFileSync(quizQuestionsPath, "utf-8"));
 
@@ -58,14 +58,14 @@ export async function seedDatabase() {
                 description: t.description,
                 initialCode: t.code,
                 difficulty,
-                type: t.type || "code",
+                type: (t.type as "code" | "quiz") || "code",
                 options: null, // Always use task_questions table now
                 correctAnswer: null,
                 order: currentOrder++
             }).onDuplicateKeyUpdate({
                 set: {
                     difficulty,
-                    type: t.type || "code",
+                    type: (t.type as "code" | "quiz") || "code",
                     options: null,
                     correctAnswer: null,
                     order: currentOrder - 1

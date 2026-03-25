@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import { useState, useEffect } from "react"
 import { Save, Loader2, Clock, Settings2 } from "lucide-react"
 import { toast } from "sonner"

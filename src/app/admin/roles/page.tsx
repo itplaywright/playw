@@ -5,6 +5,8 @@ import { redirect } from "next/navigation"
 import { desc } from "drizzle-orm"
 import RolesClient from "../../../components/admin/RolesClient"
 
+export const dynamic = "force-dynamic"
+
 export default async function AdminRolesPage() {
     try {
         const session = await auth()

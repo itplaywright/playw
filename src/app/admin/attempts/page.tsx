@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 
 import { db } from "@/db"
 import { results, tasks, users } from "@/db/schema"

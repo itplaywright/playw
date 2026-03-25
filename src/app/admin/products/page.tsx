@@ -5,6 +5,9 @@ import { redirect } from "next/navigation"
 import { desc, asc } from "drizzle-orm"
 import ProductsClient from "../../../components/admin/ProductsClient"
 
+export const dynamic = "force-dynamic"
+
+
 export default async function AdminProductsPage() {
     const session = await auth()
     if (!session || (session.user as any).role !== "admin") {

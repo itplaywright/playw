@@ -38,7 +38,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 })
         }
 
-        const newBlock = await db.insert(adBlocks).values({
+        const [__insertResult] = await db.insert(adBlocks).values({
             title,
             type: type || "banner",
             placement: placement || "global",
@@ -48,7 +48,8 @@ export async function POST(req: Request) {
             buttonText,
             order: order || 0,
             isActive: isActive !== undefined ? isActive : true
-        }).returning()
+        })
+        const newBlock = await db.select().from(adBlocks).where(eq(adBlocks.id, __insertResult.insertId))
 
         return NextResponse.json(newBlock[0])
     } catch (error: any) {
@@ -70,10 +71,11 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
         }
 
-        const updatedBlock = await db.update(adBlocks)
+        await db.update(adBlocks)
             .set({ title, type, placement, content, imageUrl, linkUrl, buttonText, order, isActive })
             .where(eq(adBlocks.id, id))
-            .returning()
+
+        const updatedBlock = await db.select().from(adBlocks).where(eq(adBlocks.id, id))
 
         return NextResponse.json(updatedBlock[0])
     } catch (error: any) {

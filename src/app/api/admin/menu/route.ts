@@ -28,13 +28,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Title and URL are required" }, { status: 400 })
         }
 
-        const newItem = await db.insert(menuItems).values({
+        const [__insertResult] = await db.insert(menuItems).values({
             title,
             url,
             type: type || "internal",
             order: order || 0,
             isVisible: isVisible !== undefined ? isVisible : true
-        }).returning()
+        })
+        const newItem = await db.select().from(menuItems).where(eq(menuItems.id, __insertResult.insertId))
 
         return NextResponse.json(newItem[0])
     } catch (error: any) {
@@ -56,10 +57,11 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
         }
 
-        const updatedItem = await db.update(menuItems)
+        await db.update(menuItems)
             .set({ title, url, type, order, isVisible })
             .where(eq(menuItems.id, id))
-            .returning()
+
+        const updatedItem = await db.select().from(menuItems).where(eq(menuItems.id, id))
 
         return NextResponse.json(updatedItem[0])
     } catch (error: any) {

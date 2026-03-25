@@ -22,15 +22,13 @@ export async function PATCH(
             return NextResponse.json({ error: "Invalid data" }, { status: 400 });
         }
 
-        const [updatedQuestion] = await db.update(questions)
-            .set({
+        await db.update(questions).set({
                 answer,
                 status: "answered",
                 isReadByUser: false,
                 answeredAt: new Date(),
-            })
-            .where(eq(questions.id, questionId))
-            .returning();
+            }).where(eq(questions.id, questionId))
+        const updatedQuestion = (await db.select().from(questions).where(eq(questions.id, questionId)))[0];
 
         return NextResponse.json(updatedQuestion);
     } catch (error) {

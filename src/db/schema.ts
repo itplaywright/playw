@@ -1,61 +1,62 @@
 import {
     timestamp,
-    pgTable,
+    mysqlTable,
+    varchar,
     text,
     primaryKey,
-    integer,
-    serial,
+    int,
     boolean,
-    pgEnum,
+    mysqlEnum,
     uniqueIndex,
-} from "drizzle-orm/pg-core"
+    json,
+} from "drizzle-orm/mysql-core"
 import type { AdapterAccountType } from "next-auth/adapters"
 
-export const roleEnum = pgEnum("role", ["user", "admin"])
-export const difficultyEnum = pgEnum("difficulty", ["easy", "medium", "hard"])
-export const statusEnum = pgEnum("status", ["passed", "failed"])
-export const menuTypeEnum = pgEnum("menu_type", ["internal", "external"])
-export const adTypeEnum = pgEnum("ad_type", ["banner", "text", "cta"])
-export const adPlacementEnum = pgEnum("ad_placement", ["global", "task"])
-export const questionStatusEnum = pgEnum("question_status", ["pending", "answered"])
-export const learningPathEnum = pgEnum("learning_path", ["theory", "practice"])
-export const productTypeEnum = pgEnum("product_type", ["course", "disk", "other"])
-export const purchaseStatusEnum = pgEnum("purchase_status", ["active", "expired", "cancelled"])
-export const projectPriorityEnum = pgEnum("project_priority", ["low", "medium", "high", "critical"])
+export const roleEnumValues = ["user", "admin"] as const
+export const difficultyEnumValues = ["easy", "medium", "hard"] as const
+export const statusEnumValues = ["passed", "failed"] as const
+export const menuTypeEnumValues = ["internal", "external"] as const
+export const adTypeEnumValues = ["banner", "text", "cta"] as const
+export const adPlacementEnumValues = ["global", "task"] as const
+export const questionStatusEnumValues = ["pending", "answered"] as const
+export const learningPathEnumValues = ["theory", "practice"] as const
+export const productTypeEnumValues = ["course", "disk", "other"] as const
+export const purchaseStatusEnumValues = ["active", "expired", "cancelled"] as const
+export const projectPriorityEnumValues = ["low", "medium", "high", "critical"] as const
 
-export const users = pgTable("user", {
-    id: text("id")
+export const users = mysqlTable("user", {
+    id: varchar("id", { length: 255 })
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    name: text("name"),
-    email: text("email").unique(),
+    name: varchar("name", { length: 255 }),
+    email: varchar("email", { length: 255 }).unique(),
     emailVerified: timestamp("emailVerified", { mode: "date" }),
     image: text("image"),
     passwordHash: text("password_hash"),
-    role: roleEnum("role").default("user"),
-    dynamicRoleId: integer("dynamic_role_id").references(() => roles.id, { onDelete: "set null" }),
+    role: mysqlEnum("role", roleEnumValues).default("user"),
+    dynamicRoleId: int("dynamic_role_id").references(() => roles.id, { onDelete: "set null" }),
     isBlocked: boolean("is_blocked").default(false),
     onboardingCompleted: boolean("onboarding_completed").default(false),
-    learningPath: learningPathEnum("learning_path"),
+    learningPath: mysqlEnum("learning_path", learningPathEnumValues),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-export const accounts = pgTable(
+export const accounts = mysqlTable(
     "account",
     {
-        userId: text("userId")
+        userId: varchar("userId", { length: 255 })
             .notNull()
             .references(() => users.id, { onDelete: "cascade" }),
-        type: text("type").$type<AdapterAccountType>().notNull(),
-        provider: text("provider").notNull(),
-        providerAccountId: text("providerAccountId").notNull(),
+        type: varchar("type", { length: 255 }).$type<AdapterAccountType>().notNull(),
+        provider: varchar("provider", { length: 255 }).notNull(),
+        providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
         refresh_token: text("refresh_token"),
         access_token: text("access_token"),
-        expires_at: integer("expires_at"),
-        token_type: text("token_type"),
-        scope: text("scope"),
+        expires_at: int("expires_at"),
+        token_type: varchar("token_type", { length: 255 }),
+        scope: varchar("scope", { length: 255 }),
         id_token: text("id_token"),
-        session_state: text("session_state"),
+        session_state: varchar("session_state", { length: 255 }),
     },
     (account) => ({
         compoundKey: primaryKey({
@@ -64,19 +65,19 @@ export const accounts = pgTable(
     })
 )
 
-export const sessions = pgTable("session", {
-    sessionToken: text("sessionToken").primaryKey(),
-    userId: text("userId")
+export const sessions = mysqlTable("session", {
+    sessionToken: varchar("sessionToken", { length: 255 }).primaryKey(),
+    userId: varchar("userId", { length: 255 })
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
     expires: timestamp("expires", { mode: "date" }).notNull(),
 })
 
-export const verificationTokens = pgTable(
+export const verificationTokens = mysqlTable(
     "verificationToken",
     {
-        identifier: text("identifier").notNull(),
-        token: text("token").notNull(),
+        identifier: varchar("identifier", { length: 255 }).notNull(),
+        token: varchar("token", { length: 255 }).notNull(),
         expires: timestamp("expires", { mode: "date" }).notNull(),
     },
     (verificationToken) => ({
@@ -86,159 +87,156 @@ export const verificationTokens = pgTable(
     })
 )
 
-export const roles = pgTable("roles", {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull().unique(),
+export const roles = mysqlTable("roles", {
+    id: int("id").primaryKey().autoincrement(),
+    name: varchar("name", { length: 255 }).notNull().unique(),
     description: text("description"),
-    maxTrackOrder: integer("max_track_order").default(0),
+    maxTrackOrder: int("max_track_order").default(0),
     hasPracticeAccess: boolean("has_practice_access").default(false),
     isDefault: boolean("is_default").default(false),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-export const tracks = pgTable("tracks", {
-    id: serial("id").primaryKey(),
-    title: text("title").notNull(),
+export const tracks = mysqlTable("tracks", {
+    id: int("id").primaryKey().autoincrement(),
+    title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
     isActive: boolean("is_active").default(true),
-    order: integer("order").default(0),
+    order: int("order").default(0),
 }, (table) => ({
     titleIdx: uniqueIndex("track_title_idx").on(table.title),
 }))
 
-export const tasks = pgTable("tasks", {
-    id: serial("id").primaryKey(),
-    trackId: integer("track_id").references(() => tracks.id),
-    title: text("title").notNull(),
+export const tasks = mysqlTable("tasks", {
+    id: int("id").primaryKey().autoincrement(),
+    trackId: int("track_id").references(() => tracks.id),
+    title: varchar("title", { length: 255 }).notNull(),
     description: text("description").notNull(), // Markdown
-    difficulty: difficultyEnum("difficulty").default("easy"),
+    difficulty: mysqlEnum("difficulty", difficultyEnumValues).default("easy"),
     initialCode: text("initial_code").notNull(),
-    // For MVP we can store expected result as text or a simple verification script
     expectedResult: text("expected_result"),
-    order: integer("order").default(0),
+    order: int("order").default(0),
     isActive: boolean("is_active").default(true),
-    // Quiz fields
-    type: text("type", { enum: ["code", "quiz"] }).default("code").notNull(),
-    options: text("options").array(), // For quiz answers
+    type: mysqlEnum("type", ["code", "quiz"]).default("code").notNull(),
+    options: json("options").$type<string[]>(), // For quiz answers
     correctAnswer: text("correct_answer"), // For quiz validation
     videoUrl: text("video_url"), // Auto-generated Ukrainian voiceover video
 }, (table) => ({
     trackTitleIdx: uniqueIndex("task_track_title_idx").on(table.trackId, table.title),
 }))
 
-export const taskQuestions = pgTable("task_questions", {
-    id: serial("id").primaryKey(),
-    taskId: integer("task_id").references(() => tasks.id, { onDelete: "cascade" }),
+export const taskQuestions = mysqlTable("task_questions", {
+    id: int("id").primaryKey().autoincrement(),
+    taskId: int("task_id").references(() => tasks.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
-    options: text("options").array().notNull(),
+    options: json("options").$type<string[]>().notNull(),
     correctAnswer: text("correct_answer").notNull(),
-    order: integer("order").default(0),
+    order: int("order").default(0),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-export const results = pgTable("results", {
-    id: serial("id").primaryKey(),
-    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
-    taskId: integer("task_id").references(() => tasks.id),
-    status: statusEnum("status").notNull(),
+export const results = mysqlTable("results", {
+    id: int("id").primaryKey().autoincrement(),
+    userId: varchar("user_id", { length: 255 }).references(() => users.id, { onDelete: "cascade" }),
+    taskId: int("task_id").references(() => tasks.id),
+    status: mysqlEnum("status", statusEnumValues).notNull(),
     logs: text("logs"), // stdout/stderr
-    durationMs: integer("duration_ms"),
+    durationMs: int("duration_ms"),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-// CMS Tables
-export const settings = pgTable("settings", {
-    id: serial("id").primaryKey(),
-    key: text("key").unique().notNull(),
+export const settings = mysqlTable("settings", {
+    id: int("id").primaryKey().autoincrement(),
+    key: varchar("key", { length: 255 }).unique().notNull(),
     value: text("value"),
     updatedAt: timestamp("updated_at").defaultNow(),
 })
 
-export const menuItems = pgTable("menu_items", {
-    id: serial("id").primaryKey(),
-    title: text("title").notNull(),
-    url: text("url").notNull(),
-    type: menuTypeEnum("type").default("internal"),
-    order: integer("order").default(0),
+export const menuItems = mysqlTable("menu_items", {
+    id: int("id").primaryKey().autoincrement(),
+    title: varchar("title", { length: 255 }).notNull(),
+    url: varchar("url", { length: 255 }).notNull(),
+    type: mysqlEnum("type", menuTypeEnumValues).default("internal"),
+    order: int("order").default(0),
     isVisible: boolean("is_visible").default(true),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-export const adBlocks = pgTable("ad_blocks", {
-    id: serial("id").primaryKey(),
-    title: text("title").notNull(),
-    type: adTypeEnum("type").default("banner"),
-    placement: adPlacementEnum("placement").default("global"),
+export const adBlocks = mysqlTable("ad_blocks", {
+    id: int("id").primaryKey().autoincrement(),
+    title: varchar("title", { length: 255 }).notNull(),
+    type: mysqlEnum("type", adTypeEnumValues).default("banner"),
+    placement: mysqlEnum("placement", adPlacementEnumValues).default("global"),
     content: text("content"), // для text/cta - HTML/Markdown
     imageUrl: text("image_url"), // для banner
     linkUrl: text("link_url"),
-    buttonText: text("button_text"), // для cta
-    order: integer("order").default(0),
+    buttonText: varchar("button_text", { length: 255 }), // для cta
+    order: int("order").default(0),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-export const questions = pgTable("questions", {
-    id: serial("id").primaryKey(),
-    userId: text("user_id")
+export const questions = mysqlTable("questions", {
+    id: int("id").primaryKey().autoincrement(),
+    userId: varchar("user_id", { length: 255 })
         .notNull()
         .references(() => users.id, { onDelete: "cascade" }),
-    taskId: integer("task_id")
+    taskId: int("task_id")
         .notNull()
         .references(() => tasks.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
     answer: text("answer"),
-    status: questionStatusEnum("status").default("pending"),
+    status: mysqlEnum("status", questionStatusEnumValues).default("pending"),
     isReadByUser: boolean("is_read_by_user").default(true),
     isReadByAdmin: boolean("is_read_by_admin").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     answeredAt: timestamp("answered_at"),
 })
 
-export const products = pgTable("products", {
-    id: serial("id").primaryKey(),
-    title: text("title").notNull(),
+export const products = mysqlTable("products", {
+    id: int("id").primaryKey().autoincrement(),
+    title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
-    price: integer("price").default(0).notNull(), // Amount in smallest currency unit
-    type: productTypeEnum("product_type").default("course").notNull(),
-    grantedRoleId: integer("granted_role_id").references(() => roles.id, { onDelete: "set null" }),
+    price: int("price").default(0).notNull(), // Amount in smallest currency unit
+    type: mysqlEnum("product_type", productTypeEnumValues).default("course").notNull(),
+    grantedRoleId: int("granted_role_id").references(() => roles.id, { onDelete: "set null" }),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-export const userProducts = pgTable("user_products", {
-    id: serial("id").primaryKey(),
-    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    productId: integer("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
-    status: purchaseStatusEnum("status").default("active"),
+export const userProducts = mysqlTable("user_products", {
+    id: int("id").primaryKey().autoincrement(),
+    userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id, { onDelete: "cascade" }),
+    productId: int("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+    status: mysqlEnum("status", purchaseStatusEnumValues).default("active"),
     purchasedAt: timestamp("purchased_at").defaultNow(),
     expiresAt: timestamp("expires_at"),
 })
 
-export const projectBoards = pgTable("project_boards", {
-    id: serial("id").primaryKey(),
-    title: text("title").notNull(),
+export const projectBoards = mysqlTable("project_boards", {
+    id: int("id").primaryKey().autoincrement(),
+    title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
     createdAt: timestamp("created_at").defaultNow(),
 })
 
-export const projectColumns = pgTable("project_columns", {
-    id: serial("id").primaryKey(),
-    boardId: integer("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
-    title: text("title").notNull(),
-    order: integer("order").default(0),
-    color: text("color"),
+export const projectColumns = mysqlTable("project_columns", {
+    id: int("id").primaryKey().autoincrement(),
+    boardId: int("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    order: int("order").default(0),
+    color: varchar("color", { length: 255 }),
 })
 
-export const projectTasks = pgTable("project_tasks", {
-    id: serial("id").primaryKey(),
-    boardId: integer("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
-    columnId: integer("column_id").notNull().references(() => projectColumns.id, { onDelete: "cascade" }),
-    title: text("title").notNull(),
+export const projectTasks = mysqlTable("project_tasks", {
+    id: int("id").primaryKey().autoincrement(),
+    boardId: int("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
+    columnId: int("column_id").notNull().references(() => projectColumns.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
-    priority: projectPriorityEnum("priority").default("medium"),
-    assigneeId: text("assignee_id").references(() => users.id, { onDelete: "set null" }),
-    creatorId: text("creator_id").references(() => users.id, { onDelete: "set null" }),
+    priority: mysqlEnum("priority", projectPriorityEnumValues).default("medium"),
+    assigneeId: varchar("assignee_id", { length: 255 }).references(() => users.id, { onDelete: "set null" }),
+    creatorId: varchar("creator_id", { length: 255 }).references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 })

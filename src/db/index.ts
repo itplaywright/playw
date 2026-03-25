@@ -1,15 +1,16 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/mysql2";
+import * as mysql from "mysql2/promise";
 import * as schema from "./schema";
+import * as dotenv from "dotenv";
+
+dotenv.config({ path: ".env.local" });
 
 const globalForDb = globalThis as unknown as {
-    conn: Pool | undefined;
+    conn: mysql.Pool | undefined;
 };
 
-const conn = globalForDb.conn ?? new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
+const conn = globalForDb.conn ?? mysql.createPool(process.env.DATABASE_URL!);
 
 if (process.env.NODE_ENV !== "production") globalForDb.conn = conn;
 
-export const db = drizzle(conn, { schema });
+export const db = drizzle(conn, { schema, mode: "default" });

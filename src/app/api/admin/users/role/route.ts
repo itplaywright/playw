@@ -18,10 +18,11 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: "User ID is required" }, { status: 400 })
         }
 
-        const updatedUser = await db.update(users)
+        await db.update(users)
             .set({ dynamicRoleId: dynamicRoleId === "none" ? null : dynamicRoleId })
             .where(eq(users.id, userId))
-            .returning()
+
+        const updatedUser = await db.select().from(users).where(eq(users.id, userId))
 
         return NextResponse.json(updatedUser[0])
     } catch (error: any) {

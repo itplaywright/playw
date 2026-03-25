@@ -37,9 +37,8 @@ export async function POST(req: Request) {
             await db.update(roles).set({ isDefault: false })
         }
 
-        const newRole = await db.insert(roles)
-            .values({ name, description, maxTrackOrder, isDefault, hasPracticeAccess })
-            .returning()
+        const [__ir1] = await db.insert(roles).values({ name, description, maxTrackOrder, isDefault, hasPracticeAccess })
+        const newRole = await db.select().from(roles).where(eq(roles.id, __ir1.insertId))
 
         return NextResponse.json(newRole[0])
     } catch (error: any) {
@@ -65,10 +64,11 @@ export async function PATCH(req: Request) {
             await db.update(roles).set({ isDefault: false })
         }
 
-        const updatedRole = await db.update(roles)
+        await db.update(roles)
             .set({ name, description, maxTrackOrder, isDefault, hasPracticeAccess })
             .where(eq(roles.id, id))
-            .returning()
+
+        const updatedRole = await db.select().from(roles).where(eq(roles.id, id))
 
         return NextResponse.json(updatedRole[0])
     } catch (error: any) {

@@ -29,12 +29,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 })
         }
 
-        const newTrack = await db.insert(tracks).values({
+        const [__insertResult] = await db.insert(tracks).values({
             title,
             description,
             order: order || 0,
             isActive: true
-        }).returning()
+        })
+        const newTrack = await db.select().from(tracks).where(eq(tracks.id, __insertResult.insertId))
 
         return NextResponse.json(newTrack[0])
     } catch (error: any) {
@@ -56,7 +57,7 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
         }
 
-        const updatedTrack = await db.update(tracks)
+        await db.update(tracks)
             .set({
                 title,
                 description,
@@ -64,7 +65,8 @@ export async function PATCH(req: Request) {
                 isActive
             })
             .where(eq(tracks.id, id))
-            .returning()
+
+        const updatedTrack = await db.select().from(tracks).where(eq(tracks.id, id))
 
         return NextResponse.json(updatedTrack[0])
     } catch (error: any) {

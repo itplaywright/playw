@@ -21,12 +21,13 @@ export async function POST(req: Request) {
         const columns = await db.select().from(projectColumns).where(eq(projectColumns.boardId, boardId))
         const maxOrder = columns.length > 0 ? Math.max(...columns.map(c => c.order || 0)) : 0
 
-        const [newColumn] = await db.insert(projectColumns).values({
+        const [__ir3] = await db.insert(projectColumns).values({
             boardId,
             title,
             color: color || "#94a3b8",
             order: maxOrder + 1,
-        }).returning()
+        })
+        const newColumn = (await db.select().from(projectColumns).where(eq(projectColumns.id, __ir3.insertId)))[0]
 
         return NextResponse.json(newColumn)
     } catch (error) {

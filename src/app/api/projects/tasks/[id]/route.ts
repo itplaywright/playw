@@ -31,13 +31,11 @@ export async function PATCH(
     // In a more complex system, we would check project membership here.
 
     try {
-        const [updatedTask] = await db.update(projectTasks)
-            .set({
+        await db.update(projectTasks).set({
                 ...data,
                 updatedAt: new Date()
-            })
-            .where(eq(projectTasks.id, taskId))
-            .returning()
+            }).where(eq(projectTasks.id, taskId))
+        const updatedTask = (await db.select().from(projectTasks).where(eq(projectTasks.id, taskId)))[0]
 
         return NextResponse.json(updatedTask)
     } catch (error) {

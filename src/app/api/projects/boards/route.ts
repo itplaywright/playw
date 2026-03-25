@@ -2,6 +2,7 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { projectBoards, projectColumns } from "@/db/schema"
+import { eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
@@ -17,10 +18,11 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 })
         }
 
-        const [newBoard] = await db.insert(projectBoards).values({
+        const [__ir2] = await db.insert(projectBoards).values({
             title,
             description,
-        }).returning()
+        })
+        const newBoard = (await db.select().from(projectBoards).where(eq(projectBoards.id, __ir2.insertId)))[0]
 
         const defaultColumns = [
             { title: "To Do", order: 1, color: "#94a3b8", boardId: newBoard.id },

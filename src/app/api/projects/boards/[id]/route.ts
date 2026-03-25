@@ -18,12 +18,10 @@ export async function PATCH(
         const boardId = parseInt(id)
         const data = await req.json()
 
-        const [updatedBoard] = await db.update(projectBoards)
-            .set({
+        await db.update(projectBoards).set({
                 ...data,
-            })
-            .where(eq(projectBoards.id, boardId))
-            .returning()
+            }).where(eq(projectBoards.id, boardId))
+        const updatedBoard = (await db.select().from(projectBoards).where(eq(projectBoards.id, boardId)))[0]
 
         return NextResponse.json(updatedBoard)
     } catch (error) {

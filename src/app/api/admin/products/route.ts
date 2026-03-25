@@ -32,15 +32,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Title and price are required" }, { status: 400 })
         }
 
-        const newProduct = await db.insert(products)
-            .values({
+        const [__ir0] = await db.insert(products).values({
                 title,
                 description,
                 price: Math.round(parseFloat(price) * 100), // Store as cents
                 grantedRoleId,
                 isActive: isActive !== undefined ? isActive : true
             })
-            .returning()
+        const newProduct = await db.select().from(products).where(eq(products.id, __ir0.insertId))
 
         return NextResponse.json(newProduct[0])
     } catch (error: any) {
@@ -69,10 +68,11 @@ export async function PATCH(req: Request) {
         if (grantedRoleId !== undefined) updateData.grantedRoleId = grantedRoleId
         if (isActive !== undefined) updateData.isActive = isActive
 
-        const updatedProduct = await db.update(products)
+        await db.update(products)
             .set(updateData)
             .where(eq(products.id, id))
-            .returning()
+
+        const updatedProduct = await db.select().from(products).where(eq(products.id, id))
 
         return NextResponse.json(updatedProduct[0])
     } catch (error: any) {

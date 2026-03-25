@@ -31,12 +31,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const [newQuestion] = await db.insert(questions).values({
+        const [__ir5] = await db.insert(questions).values({
             userId: session.user.id,
             taskId,
             content,
             status: "pending",
-        }).returning();
+        })
+        const newQuestion = (await db.select().from(questions).where(eq(questions.id, __ir5.insertId)))[0];
 
         return NextResponse.json(newQuestion);
     } catch (error) {

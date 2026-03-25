@@ -39,7 +39,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
         }
 
-        const newTask = await db.insert(tasks).values({
+        const [__insertResult] = await db.insert(tasks).values({
             title,
             description,
             trackId: parseInt(trackId),
@@ -47,7 +47,8 @@ export async function POST(req: Request) {
             initialCode,
             order: order || 0,
             isActive: true
-        }).returning()
+        })
+        const newTask = await db.select().from(tasks).where(eq(tasks.id, __insertResult.insertId))
 
         return NextResponse.json(newTask[0])
     } catch (error: any) {
@@ -69,7 +70,7 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
         }
 
-        const updatedTask = await db.update(tasks)
+        await db.update(tasks)
             .set({
                 title,
                 description,
@@ -81,7 +82,8 @@ export async function PATCH(req: Request) {
                 videoUrl: videoUrl ?? undefined
             })
             .where(eq(tasks.id, id))
-            .returning()
+
+        const updatedTask = await db.select().from(tasks).where(eq(tasks.id, id))
 
         return NextResponse.json(updatedTask[0])
     } catch (error: any) {

@@ -1,9 +1,9 @@
-
-import { config } from "dotenv";
-config({ path: ".env.local" });
+import * as dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 
 import { db } from "@/db";
 import { settings, menuItems } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 async function seedSettings() {
     console.log("Seeding settings...");
@@ -18,9 +18,8 @@ async function seedSettings() {
 
     for (const s of defaultSettings) {
         await db.insert(settings)
-            .values(s)
-            .onConflictDoNothing({ target: settings.key }) // Skip if exists
-            .returning();
+            .ignore()
+            .values(s); // Skip if exists
     }
 
     // 2. Menu Items

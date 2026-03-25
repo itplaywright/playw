@@ -37,10 +37,11 @@ export async function POST(req: Request) {
 
     try {
         const data = await req.json()
-        const [newTask] = await db.insert(projectTasks).values({
+        const [__ir4] = await db.insert(projectTasks).values({
             ...data,
             creatorId: session.user.id,
-        }).returning()
+        })
+        const newTask = (await db.select().from(projectTasks).where(eq(projectTasks.id, __ir4.insertId)))[0]
 
         return NextResponse.json(newTask)
     } catch (error) {

@@ -19,10 +19,11 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
         }
 
-        const updatedUser = await db.update(users)
+        await db.update(users)
             .set({ isBlocked })
             .where(eq(users.id, id))
-            .returning()
+
+        const updatedUser = await db.select().from(users).where(eq(users.id, id))
 
         return NextResponse.json(updatedUser[0])
     } catch (error: any) {

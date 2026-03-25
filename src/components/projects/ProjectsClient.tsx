@@ -114,7 +114,7 @@ export default function ProjectsClient({
                 />
 
                 <main className="flex-1 overflow-y-auto p-8 bg-slate-50">
-                    <div className="max-w-5xl mx-auto">
+                    <div className="w-full">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">

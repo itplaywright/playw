@@ -173,7 +173,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                 {/* Main content */}
                 <main className="flex-1 overflow-y-auto">
                     {selectedTrack && (
-                        <div className="p-8 max-w-4xl mx-auto">
+                        <div className="p-8 w-full">
                             {/* Track header */}
                             <div className="mb-8">
                                 <div className="flex items-start justify-between gap-4">

@@ -74,7 +74,6 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, projects, role }: Props) {
     const [selectedTrackId, setSelectedTrackId] = useState<number>(tracks[0]?.id ?? 0)
-    const [activeTab, setActiveTab] = useState<"quiz" | "code">("code")
 
     const selectedTrack = tracks.find(t => t.id === selectedTrackId)
     const trackTasks = tasks.filter(t => t.trackId === selectedTrackId)
@@ -87,11 +86,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
         return { done, total: tTasks.length }
     }
 
-    const filteredTasks = activeTab === "quiz"
-        ? trackTasks.filter(t => t.type === "quiz" || (t.options && t.options.length > 0))
-        : trackTasks.filter(t => t.type === "code")
-    const quizCount = trackTasks.filter(t => t.type === "quiz" || (t.options && t.options.length > 0)).length
-    const codeCount = trackTasks.filter(t => t.type === "code").length
+    const filteredTasks = trackTasks.filter(t => t.type === "code")
 
     const isProTrack = (order: number | null) => {
         if (isAdmin) return false
@@ -194,32 +189,9 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 </div>
                             </div>
 
-                            {/* Tabs */}
-                            <div className="flex gap-2 mb-6">
-                                <button
-                                    onClick={() => setActiveTab("code")}
-                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "code"
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                                        : "bg-white/5 text-slate-400 border border-white/10 hover:border-white/20 hover:text-white"
-                                        }`}
-                                >
-                                    <Code2 className="w-4 h-4" />
-                                    Практика
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab("quiz")}
-                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "quiz"
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                                        : "bg-white/5 text-slate-400 border border-white/10 hover:border-white/20 hover:text-white"
-                                        }`}
-                                >
-                                    <Sparkles className="w-4 h-4" />
-                                    Проєкти
-                                </button>
-                            </div>
 
                             {/* Task list */}
-                            {activeTab === "code" && projects.length > 0 && (
+                            {projects.length > 0 && (
                                 <div className="mb-8">
                                     <div className="flex items-center gap-2 mb-4">
                                         <LayoutGrid className="w-4 h-4 text-slate-400" />
@@ -250,7 +222,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <div className="bg-[#131b2c] rounded-2xl border border-white/10 p-12 text-center">
                                     <Code2 className="w-8 h-8 text-slate-200 mx-auto mb-3" />
                                     <p className="text-slate-400 font-medium text-sm">
-                                        У цьому рівні поки немає завдань типу "{activeTab === "code" ? "Практика" : "Проєкти"}".
+                                        У цьому рівні поки немає практичних завдань.
                                     </p>
                                 </div>
                             ) : (

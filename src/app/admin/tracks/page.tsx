@@ -16,7 +16,13 @@ export default async function AdminTracksPage() {
     })
         .from(tracks)
         .leftJoin(tasks, eq(tracks.id, tasks.trackId))
-        .groupBy(tracks.id)
+        .groupBy(
+            tracks.id,
+            tracks.title,
+            tracks.description,
+            tracks.isActive,
+            tracks.order
+        )
         .orderBy(asc(tracks.order))
 
     return <TracksClient initialTracks={allTracks} />

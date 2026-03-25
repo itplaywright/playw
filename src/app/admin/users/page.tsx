@@ -14,7 +14,7 @@ export default async function AdminUsersPage() {
         dynamicRoleId: users.dynamicRoleId,
         isBlocked: users.isBlocked,
         createdAt: users.createdAt,
-        passedTasks: sql<number>`(SELECT COUNT(DISTINCT ${results.taskId}) FROM ${results} WHERE ${results.userId} = "user"."id" AND ${results.status} = 'passed')`
+        passedTasks: sql<number>`(SELECT COUNT(DISTINCT ${results.taskId}) FROM ${results} WHERE ${results.userId} = ${users.id} AND ${results.status} = 'passed')`
     })
         .from(users)
         .orderBy(desc(users.createdAt))

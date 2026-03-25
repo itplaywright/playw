@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
         .from(tasks)
         .leftJoin(results, eq(tasks.id, results.taskId))
         .where(eq(results.status, "failed"))
-        .groupBy(tasks.id)
+        .groupBy(tasks.id, tasks.title)
         .orderBy(desc(count(results.id)))
         .limit(5)
 

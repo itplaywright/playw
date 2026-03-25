@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { tasks, tracks, results, projectBoards, users } from "@/db/schema"
+import { tasks, tracks, results, projectBoards, users, roles } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq, asc } from "drizzle-orm"
 import DashboardClient from "@/components/dashboard/DashboardClient"
@@ -17,12 +17,20 @@ export default async function Dashboard() {
         redirect("/onboarding")
     }
 
-    const userWithRole = await db.query.users.findFirst({
-        where: eq(users.id, session.user.id!),
-        with: {
-            dynamicRole: true
+    const userWithRole = await db.select({
+        id: users.id,
+        createdAt: users.createdAt,
+        dynamicRole: {
+            id: roles.id,
+            name: roles.name,
+            maxTrackOrder: roles.maxTrackOrder,
+            hasPracticeAccess: roles.hasPracticeAccess,
         }
     })
+        .from(users)
+        .leftJoin(roles, eq(users.dynamicRoleId, roles.id))
+        .where(eq(users.id, session.user.id!))
+        .then(res => res[0])
 
     // Check free trial / subscription access
     const hasAccess = await checkHasAccess(

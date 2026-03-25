@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { projectBoards, projectTasks, projectColumns, users as usersTable } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { eq, asc } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import ProjectBoardContent from "@/components/projects/ProjectBoardContent"
 
@@ -14,14 +14,12 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
     const { id } = await params
     const boardId = parseInt(id)
 
-    let board = await db.query.projectBoards.findFirst({
-        where: eq(projectBoards.id, boardId),
-        with: {
-            columns: {
-                orderBy: (columns, { asc }) => [asc(columns.order)],
-            },
-        },
-    })
+    let board = (await db.select().from(projectBoards).where(eq(projectBoards.id, boardId)))[0] as any;
+    if (board) {
+        board.columns = await db.select().from(projectColumns)
+            .where(eq(projectColumns.boardId, boardId))
+            .orderBy(asc(projectColumns.order));
+    }
 
     if (!board) {
         notFound()
@@ -37,32 +35,36 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
         ]
         await db.insert(projectColumns).values(defaultColumns)
 
-        // Re-fetch with columns
-        board = await db.query.projectBoards.findFirst({
-            where: eq(projectBoards.id, boardId),
-            with: {
-                columns: {
-                    orderBy: (columns, { asc }) => [asc(columns.order)],
-                },
-            },
-        }) as any
+        // Re-fetch columns
+        board.columns = await db.select().from(projectColumns)
+            .where(eq(projectColumns.boardId, boardId))
+            .orderBy(asc(projectColumns.order));
     }
 
     if (!board) {
         notFound()
     }
 
-    const tasks = await db.query.projectTasks.findMany({
-        where: eq(projectTasks.boardId, boardId),
-        with: {
-            assignee: {
-                columns: {
-                    name: true,
-                    image: true,
-                },
-            },
-        },
+    const tasks = await db.select({
+        id: projectTasks.id,
+        boardId: projectTasks.boardId,
+        columnId: projectTasks.columnId,
+        title: projectTasks.title,
+        description: projectTasks.description,
+        assigneeId: projectTasks.assigneeId,
+        creatorId: projectTasks.creatorId,
+        status: projectTasks.status,
+        priority: projectTasks.priority,
+        order: projectTasks.order,
+        createdAt: projectTasks.createdAt,
+        assignee: {
+            name: usersTable.name,
+            image: usersTable.image,
+        }
     })
+        .from(projectTasks)
+        .leftJoin(usersTable, eq(projectTasks.assigneeId, usersTable.id))
+        .where(eq(projectTasks.boardId, boardId))
 
     const isAdmin = (session.user as any).role === "admin"
     const allUsers = isAdmin ? await db.select().from(usersTable) : []

@@ -1,8 +1,8 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { tasks, tracks, users } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { tasks, tracks, users, taskQuestions } from "@/db/schema"
+import { eq, asc } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import TaskView from "@/components/task/TaskView"
 import AdBlock from "@/components/ads/AdBlock"
@@ -25,14 +25,15 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
     const taskId = parseInt(resolvedParams.id)
     if (isNaN(taskId)) notFound()
 
-    const task = await db.query.tasks.findFirst({
+    const task = (await db.query.tasks.findFirst({
         where: eq(tasks.id, taskId),
-        with: {
-            taskQuestions: {
-                orderBy: (t, { asc }) => [asc(t.order)],
-            },
-        },
-    }) as any;
+    })) as any;
+
+    if (task) {
+        task.taskQuestions = await db.select().from(taskQuestions)
+            .where(eq(taskQuestions.taskId, taskId))
+            .orderBy(asc(taskQuestions.order));
+    }
 
     if (!task) notFound()
 

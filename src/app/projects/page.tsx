@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { projectBoards, tasks, tracks, results, users } from "@/db/schema"
+import { projectBoards, tasks, tracks, results, users, roles } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq, desc, asc } from "drizzle-orm"
 import ProjectsClient from "@/components/projects/ProjectsClient"
@@ -12,12 +12,19 @@ export default async function ProjectsPage() {
         redirect("/")
     }
 
-    const userWithRole = await db.query.users.findFirst({
-        where: eq(users.id, session.user.id!),
-        with: {
-            dynamicRole: true
+    const userWithRole = (await db.select({
+        id: users.id,
+        createdAt: users.createdAt,
+        dynamicRole: {
+            id: roles.id,
+            name: roles.name,
+            maxTrackOrder: roles.maxTrackOrder,
+            hasPracticeAccess: roles.hasPracticeAccess,
         }
     })
+        .from(users)
+        .leftJoin(roles, eq(users.dynamicRoleId, roles.id))
+        .where(eq(users.id, session.user.id!)))[0] as any;
 
     // Check free trial / subscription access
     const hasAccess = await checkHasAccess(

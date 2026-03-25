@@ -237,6 +237,8 @@ export const projectTasks = mysqlTable("project_tasks", {
     priority: mysqlEnum("priority", projectPriorityEnumValues).default("medium"),
     assigneeId: varchar("assignee_id", { length: 255 }).references(() => users.id, { onDelete: "set null" }),
     creatorId: varchar("creator_id", { length: 255 }).references(() => users.id, { onDelete: "set null" }),
+    status: varchar("status", { length: 255 }).default("todo"),
+    order: int("order").default(0),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 })

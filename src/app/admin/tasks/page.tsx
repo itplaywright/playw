@@ -17,12 +17,23 @@ export default async function AdminTasksPage() {
         isActive: tasks.isActive,
         order: tasks.order,
         trackOrder: tracks.order,
-        successRate: sql<number>`CAST(COUNT(CASE WHEN ${results.status} = 'passed' THEN 1 END) * 100.0 / NULLIF(COUNT(${results.id}), 0) AS INTEGER)`
+        successRate: sql<number>`COALESCE(CAST(COUNT(CASE WHEN ${results.status} = 'passed' THEN 1 END) * 100.0 / NULLIF(COUNT(${results.id}), 0) AS SIGNED), 0)`
     })
         .from(tasks)
         .leftJoin(tracks, eq(tasks.trackId, tracks.id))
         .leftJoin(results, eq(tasks.id, results.taskId))
-        .groupBy(tasks.id, tracks.title, tracks.order, tasks.order)
+        .groupBy(
+            tasks.id, 
+            tasks.title, 
+            tasks.description, 
+            tasks.initialCode, 
+            tasks.trackId, 
+            tracks.title, 
+            tasks.difficulty, 
+            tasks.isActive, 
+            tasks.order, 
+            tracks.order
+        )
         .orderBy(asc(tracks.order), asc(tasks.order))
 
     const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))

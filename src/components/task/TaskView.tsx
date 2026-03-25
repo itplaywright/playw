@@ -311,7 +311,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                     {/* Sticky Header for Theory */}
                     <div className="sticky top-0 z-10 bg-[#0a0a0a]/90 backdrop-blur-md px-4 lg:px-8 py-4 border-b border-white/5 flex items-center justify-between">
                         <h2 className="text-white text-base lg:text-lg font-bold m-0 flex items-center gap-2">
-                            <span className="text-blue-500">📖</span> Теорія та завдання
+                            <span className="text-blue-500">📖</span> Проєкти та завдання
                         </h2>
                         <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">IT Playwright</span>
                     </div>

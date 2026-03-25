@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import {
     BookOpen, Code2, ArrowRight, CheckCircle2, Clock, ChevronRight,
-    BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid
+    BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid, Sparkles
 } from "lucide-react"
 
 import Sidebar from "@/components/layout/Sidebar"
@@ -216,8 +216,8 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                         : "bg-white/5 text-slate-400 border border-white/10 hover:border-white/20 hover:text-white"
                                         }`}
                                 >
-                                    <BookOpen className="w-4 h-4" />
-                                    Теорія
+                                    <Sparkles className="w-4 h-4" />
+                                    Проєкти
                                     <span className={`ml-1 text-xs px-2 py-0.5 rounded-full font-black ${activeTab === "quiz" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
                                         {quizCount}
                                     </span>
@@ -256,7 +256,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <div className="bg-[#131b2c] rounded-2xl border border-white/10 p-12 text-center">
                                     <Code2 className="w-8 h-8 text-slate-200 mx-auto mb-3" />
                                     <p className="text-slate-400 font-medium text-sm">
-                                        У цьому рівні поки немає завдань типу "{activeTab === "code" ? "Практика" : "Теорія"}".
+                                        У цьому рівні поки немає завдань типу "{activeTab === "code" ? "Практика" : "Проєкти"}".
                                     </p>
                                 </div>
                             ) : (

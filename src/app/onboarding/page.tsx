@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { BookOpen, Code2, ArrowRight, Loader2 } from "lucide-react"
+import { Sparkles, Code2, ArrowRight, Loader2 } from "lucide-react"
 
 export default function OnboardingPage() {
     const router = useRouter()
@@ -66,11 +66,11 @@ export default function OnboardingPage() {
                             }`}
                     >
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                            <BookOpen className="w-10 h-10 text-white" />
+                            <Sparkles className="w-10 h-10 text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-foreground mb-3 text-center">Теорія</h3>
+                        <h3 className="text-2xl font-bold text-foreground mb-3 text-center">Проєкти</h3>
                         <p className="text-muted-foreground text-center mb-6">
-                            Почніть з вивчення матеріалів, лекцій та основних концепцій автоматизації.
+                            Почніть з вивчення матеріалів, лекцій та виконання інтерактивних завдань.
                         </p>
 
                         <div className="mt-auto flex items-center text-purple-600 font-semibold dark:text-purple-400 group-hover:gap-3 transition-all">
@@ -78,7 +78,7 @@ export default function OnboardingPage() {
                                 <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
-                                    Обрати Теорію
+                                    Обрати Проєкти
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </>
                             )}

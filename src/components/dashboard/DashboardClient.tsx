@@ -86,7 +86,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
         return { done, total: tTasks.length }
     }
 
-    const filteredTasks = trackTasks.filter(t => t.type === "code")
+    const filteredTasks = trackTasks
 
     const isProTrack = (order: number | null) => {
         if (isAdmin) return false

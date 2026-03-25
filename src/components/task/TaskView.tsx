@@ -72,14 +72,14 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
     const handleRun = async () => {
         setIsRunning(true)
 
-        if (task.type === "quiz" && totalQuestions > 0 && !isCompleted) {
-            if (!selectedOption) {
-                toast.error("Будь ласка, оберіть варіант відповіді")
-                setIsRunning(false)
-                return
+        if (task.type === "quiz") {
+            if (totalQuestions > 0 && !isCompleted) {
+                if (!selectedOption) {
+                    toast.error("Будь ласка, оберіть варіант відповіді")
+                } else {
+                    handleOptionClick(selectedOption)
+                }
             }
-
-            handleOptionClick(selectedOption)
             setIsRunning(false)
             return
         }
@@ -261,18 +261,20 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                             Скинути
                         </button>
                     )}
-                    <button
-                        onClick={handleRun}
-                        disabled={isRunning || (task.type === "quiz" && isCompleted)}
-                        className={`rounded-lg px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-bold transition-all flex-shrink-0 border-2 ${isRunning || (task.type === "quiz" && isCompleted)
-                            ? 'bg-blue-500/20 border-blue-500/30 text-blue-300/50 cursor-not-allowed'
-                            : isProduction && task.type === "code"
-                                ? 'bg-transparent border-blue-500/50 text-blue-400 hover:bg-blue-500/10 shadow-lg shadow-blue-500/5'
-                                : 'bg-blue-600 border-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/30'
-                            }`}
-                    >
-                        {isRunning ? "Перевірка..." : (isProduction && task.type === "code" ? "Скопіювати" : (task.type === "quiz" ? (isCompleted ? "Виконано" : "Надіслати") : "Запустити"))}
-                    </button>
+                    {task.type === "code" && (
+                        <button
+                            onClick={handleRun}
+                            disabled={isRunning}
+                            className={`rounded-lg px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-bold transition-all flex-shrink-0 border-2 ${isRunning
+                                ? 'bg-blue-500/20 border-blue-500/30 text-blue-300/50 cursor-not-allowed'
+                                : isProduction
+                                    ? 'bg-transparent border-blue-500/50 text-blue-400 hover:bg-blue-500/10 shadow-lg shadow-blue-500/5'
+                                    : 'bg-blue-600 border-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/30'
+                                }`}
+                        >
+                            {isRunning ? "Перевірка..." : (isProduction ? "Скопіювати" : "Запустити")}
+                        </button>
+                    )}
                     {totalQuestions > 0 && task.type !== "quiz" && (
                         <button
                             onClick={() => setIsQuizModalOpen(true)}

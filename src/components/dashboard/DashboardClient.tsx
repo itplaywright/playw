@@ -205,9 +205,6 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 >
                                     <Code2 className="w-4 h-4" />
                                     Практика
-                                    <span className={`ml-1 text-xs px-2 py-0.5 rounded-full font-black ${activeTab === "code" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
-                                        {codeCount}
-                                    </span>
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("quiz")}
@@ -218,9 +215,6 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 >
                                     <Sparkles className="w-4 h-4" />
                                     Проєкти
-                                    <span className={`ml-1 text-xs px-2 py-0.5 rounded-full font-black ${activeTab === "quiz" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
-                                        {quizCount}
-                                    </span>
                                 </button>
                             </div>
 

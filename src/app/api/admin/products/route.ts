@@ -26,19 +26,22 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json()
-        const { title, description, price, grantedRoleId, isActive } = body
+        const { title, description, price, currency, type, durationMonths, grantedRoleId, isActive } = body
 
         if (!title || price === undefined) {
             return NextResponse.json({ error: "Title and price are required" }, { status: 400 })
         }
 
         const [__ir0] = await db.insert(products).values({
-                title,
-                description,
-                price: Math.round(parseFloat(price) * 100), // Store as cents
-                grantedRoleId,
-                isActive: isActive !== undefined ? isActive : true
-            })
+            title,
+            description,
+            price: Math.round(parseFloat(price) * 100), // Store as cents
+            currency: currency || "USD",
+            type: type || "b2c",
+            durationMonths: type === "subscription" ? parseInt(durationMonths) || 1 : null,
+            grantedRoleId,
+            isActive: isActive !== undefined ? isActive : true
+        })
         const newProduct = await db.select().from(products).where(eq(products.id, __ir0.insertId))
 
         return NextResponse.json(newProduct[0])
@@ -55,7 +58,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, title, description, price, grantedRoleId, isActive } = body
+        const { id, title, description, price, currency, type, durationMonths, grantedRoleId, isActive } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
@@ -65,6 +68,9 @@ export async function PATCH(req: Request) {
         if (title !== undefined) updateData.title = title
         if (description !== undefined) updateData.description = description
         if (price !== undefined) updateData.price = Math.round(parseFloat(price) * 100)
+        if (currency !== undefined) updateData.currency = currency
+        if (type !== undefined) updateData.type = type
+        if (durationMonths !== undefined) updateData.durationMonths = type === "subscription" ? durationMonths : null
         if (grantedRoleId !== undefined) updateData.grantedRoleId = grantedRoleId
         if (isActive !== undefined) updateData.isActive = isActive
 

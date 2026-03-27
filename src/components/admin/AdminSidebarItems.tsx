@@ -9,7 +9,8 @@ import {
     BookOpen,
     MessageCircle,
     Users,
-    History
+    History,
+    Send
 } from "lucide-react"
 
 const IconMap: Record<string, any> = {
@@ -18,7 +19,8 @@ const IconMap: Record<string, any> = {
     BookOpen,
     MessageCircle,
     Users,
-    History
+    History,
+    Send
 }
 
 export default function AdminSidebarItems({ navigation }: { navigation: any[] }) {
@@ -32,11 +34,23 @@ export default function AdminSidebarItems({ navigation }: { navigation: any[] })
 
     const fetchCounts = async () => {
         try {
-            const res = await fetch("/api/admin/questions/unread-count")
-            if (res.ok) {
-                const data = await res.json()
-                setCounts({ "/admin/questions": data.count })
+            const [qRes, sRes] = await Promise.all([
+                fetch("/api/admin/questions/unread-count"),
+                fetch("/api/admin/submissions/unread-count")
+            ])
+            
+            const counts: Record<string, number> = {}
+            
+            if (qRes.ok) {
+                const data = await qRes.json()
+                counts["/admin/questions"] = data.count
             }
+            if (sRes.ok) {
+                const data = await sRes.json()
+                counts["/admin/submissions"] = data.count
+            }
+            
+            setCounts(counts)
         } catch (err) {
             console.error("Error fetching admin counts:", err)
         }

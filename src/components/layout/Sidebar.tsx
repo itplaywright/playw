@@ -43,30 +43,41 @@ export default function Sidebar({
     }
 
     return (
-        <aside className="w-64 flex-shrink-0 bg-[#0f172a] flex flex-col h-full">
+        <aside className="w-[320px] flex-shrink-0 bg-slate-950 border-r border-white/5 flex flex-col h-full z-40">
             {/* Logo area */}
-            <div className="px-6 py-8 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
-                        <Terminal className="w-5 h-5 text-white" />
+            <div className="px-6 py-6 border-b border-white/5 space-y-4">
+                <div className="flex items-center gap-3 group cursor-default">
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300">
+                        <Terminal className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                        <p className="text-white font-bold text-sm leading-tight">Playwright Course</p>
-                        <p className="text-slate-400 text-xs">IT Automation Platform</p>
+                        <p className="text-white font-bold text-xs leading-tight tracking-tight">Playwright Course</p>
+                        <p className="text-slate-500 text-[10px] font-medium">IT Automation Platform</p>
                     </div>
                 </div>
+
+                {/* User Plan Badge */}
+                {role && (
+                    <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-500/30 flex flex-col gap-1 shadow-lg shadow-blue-900/10">
+                        <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] opacity-80">Поточний доступ</span>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm font-bold text-white tracking-tight">{role.name}</span>
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Track navigation */}
-            <nav className="flex-1 px-3 py-5 overflow-y-auto space-y-1">
-                <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Рівні курсу</p>
+            <nav className="flex-1 px-3 py-6 overflow-y-auto space-y-1.5 custom-scrollbar">
+                <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Рівні курсу</p>
 
                 {/* Setup link */}
                 <Link
                     href="/setup"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${currentPath === "/setup"
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 ${currentPath === "/setup"
+                        ? "glass-panel text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         }`}
                 >
                     <Layers className="w-4 h-4 flex-shrink-0" />
@@ -75,14 +86,16 @@ export default function Sidebar({
 
                 <Link
                     href="/projects"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${currentPath === "/projects"
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 ${currentPath === "/projects"
+                        ? "glass-panel text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         }`}
                 >
                     <LayoutGrid className="w-4 h-4 flex-shrink-0" />
                     <span className="truncate">Проєкти (Jira)</span>
                 </Link>
+
+                <div className="pt-4 pb-2 border-t border-white/5 mx-2 my-2" />
 
                 {tracks.map(track => {
                     const { done, total } = getTrackProgress(track.id)
@@ -93,27 +106,32 @@ export default function Sidebar({
                     const content = (
                         <div className="flex flex-col gap-1.5 w-full">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold truncate flex-1">{track.title}</span>
+                                <span className={`text-[13px] font-bold truncate flex-1 ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>{track.title}</span>
                                 {isPro && !isAdmin && (
-                                    <Star className="w-3 h-3 text-amber-400 fill-current flex-shrink-0" />
+                                    <Star className="w-3 h-3 star-gold-premium flex-shrink-0" />
                                 )}
                             </div>
                             {/* Mini progress bar */}
-                            <div className={`w-full h-1 rounded-full ${isSelected ? "bg-blue-400/40" : "bg-slate-700"}`}>
+                            <div className={`w-full h-1 rounded-full overflow-hidden ${isSelected ? "bg-white/10" : "bg-white/5"}`}>
                                 <div
-                                    className={`h-1 rounded-full transition-all ${isSelected ? "bg-white" : "bg-blue-500"}`}
+                                    className={`h-1 rounded-full transition-all duration-1000 ${isSelected ? "bg-blue-500 animate-wave" : "bg-slate-700"}`}
                                     style={{ width: `${pct}%` }}
                                 />
                             </div>
-                            <span className={`text-[10px] font-bold ${isSelected ? "text-blue-100" : "text-slate-500"}`}>
-                                {done}/{total} виконано
-                            </span>
+                            <div className="flex justify-between items-center">
+                                <span className={`text-[9px] font-bold uppercase tracking-wider ${isSelected ? "text-blue-400" : "text-slate-600"}`}>
+                                    {done}/{total} Done
+                                </span>
+                                {pct > 0 && (
+                                    <span className={`text-[9px] font-bold ${isSelected ? "text-blue-400" : "text-slate-600"}`}>{pct}%</span>
+                                )}
+                            </div>
                         </div>
                     )
 
-                    const baseClass = `flex flex-col gap-1.5 px-4 py-3 rounded-xl transition-all text-left ${isSelected
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    const baseClass = `flex flex-col gap-1.5 px-4 py-3 rounded-r-2xl transition-all duration-300 text-left group relative ${isSelected
+                        ? "sidebar-active-item text-blue-400"
+                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border-l-[3px] border-transparent"
                         }`
 
                     if (setSelectedTrackId) {
@@ -141,17 +159,17 @@ export default function Sidebar({
             </nav>
 
             {/* Bottom: cabinet link */}
-            <div className="px-3 pb-5 border-t border-white/10 pt-4">
+            <div className="px-3 pb-6 border-t border-white/5 pt-4">
                 <Link
                     href="/cabinet"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${currentPath === "/cabinet"
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${currentPath === "/cabinet"
+                        ? "glass-panel text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         }`}
                 >
                     <BarChart2 className="w-4 h-4" />
                     Мій кабінет
-                    <ArrowRight className="w-3 h-3 ml-auto" />
+                    <ArrowRight className="w-3 h-3 ml-auto opacity-40 group-hover:opacity-100 transition-all" />
                 </Link>
             </div>
         </aside>

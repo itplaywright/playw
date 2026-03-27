@@ -21,6 +21,9 @@ interface Product {
     title: string
     description: string | null
     price: number
+    currency: "USD" | "UAH" | "EUR"
+    type: "course" | "b2c" | "subscription" | "b2b" | "disk" | "other"
+    durationMonths: number | null
     grantedRoleId: number | null
     isActive: boolean | null
 }
@@ -38,6 +41,9 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
         title: "",
         description: "",
         price: "",
+        currency: "USD",
+        type: "b2c",
+        durationMonths: "1",
         grantedRoleId: "none",
         isActive: true
     })
@@ -50,6 +56,9 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                 title: product.title,
                 description: product.description || "",
                 price: (product.price / 100).toString(),
+                currency: product.currency || "USD",
+                type: product.type || "b2c",
+                durationMonths: product.durationMonths?.toString() || "1",
                 grantedRoleId: product.grantedRoleId?.toString() || "none",
                 isActive: product.isActive ?? true
             })
@@ -59,6 +68,9 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                 title: "",
                 description: "",
                 price: "",
+                currency: "USD",
+                type: "b2c",
+                durationMonths: "1",
                 grantedRoleId: "none",
                 isActive: true
             })
@@ -73,7 +85,8 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
             ...formData,
             id: editingProduct?.id,
             grantedRoleId: formData.grantedRoleId === "none" ? null : parseInt(formData.grantedRoleId),
-            price: formData.price // API handles conversion to cents
+            price: formData.price, // API handles conversion to cents
+            durationMonths: formData.type === "subscription" ? parseInt(formData.durationMonths) || 1 : null
         }
 
         try {
@@ -150,7 +163,7 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-gray-900">{product.title}</h3>
-                                    <p className="text-xs font-black text-blue-600">{(product.price / 100).toFixed(2)} USD</p>
+                                    <p className="text-xs font-black text-blue-600">{(product.price / 100).toFixed(2)} {product.currency}</p>
                                 </div>
                             </div>
                             <div className="flex gap-1">
@@ -174,6 +187,16 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                         </p>
 
                         <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="flex items-center gap-2">
+                                    <Shield className="w-3.5 h-3.5 text-blue-500" />
+                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Тип</span>
+                                </div>
+                                <span className="text-sm font-black text-gray-900">
+                                    {product.type === "subscription" ? `Підписка (${product.durationMonths} міс)` :
+                                     product.type === "b2b" ? "B2B Команда" : "B2C Довічно"}
+                                </span>
+                            </div>
                             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
                                 <div className="flex items-center gap-2">
                                     <Shield className="w-3.5 h-3.5 text-blue-500" />
@@ -213,7 +236,7 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                                     required
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-400"
                                     placeholder="Наприклад: Підписка Gold (1 міс)"
                                 />
                             </div>
@@ -222,31 +245,69 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-20"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-20 placeholder:text-gray-400"
                                     placeholder="Що входить у цей товар..."
                                 />
                             </div>
-                            <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Ціна (USD)</label>
-                                <div className="relative">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Ціна</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         required
                                         value={formData.price}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                        className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                        className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-400"
                                         placeholder="0.00"
                                     />
-                                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Валюта</label>
+                                    <select
+                                        value={formData.currency}
+                                        onChange={(e) => setFormData({ ...formData, currency: e.target.value as any })}
+                                        className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    >
+                                        <option value="USD">USD ($)</option>
+                                        <option value="UAH">UAH (₴)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                    </select>
                                 </div>
                             </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Тип Товару</label>
+                                <select
+                                    value={formData.type}
+                                    onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                >
+                                    <option value="b2c">B2C (Довічний доступ)</option>
+                                    <option value="subscription">Підписка (Щомісячно)</option>
+                                    <option value="b2b">B2B (Для команд)</option>
+                                </select>
+                            </div>
+                            
+                            {formData.type === "subscription" && (
+                                <div>
+                                    <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Тривалість (Місяців)</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        required
+                                        value={formData.durationMonths}
+                                        onChange={(e) => setFormData({ ...formData, durationMonths: e.target.value })}
+                                        className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    />
+                                </div>
+                            )}
+
                             <div>
                                 <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Роль, що надається</label>
                                 <select
                                     value={formData.grantedRoleId}
                                     onChange={(e) => setFormData({ ...formData, grantedRoleId: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 >
                                     <option value="none">Не надає ролі</option>
                                     {roles.map(role => (

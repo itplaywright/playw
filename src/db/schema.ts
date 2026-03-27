@@ -20,9 +20,11 @@ export const adTypeEnumValues = ["banner", "text", "cta"] as const
 export const adPlacementEnumValues = ["global", "task"] as const
 export const questionStatusEnumValues = ["pending", "answered"] as const
 export const learningPathEnumValues = ["theory", "practice"] as const
-export const productTypeEnumValues = ["course", "disk", "other"] as const
+export const productTypeEnumValues = ["course", "disk", "b2c", "subscription", "b2b", "other"] as const
 export const purchaseStatusEnumValues = ["active", "expired", "cancelled"] as const
 export const projectPriorityEnumValues = ["low", "medium", "high", "critical"] as const
+export const currencyEnumValues = ["USD", "UAH", "EUR"] as const
+export const submissionStatusEnumValues = ["pending", "reviewed", "rejected"] as const
 
 export const users = mysqlTable("user", {
     id: varchar("id", { length: 255 })
@@ -198,7 +200,9 @@ export const products = mysqlTable("products", {
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
     price: int("price").default(0).notNull(), // Amount in smallest currency unit
+    currency: mysqlEnum("currency", currencyEnumValues).default("USD").notNull(),
     type: mysqlEnum("product_type", productTypeEnumValues).default("course").notNull(),
+    durationMonths: int("duration_months").default(1), // Used for subscription types
     grantedRoleId: int("granted_role_id").references(() => roles.id, { onDelete: "set null" }),
     isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow(),
@@ -211,6 +215,33 @@ export const userProducts = mysqlTable("user_products", {
     status: mysqlEnum("status", purchaseStatusEnumValues).default("active"),
     purchasedAt: timestamp("purchased_at").defaultNow(),
     expiresAt: timestamp("expires_at"),
+})
+
+export const accessCodes = mysqlTable("access_codes", {
+    id: int("id").primaryKey().autoincrement(),
+    code: varchar("code", { length: 255 }).unique().notNull(),
+    productId: int("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+    maxUses: int("max_uses").default(1).notNull(),
+    usedCount: int("used_count").default(0).notNull(),
+    expiresAt: timestamp("expires_at"),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at").defaultNow(),
+})
+
+export const taskSubmissions = mysqlTable("task_submissions", {
+    id: int("id").primaryKey().autoincrement(),
+    userId: varchar("user_id", { length: 255 })
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    taskId: int("task_id")
+        .notNull()
+        .references(() => tasks.id, { onDelete: "cascade" }),
+    code: text("code").notNull(),
+    mentorFeedback: text("mentor_feedback"),
+    status: mysqlEnum("status", submissionStatusEnumValues).default("pending"),
+    createdAt: timestamp("created_at").defaultNow(),
+    reviewedAt: timestamp("reviewed_at"),
+    isSeen: boolean("is_seen").default(false),
 })
 
 export const projectBoards = mysqlTable("project_boards", {
@@ -268,6 +299,7 @@ export const taskRelations = relations(tasks, ({ one, many }) => ({
     questions: many(questions),
     results: many(results),
     taskQuestions: many(taskQuestions),
+    submissions: many(taskSubmissions),
 }))
 
 export const taskQuestionRelations = relations(taskQuestions, ({ one }) => ({
@@ -290,9 +322,17 @@ export const questionRelations = relations(questions, ({ one }) => ({
 
 export const productRelations = relations(products, ({ one, many }) => ({
     userProducts: many(userProducts),
+    accessCodes: many(accessCodes),
     grantedRole: one(roles, {
         fields: [products.grantedRoleId],
         references: [roles.id],
+    }),
+}))
+
+export const accessCodeRelations = relations(accessCodes, ({ one }) => ({
+    product: one(products, {
+        fields: [accessCodes.productId],
+        references: [products.id],
     }),
 }))
 
@@ -336,5 +376,16 @@ export const projectTaskRelations = relations(projectTasks, ({ one }) => ({
     creator: one(users, {
         fields: [projectTasks.creatorId],
         references: [users.id],
+    }),
+}))
+
+export const taskSubmissionRelations = relations(taskSubmissions, ({ one }) => ({
+    user: one(users, {
+        fields: [taskSubmissions.userId],
+        references: [users.id],
+    }),
+    task: one(tasks, {
+        fields: [taskSubmissions.taskId],
+        references: [tasks.id],
     }),
 }))

@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { toast } from "sonner"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import PseudoVideoPlayer from "./PseudoVideoPlayer"
 import CodeEditor from "@/components/editor/Monaco"
 import Link from "next/link"
-import { CheckCircle2, Clock } from "lucide-react"
+import { CheckCircle2, Clock, Terminal, BookOpen, ShieldCheck, MessageSquare, X } from "lucide-react"
 
 interface TaskViewProps {
     task: {
@@ -28,10 +28,37 @@ interface TaskViewProps {
     }
     isProduction: boolean
     nextTask?: { id: number; title: string } | null
+    submission?: {
+        id: number
+        status: "pending" | "reviewed" | "rejected"
+        mentorFeedback: string | null
+        createdAt: string | Date
+        isSeen: boolean
+    } | null
 }
 
-export default function TaskView({ task, isProduction, nextTask }: TaskViewProps) {
+export default function TaskView({ task, isProduction, nextTask, submission }: TaskViewProps) {
     const [code, setCode] = useState(task.initialCode)
+    const [activeConsoleTab, setActiveConsoleTab] = useState<"Output" | "Terminal" | "Mentor">("Output")
+    const [isFeedbackBannerDismissed, setIsFeedbackBannerDismissed] = useState(false)
+    const consoleRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (submission && !submission.isSeen) {
+            fetch("/api/user/notifications", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ submissionId: submission.id })
+            }).catch(err => console.error("Error marking as seen:", err))
+        }
+    }, [submission])
+
+    const scrollToMentor = () => {
+        setActiveConsoleTab("Mentor")
+        setTimeout(() => {
+            consoleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+        }, 100)
+    }
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [answeredQuestions, setAnsweredQuestions] = useState<Record<number, string>>({})
     const [selectedOption, setSelectedOption] = useState<string | null>(null)
@@ -45,6 +72,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
     const [isRunning, setIsRunning] = useState(false)
     const [questionContent, setQuestionContent] = useState("")
     const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false)
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false)
 
     // AI Code Review States
     const [isReviewing, setIsReviewing] = useState(false)
@@ -170,7 +198,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
             setIsSubmittingQuestion(false)
         }
     }
-
+    
     const handleCodeReview = async () => {
         setIsReviewing(true)
         setIsReviewModalOpen(true)
@@ -203,25 +231,43 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
             setIsReviewing(false)
         }
     }
+    const handleSubmitForReview = async () => {
+        setIsSubmittingReview(true)
+        try {
+            const res = await fetch("/api/tasks/submit-review", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code, taskId: task.id }),
+            })
+            if (res.ok) {
+                toast.success("Код надіслано ментору! Відповідь прийде в кабінет.")
+            } else {
+                const data = await res.json()
+                toast.error(data.error || "Не вдалося надіслати код")
+            }
+        } catch (err) {
+            toast.error("Помилка при відправці")
+        } finally {
+            setIsSubmittingReview(false)
+        }
+    }
 
     return (
-        <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
+        <div className="flex flex-col h-screen bg-premium-dark overflow-hidden font-sans">
             {/* Header */}
-            <header className="flex-shrink-0 h-14 bg-[#0f172a] border-b border-white/10 flex items-center px-4 lg:px-6 gap-4">
+            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50">
                 {/* Logo */}
-                <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 group">
-                    <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
+                <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 group opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                        <Terminal className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-white font-bold text-sm tracking-tight hidden sm:block">IT Playwright</span>
+                    <span className="text-white font-bold text-xs tracking-tight hidden sm:block">IT Playwright</span>
                 </Link>
 
-                {/* Divider + back */}
-                <div className="h-5 w-px bg-white/10 flex-shrink-0 hidden sm:block" />
-                <Link href="/dashboard" className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors flex-shrink-0 text-xs font-medium">
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="h-4 w-px bg-white/5 flex-shrink-0 mx-2" />
+                
+                <Link href="/dashboard" className="flex items-center gap-1.5 text-slate-500 hover:text-white transition-all flex-shrink-0 text-[10px] font-bold uppercase tracking-wider group">
+                    <svg className="h-3 w-3 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                     <span className="hidden sm:inline">Назад</span>
@@ -229,16 +275,16 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
 
                 {/* Task title + Next Task */}
                 <div className="flex-1 min-w-0 flex items-center gap-3">
-                    <h1 className="text-white text-sm font-semibold truncate">{task.title}</h1>
+                    <h1 className="text-white text-xs font-bold truncate opacity-90">{task.title}</h1>
                     {nextTask && (
                         <>
-                            <div className="h-3 w-px bg-white/10 flex-shrink-0" />
+                            <div className="h-2 w-px bg-white/5 flex-shrink-0" />
                             <Link
                                 href={`/tasks/${nextTask.id}`}
-                                className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors flex-shrink-0 text-xs font-medium group"
+                                className="flex items-center gap-1.5 text-slate-500 hover:text-blue-400 transition-all flex-shrink-0 text-[10px] font-bold uppercase tracking-wider group"
                             >
                                 <span className="hidden sm:inline truncate max-w-[150px]">{nextTask.title}</span>
-                                <svg className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="h-3 w-3 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
                             </Link>
@@ -255,7 +301,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                                     setCode(task.initialCode || "")
                                 }
                             }}
-                            className="rounded-lg bg-slate-800 hover:bg-slate-700 border border-white/5 px-3 py-1.5 text-xs font-bold text-slate-200 hover:text-white transition-all shadow-sm"
+                            className="px-3 py-1 text-[10px] font-bold text-slate-500 hover:text-slate-300 transition-colors uppercase tracking-widest"
                         >
                             Скинути
                         </button>
@@ -264,45 +310,52 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                         <button
                             onClick={handleRun}
                             disabled={isRunning}
-                            className={`rounded-lg px-4 lg:px-6 py-1.5 text-xs lg:text-sm font-bold transition-all flex-shrink-0 border-2 ${isRunning
-                                ? 'bg-blue-500/20 border-blue-500/30 text-blue-300/50 cursor-not-allowed'
+                            className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isRunning
+                                ? 'bg-white/5 text-slate-600 cursor-not-allowed'
                                 : isProduction
-                                    ? 'bg-transparent border-blue-500/50 text-blue-400 hover:bg-blue-500/10 shadow-lg shadow-blue-500/5'
-                                    : 'bg-blue-600 border-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/30'
+                                    ? 'glass-panel text-blue-400 border-blue-500/20 hover:bg-blue-500/10'
+                                    : 'badge-gradient-blue'
                                 }`}
                         >
-                            {isRunning ? "Перевірка..." : (isProduction ? "Скопіювати" : "Запустити")}
+                            {isRunning ? "Checking..." : (isProduction ? "Copy Code" : "Run Test")}
                         </button>
                     )}
                     {totalQuestions > 0 && task.type !== "quiz" && (
                         <button
                             onClick={() => setIsQuizModalOpen(true)}
-                            className="rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 relative overflow-hidden group bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+                            className="px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all"
                         >
-                            <span className="relative z-10">🧠</span>
-                            <span className="hidden lg:inline relative z-10">Тест</span>
+                            🧠 Тест
                         </button>
                     )}
                     <button
                         onClick={() => setIsQuestionModalOpen(true)}
-                        className="rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 relative overflow-hidden group bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_20px_rgba(79,70,229,0.5)]"
+                        className="px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all"
                     >
-                        <span className="relative z-10">💬</span>
-                        <span className="hidden lg:inline relative z-10">Питання</span>
+                        💬 Питання
                     </button>
                     {task.type === "code" && (
                         <button
                             onClick={handleCodeReview}
                             disabled={isReviewing}
-                            className={`rounded-lg px-3 lg:px-4 py-1.5 text-xs lg:text-sm font-bold text-white transition-all flex-shrink-0 flex items-center gap-2 relative overflow-hidden group ${isReviewing
-                                ? 'bg-purple-500/50 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:via-indigo-500 hover:to-blue-500 shadow-[0_0_15px_rgba(147,51,234,0.3)] hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]'
+                            className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isReviewing
+                                ? 'bg-white/5 text-slate-600 cursor-not-allowed'
+                                : 'bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20'
                                 }`}
-                            title="Отримати фідбек від ментора"
                         >
-                            <div className="absolute inset-0 bg-white/10 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300" />
-                            <span className="relative z-10">👨‍🏫</span>
-                            <span className="hidden lg:inline relative z-10">{isReviewing ? "Аналізуємо..." : "Code Review"}</span>
+                            🔍 Швидка перевірка
+                        </button>
+                    )}
+                    {task.type === "code" && (
+                        <button
+                            onClick={handleSubmitForReview}
+                            disabled={isSubmittingReview}
+                            className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isSubmittingReview
+                                ? 'bg-white/5 text-slate-600 cursor-not-allowed'
+                                : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'
+                                }`}
+                        >
+                            {isSubmittingReview ? "Sending..." : "👨‍🏫 Submit Review"}
                         </button>
                     )}
                 </div>
@@ -311,16 +364,60 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
             {/* Main Content */}
             <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                 {/* Left/Top: Description */}
-                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/10 p-0 prose prose-invert prose-sm lg:prose-base max-w-none bg-[#0a0a0a] custom-scrollbar">
+                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/5 p-0 prose prose-invert prose-sm lg:prose-base max-w-none bg-slate-950 custom-scrollbar relative">
                     {/* Sticky Header for Theory */}
-                    <div className="sticky top-0 z-10 bg-[#0a0a0a]/90 backdrop-blur-md px-4 lg:px-8 py-4 border-b border-white/5 flex items-center justify-between">
-                        <h2 className="text-white text-base lg:text-lg font-bold m-0 flex items-center gap-2">
-                            <span className="text-blue-500">📖</span> Проєкти та завдання
-                        </h2>
-                        <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">IT Playwright</span>
+                    <div className="sticky top-0 z-20 header-glass-premium px-4 lg:px-8 py-4 border-b border-white/5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 shadow-[0_0_12px_rgba(59,130,246,0.1)]">
+                                <BookOpen className="w-4 h-4 text-blue-400" />
+                            </div>
+                            <h2 className="text-white text-sm font-black m-0 tracking-tight uppercase">
+                                Теорія та завдання
+                            </h2>
+                        </div>
+                        <span className="text-[10px] font-black text-slate-600 tracking-[0.3em] uppercase opacity-50">LEVEL {task.id}</span>
                     </div>
 
                     <div className="p-4 lg:p-8 pt-4 lg:pt-6">
+                        {/* Mentor Feedback Banner */}
+                        {submission && !isFeedbackBannerDismissed && (
+                            <div className={`mb-8 p-6 rounded-[2rem] border animate-in slide-in-from-top duration-700 relative overflow-hidden ${submission.status === 'reviewed'
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                : submission.status === 'rejected'
+                                    ? 'bg-red-500/10 border-red-500/20 text-red-400'
+                                    : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                                }`}>
+                                <button 
+                                    onClick={() => setIsFeedbackBannerDismissed(true)}
+                                    className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-all opacity-50 hover:opacity-100"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${submission.status === 'reviewed' ? 'bg-emerald-500 text-white' : submission.status === 'rejected' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}`}>
+                                            <ShieldCheck className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-black uppercase tracking-widest leading-none mb-1">Фідбек Ментора</h3>
+                                            <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Статус: {submission.status === 'reviewed' ? 'ПРИЙНЯТО' : submission.status === 'rejected' ? 'ПОТРЕБУЄ ВИПРАВЛЕНЬ' : 'В ОЧІКУВАННІ'}</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={scrollToMentor}
+                                        className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-[10px] font-black uppercase tracking-widest text-white underline underline-offset-4"
+                                    >
+                                        Детальніше
+                                    </button>
+                                </div>
+                                {submission.status === 'rejected' && (
+                                    <p className="text-xs font-medium leading-relaxed opacity-90">Ментор переглянув ваш код та залишив зауваження. Будь ласка, ознайомтеся з фідбеком та внесіть правки.</p>
+                                )}
+                                {submission.status === 'reviewed' && (
+                                    <p className="text-xs font-medium leading-relaxed opacity-90">Чудова робота! Ментор схвалив вашу реалізацію. Ви можете переходити до наступного завдання.</p>
+                                )}
+                            </div>
+                        )}
                         {/* Ukrainian Voiceover Player */}
                         {task.videoUrl && (
                             <div className="not-prose mt-2 mb-8">
@@ -382,17 +479,21 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                                 />
                             </div>
                             {/* Pro Console Tabs */}
-                            <div className="h-40 lg:h-48 border-t border-white/10 bg-[#0d0d0d] flex flex-col">
+                            <div ref={consoleRef} className="h-40 lg:h-48 border-t border-white/10 bg-[#0d0d0d] flex flex-col">
                                 <div className="flex items-center px-4 border-b border-white/5 bg-[#121212]">
                                     {["Output", "Terminal", "Mentor"].map((tab) => (
                                         <button
                                             key={tab}
-                                            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 ${tab === "Output"
+                                            onClick={() => setActiveConsoleTab(tab as any)}
+                                            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 relative ${activeConsoleTab === tab
                                                 ? "text-blue-500 border-blue-500"
                                                 : "text-slate-500 border-transparent hover:text-slate-300"
                                                 }`}
                                         >
                                             {tab}
+                                            {tab === "Mentor" && submission && (
+                                                <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                                            )}
                                         </button>
                                     ))}
                                     <div className="flex-1" />
@@ -403,24 +504,73 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                                     </div>
                                 </div>
                                 <div className="flex-1 p-4 font-mono text-xs lg:text-sm overflow-y-auto custom-scrollbar">
-                                    <pre className="text-gray-300 whitespace-pre-wrap leading-relaxed">
-                                        {output || "Консоль готова. Запустіть тест для перевірки..."}
-                                    </pre>
+                                    {activeConsoleTab === "Mentor" ? (
+                                        <div className="space-y-4 font-sans">
+                                            {!submission ? (
+                                                <div className="text-slate-500 text-center py-4">Ви ще не надсилали код на перевірку.</div>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500' : submission.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-white">Статус: {submission.status}</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{new Date(submission.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                    {submission.mentorFeedback ? (
+                                                        <div className={`border rounded-2xl p-6 prose prose-invert prose-sm max-w-none shadow-2xl ${
+                                                            submission.status === 'reviewed' ? 'bg-emerald-500/5 border-emerald-500/20' : 
+                                                            submission.status === 'rejected' ? 'bg-red-500/5 border-red-500/20' : 
+                                                            'bg-white/5 border-white/10'
+                                                        }`}>
+                                                            <div className="mb-4 flex items-center gap-2 pb-4 border-b border-white/5">
+                                                                <MessageSquare className="w-4 h-4 text-blue-400" />
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Коментарі ментора</span>
+                                                            </div>
+                                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                                {submission.mentorFeedback}
+                                                            </ReactMarkdown>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-slate-400 text-sm leading-relaxed italic">
+                                                            Код надіслано ментору. Очікуйте на фідбек найближчим часом. Сповіщення прийде сюди та в кабінет.
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <pre className="text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                            {activeConsoleTab === "Output" ? (output || "Консоль готова. Запустіть тест для перевірки...") : "Термінал активний (локально)..."}
+                                        </pre>
+                                    )}
                                 </div>
                             </div>
                         </>
                     ) : (
                         <div className="flex-1 flex flex-col bg-gradient-to-b from-[#1e1e1e] to-[#0a0a0a] overflow-y-auto custom-scrollbar">
                             {!isCompleted && currentQuestion ? (
-                                <div className="p-8 lg:p-12 max-w-2xl mx-auto w-full space-y-8 animate-in mt-1">
-                                    <div className="bg-white/5 p-8 rounded-3xl border border-white/10 shadow-2xl">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs ring-1 ring-emerald-500/30">
-                                                {currentQuestionIndex + 1}
+                               <div className="p-8 lg:p-12 max-w-2xl mx-auto w-full space-y-8 animate-in mt-1">
+                                    <div className="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden backdrop-blur-3xl">
+                                        {/* Background accent */}
+                                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full" />
+                                        
+                                        <div className="relative z-10">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xl shadow-blue-500/20">
+                                                    {currentQuestionIndex + 1}
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <span className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Питання {currentQuestionIndex + 1} з {totalQuestions}</span>
+                                                    <div className="flex gap-1">
+                                                        {allQuestions.map((_, i) => (
+                                                            <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === currentQuestionIndex ? 'w-4 bg-blue-500' : i < currentQuestionIndex ? 'w-2 bg-emerald-500' : 'w-2 bg-white/10'}`} />
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Питання {currentQuestionIndex + 1} з {totalQuestions}</span>
+                                            <h3 className="text-2xl lg:text-3xl font-black text-white leading-[1.15] tracking-tight">{currentQuestion.text}</h3>
                                         </div>
-                                        <h3 className="text-xl lg:text-2xl font-bold text-white leading-tight">{currentQuestion.text}</h3>
                                     </div>
 
                                     <div className="grid gap-4">
@@ -428,19 +578,19 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                                             <button
                                                 key={index}
                                                 onClick={() => handleOptionClick(option)}
-                                                className={`w-full text-left p-6 rounded-2xl border-2 transition-all transform active:scale-[0.98] group relative overflow-hidden ${selectedOption === option
-                                                    ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-red-500/10 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]")
-                                                    : "bg-white/5 border-white/10 hover:border-blue-500/50 hover:bg-white/10 shadow-sm"
+                                                className={`w-full text-left p-6 rounded-3xl border-2 transition-all duration-300 transform active:scale-[0.98] group relative overflow-hidden ${selectedOption === option
+                                                    ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500 shadow-2xl shadow-emerald-500/10" : "bg-red-500/10 border-red-500 shadow-2xl shadow-red-500/10")
+                                                    : "bg-white/[0.03] border-white/5 hover:border-white/20 hover:bg-white/[0.05]"
                                                     }`}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selectedOption === option
+                                                <div className="flex items-center gap-5 relative z-10">
+                                                    <div className={`w-6 h-6 rounded-xl border-2 flex items-center justify-center flex-shrink-0 transition-all duration-300 ${selectedOption === option
                                                         ? (option === currentQuestion.correctAnswer ? "border-emerald-500 bg-emerald-500" : "border-red-500 bg-red-500")
-                                                        : "border-slate-600 group-hover:border-blue-400"
+                                                        : "border-white/10 group-hover:border-blue-500/50"
                                                         }`}>
-                                                        {selectedOption === option && <div className="w-2 h-2 bg-white rounded-full" />}
+                                                        {selectedOption === option && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
                                                     </div>
-                                                    <span className={`text-base font-bold transition-colors ${selectedOption === option ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
+                                                    <span className={`text-[17px] font-bold tracking-tight transition-colors ${selectedOption === option ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
                                                         {option}
                                                     </span>
                                                 </div>
@@ -484,10 +634,10 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                         <div className="bg-[#131b2c] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
                             <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-indigo-900/20">
                                 <div className="flex items-center gap-3">
-                                    <div className="text-2xl">👨‍🏫</div>
+                                    <div className="text-2xl">🔍</div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-white tracking-tight">Code Review</h2>
-                                        <p className="text-xs text-purple-300 font-medium tracking-wide">ВІДГУК МЕНТОРА</p>
+                                        <h2 className="text-xl font-bold text-white tracking-tight">Рев'ю коду</h2>
+                                        <p className="text-xs text-purple-300 font-medium tracking-wide uppercase">АВТОМАТИЧНИЙ АНАЛІЗ</p>
                                     </div>
                                 </div>
                                 <button
@@ -508,7 +658,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                                         </div>
                                         <div className="text-6xl animate-bounce relative z-10">🤔</div>
                                         <div className="space-y-2 relative z-10">
-                                            <h3 className="text-xl font-bold text-white">Ментор аналізує ваш код...</h3>
+                                            <h3 className="text-xl font-bold text-white">Аналізуємо ваш код...</h3>
                                             <p className="text-slate-400 text-sm">Перевіряємо структуру, селектори та Best Practices Playwright.</p>
                                         </div>
                                         <div className="flex gap-1.5 mt-4 relative z-10">
@@ -532,7 +682,7 @@ export default function TaskView({ task, isProduction, nextTask }: TaskViewProps
                                         onClick={() => setIsReviewModalOpen(false)}
                                         className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95"
                                     >
-                                        {reviewStatus === "SAFE" ? "Дякую, менторе!" : "Зрозуміло, йду виправляти"}
+                                        {reviewStatus === "SAFE" ? "Дякую, зрозуміло!" : "Зрозуміло, йду виправляти"}
                                     </button>
                                 </div>
                             )}

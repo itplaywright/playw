@@ -1,9 +1,11 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { products } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { products, users } from "@/db/schema"
+import { ne, eq, and } from "drizzle-orm"
 import Link from "next/link"
 import { ShoppingCart, Check, Zap, Crown, Shield } from "lucide-react"
+
+export const dynamic = "force-dynamic";
 
 export default async function PricingPage() {
     const session = await auth()
@@ -11,7 +13,13 @@ export default async function PricingPage() {
     const activeProducts = await db
         .select()
         .from(products)
-        .where(eq(products.isActive, true))
+        .where(and(ne(products.title, "Demo"), eq(products.isActive, true)))
+
+    const userData = session?.user?.email ? await db.query.users.findFirst({
+        where: eq(users.email, session.user.email)
+    }) : null
+
+    const currentRoleId = userData?.dynamicRoleId;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col items-center justify-center p-6">
@@ -35,18 +43,29 @@ export default async function PricingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                         {activeProducts.map((product, index) => {
                             const isPopular = index === 1
+                            const isCurrentPlan = currentRoleId === product.grantedRoleId
 
                             return (
                                 <div
                                     key={product.id}
-                                    className={`relative rounded-3xl p-8 flex flex-col transition-all ${isPopular
-                                        ? "bg-blue-600 border-2 border-blue-400 shadow-2xl shadow-blue-500/30 scale-105"
-                                        : "bg-white/5 border border-white/10 hover:border-white/20"
+                                    className={`relative rounded-3xl p-8 flex flex-col h-full transition-all ${isCurrentPlan
+                                        ? "bg-slate-800/80 border-2 border-emerald-500/50 shadow-2xl shadow-emerald-500/10"
+                                        : isPopular
+                                            ? "bg-blue-600 border-2 border-blue-400 shadow-2xl shadow-blue-500/30"
+                                            : "bg-white/5 border border-white/10 hover:border-white/20"
                                         }`}
                                 >
-                                    {isPopular && (
-                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                                            <span className="bg-amber-400 text-amber-900 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider">
+                                    {isCurrentPlan && (
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-full flex justify-center px-4">
+                                            <span className="bg-emerald-500 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg shadow-emerald-500/20 whitespace-nowrap">
+                                                ✅ Ваш поточний тариф
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {!isCurrentPlan && isPopular && (
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-full flex justify-center px-4">
+                                            <span className="bg-amber-400 text-amber-900 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg shadow-amber-500/20 whitespace-nowrap">
                                                 🔥 Популярний
                                             </span>
                                         </div>
@@ -67,20 +86,32 @@ export default async function PricingPage() {
                                         {product.description || "Повний доступ до матеріалів платформи."}
                                     </p>
 
-                                    <div className={`text-4xl font-black mb-6 ${isPopular ? "text-white" : "text-white"}`}>
-                                        {product.price === 0 ? "Безкоштовно" : `${product.price} грн`}
-                                    </div>
+                                    <div className="mt-auto space-y-6">
+                                        <div className={`text-4xl font-black ${isPopular ? "text-white" : "text-white"}`}>
+                                            {product.price === 0 ? "Безкоштовно" : 
+                                             product.currency === "UAH" ? `${(product.price / 100).toLocaleString()} ₴` :
+                                             product.currency === "USD" ? `$${(product.price / 100).toLocaleString()}` :
+                                             `${(product.price / 100).toLocaleString()} ${product.currency}`}
+                                        </div>
 
-                                    <a
-                                        href={`/checkout?productId=${product.id}`}
-                                        className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-all ${isPopular
-                                            ? "bg-white text-blue-600 hover:bg-blue-50"
-                                            : "bg-blue-600 text-white hover:bg-blue-700"
-                                            }`}
-                                    >
-                                        <ShoppingCart className="w-4 h-4" />
-                                        Обрати тариф
-                                    </a>
+                                        {isCurrentPlan ? (
+                                            <div className="flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                <Check className="w-4 h-4" />
+                                                Активно
+                                            </div>
+                                        ) : (
+                                        <Link
+                                            href={`/checkout?productId=${product.id}`}
+                                            className={`relative z-20 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-all ${isPopular
+                                                ? "bg-white text-blue-600 hover:bg-blue-50"
+                                                : "bg-blue-600 text-white hover:bg-blue-700"
+                                                }`}
+                                        >
+                                            <ShoppingCart className="w-4 h-4" />
+                                            Обрати тариф
+                                        </Link>
+                                        )}
+                                    </div>
                                 </div>
                             )
                         })}

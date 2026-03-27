@@ -1,7 +1,7 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { tasks, tracks, users, taskQuestions } from "@/db/schema"
+import { tasks, tracks, users, taskQuestions, roles } from "@/db/schema"
 import { eq, asc } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import TaskView from "@/components/task/TaskView"
@@ -46,6 +46,19 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
                 where: eq(tracks.id, task.trackId)
             })
             if (!track || !track.isActive) notFound()
+
+            // Check if user's role has access to this track
+            let maxOrder = 2; // Default for normal subscription
+            if (userRecord?.dynamicRoleId) {
+                const role = await db.query.roles.findFirst({
+                    where: eq(roles.id, userRecord.dynamicRoleId)
+                })
+                maxOrder = role?.maxTrackOrder ?? 2
+            }
+
+            if ((track.order ?? 0) > maxOrder) {
+                redirect("/pricing") // Redirect if track is above user's max level
+            }
         }
     }
 
@@ -66,10 +79,24 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
         if (nextTask) nextTaskData = nextTask
     }
 
+    // Fetch latest user submission for this task
+    const submission = await db.query.taskSubmissions.findFirst({
+        where: (ts, { and, eq }) => and(
+            eq(ts.userId, session.user.id!),
+            eq(ts.taskId, taskId)
+        ),
+        orderBy: (ts, { desc }) => [desc(ts.createdAt)]
+    })
+
     return (
         <div>
             <AdBlock placement="task" position="before" />
-            <TaskView task={task} isProduction={isProduction} nextTask={nextTaskData} />
+            <TaskView 
+                task={task} 
+                isProduction={isProduction} 
+                nextTask={nextTaskData} 
+                submission={submission as any}
+            />
             <AdBlock placement="task" position="after" />
         </div>
     )

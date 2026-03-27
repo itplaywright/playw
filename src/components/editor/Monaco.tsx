@@ -7,9 +7,10 @@ interface CodeEditorProps {
     value?: string
     defaultValue?: string
     onChange?: (value: string | undefined) => void
+    readOnly?: boolean
 }
 
-export default function CodeEditor({ value, defaultValue, onChange }: CodeEditorProps) {
+export default function CodeEditor({ value, defaultValue, onChange, readOnly }: CodeEditorProps) {
     const handleEditorDidMount = (editor: any, monaco: any) => {
         // Configure TypeScript compiler options
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -44,6 +45,7 @@ export default function CodeEditor({ value, defaultValue, onChange }: CodeEditor
                 fontSize: 14,
                 scrollBeyondLastLine: false,
                 automaticLayout: true,
+                readOnly: readOnly,
             }}
             onChange={onChange}
         />

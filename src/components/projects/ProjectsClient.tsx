@@ -34,6 +34,7 @@ interface Props {
         id: number
         name: string
         maxTrackOrder: number | null
+        hasPracticeAccess: boolean | null
     } | null
 }
 
@@ -62,45 +63,46 @@ export default function ProjectsClient({
     const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
 
     return (
-        <div className="flex flex-col h-screen bg-[#f8fafc] overflow-hidden">
+        <div className="flex flex-col h-screen bg-premium-dark overflow-hidden font-sans">
             {/* Top Header */}
-            <header className="flex-shrink-0 h-14 bg-[#0f172a] border-b border-white/10 flex items-center px-6 gap-6">
-                <div className="flex items-center gap-2.5 mr-4">
-                    <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                        <Terminal className="w-4 h-4 text-white" />
+            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50">
+                <div className="flex items-center gap-2 mr-4 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+                        <Terminal className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-white font-bold text-sm tracking-tight">IT Playwright</span>
+                    <span className="text-white font-bold text-xs tracking-tight">IT Playwright</span>
                 </div>
 
-                <div className="hidden md:flex items-center gap-3 flex-1 max-w-xs">
-                    <div className="flex-1 bg-white/10 rounded-full h-1.5 overflow-hidden">
+                <div className="hidden md:flex items-center gap-3 flex-1 max-w-[200px]">
+                    <div className="flex-1 bg-white/5 rounded-full h-1 overflow-hidden relative">
                         <div
-                            className="bg-blue-400 h-1.5 rounded-full transition-all duration-700"
+                            className="progress-glow-blue animate-wave"
                             style={{ width: `${overallPct}%` }}
                         />
                     </div>
-                    <span className="text-slate-400 text-xs font-bold whitespace-nowrap">{overallPct}% курсу</span>
+                    <span className="text-slate-400 text-[10px] font-bold whitespace-nowrap">{overallPct}%</span>
                 </div>
 
                 <div className="flex-1" />
 
-                <Link href="/setup" className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
-                    <Layers className="w-3.5 h-3.5" />
-                    Налаштування
-                </Link>
-                <Link href="/cabinet" className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
-                    <BarChart2 className="w-3.5 h-3.5" />
-                    Кабінет
-                </Link>
+                <div className="flex items-center gap-4">
+                    <Link href="/setup" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
+                        <Layers className="w-3 h-3" />
+                        Налаштування
+                    </Link>
+                    <Link href="/cabinet" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
+                        <BarChart2 className="w-3 h-3" />
+                        Кабінет
+                    </Link>
+                </div>
 
-                <div className="flex items-center gap-2 pl-4 border-l border-white/10">
-                    <div className="w-8 h-8 rounded-xl bg-blue-600/80 flex items-center justify-center text-white text-xs font-black overflow-hidden">
+                <div className="flex items-center gap-2 pl-4 border-l border-white/5 h-6">
+                    <div className="w-6 h-6 rounded-lg bg-blue-600/80 flex items-center justify-center text-white text-[10px] font-black shadow-inner">
                         {userImage
-                            ? <img src={userImage} alt={userName ?? ''} className="w-8 h-8 object-cover" />
+                            ? <img src={userImage} alt={userName ?? ''} className="w-6 h-6 rounded-lg object-cover" />
                             : initials
                         }
                     </div>
-                    <span className="text-white text-xs font-medium hidden md:block max-w-[120px] truncate">{userName ?? 'Учень'}</span>
                 </div>
             </header>
 
@@ -113,23 +115,26 @@ export default function ProjectsClient({
                     currentPath="/projects"
                 />
 
-                <main className="flex-1 overflow-y-auto p-8 bg-slate-50">
-                    <div className="w-full">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
-                                    <FolderOpen className="w-6 h-6 text-white" />
+                <main className="flex-1 overflow-y-auto p-8 relative">
+                    <div className="w-full relative z-10">
+                        <div className="flex items-center justify-between mb-12">
+                            <div className="flex items-center gap-5">
+                                <div className="p-4 rounded-3xl glass-panel border-blue-500/20 bg-blue-500/10 shadow-lg shadow-blue-500/10">
+                                    <FolderOpen className="w-8 h-8 text-blue-400" />
                                 </div>
-                                <div>
-                                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Ваші Проєкти</h1>
-                                    <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Project Management System</p>
+                                <div className="space-y-1">
+                                    <h1 className="text-3xl font-black text-white tracking-tight">Проєкти</h1>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Project Management System</p>
+                                    </div>
                                 </div>
                             </div>
 
                             {isAdmin && (
                                 <button
                                     onClick={() => setShowCreateDialog(true)}
-                                    className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl text-sm font-black transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2"
+                                    className="badge-gradient-blue px-8 py-3.5 rounded-2xl text-xs font-black transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                                 >
                                     <Plus className="w-5 h-5" />
                                     <span>Новий Проєкт</span>
@@ -138,39 +143,46 @@ export default function ProjectsClient({
                         </div>
 
                         {boards.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200 border-dashed">
-                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
-                                    <LayoutGrid className="w-8 h-8 text-slate-300" />
+                            <div className="flex flex-col items-center justify-center py-32 glass-panel rounded-[2rem] border-dashed">
+                                <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mb-6 border border-white/5">
+                                    <LayoutGrid className="w-10 h-10 text-slate-700" />
                                 </div>
-                                <h2 className="text-lg font-bold text-slate-900">Проєктів поки немає</h2>
-                                <p className="text-slate-500 text-sm mt-1">Створіть свій перший проєкт, щоб почати роботу.</p>
+                                <h2 className="text-xl font-bold text-white mb-2">Проєктів поки немає</h2>
+                                <p className="text-slate-500 text-sm max-w-[280px] text-center">Створіть свій перший проєкт, щоб почати роботу з Jira-дошками та задачами.</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {boards.map((board) => (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                                {boards.map((board, idx) => (
                                     <Link
                                         key={board.id}
-                                        href={`/projects/${board.id}`}
-                                        className="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-600/10 transition-all transform hover:-translate-y-1"
+                                        href={(!isAdmin && !role?.hasPracticeAccess) ? "/pricing" : `/projects/${board.id}`}
+                                        className="group relative block p-8 glass-card-premium glass-card-premium-hover rounded-[2rem] overflow-hidden"
                                     >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-blue-50 group-hover:bg-blue-600 transition-colors flex items-center justify-center">
-                                                <LayoutGrid className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
+                                        {/* Mesh Gradient Glow */}
+                                        <div className={`absolute -bottom-24 -left-24 w-48 h-48 blur-[80px] opacity-10 group-hover:opacity-30 transition-opacity duration-700 rounded-full ${idx % 3 === 0 ? 'bg-blue-500' : idx % 3 === 1 ? 'bg-indigo-500' : 'bg-purple-500'}`} />
+
+                                        <div className="relative z-10">
+                                            <div className="flex items-center justify-between mb-8">
+                                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:border-blue-500/30 group-hover:bg-blue-500/10 transition-all duration-500">
+                                                    <LayoutGrid className="w-8 h-8 text-blue-400 group-hover:scale-110 transition-transform" />
+                                                </div>
+                                                <div className="flex items-center gap-2 text-slate-500 text-[9px] font-black uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                                                    <Calendar className="w-3.5 h-3.5 opacity-50" />
+                                                    {new Date(board.createdAt).toLocaleDateString()}
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                                                <Calendar className="w-3.5 h-3.5" />
-                                                {new Date(board.createdAt).toLocaleDateString()}
+                                            <h3 className="text-xl font-bold text-white group-hover:text-blue-300 transition-colors mb-3">
+                                                {board.title}
+                                            </h3>
+                                            <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 mb-8 min-h-[44px]">
+                                                {board.description || "Опис відсутній"}
+                                            </p>
+                                            <div className="flex items-center justify-between opacity-60 group-hover:opacity-100 transition-opacity pt-6 border-t border-white/5">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-400 transition-colors">Переглянути дошку</span>
+                                                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/5 group-hover:border-blue-500/30 group-hover:text-blue-400 transform group-hover:translate-x-1 transition-all">
+                                                    <ArrowRight className="w-4 h-4" />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <h3 className="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors mb-2">
-                                            {board.title}
-                                        </h3>
-                                        <p className="text-slate-500 text-sm line-clamp-2 mb-6 min-h-[40px]">
-                                            {board.description || "Опис відсутній"}
-                                        </p>
-                                        <div className="flex items-center text-blue-600 text-xs font-black uppercase tracking-widest gap-2">
-                                            <span>Переглянути дошку</span>
-                                            <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                                         </div>
                                     </Link>
                                 ))}
@@ -179,7 +191,7 @@ export default function ProjectsClient({
                     </div>
                 </main>
             </div>
-
+ 
             {showCreateDialog && (
                 <CreateProjectDialog
                     onClose={() => setShowCreateDialog(false)}

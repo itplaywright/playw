@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LogOut, User, LayoutGrid } from "lucide-react"
+import { Menu, X, LogOut, User, LayoutGrid, Key } from "lucide-react"
 import { logoutAction } from "@/app/actions"
 
 const LANDING_MENU: MenuItem[] = [
@@ -183,6 +183,13 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                         </span>
                                     )}
                                 </Link>
+                                <Link
+                                    href="/activate"
+                                    className="p-2 text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 rounded-xl transition-all relative group/activate"
+                                    title="Активація промокоду/доступу"
+                                >
+                                    <Key className="h-5 w-5 shadow-indigo-500/20" />
+                                </Link>
                                 <button
                                     onClick={() => logoutAction()}
                                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
@@ -249,6 +256,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                                             {unreadCount}
                                                         </span>
                                                     )}
+                                                </Link>
+                                                <Link href="/activate" onClick={() => setMobileMenuOpen(false)} className="text-xs text-indigo-600 font-bold hover:underline flex items-center gap-2">
+                                                    Активація коду
                                                 </Link>
                                                 <button onClick={() => logoutAction()} className="text-xs text-red-500 font-bold">Вийти</button>
                                             </div>

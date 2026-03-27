@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { projectBoards, projectTasks, projectColumns, users as usersTable } from "@/db/schema"
+import { projectBoards, projectTasks, projectColumns, users as usersTable, roles } from "@/db/schema"
 import { eq, asc } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import ProjectBoardContent from "@/components/projects/ProjectBoardContent"
@@ -13,6 +13,21 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
 
     const { id } = await params
     const boardId = parseInt(id)
+
+    // Role Validation
+    if ((session.user as any).role !== "admin") {
+        const userRecord = await db.query.users.findFirst({
+            where: eq(usersTable.id, session.user.id!)
+        })
+        if (!userRecord?.dynamicRoleId) redirect("/pricing")
+        
+        const userRole = await db.query.roles.findFirst({
+            where: eq(roles.id, userRecord.dynamicRoleId)
+        })
+        if (!userRole || !userRole.hasPracticeAccess) {
+            redirect("/pricing")
+        }
+    }
 
     let board = (await db.select().from(projectBoards).where(eq(projectBoards.id, boardId)))[0] as any;
     if (board) {

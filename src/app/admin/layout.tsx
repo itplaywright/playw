@@ -11,7 +11,8 @@ import {
     Settings,
     LogOut,
     ChevronRight,
-    MessageCircle
+    MessageCircle,
+    Send
 } from "lucide-react"
 import AdminSidebarItems from "@/components/admin/AdminSidebarItems"
 
@@ -30,6 +31,7 @@ export default async function AdminLayout({
         { name: "Панель", href: "/admin", icon: "LayoutDashboard" },
         { name: "Треки", href: "/admin/tracks", icon: "Layers" },
         { name: "Завдання", href: "/admin/tasks", icon: "BookOpen" },
+        { name: "Рев'ю коду", href: "/admin/submissions", icon: "Send" },
         { name: "Питання", href: "/admin/questions", icon: "MessageCircle" },
         { name: "Користувачі", href: "/admin/users", icon: "Users" },
         { name: "Спроби", href: "/admin/attempts", icon: "History" },
@@ -39,6 +41,7 @@ export default async function AdminLayout({
         { name: "Загальні", href: "/admin/settings/general" },
         { name: "Ролі", href: "/admin/roles" },
         { name: "Товари", href: "/admin/products" },
+        { name: "Коди доступу", href: "/admin/access-codes" },
         { name: "Header", href: "/admin/settings/header" },
         { name: "Меню", href: "/admin/settings/menu" },
         { name: "Реклама", href: "/admin/settings/ads" },

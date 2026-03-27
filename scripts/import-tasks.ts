@@ -15,6 +15,10 @@ import { level4Tasks_2 } from "../src/db/data/level4_2"
 import { level5Tasks_1 } from "../src/db/data/level5_1"
 import { level5Tasks_2 } from "../src/db/data/level5_2"
 import { level6Tasks } from "../src/db/data/level6_1"
+import { level7Tasks } from "../src/db/data/level7_1"
+import { level8Tasks } from "../src/db/data/level8_1"
+import { level9Tasks } from "../src/db/data/level9_1"
+import { level10Tasks } from "../src/db/data/level10_1"
 import { taskQuestions as taskQuestionsTable } from "../src/db/schema"
 import * as fs from "fs"
 import * as path from "path"
@@ -90,10 +94,8 @@ export async function seedDatabase() {
             // Sync quiz questions
             const questionsForTask = quizQuestions[t.title];
             if (questionsForTask && Array.isArray(questionsForTask)) {
-                // Remove old questions
+                // From JSON file
                 await db.delete(taskQuestionsTable).where(eq(taskQuestionsTable.taskId, taskId));
-
-                // Insert new ones
                 let qOrder = 1;
                 for (const q of questionsForTask) {
                     await db.insert(taskQuestionsTable).values({
@@ -105,6 +107,17 @@ export async function seedDatabase() {
                     });
                 }
                 console.log(`✅ Портовано ${questionsForTask.length} питань для: ${t.title}`);
+            } else if (t.type === "quiz" && t.options && t.correctAnswer) {
+                // Inline options from the data file (levels 7-10 style)
+                await db.delete(taskQuestionsTable).where(eq(taskQuestionsTable.taskId, taskId));
+                await db.insert(taskQuestionsTable).values({
+                    taskId,
+                    text: t.title,
+                    options: t.options,
+                    correctAnswer: t.correctAnswer,
+                    order: 1
+                });
+                console.log(`✅ Додано inline варіанти для: ${t.title}`);
             }
         }
     }
@@ -172,7 +185,39 @@ export async function seedDatabase() {
         ...level6Tasks
     ], "easy")
 
-    console.log("🏁✅ ОНОВЛЕННЯ ЗАВЕРШЕНЕ! 60 завдань з імпортами завантажені.")
+    // Рівень 7 (Auth & Sessions)
+    await db.insert(tracks).values({ title: "Рівень 7 — Auth & Sessions (Авторизація)", description: "Авторизація, куки, Storage State та JWT у тестах.", order: 7, isActive: true })
+        .onDuplicateKeyUpdate({
+            set: { description: "Авторизація, куки, Storage State та JWT у тестах.", order: 7, isActive: true }
+        })
+    const [level7] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 7 — Auth & Sessions (Авторизація)"));
+    await addTasks(level7.id, [...level7Tasks], "hard")
+
+    // Рівень 8 (Architecture & POM)
+    await db.insert(tracks).values({ title: "Рівень 8 — Architecture (Архітектура)", description: "Page Object Model, паттерни проектування та організація тестів.", order: 8, isActive: true })
+        .onDuplicateKeyUpdate({
+            set: { description: "Page Object Model, паттерни проектування та організація тестів.", order: 8, isActive: true }
+        })
+    const [level8] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 8 — Architecture (Архітектура)"));
+    await addTasks(level8.id, [...level8Tasks], "hard")
+
+    // Рівень 9 (Advanced Testing)
+    await db.insert(tracks).values({ title: "Рівень 9 — Advanced (Просунуте тестування)", description: "Візуальне тестування, accessibility, performance та WebSocket.", order: 9, isActive: true })
+        .onDuplicateKeyUpdate({
+            set: { description: "Візуальне тестування, accessibility, performance та WebSocket.", order: 9, isActive: true }
+        })
+    const [level9] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 9 — Advanced (Просунуте тестування)"));
+    await addTasks(level9.id, [...level9Tasks], "hard")
+
+    // Рівень 10 (CI/CD & Professional)
+    await db.insert(tracks).values({ title: "Рівень 10 — Professional (Фінальний бос)", description: "CI/CD, Docker, Sharding, Allure та AI-assisted тестування.", order: 10, isActive: true })
+        .onDuplicateKeyUpdate({
+            set: { description: "CI/CD, Docker, Sharding, Allure та AI-assisted тестування.", order: 10, isActive: true }
+        })
+    const [level10] = await db.select().from(tracks).where(eq(tracks.title, "Рівень 10 — Professional (Фінальний бос)"));
+    await addTasks(level10.id, [...level10Tasks], "hard")
+
+    console.log("🏁✅ ОНОВЛЕННЯ ЗАВЕРШЕНЕ! 100 завдань завантажені — 10 рівнів повного курсу!")
 }
 
 seedDatabase()

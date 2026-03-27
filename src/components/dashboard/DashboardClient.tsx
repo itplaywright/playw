@@ -112,49 +112,50 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
 
     return (
-        <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
+        <div className="flex flex-col h-screen bg-premium-dark overflow-hidden font-sans">
             {/* Top Header */}
-            <header className="flex-shrink-0 h-14 bg-[#0f172a] border-b border-white/10 flex items-center px-6 gap-6">
+            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50">
                 {/* Brand */}
-                <div className="flex items-center gap-2.5 mr-4">
-                    <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                        <Terminal className="w-4 h-4 text-white" />
+                <div className="flex items-center gap-2 mr-4 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+                        <Terminal className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-white font-bold text-sm tracking-tight">IT Playwright</span>
+                    <span className="text-white font-bold text-xs tracking-tight">IT Playwright</span>
                 </div>
 
                 {/* Global progress */}
-                <div className="hidden md:flex items-center gap-3 flex-1 max-w-xs">
-                    <div className="flex-1 bg-white/10 rounded-full h-1.5 overflow-hidden">
+                <div className="hidden md:flex items-center gap-3 flex-1 max-w-[200px]">
+                    <div className="flex-1 bg-white/5 rounded-full h-1 overflow-hidden relative">
                         <div
-                            className="bg-blue-400 h-1.5 rounded-full transition-all duration-700"
+                            className="progress-glow-blue animate-wave"
                             style={{ width: `${overallPct}%` }}
                         />
                     </div>
-                    <span className="text-slate-400 text-xs font-bold whitespace-nowrap">{overallPct}% курсу</span>
+                    <span className="text-slate-400 text-[10px] font-bold whitespace-nowrap">{overallPct}%</span>
                 </div>
 
                 <div className="flex-1" />
 
                 {/* Quick nav */}
-                <Link href="/setup" className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
-                    <Layers className="w-3.5 h-3.5" />
-                    Налаштування
-                </Link>
-                <Link href="/cabinet" className="hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-white text-xs font-medium transition-colors">
-                    <BarChart2 className="w-3.5 h-3.5" />
-                    Кабінет
-                </Link>
+                <div className="flex items-center gap-4">
+                    <Link href="/setup" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
+                        <Layers className="w-3 h-3" />
+                        Налаштування
+                    </Link>
+                    <Link href="/cabinet" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
+                        <BarChart2 className="w-3 h-3" />
+                        Кабінет
+                    </Link>
+                </div>
 
                 {/* User avatar */}
-                <div className="flex items-center gap-2 pl-4 border-l border-white/10">
-                    <div className="w-8 h-8 rounded-xl bg-blue-600/80 flex items-center justify-center text-white text-xs font-black">
+                <div className="flex items-center gap-2 pl-4 border-l border-white/5 h-6">
+                    <div className="w-6 h-6 rounded-lg bg-blue-600/80 flex items-center justify-center text-white text-[10px] font-black shadow-inner">
                         {userImage
-                            ? <img src={userImage} alt={userName ?? ''} className="w-8 h-8 rounded-xl object-cover" />
+                            ? <img src={userImage} alt={userName ?? ''} className="w-6 h-6 rounded-lg object-cover" />
                             : initials
                         }
                     </div>
-                    <span className="text-white text-xs font-medium hidden md:block max-w-[120px] truncate">{userName ?? 'Учень'}</span>
                 </div>
             </header>
 
@@ -179,16 +180,16 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
                                         <div className="flex items-center gap-3 mb-2">
-                                            <h1 className="text-2xl font-extrabold text-white tracking-tight">
+                                            <h1 className="text-3xl font-black text-white tracking-tight leading-none">
                                                 {selectedTrack.title}
                                             </h1>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-black uppercase tracking-wider">
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-orange-900/20">
                                                     <Star className="w-2.5 h-2.5 fill-current" /> Pro
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-slate-500 text-sm">{selectedTrack.description}</p>
+                                        <p className="text-slate-400 text-base font-normal max-w-2xl leading-relaxed opacity-60 italic">{selectedTrack.description}</p>
                                     </div>
                                     {/* Track mini-stats */}
                                     <div className="flex-shrink-0 bg-[#131b2c] rounded-2xl border border-white/10 px-5 py-3 shadow-sm text-right">
@@ -204,26 +205,33 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
 
                             {/* Task list */}
                             {projects.length > 0 && (
-                                <div className="mb-8">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <LayoutGrid className="w-4 h-4 text-slate-400" />
-                                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Ваші Проєкти (Jira)</h2>
+                                <div className="mb-12">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <Sparkles className="w-4 h-4 text-blue-400" />
+                                        <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Ваші Проєкти (Jira)</h2>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {projects.map(project => (
+                                    <div className="grid grid-cols-1 gap-6">
+                                        {projects.map((project, idx) => (
                                             <Link
                                                 key={project.id}
-                                                href={`/projects?boardId=${project.id}`}
-                                                className="group block p-5 bg-[#131b2c] rounded-2xl border border-white/10 shadow-sm hover:shadow-md hover:border-blue-500/50 transition-all"
+                                                href={isProTrack(selectedTrack.order) ? "/pricing" : `/projects?boardId=${project.id}`}
+                                                className="group relative block p-6 glass-card-premium glass-card-premium-hover rounded-[2rem] overflow-hidden"
                                             >
-                                                <div className="flex items-start justify-between mb-2">
-                                                    <div className="p-2 rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors">
-                                                        <LayoutGrid className="w-5 h-5 text-blue-600" />
+                                                {/* Mesh Gradient Glow */}
+                                                <div className={`absolute -top-24 -right-24 w-48 h-48 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full ${idx === 0 ? 'bg-blue-500' : 'bg-indigo-500'}`} />
+                                                
+                                                <div className="relative z-10">
+                                                    <div className="flex items-start justify-between mb-4">
+                                                        <div className="p-3 rounded-2xl bg-white/5 border border-white/10 group-hover:border-blue-500/30 group-hover:bg-blue-500/10 transition-all duration-300">
+                                                            <LayoutGrid className="w-6 h-6 text-blue-400" />
+                                                        </div>
+                                                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4 transition-all duration-300">
+                                                            <ChevronRight className="w-4 h-4 text-white" />
+                                                        </div>
                                                     </div>
-                                                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                                                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">{project.title}</h3>
+                                                    <p className="text-slate-400 text-sm leading-relaxed line-clamp-2">{project.description}</p>
                                                 </div>
-                                                <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors">{project.title}</h3>
-                                                <p className="text-slate-500 text-xs mt-1 line-clamp-2">{project.description}</p>
                                             </Link>
                                         ))}
                                     </div>
@@ -231,59 +239,90 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                             )}
 
                             {filteredTasks.length === 0 ? (
-                                <div className="bg-[#131b2c] rounded-2xl border border-white/10 p-12 text-center">
-                                    <Code2 className="w-8 h-8 text-slate-200 mx-auto mb-3" />
-                                    <p className="text-slate-400 font-medium text-sm">
+                                <div className="glass-panel rounded-3xl p-16 text-center">
+                                    <Code2 className="w-10 h-10 text-slate-500 mx-auto mb-4 opacity-20" />
+                                    <p className="text-slate-400 font-medium">
                                         У цьому рівні поки немає практичних завдань.
                                     </p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <BookOpen className="w-4 h-4 text-slate-500" />
+                                        <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Програма навчання</h2>
+                                    </div>
                                     {filteredTasks.map(task => {
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
                                         const isDone = statusLabel === "Виконано"
+                                        const isInProgress = statusLabel === "В процесі"
+                                        const isLocked = isProTrack(selectedTrack.order) && !isAdmin
 
                                         return (
                                             <Link
                                                 key={task.id}
-                                                href={`/tasks/${task.id}`}
-                                                className="group flex items-center gap-4 bg-[#131b2c] rounded-2xl border border-white/10 px-5 py-4 shadow-sm hover:shadow-md hover:border-blue-500/50 transition-all"
+                                                href={isLocked ? "/pricing" : `/tasks/${task.id}`}
+                                                className={`group flex items-center gap-8 p-8 glass-card-premium rounded-[2rem] relative overflow-hidden transition-all ${isLocked ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0' : 'glass-card-premium-hover active:scale-[0.98] hover:shadow-[0_0_40px_rgba(59,130,246,0.15)]'} ${isInProgress && !isLocked ? 'ring-2 ring-blue-500/30' : ''}`}
                                             >
-                                                {/* Done indicator */}
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${isDone ? "bg-emerald-100" : "bg-slate-100"}`}>
-                                                    {isDone
-                                                        ? <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                                        : <Clock className="w-4 h-4 text-slate-400" />
-                                                    }
-                                                </div>
+                                                {/* Lesson number background */}
+                                                <div className="lesson-number-bg">#{task.order}</div>
+                                                {/* In Progress Glow */}
+                                                {isInProgress && (
+                                                    <div className="absolute inset-0 bg-blue-500/5 blur-xl animate-pulse" />
+                                                )}
 
-                                                {/* Task number */}
-                                                <span className="text-slate-300 text-xs font-mono font-bold w-8 flex-shrink-0">#{task.order}</span>
+                                                <div className="relative z-10 flex items-center gap-6 w-full">
+                                                    {/* Status indicator */}
+                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${isDone ? "badge-gradient-emerald shadow-lg shadow-emerald-500/20" : isInProgress ? "badge-gradient-blue shadow-lg shadow-blue-500/20" : "bg-white/5 border border-white/10 group-hover:border-white/20"}`}>
+                                                        {isDone
+                                                            ? <CheckCircle2 className="w-7 h-7 text-white" />
+                                                            : isInProgress 
+                                                                ? <Clock className="w-7 h-7 text-white" />
+                                                                : <div className="w-2 h-2 rounded-full bg-slate-600" />
+                                                        }
+                                                    </div>
 
-                                                {/* Title */}
-                                                <div className="flex-1 min-w-0">
-                                                    <p className={`font-semibold text-sm truncate group-hover:text-blue-400 transition-colors ${isDone ? "text-slate-500" : "text-white"}`}>
-                                                        {task.title}
-                                                    </p>
-                                                    <p className="text-slate-400 text-xs truncate mt-0.5">
-                                                        {task.description.split('\n').find(l => l.trim() && !l.startsWith('#'))?.substring(0, 80) || ''}
-                                                    </p>
-                                                </div>
+                                                    {/* Task Info */}
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-3 mb-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-slate-400 tracking-widest uppercase">РІВЕНЬ {selectedTrack.order} • ЗАВДАННЯ #{task.order}</span>
+                                                                {/* Skill Tags */}
+                                                                <div className="flex gap-1.5 ml-2">
+                                                                    {task.type === 'code' && (
+                                                                        <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[8px] font-bold text-blue-400 uppercase tracking-tighter">DOM</span>
+                                                                    )}
+                                                                    {task.title.toLowerCase().includes('selector') && (
+                                                                        <span className="px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-[8px] font-bold text-purple-400 uppercase tracking-tighter">Locators</span>
+                                                                    )}
+                                                                    {task.title.toLowerCase().includes('hook') && (
+                                                                        <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[8px] font-bold text-indigo-400 uppercase tracking-tighter">Hooks</span>
+                                                                    )}
+                                                                    {task.title.toLowerCase().includes('api') && (
+                                                                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[8px] font-bold text-amber-400 uppercase tracking-tighter">API</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} />
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <h4 className={`font-bold text-lg transition-colors ${isDone ? "text-slate-500" : "text-white group-hover:text-blue-300"}`}>
+                                                                {task.title}
+                                                            </h4>
+                                                            {isLocked && !isDone && (
+                                                                <Lock className="w-4 h-4 text-amber-500/80 star-gold-premium drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                                                            )}
+                                                        </div>
+                                                    </div>
 
-                                                {/* Status */}
-                                                <span className={`flex-shrink-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${STATUS_STYLES[statusLabel]}`}>
-                                                    {statusLabel}
-                                                </span>
-
-                                                {/* Difficulty */}
-                                                <div className="flex items-center gap-1.5 flex-shrink-0">
-                                                    <span className={`w-2 h-2 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} />
-                                                    <span className="text-xs text-slate-400 font-medium">
-                                                        {DIFFICULTY_LABELS[task.difficulty ?? "easy"]}
+                                                    {/* Status badge */}
+                                                    <span className={`hidden sm:flex shrink-0 ${isDone ? 'status-done-glass' : isInProgress ? 'border-blue-500/30 text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest' : 'border-white/5 text-slate-500 bg-white/5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest'}`}>
+                                                        {statusLabel}
                                                     </span>
-                                                </div>
 
-                                                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                                                    <div className="p-2 rounded-lg group-hover:bg-white/10 transition-all">
+                                                        <ChevronRight className={`w-5 h-5 transition-all ${isDone ? 'text-slate-600' : 'text-slate-400 group-hover:text-white group-hover:translate-x-0.5'}`} />
+                                                    </div>
+                                                </div>
                                             </Link>
                                         )
                                     })}

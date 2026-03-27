@@ -8,7 +8,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
-type Section = "overview" | "questions" | "progress"
+type Section = "overview" | "questions" | "progress" | "submissions"
 
 interface Stats {
     totalTasks: number
@@ -22,11 +22,12 @@ interface Stats {
 export default function UserCabinetPage() {
     const [section, setSection] = useState<Section>("overview")
     const [questions, setQuestions] = useState<any[]>([])
+    const [submissions, setSubmissions] = useState<any[]>([])
     const [stats, setStats] = useState<Stats | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        Promise.all([fetchQuestions(), fetchStats()]).finally(() => setIsLoading(false))
+        Promise.all([fetchQuestions(), fetchStats(), fetchSubmissions()]).finally(() => setIsLoading(false))
     }, [])
 
     const fetchQuestions = async () => {
@@ -52,14 +53,28 @@ export default function UserCabinetPage() {
         }
     }
 
+    const fetchSubmissions = async () => {
+        try {
+            const res = await fetch("/api/user/submissions")
+            if (res.ok) {
+                const data = await res.json()
+                setSubmissions(Array.isArray(data) ? data : [])
+            }
+        } catch {
+            console.error("Failed to load submissions")
+        }
+    }
+
     const navItems: { id: Section; label: string; icon: any }[] = [
         { id: "overview", label: "Огляд", icon: LayoutDashboard },
         { id: "progress", label: "Прогрес", icon: BarChart2 },
         { id: "questions", label: "Мої питання", icon: MessageCircle },
+        { id: "submissions", label: "Перевірка коду", icon: CheckCircle2 },
     ]
 
     const answeredCount = questions.filter(q => q.status === "answered").length
     const pendingCount = questions.filter(q => q.status === "pending").length
+    const pendingSubmissionsCount = submissions.filter(s => s.status === "pending").length
 
     return (
         <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
@@ -94,6 +109,11 @@ export default function UserCabinetPage() {
                             {id === "questions" && pendingCount > 0 && (
                                 <span className="ml-auto bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
                                     {pendingCount}
+                                </span>
+                            )}
+                            {id === "submissions" && pendingSubmissionsCount > 0 && (
+                                <span className="ml-auto bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+                                    {pendingSubmissionsCount}
                                 </span>
                             )}
                         </button>
@@ -322,6 +342,94 @@ export default function UserCabinetPage() {
                                                             <p className="text-xs text-slate-400 font-medium">Ментор скоро відповість...</p>
                                                         </div>
                                                     )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* SUBMISSIONS */}
+                        {section === "submissions" && (
+                            <div>
+                                <div className="mb-8">
+                                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Перевірка коду</h1>
+                                    <p className="text-slate-500 mt-1 text-sm">Ваші надіслані розв'язки на перевірку ментору.</p>
+                                </div>
+
+                                {submissions.length === 0 ? (
+                                    <EmptyState
+                                        icon={<CheckCircle2 className="w-8 h-8 text-slate-300" />}
+                                        title="Ви ще не надсилали код на перевірку"
+                                        text="Виконайте завдання та натисніть 'Відправити на перевірку', щоб отримати фідбек від ментора."
+                                        href="/dashboard"
+                                        cta="До завдань"
+                                    />
+                                ) : (
+                                    <div className="space-y-6">
+                                        {submissions.map((s) => (
+                                            <div key={s.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                                                <div className="p-6 border-b border-slate-50 flex items-start justify-between gap-4">
+                                                    <div>
+                                                        <h3 className="font-bold text-slate-900 text-lg mb-1">{s.taskTitle}</h3>
+                                                        <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                                                            <Clock className="w-3.5 h-3.5" />
+                                                            {new Date(s.createdAt).toLocaleDateString("uk-UA")} о {new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                        </div>
+                                                    </div>
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${
+                                                        s.status === "pending" ? "bg-amber-100 text-amber-700" : 
+                                                        s.status === "rejected" ? "bg-red-100 text-red-700" :
+                                                        "bg-emerald-100 text-emerald-700"
+                                                    }`}>
+                                                        {s.status === "pending" ? "Очікує" : s.status === "rejected" ? "Потребує змін" : "Прийнято"}
+                                                    </span>
+                                                </div>
+
+                                                <div className="p-6 bg-slate-50/50 flex flex-col gap-6">
+                                                    {/* Code sent by user */}
+                                                    <div>
+                                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ваш код</p>
+                                                        <div className="bg-[#0d1117] rounded-xl overflow-hidden shadow-inner border border-white/5">
+                                                            <pre className="p-4 text-xs font-mono text-emerald-400 overflow-x-auto">
+                                                                <code>{s.code}</code>
+                                                            </pre>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Mentor Feedback */}
+                                                    {s.mentorFeedback ? (
+                                                        <div>
+                                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Фідбек від ментора</p>
+                                                            <div className={`p-5 rounded-xl border ${
+                                                                s.status === 'reviewed' ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'
+                                                            }`}>
+                                                                <div className="prose prose-sm max-w-none text-slate-700">
+                                                                    <div dangerouslySetInnerHTML={{ __html: s.mentorFeedback.replace(/\n/g, '<br/>') }} />
+                                                                </div>
+                                                                {s.reviewedAt && (
+                                                                    <p className="text-[10px] text-slate-400 mt-3 flex items-center gap-1.5">
+                                                                        <CheckCircle2 className="w-3 h-3" />
+                                                                        Перевірено {new Date(s.reviewedAt).toLocaleDateString("uk-UA")} о {new Date(s.reviewedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center gap-2 p-4 bg-white rounded-xl border border-dashed border-slate-200 justify-center">
+                                                            <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                                                            <p className="text-xs text-slate-400 font-medium">Код очікує перевірки ментором...</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="p-4 bg-white border-t border-slate-50 flex justify-end">
+                                                    <Link 
+                                                        href={`/tasks/${s.taskId}`} 
+                                                        className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                                                    >
+                                                        Повернутись до завдання <ArrowRight className="w-3 h-3" />
+                                                    </Link>
                                                 </div>
                                             </div>
                                         ))}

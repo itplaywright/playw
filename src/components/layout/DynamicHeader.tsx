@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LogOut, User, LayoutGrid, Key } from "lucide-react"
+import { Menu, X, LogOut, User, LayoutGrid, Key, Bell } from "lucide-react"
 import { logoutAction } from "@/app/actions"
 
 const LANDING_MENU: MenuItem[] = [
@@ -32,8 +32,11 @@ export default function DynamicHeader({ user }: { user?: any }) {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([])
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [unreadCount, setUnreadCount] = useState(0)
+    const [unreadQuestions, setUnreadQuestions] = useState(0)
+    const [unreadSubmissions, setUnreadSubmissions] = useState(0)
     const pathname = usePathname()
+
+    const totalUnreadCount = unreadQuestions + unreadSubmissions
 
     const isTaskPage = pathname?.startsWith("/tasks/") || pathname?.startsWith("/projects/")
     const displayMenuItems = user
@@ -51,10 +54,17 @@ export default function DynamicHeader({ user }: { user?: any }) {
 
     const fetchUnreadCount = async () => {
         try {
-            const res = await fetch("/api/questions/unread-count")
-            if (res.ok) {
-                const data = await res.json()
-                setUnreadCount(data.count)
+            const [qRes, sRes] = await Promise.all([
+                fetch("/api/questions/unread-count"),
+                fetch("/api/user/notifications")
+            ])
+            if (qRes.ok) {
+                const data = await qRes.json()
+                setUnreadQuestions(data.count)
+            }
+            if (sRes.ok) {
+                const data = await sRes.json()
+                setUnreadSubmissions(Array.isArray(data) ? data.length : 0)
             }
         } catch (err) {
             console.error("Error fetching unread count:", err)
@@ -173,15 +183,22 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                 </div>
                                 <Link
                                     href="/cabinet"
+                                    className="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-xl transition-all relative group/notifications"
+                                    title="Сповіщення"
+                                >
+                                    <Bell className="h-5 w-5" />
+                                    {totalUnreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in duration-300">
+                                            {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                                        </span>
+                                    )}
+                                </Link>
+                                <Link
+                                    href="/cabinet"
                                     className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all relative group/cabinet"
                                     title="Мій кабінет"
                                 >
                                     <User className="h-5 w-5" />
-                                    {unreadCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in duration-300">
-                                            {unreadCount > 9 ? '9+' : unreadCount}
-                                        </span>
-                                    )}
                                 </Link>
                                 <Link
                                     href="/activate"
@@ -251,9 +268,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                             <div className="flex items-center gap-3 mt-1">
                                                 <Link href="/cabinet" onClick={() => setMobileMenuOpen(false)} className="text-xs text-blue-600 font-bold hover:underline flex items-center gap-2">
                                                     Мій кабінет
-                                                    {unreadCount > 0 && (
+                                                    {totalUnreadCount > 0 && (
                                                         <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full min-w-[16px] h-4 flex items-center justify-center font-bold">
-                                                            {unreadCount}
+                                                            {totalUnreadCount}
                                                         </span>
                                                     )}
                                                 </Link>

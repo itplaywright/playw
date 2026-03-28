@@ -509,33 +509,38 @@ export default function TaskView({ task, isProduction, nextTask, submission }: T
                                             {!submission ? (
                                                 <div className="text-slate-500 text-center py-4">Ви ще не надсилали код на перевірку.</div>
                                             ) : (
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center justify-between">
+                                                <div className={`border border-white/5 rounded-2xl overflow-hidden shadow-2xl ${
+                                                    submission.status === 'reviewed' ? 'bg-emerald-500/5' : 
+                                                    submission.status === 'rejected' ? 'bg-red-500/5' : 
+                                                    'bg-amber-500/5'
+                                                }`}>
+                                                    <div className="flex items-center justify-between p-4 border-b border-white/5 bg-black/20">
                                                         <div className="flex items-center gap-2">
-                                                            <div className={`w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500' : submission.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                                                            <div className={`w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : submission.status === 'rejected' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`} />
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-white">Статус: {submission.status}</span>
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{new Date(submission.createdAt).toLocaleDateString()}</span>
+                                                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{new Date(submission.createdAt).toLocaleDateString()}</span>
                                                     </div>
-                                                    {submission.mentorFeedback ? (
-                                                        <div className={`border rounded-2xl p-6 prose prose-invert prose-sm max-w-none shadow-2xl ${
-                                                            submission.status === 'reviewed' ? 'bg-emerald-500/5 border-emerald-500/20' : 
-                                                            submission.status === 'rejected' ? 'bg-red-500/5 border-red-500/20' : 
-                                                            'bg-white/5 border-white/10'
-                                                        }`}>
-                                                            <div className="mb-4 flex items-center gap-2 pb-4 border-b border-white/5">
-                                                                <MessageSquare className="w-4 h-4 text-blue-400" />
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Коментарі ментора</span>
+                                                    
+                                                    <div className="p-6">
+                                                        {submission.mentorFeedback ? (
+                                                            <>
+                                                                <div className="mb-4 flex items-center gap-2 pb-4 border-b border-white/5">
+                                                                    <MessageSquare className="w-4 h-4 text-blue-400" />
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Коментарі ментора</span>
+                                                                </div>
+                                                                <div className="prose prose-invert prose-sm max-w-none">
+                                                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                                        {submission.mentorFeedback}
+                                                                    </ReactMarkdown>
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <div className="text-slate-400 text-sm leading-relaxed italic text-center py-4">
+                                                                Код надіслано ментору. Очікуйте на фідбек найближчим часом. Сповіщення прийде сюди та в кабінет.
                                                             </div>
-                                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                                {submission.mentorFeedback}
-                                                            </ReactMarkdown>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="text-slate-400 text-sm leading-relaxed italic">
-                                                            Код надіслано ментору. Очікуйте на фідбек найближчим часом. Сповіщення прийде сюди та в кабінет.
-                                                        </div>
-                                                    )}
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

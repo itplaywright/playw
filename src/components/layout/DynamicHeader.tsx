@@ -169,36 +169,31 @@ export default function DynamicHeader({ user }: { user?: any }) {
 
                     <div className="hidden md:flex items-center gap-4">
                         {user ? (
-                            <div className="flex items-center gap-3 pl-6 border-l border-border">
-                                <div className="flex items-center gap-3 pr-2">
-                                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
+                            <div className="flex items-center gap-2 pl-6 border-l border-border">
+                                <Link
+                                    href="/cabinet"
+                                    className="flex items-center gap-3 pr-3 p-1.5 hover:bg-white/5 rounded-2xl transition-all cursor-pointer group"
+                                    title="Мій кабінет"
+                                >
+                                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20 relative group-hover:scale-105 transition-transform">
                                         {user.email?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
+                                        
+                                        {/* Notification Bell Badge on Avatar */}
+                                        {totalUnreadCount > 0 && (
+                                            <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-[20px] items-center justify-center gap-0.5 rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white shadow-sm ring-2 ring-zinc-950 animate-in zoom-in duration-300">
+                                                <Bell className="w-2.5 h-2.5" />
+                                                {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className={`text-sm font-bold leading-none ${textClass}`}>{user.email?.split('@')[0]}</span>
+                                        <span className={`text-sm font-bold leading-none ${textClass} group-hover:text-blue-400 transition-colors`}>
+                                            {user.email?.split('@')[0]}
+                                        </span>
                                         <span className="text-[10px] text-gray-500 font-medium mt-0.5">
                                             {user.role === 'admin' ? 'Адміністратор' : 'Студент'}
                                         </span>
                                     </div>
-                                </div>
-                                <Link
-                                    href="/cabinet"
-                                    className="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-xl transition-all relative group/notifications"
-                                    title="Сповіщення"
-                                >
-                                    <Bell className="h-5 w-5" />
-                                    {totalUnreadCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in duration-300">
-                                            {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
-                                        </span>
-                                    )}
-                                </Link>
-                                <Link
-                                    href="/cabinet"
-                                    className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all relative group/cabinet"
-                                    title="Мій кабінет"
-                                >
-                                    <User className="h-5 w-5" />
                                 </Link>
                                 <Link
                                     href="/activate"

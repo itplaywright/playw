@@ -380,7 +380,7 @@ export default function TaskView({ task, isProduction, nextTask, submission }: T
 
                     <div className="p-4 lg:p-8 pt-4 lg:pt-6">
                         {/* Mentor Feedback Banner */}
-                        {submission && !isFeedbackBannerDismissed && (
+                        {submission && !submission.isSeen && !isFeedbackBannerDismissed && (
                             <div className={`mb-8 p-6 rounded-[2rem] border animate-in slide-in-from-top duration-700 relative overflow-hidden ${submission.status === 'reviewed'
                                 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                                 : submission.status === 'rejected'

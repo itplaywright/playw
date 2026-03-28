@@ -479,7 +479,12 @@ export default function TaskView({ task, isProduction, nextTask, submission }: T
                                 />
                             </div>
                             {/* Pro Console Tabs */}
-                            <div ref={consoleRef} className="h-40 lg:h-48 border-t border-white/10 bg-[#0d0d0d] flex flex-col">
+                            <div 
+                                ref={consoleRef} 
+                                className={`border-t border-white/10 bg-[#0d0d0d] flex flex-col transition-all duration-300 ${
+                                    activeConsoleTab === "Mentor" ? "h-64 lg:h-80" : "h-40 lg:h-48"
+                                }`}
+                            >
                                 <div className="flex items-center px-4 border-b border-white/5 bg-[#121212]">
                                     {["Output", "Terminal", "Mentor"].map((tab) => (
                                         <button

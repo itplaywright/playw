@@ -355,7 +355,7 @@ export default function TaskView({ task, isProduction, nextTask, submission }: T
                                 : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'
                                 }`}
                         >
-                            {isSubmittingReview ? "Sending..." : "👨‍🏫 Submit Review"}
+                            {isSubmittingReview ? "Відправляємо..." : "👨‍🏫 Відправити ментору"}
                         </button>
                     )}
                 </div>

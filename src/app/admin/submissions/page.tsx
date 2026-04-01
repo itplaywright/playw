@@ -145,11 +145,16 @@ export default function AdminSubmissionsPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                        {s.status === 'reviewed' ? (
-                                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                        ) : (
-                                            <Clock className="w-4 h-4 text-amber-500" />
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {s.status === 'pending' && (
+                                                <span className="px-2 py-0.5 rounded text-[8px] font-black bg-rose-500 text-white uppercase tracking-widest shadow-lg shadow-rose-500/20">NEW</span>
+                                            )}
+                                            {s.status === 'reviewed' ? (
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                            ) : (
+                                                <Clock className="w-4 h-4 text-amber-500" />
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] opacity-40 mt-3 pt-3 border-t border-white/5">
                                         <span>{new Date(s.createdAt).toLocaleDateString()}</span>

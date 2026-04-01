@@ -51,7 +51,8 @@ export async function PATCH(req: Request) {
             .set({ 
                 mentorFeedback: feedback, 
                 status: status || "reviewed",
-                reviewedAt: new Date()
+                reviewedAt: new Date(),
+                isSeen: false
             })
             .where(eq(taskSubmissions.id, submissionId))
 

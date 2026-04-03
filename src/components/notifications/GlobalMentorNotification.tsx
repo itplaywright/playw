@@ -111,7 +111,7 @@ export default function GlobalMentorNotification() {
                                 <span className="text-white font-black">"{currentNotification.taskTitle}"</span>
                             </p>
                             <Link
-                                href={`/tasks/${currentNotification.taskId}`}
+                                href={`/tasks/${currentNotification.taskId}?tab=mentor`}
                                 onClick={() => {
                                     markAsSeen(currentNotification.id)
                                     if (isCurrentTaskPage) {

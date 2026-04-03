@@ -8,6 +8,7 @@ import PseudoVideoPlayer from "./PseudoVideoPlayer"
 import CodeEditor from "@/components/editor/Monaco"
 import Link from "next/link"
 import { CheckCircle2, Clock, Terminal, BookOpen, ShieldCheck, MessageSquare, X } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 
 interface TaskViewProps {
     task: {
@@ -38,8 +39,11 @@ interface TaskViewProps {
 }
 
 export default function TaskView({ task, isProduction, nextTask, submission }: TaskViewProps) {
-    const [code, setCode] = useState(task.initialCode)
-    const [activeConsoleTab, setActiveConsoleTab] = useState<"Output" | "Terminal" | "Mentor">("Output")
+    const searchParams = useSearchParams()
+    const [code, setCode] = useState(submission?.code || task.initialCode)
+    const [activeConsoleTab, setActiveConsoleTab] = useState<"Output" | "Terminal" | "Mentor">(
+        searchParams.get("tab") === "mentor" ? "Mentor" : "Output"
+    )
     const [isFeedbackBannerDismissed, setIsFeedbackBannerDismissed] = useState(false)
     const consoleRef = useRef<HTMLDivElement>(null)
 
@@ -59,6 +63,12 @@ export default function TaskView({ task, isProduction, nextTask, submission }: T
             consoleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
         }, 100)
     }
+
+    useEffect(() => {
+        if (searchParams.get("tab") === "mentor") {
+            scrollToMentor()
+        }
+    }, [searchParams])
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [answeredQuestions, setAnsweredQuestions] = useState<Record<number, string>>({})
     const [selectedOption, setSelectedOption] = useState<string | null>(null)

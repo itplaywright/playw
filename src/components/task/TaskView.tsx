@@ -35,6 +35,7 @@ interface TaskViewProps {
         mentorFeedback: string | null
         createdAt: string | Date
         isSeen: boolean
+        code: string
     } | null
 }
 

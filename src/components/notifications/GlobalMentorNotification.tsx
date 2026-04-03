@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect } from "react"
-import { ShieldCheck, X, ChevronRight } from "lucide-react"
+import { ShieldCheck, X, ChevronRight, AlertCircle, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import useSWR from "swr"
 
@@ -19,6 +19,7 @@ const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 export default function GlobalMentorNotification() {
     const pathname = usePathname()
+    const router = useRouter()
     const { data: notifications, mutate } = useSWR<Notification[]>("/api/user/notifications", fetcher, {
         refreshInterval: 30000,
         revalidateOnFocus: true
@@ -49,14 +50,14 @@ export default function GlobalMentorNotification() {
         ? pathname === `/tasks/${currentNotification.taskId}`
         : false
 
-    // ✅ FIX: auto-mark as seen in useEffect, NOT in render body
-    useEffect(() => {
-        if (isCurrentTaskPage && currentNotification) {
-            markAsSeen(currentNotification.id)
-        }
-    }, [isCurrentTaskPage, currentNotification?.id])
+    // Comment out or remove the auto-mark-as-seen to let user see the popup on current page
+    // useEffect(() => {
+    //     if (isCurrentTaskPage && currentNotification) {
+    //         markAsSeen(currentNotification.id)
+    //     }
+    // }, [isCurrentTaskPage, currentNotification?.id])
 
-    if (!currentNotification || isCurrentTaskPage) return null
+    if (!currentNotification) return null
 
     return (
         <AnimatePresence mode="wait">
@@ -92,17 +93,31 @@ export default function GlobalMentorNotification() {
                             ? 'bg-gradient-to-br from-emerald-500 to-green-600 shadow-emerald-500/20'
                             : 'bg-gradient-to-br from-red-500 to-rose-600 shadow-red-500/20'
                         }`}>
-                            <ShieldCheck className="w-6 h-6 text-white" />
+                            {currentNotification.status === 'reviewed' ? (
+                                <CheckCircle2 className="w-6 h-6 text-white" />
+                            ) : (
+                                <AlertCircle className="w-6 h-6 text-white" />
+                            )}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h4 className="text-white font-black text-sm uppercase tracking-widest leading-none mb-2">Фідбек Ментора</h4>
+                            <h4 className="text-white font-black text-sm uppercase tracking-widest leading-none mb-2">
+                                {currentNotification.status === 'reviewed' ? 'Завдання Прийнято! 🎉' : 'Потрібні Виправлення 📝'}
+                            </h4>
                             <p className="text-white/70 text-xs font-medium leading-relaxed mb-5">
-                                Ментор перевірив вашу роботу:{" "}
+                                {currentNotification.status === 'reviewed' 
+                                    ? 'Ментор схвалив вашу роботу:' 
+                                    : 'Ментор переглянув код та має зауваження:'}
+                                <br />
                                 <span className="text-white font-black">"{currentNotification.taskTitle}"</span>
                             </p>
                             <Link
                                 href={`/tasks/${currentNotification.taskId}`}
-                                onClick={() => markAsSeen(currentNotification.id)}
+                                onClick={() => {
+                                    markAsSeen(currentNotification.id)
+                                    if (isCurrentTaskPage) {
+                                        router.refresh()
+                                    }
+                                }}
                                 className="flex-1 bg-white hover:bg-white/90 text-[10px] font-black uppercase tracking-[0.2em] py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 group w-full"
                                 style={{ color: currentNotification.status === 'reviewed' ? '#065f46' : '#991b1b' }}
                             >

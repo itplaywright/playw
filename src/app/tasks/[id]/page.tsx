@@ -8,6 +8,8 @@ import TaskView from "@/components/task/TaskView"
 import AdBlock from "@/components/ads/AdBlock"
 import { checkHasAccess } from "@/lib/access"
 
+export const revalidate = 0
+
 export default async function TaskPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await auth()
     if (!session?.user) redirect("/")

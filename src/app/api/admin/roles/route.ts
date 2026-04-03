@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json()
-        const { name, description, maxTrackOrder, isDefault, hasPracticeAccess } = body
+        const { name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview } = body
 
         if (!name) {
             return NextResponse.json({ error: "Name is required" }, { status: 400 })
@@ -37,8 +37,8 @@ export async function POST(req: Request) {
             await db.update(roles).set({ isDefault: false })
         }
 
-        const [__ir1] = await db.insert(roles).values({ name, description, maxTrackOrder, isDefault, hasPracticeAccess })
-        const newRole = await db.select().from(roles).where(eq(roles.id, __ir1.insertId))
+        const [results] = await db.insert(roles).values({ name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview })
+        const newRole = await db.select().from(roles).where(eq(roles.id, results.insertId))
 
         return NextResponse.json(newRole[0])
     } catch (error: any) {
@@ -54,7 +54,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, name, description, maxTrackOrder, isDefault, hasPracticeAccess } = body
+        const { id, name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
@@ -65,7 +65,7 @@ export async function PATCH(req: Request) {
         }
 
         await db.update(roles)
-            .set({ name, description, maxTrackOrder, isDefault, hasPracticeAccess })
+            .set({ name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview })
             .where(eq(roles.id, id))
 
         const updatedRole = await db.select().from(roles).where(eq(roles.id, id))

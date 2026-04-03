@@ -37,9 +37,10 @@ interface TaskViewProps {
         isSeen: boolean
         code: string
     } | null
+    hasAiReview?: boolean
 }
 
-export default function TaskView({ task, isProduction, nextTask, submission }: TaskViewProps) {
+export default function TaskView({ task, isProduction, nextTask, submission, hasAiReview }: TaskViewProps) {
     const searchParams = useSearchParams()
     const [code, setCode] = useState(submission?.code || task.initialCode)
     const [activeConsoleTab, setActiveConsoleTab] = useState<"Output" | "Terminal" | "Mentor">(
@@ -345,7 +346,7 @@ export default function TaskView({ task, isProduction, nextTask, submission }: T
                     >
                         💬 Питання
                     </button>
-                    {task.type === "code" && (
+                    {task.type === "code" && hasAiReview && (
                         <button
                             onClick={handleCodeReview}
                             disabled={isReviewing}

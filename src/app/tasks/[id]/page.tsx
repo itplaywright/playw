@@ -37,6 +37,23 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
     if (!task) notFound()
 
+    let hasAiReview = false; // Default
+    let maxOrder = 2; // Default for normal subscription
+
+    // Fetch user's dynamic role permissions
+    if (userRecord?.dynamicRoleId) {
+        const role = await db.query.roles.findFirst({
+            where: eq(roles.id, userRecord.dynamicRoleId)
+        })
+        maxOrder = role?.maxTrackOrder ?? 2
+        hasAiReview = role?.hasAiReview ?? false
+    }
+
+    // Admins always have AI review access
+    if ((session.user as any).role === "admin") {
+        hasAiReview = true;
+    }
+
     // Access control: non-admins cannot see inactive tasks or tasks in inactive tracks
     if ((session.user as any).role !== "admin") {
         if (!task.isActive) notFound()
@@ -46,15 +63,6 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
                 where: eq(tracks.id, task.trackId)
             })
             if (!track || !track.isActive) notFound()
-
-            // Check if user's role has access to this track
-            let maxOrder = 2; // Default for normal subscription
-            if (userRecord?.dynamicRoleId) {
-                const role = await db.query.roles.findFirst({
-                    where: eq(roles.id, userRecord.dynamicRoleId)
-                })
-                maxOrder = role?.maxTrackOrder ?? 2
-            }
 
             if ((track.order ?? 0) > maxOrder) {
                 redirect("/pricing") // Redirect if track is above user's max level
@@ -96,6 +104,7 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
                 isProduction={isProduction} 
                 nextTask={nextTaskData} 
                 submission={submission as any}
+                hasAiReview={hasAiReview}
             />
             <AdBlock placement="task" position="after" />
         </div>

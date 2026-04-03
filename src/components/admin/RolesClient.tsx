@@ -21,6 +21,7 @@ interface Role {
     description: string | null
     maxTrackOrder: number | null
     hasPracticeAccess: boolean | null
+    hasAiReview: boolean | null
     isDefault: boolean | null
 }
 
@@ -33,6 +34,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
         description: "",
         maxTrackOrder: 0,
         hasPracticeAccess: false,
+        hasAiReview: false,
         isDefault: false
     })
     const router = useRouter()
@@ -45,6 +47,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                 description: role.description || "",
                 maxTrackOrder: role.maxTrackOrder || 0,
                 hasPracticeAccess: role.hasPracticeAccess || false,
+                hasAiReview: role.hasAiReview || false,
                 isDefault: role.isDefault || false
             })
         } else {
@@ -54,6 +57,7 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                 description: "",
                 maxTrackOrder: 0,
                 hasPracticeAccess: false,
+                hasAiReview: false,
                 isDefault: false
             })
         }
@@ -182,6 +186,15 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                     {role.hasPracticeAccess ? "Так" : "Ні"}
                                 </span>
                             </div>
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <div className="flex items-center gap-2">
+                                    {role.hasAiReview ? <Unlock className="w-3.5 h-3.5 text-purple-500" /> : <Lock className="w-3.5 h-3.5 text-gray-400" />}
+                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">AI Review (Швидка перевірка)</span>
+                                </div>
+                                <span className={`text-sm font-black ${role.hasAiReview ? "text-purple-600" : "text-gray-400"}`}>
+                                    {role.hasAiReview ? "Так" : "Ні"}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -243,6 +256,16 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.hasPracticeAccess ? "left-6" : "left-1"}`} />
                                 </button>
                                 <span className="text-sm font-bold text-gray-700">Надати доступ до Практики (Проєкти)</span>
+                            </div>
+                            <div className="flex items-center gap-3 p-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, hasAiReview: !formData.hasAiReview })}
+                                    className={`w-11 h-6 rounded-full transition-all relative ${formData.hasAiReview ? "bg-purple-600" : "bg-gray-200"}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.hasAiReview ? "left-6" : "left-1"}`} />
+                                </button>
+                                <span className="text-sm font-bold text-gray-700">Надати доступ до AI Review (Швидка перевірка)</span>
                             </div>
                             <div className="flex items-center gap-3 p-1">
                                 <button

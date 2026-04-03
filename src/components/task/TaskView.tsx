@@ -7,8 +7,9 @@ import remarkGfm from "remark-gfm"
 import PseudoVideoPlayer from "./PseudoVideoPlayer"
 import CodeEditor from "@/components/editor/Monaco"
 import Link from "next/link"
-import { CheckCircle2, Clock, Terminal, BookOpen, ShieldCheck, MessageSquare, X } from "lucide-react"
+import { CheckCircle2, Clock, Terminal, BookOpen, ShieldCheck, MessageSquare, X, Info, Code2 } from "lucide-react"
 import { useSearchParams } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface TaskViewProps {
     task: {
@@ -447,8 +448,20 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 components={{
                                     code({ node, className, children, ...props }: any) {
                                         const match = /language-(\w+)/.exec(className || '');
+                                        const codeText = String(children).trim();
                                         const hasNewline = String(children).includes('\n');
                                         const isInline = !match && !hasNewline;
+
+                                        // Special case for interactive test() keyword
+                                        if (isInline && (codeText === 'test()' || codeText === 'test')) {
+                                            return (
+                                                <InteractiveKeyword 
+                                                    keyword={codeText} 
+                                                    hint="test('назва', async ({ page }) => { ... });"
+                                                    description="Основна функція для визначення нового тесту в Playwright."
+                                                />
+                                            );
+                                        }
 
                                         if (isInline) {
                                             return <code className="bg-white/10 px-1 rounded text-blue-400 font-mono" {...props}>{children}</code>
@@ -627,7 +640,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                         <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">
                                             {isCompleted ? "Чудова робота!" : (output.includes("✅") ? "Правильно!" : "Спробуйте ще раз")}
                                         </h2>
-                                        <p className="text-slate-400 font-medium text-lg mb-8">{output}</p>
+                                        <div className="text-slate-400 font-medium text-lg mb-8">{output}</div>
                                         {isCompleted && (
                                             <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
                                                 <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold bg-emerald-500/10 py-3 px-6 rounded-2xl border border-emerald-500/20">
@@ -735,49 +748,43 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     </svg>
                                 </button>
                             </div>
-
-                            <div className="p-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
-                                {!isCompleted ? (
-                                    <div className="space-y-6">
-                                        <div className="bg-white/5 p-6 rounded-2xl border border-white/5">
-                                            <p className="text-base font-semibold text-slate-100 leading-relaxed">{currentQuestion.text}</p>
-                                        </div>
-                                        <div className="space-y-3">
-                                            {currentQuestion.options.map((option, index) => (
-                                                <button
-                                                    key={index}
-                                                    onClick={() => handleOptionClick(option)}
-                                                    className={`w-full text-left p-5 rounded-2xl border transition-all transform active:scale-[0.99] ${selectedOption === option
-                                                        ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/20 border-emerald-500/50 ring-1 ring-emerald-500/50" : "bg-red-500/20 border-red-500/50 ring-1 ring-red-500/50")
-                                                        : "bg-white/5 border-white/10 hover:border-emerald-500/30 hover:bg-emerald-500/5"
-                                                        }`}
-                                                >
-                                                    <div className="flex items-center">
-                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 transition-colors ${selectedOption === option
-                                                            ? (option === currentQuestion.correctAnswer ? "border-emerald-500 bg-emerald-500" : "border-red-500 bg-red-500")
-                                                            : "border-slate-600"
-                                                            }`}>
-                                                            {selectedOption === option && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
+                            <div className="flex-1 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                                <div className="p-8">
+                                    {!isCompleted && currentQuestion ? (
+                                        <div className="space-y-8">
+                                            <h3 className="text-xl font-bold text-white leading-tight">{currentQuestion.text}</h3>
+                                            <div className="grid gap-3">
+                                                {currentQuestion.options.map((option, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => handleOptionClick(option)}
+                                                        className={`w-full text-left p-5 rounded-2xl border transition-all duration-200 ${selectedOption === option
+                                                            ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500 text-white" : "bg-red-500/10 border-red-500 text-white")
+                                                            : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20 text-slate-300"
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`w-2 h-2 rounded-full ${selectedOption === option ? (option === currentQuestion.correctAnswer ? 'bg-emerald-500' : 'bg-red-500') : 'bg-white/20'}`} />
+                                                            <span className="font-medium">{option}</span>
                                                         </div>
-                                                        <span className={`font-medium transition-colors ${selectedOption === option ? "text-white" : "text-slate-300"}`}>{option}</span>
-                                                    </div>
-                                                </button>
-                                            ))}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="bg-emerald-500/10 p-10 rounded-3xl border border-emerald-500/20 text-center space-y-4">
-                                        <div className="text-6xl animate-bounce">🎉</div>
-                                        <h4 className="text-2xl font-bold text-emerald-400">Всі питання пройдені!</h4>
-                                        <p className="text-slate-400">Ви успішно підтвердили свої знання з цієї теми. Тепер ви готові до практики!</p>
-                                        <button
-                                            onClick={() => setIsQuizModalOpen(false)}
-                                            className="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-10 py-3.5 rounded-2xl transition-all shadow-lg shadow-emerald-600/20"
-                                        >
-                                            Чудово, продовжуємо!
-                                        </button>
-                                    </div>
-                                )}
+                                    ) : (
+                                        <div className="py-8 text-center">
+                                            <div className="text-5xl mb-4">🏆</div>
+                                            <h3 className="text-2xl font-bold text-white mb-2">Завдання виконано!</h3>
+                                            <p className="text-slate-400">Ви успішно пройшли всі питання тесту.</p>
+                                            <button 
+                                                onClick={() => setIsQuizModalOpen(false)}
+                                                className="mt-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-all"
+                                            >
+                                                Дякую, зрозуміло
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -788,63 +795,90 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             {
                 isQuestionModalOpen && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="bg-[#0a0a0a] w-full max-w-xl flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-                            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-indigo-900/30 to-blue-900/20">
+                        <div className="bg-[#0f172a] w-full max-w-lg flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden p-8">
+                            <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-3">
-                                    <div className="text-2xl">💬</div>
+                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center">
+                                        <MessageSquare className="w-6 h-6 text-indigo-400" />
+                                    </div>
                                     <div>
                                         <h2 className="text-xl font-bold text-white tracking-tight">Задати питання</h2>
-                                        <p className="text-xs text-indigo-300 font-medium tracking-wide uppercase">Ментор на зв'язку</p>
+                                        <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">МЕНТОР ПЕРЕГЛЯНЕ ВАШ ЗАПИТ</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setIsQuestionModalOpen(false)}
                                     className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-full transition-colors"
                                 >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                                    <X className="w-5 h-5" />
                                 </button>
                             </div>
-
-                            <div className="p-8 space-y-6">
-                                <p className="text-slate-400 text-sm leading-relaxed">
-                                    Маєте запитання щодо теорії або коду? Опишіть вашу проблему, і ментор допоможе розібратися.
-                                </p>
-                                <textarea
-                                    value={questionContent}
-                                    onChange={(e) => setQuestionContent(e.target.value)}
-                                    placeholder="Ваше питання (наприклад: чому ми використовуємо саме цей селектор?)"
-                                    className="w-full p-5 rounded-2xl border border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all min-h-[180px] resize-none text-base text-slate-100 bg-[#1e1e1e] placeholder-slate-600"
-                                />
-                                <div className="space-y-4">
-                                    <button
-                                        onClick={async () => {
-                                            await handleSubmitQuestion();
-                                            if (questionContent === "") setIsQuestionModalOpen(false);
-                                        }}
-                                        disabled={isSubmittingQuestion}
-                                        className={`w-full py-4 rounded-2xl font-bold text-white transition-all transform active:scale-[0.98] ${isSubmittingQuestion
-                                            ? "bg-slate-700 cursor-not-allowed"
-                                            : "bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 shadow-xl shadow-indigo-600/20"
-                                            }`}
-                                    >
-                                        {isSubmittingQuestion ? (
-                                            <div className="flex items-center justify-center gap-2">
-                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                <span>Надсилаємо...</span>
-                                            </div>
-                                        ) : "Надіслати питання ментору"}
-                                    </button>
-                                    <p className="text-xs text-center text-slate-500 font-medium">
-                                        Відповідь з’явиться у вашому <Link href="/cabinet" className="text-indigo-400 hover:text-indigo-300 hover:underline">особистому кабінеті</Link>.
-                                    </p>
-                                </div>
-                            </div>
+                            
+                            <textarea
+                                value={questionContent}
+                                onChange={(e) => setQuestionContent(e.target.value)}
+                                placeholder="Опишіть вашу проблему або питання детально..."
+                                className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none mb-6 placeholder-slate-600"
+                            />
+                            
+                            <button
+                                onClick={handleSubmitQuestion}
+                                disabled={isSubmittingQuestion}
+                                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98] disabled:opacity-50 uppercase tracking-widest text-xs"
+                            >
+                                {isSubmittingQuestion ? "Відправляємо..." : "Надіслати ментору"}
+                            </button>
                         </div>
                     </div>
                 )
             }
         </div>
     )
+}
+
+function InteractiveKeyword({ keyword, hint, description }: { keyword: string, hint: string, description: string }) {
+    const [isOpen, setIsOpen] = useState(false);
+    
+    return (
+        <span className="relative inline-block">
+            <code 
+                onClick={() => setIsOpen(!isOpen)}
+                onMouseEnter={() => setIsOpen(true)}
+                onMouseLeave={() => setIsOpen(false)}
+                className="bg-blue-500/10 hover:bg-blue-500/20 px-2 py-0.5 rounded border border-blue-500/20 text-blue-400 font-mono cursor-help transition-all group relative"
+            >
+                {keyword}
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
+            </code>
+            
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-[100] w-72 p-4 glass-panel-premium border border-blue-500/30 rounded-2xl shadow-2xl"
+                    >
+                        <div className="flex items-start gap-3 mb-3">
+                            <div className="p-2 rounded-lg bg-blue-500/20">
+                                <Code2 className="w-4 h-4 text-blue-400" />
+                            </div>
+                            <div>
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-1">Syntax Hint</h4>
+                                <p className="text-[11px] font-bold text-white leading-relaxed">{description}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-black/40 rounded-xl p-3 border border-white/5">
+                            <code className="text-[10px] font-mono text-emerald-400 whitespace-nowrap overflow-x-auto block custom-scrollbar py-1">
+                                {hint}
+                            </code>
+                        </div>
+                        
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-blue-500/30" />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </span>
+    );
 }

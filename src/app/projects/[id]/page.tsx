@@ -16,7 +16,10 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
 
     // Role & Project Specific Validation
     if ((session.user as any).role !== "admin") {
-        const userRoleId = userWithRole?.dynamicRole?.id
+        const userRecord = await db.query.users.findFirst({
+            where: eq(usersTable.id, session.user.id!)
+        })
+        const userRoleId = userRecord?.dynamicRoleId
 
         const roleAccess = userRoleId ? await db.select().from(projectBoardRoles)
             .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))) : []

@@ -220,40 +220,6 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                             </div>
 
 
-                            {/* Task list */}
-                            {projects.length > 0 && (
-                                <div className="mb-12">
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <Sparkles className="w-4 h-4 text-blue-400" />
-                                        <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Ваші Проєкти (Jira)</h2>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-6">
-                                        {projects.map((project, idx) => (
-                                            <Link
-                                                key={project.id}
-                                                href={isProTrack(selectedTrack.order) ? "/pricing" : `/projects?boardId=${project.id}`}
-                                                className={`group relative block p-8 glass-card-premium-v2 glass-card-premium-hover rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 ${idx === 1 ? 'accent-glow-top border-t-emerald-500/30' : 'accent-glow-top border-t-blue-500/30'}`}
-                                            >
-                                                {/* Mesh Gradient Glow */}
-                                                <div className={`absolute -top-24 -right-24 w-48 h-48 blur-[80px] opacity-10 group-hover:opacity-30 transition-opacity duration-500 rounded-full ${idx === 0 ? 'bg-blue-600' : 'bg-emerald-600'}`} />
-                                                
-                                                <div className="relative z-10">
-                                                    <div className="flex items-start justify-between mb-6">
-                                                        <div className={`p-4 rounded-2xl bg-white/5 border border-white/10 transition-all duration-500 ${idx === 0 ? 'group-hover:border-blue-500/50 group-hover:bg-blue-500/20' : 'group-hover:border-emerald-500/50 group-hover:bg-emerald-500/20'}`}>
-                                                            <LayoutGrid className={`w-8 h-8 ${idx === 0 ? 'text-blue-400' : 'text-emerald-400'}`} />
-                                                        </div>
-                                                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4 transition-all duration-500">
-                                                            <ChevronRight className="w-5 h-5 text-white" />
-                                                        </div>
-                                                    </div>
-                                                    <h3 className={`text-xl font-black mb-2 transition-colors ${idx === 0 ? 'text-white group-hover:text-blue-300' : 'text-white group-hover:text-emerald-300'}`}>{project.title}</h3>
-                                                    <p className="text-slate-400 font-medium leading-relaxed line-clamp-2 max-w-xl">{project.description}</p>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
 
                             {filteredTasks.length === 0 ? (
                                 <div className="glass-panel rounded-3xl p-16 text-center">

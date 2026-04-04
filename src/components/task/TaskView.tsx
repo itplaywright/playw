@@ -449,16 +449,18 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     code({ node, className, children, ...props }: any) {
                                         const match = /language-(\w+)/.exec(className || '');
                                         const codeText = String(children).trim();
+                                        const cleanKeyword = codeText.replace(/[()]/g, '');
                                         const hasNewline = String(children).includes('\n');
                                         const isInline = !match && !hasNewline;
 
-                                        // Special case for interactive test() keyword
-                                        if (isInline && (codeText === 'test()' || codeText === 'test')) {
+                                        // Special case for interactive keywords
+                                        if (isInline && KEYWORD_HINTS[cleanKeyword]) {
+                                            const hintData = KEYWORD_HINTS[cleanKeyword];
                                             return (
                                                 <InteractiveKeyword 
                                                     keyword={codeText} 
-                                                    hint="test('назва', async ({ page }) => { ... });"
-                                                    description="Основна функція для визначення нового тесту в Playwright."
+                                                    hint={hintData.hint}
+                                                    description={hintData.description}
                                                 />
                                             );
                                         }
@@ -836,6 +838,53 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
     )
 }
 
+const KEYWORD_HINTS: Record<string, { hint: string, description: string }> = {
+    "test": {
+        hint: "test('назва', async ({ page }) => { ... });",
+        description: "Основна функція для визначення нового тесту в Playwright."
+    },
+    "expect": {
+        hint: "await expect(page.locator('.status')).toHaveText('Done');",
+        description: "Використовується для перевірки очікуваних результатів (тверджень)."
+    },
+    "goto": {
+        hint: "await page.goto('https://example.com');",
+        description: "Навігація за вказаною URL-адресою в поточному браузерному контексті."
+    },
+    "click": {
+        hint: "await page.click('button#submit');",
+        description: "Емуляція кліка по елементу, знайденому за селектором."
+    },
+    "locator": {
+        hint: "const element = page.locator('.my-class');",
+        description: "Пошук та створення об'єкта елемента для подальших дій."
+    },
+    "fill": {
+        hint: "await page.fill('input[name=\"user\"]', 'My Name');",
+        description: "Введення тексту в поля вводу (input, textarea)."
+    },
+    "toHaveText": {
+        hint: "await expect(element).toHaveText('Success');",
+        description: "Перевірка, чи містить елемент вказаний текст."
+    },
+    "beforeEach": {
+        hint: "test.beforeEach(async ({ page }) => { ... });",
+        description: "Код, який буде виконуватися перед кожним тестом у файлі."
+    },
+    "describe": {
+        hint: "test.describe('Група тестів', () => { ... });",
+        description: "Групування кількох пов'язаних тестів у спільний блок."
+    },
+    "async": {
+        hint: "async ({ page }) => { ... }",
+        description: "Ключове слово для оголошення асинхронної функції."
+    },
+    "await": {
+        hint: "await page.goto('/');",
+        description: "Команда дочекатися завершення асинхронної дії (Promise)."
+    }
+};
+
 function InteractiveKeyword({ keyword, hint, description }: { keyword: string, hint: string, description: string }) {
     const [isOpen, setIsOpen] = useState(false);
     
@@ -857,7 +906,7 @@ function InteractiveKeyword({ keyword, hint, description }: { keyword: string, h
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-[100] w-72 p-4 glass-panel-premium border border-blue-500/30 rounded-2xl shadow-2xl"
+                        className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-[500] w-72 p-4 glass-panel-premium border border-blue-500/30 rounded-2xl shadow-2xl"
                     >
                         <div className="flex items-start gap-3 mb-3">
                             <div className="p-2 rounded-lg bg-blue-500/20">

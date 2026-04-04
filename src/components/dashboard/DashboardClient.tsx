@@ -112,7 +112,14 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
 
     return (
-        <div className="flex flex-col h-screen bg-premium-dark overflow-hidden font-sans">
+        <div className="flex flex-col h-screen bg-[#020617] overflow-hidden font-sans relative">
+            {/* Mesh Gradient Background */}
+            <div className="mesh-gradient-container">
+                <div className="mesh-blob mesh-blob-1" />
+                <div className="mesh-blob mesh-blob-2" />
+                <div className="mesh-blob mesh-blob-3" />
+            </div>
+
             {/* Top Header */}
             <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50">
                 {/* Brand */}
@@ -159,45 +166,55 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                 </div>
             </header>
 
-            {/* Below header: sidebar + main */}
-            <div className="flex flex-1 overflow-hidden">
-                <Sidebar
-                    tracks={tracks}
-                    getTrackProgress={getTrackProgress}
-                    selectedTrackId={selectedTrackId}
-                    setSelectedTrackId={setSelectedTrackId}
-                    isAdmin={isAdmin}
-                    role={role}
-                    currentPath="/dashboard"
-                />
+            {/* Below header: Sidebar + Main Content (Floating Layout) */}
+            <div className="flex flex-1 overflow-hidden p-4 pt-2 gap-4 relative z-10">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl">
+                    <Sidebar
+                        tracks={tracks}
+                        getTrackProgress={getTrackProgress}
+                        selectedTrackId={selectedTrackId}
+                        setSelectedTrackId={setSelectedTrackId}
+                        isAdmin={isAdmin}
+                        role={role}
+                        currentPath="/dashboard"
+                    />
+                </div>
 
-                {/* Main content */}
-                <main className="flex-1 overflow-y-auto">
+                {/* Main content Area */}
+                <main className="flex-1 overflow-y-auto custom-scrollbar glass-card-premium rounded-[2rem] border border-white/5 shadow-2xl relative">
                     {selectedTrack && (
                         <div className="p-8 w-full">
                             {/* Track header */}
-                            <div className="mb-8">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div>
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <h1 className="text-3xl font-black text-white tracking-tight leading-none">
+                            <div className="mb-12">
+                                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <h1 className="text-4xl font-black text-white tracking-tight leading-none">
                                                 {selectedTrack.title}
                                             </h1>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
-                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-orange-900/20">
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-orange-900/40">
                                                     <Star className="w-2.5 h-2.5 fill-current" /> Pro
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-slate-400 text-base font-normal max-w-2xl leading-relaxed opacity-60 italic">{selectedTrack.description}</p>
+                                        <p className="text-slate-400 text-lg font-medium max-w-2xl leading-relaxed opacity-50 italic">{selectedTrack.description}</p>
                                     </div>
-                                    {/* Track mini-stats */}
-                                    <div className="flex-shrink-0 bg-[#131b2c] rounded-2xl border border-white/10 px-5 py-3 shadow-sm text-right">
-                                        <p className="text-2xl font-extrabold text-white">
-                                            {getTrackProgress(selectedTrackId).done}
-                                            <span className="text-slate-300 font-bold">/{getTrackProgress(selectedTrackId).total}</span>
-                                        </p>
-                                        <p className="text-slate-400 text-xs font-semibold">виконано</p>
+
+                                    {/* Gamified Stats Widgets */}
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-blue-500/20 flex flex-col items-center min-w-[110px] shadow-lg shadow-blue-500/5">
+                                            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1.5 opacity-80">🔥 Streak</span>
+                                            <span className="text-2xl font-black text-white tracking-tighter">5 Днів</span>
+                                        </div>
+                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-emerald-500/20 flex flex-col items-center min-w-[110px] shadow-lg shadow-emerald-500/5">
+                                            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 opacity-80">🧠 Скілів</span>
+                                            <span className="text-2xl font-black text-white tracking-tighter">14</span>
+                                        </div>
+                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-purple-500/20 flex flex-col items-center min-w-[110px] shadow-lg shadow-purple-500/5">
+                                            <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1.5 opacity-80">⌨️ Код</span>
+                                            <span className="text-2xl font-black text-white tracking-tighter">1.2k</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -215,22 +232,22 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                             <Link
                                                 key={project.id}
                                                 href={isProTrack(selectedTrack.order) ? "/pricing" : `/projects?boardId=${project.id}`}
-                                                className="group relative block p-6 glass-card-premium glass-card-premium-hover rounded-[2rem] overflow-hidden"
+                                                className={`group relative block p-8 glass-card-premium-v2 glass-card-premium-hover rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 ${idx === 1 ? 'accent-glow-top border-t-emerald-500/30' : 'accent-glow-top border-t-blue-500/30'}`}
                                             >
                                                 {/* Mesh Gradient Glow */}
-                                                <div className={`absolute -top-24 -right-24 w-48 h-48 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity duration-500 rounded-full ${idx === 0 ? 'bg-blue-500' : 'bg-indigo-500'}`} />
+                                                <div className={`absolute -top-24 -right-24 w-48 h-48 blur-[80px] opacity-10 group-hover:opacity-30 transition-opacity duration-500 rounded-full ${idx === 0 ? 'bg-blue-600' : 'bg-emerald-600'}`} />
                                                 
                                                 <div className="relative z-10">
-                                                    <div className="flex items-start justify-between mb-4">
-                                                        <div className="p-3 rounded-2xl bg-white/5 border border-white/10 group-hover:border-blue-500/30 group-hover:bg-blue-500/10 transition-all duration-300">
-                                                            <LayoutGrid className="w-6 h-6 text-blue-400" />
+                                                    <div className="flex items-start justify-between mb-6">
+                                                        <div className={`p-4 rounded-2xl bg-white/5 border border-white/10 transition-all duration-500 ${idx === 0 ? 'group-hover:border-blue-500/50 group-hover:bg-blue-500/20' : 'group-hover:border-emerald-500/50 group-hover:bg-emerald-500/20'}`}>
+                                                            <LayoutGrid className={`w-8 h-8 ${idx === 0 ? 'text-blue-400' : 'text-emerald-400'}`} />
                                                         </div>
-                                                        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4 transition-all duration-300">
-                                                            <ChevronRight className="w-4 h-4 text-white" />
+                                                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4 transition-all duration-500">
+                                                            <ChevronRight className="w-5 h-5 text-white" />
                                                         </div>
                                                     </div>
-                                                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">{project.title}</h3>
-                                                    <p className="text-slate-400 text-sm leading-relaxed line-clamp-2">{project.description}</p>
+                                                    <h3 className={`text-xl font-black mb-2 transition-colors ${idx === 0 ? 'text-white group-hover:text-blue-300' : 'text-white group-hover:text-emerald-300'}`}>{project.title}</h3>
+                                                    <p className="text-slate-400 font-medium leading-relaxed line-clamp-2 max-w-xl">{project.description}</p>
                                                 </div>
                                             </Link>
                                         ))}
@@ -247,9 +264,12 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <BookOpen className="w-4 h-4 text-slate-500" />
-                                        <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Програма навчання</h2>
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center">
+                                            <BookOpen className="w-5 h-5 text-blue-400" />
+                                        </div>
+                                        <div className="flex-1 h-[2px] bg-gradient-to-r from-blue-500/50 via-blue-500/10 to-transparent" />
+                                        <h2 className="text-[11px] font-black text-white uppercase tracking-[0.3em] whitespace-nowrap">Програма навчання</h2>
                                     </div>
                                     {filteredTasks.map(task => {
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
@@ -261,7 +281,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                             <Link
                                                 key={task.id}
                                                 href={isLocked ? "/pricing" : `/tasks/${task.id}`}
-                                                className={`group flex items-center gap-8 p-8 glass-card-premium rounded-[2rem] relative overflow-hidden transition-all ${isLocked ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0' : 'glass-card-premium-hover active:scale-[0.98] hover:shadow-[0_0_40px_rgba(59,130,246,0.15)]'} ${isInProgress && !isLocked ? 'ring-2 ring-blue-500/30' : ''}`}
+                                                className={`group flex items-center gap-8 p-8 glass-card-premium-v2 rounded-[2.5rem] relative overflow-hidden transition-all duration-500 ${isLocked ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0' : 'active:scale-[0.98] hover:shadow-[0_0_60px_rgba(59,130,246,0.15)] hover:border-white/20'} ${isInProgress && !isLocked ? 'ring-2 ring-blue-500/50' : ''}`}
                                             >
                                                 {/* Lesson number background */}
                                                 <div className="lesson-number-bg">#{task.order}</div>

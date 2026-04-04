@@ -30,7 +30,7 @@ export default function EditProjectDialog({ board, allRoles, allUsers, onClose, 
     useEffect(() => {
         const fetchCurrentAccess = async () => {
             try {
-                const res = await fetch(`/api/projects/boards/${board.id}`)
+                const res = await fetch(`/api/projects/boards/${board.id}`, { cache: 'no-store' })
                 if (res.ok) {
                     const data = await res.json()
                     setSelectedRoleIds(data.allowedRoles?.map((r: any) => Number(r.roleId)) || [])

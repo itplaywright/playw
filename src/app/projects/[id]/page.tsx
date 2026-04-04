@@ -82,14 +82,16 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
         .where(eq(projectTasks.boardId, boardId))
 
     const isAdmin = (session.user as any).role === "admin"
-    const allUsers = isAdmin ? await db.select().from(usersTable) : []
+    const allUsersList = isAdmin ? await db.select({ id: usersTable.id, name: usersTable.name, email: usersTable.email }).from(usersTable).orderBy(asc(usersTable.name)) : []
+    const allRolesList = isAdmin ? await db.select().from(roles).orderBy(asc(roles.name)) : []
 
     return (
         <ProjectBoardContent
             board={board}
             initialTasks={tasks}
             isAdmin={isAdmin}
-            users={allUsers as any}
+            users={allUsersList as any}
+            roles={allRolesList as any}
         />
     )
 }

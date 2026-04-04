@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { X, Trash2, AlertTriangle } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -11,16 +11,39 @@ interface Props {
         title: string
         description: string | null
     }
+    allRoles: { id: number, name: string }[]
+    allUsers: { id: string, name: string | null, email: string | null }[]
     onClose: () => void
     onSuccess: () => void
 }
 
-export default function EditProjectDialog({ board, onClose, onSuccess }: Props) {
+export default function EditProjectDialog({ board, allRoles, allUsers, onClose, onSuccess }: Props) {
     const [title, setTitle] = useState(board.title)
     const [description, setDescription] = useState(board.description || "")
+    const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([])
+    const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const router = useRouter()
+
+    useEffect(() => {
+        const fetchCurrentAccess = async () => {
+            try {
+                const res = await fetch(`/api/projects/boards/${board.id}`)
+                if (res.ok) {
+                    const data = await res.json()
+                    setSelectedRoleIds(data.allowedRoles?.map((r: any) => r.roleId) || [])
+                    setSelectedUserIds(data.allowedUsers?.map((u: any) => u.userId) || [])
+                }
+            } catch (error) {
+                console.error("Failed to fetch project access", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchCurrentAccess()
+    }, [board.id])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -34,7 +57,12 @@ export default function EditProjectDialog({ board, onClose, onSuccess }: Props) 
             const res = await fetch(`/api/projects/boards/${board.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description }),
+                body: JSON.stringify({ 
+                    title, 
+                    description,
+                    allowedRoleIds: selectedRoleIds,
+                    allowedUserIds: selectedUserIds
+                }),
             })
 
             if (res.ok) {
@@ -119,7 +147,7 @@ export default function EditProjectDialog({ board, onClose, onSuccess }: Props) 
                             autoFocus
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 max-h-12 outline-none transition-all font-semibold text-slate-900 bg-white"
+                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all font-semibold text-slate-900 bg-white"
                         />
                     </div>
 
@@ -128,9 +156,61 @@ export default function EditProjectDialog({ board, onClose, onSuccess }: Props) 
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            rows={3}
+                            rows={2}
+                            placeholder="Про що цей проєкт..."
                             className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 outline-none transition-all resize-none text-sm font-medium text-slate-900 bg-white"
                         />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center justify-between">
+                                Доступ Ролям
+                                {isLoading ? <span className="animate-pulse">...</span> : <span className="text-blue-500">{selectedRoleIds.length}</span>}
+                            </label>
+                            <div className="h-32 overflow-y-auto p-3 rounded-2xl border border-slate-100 bg-slate-50 space-y-1.5 custom-scrollbar">
+                                {allRoles.map(role => (
+                                    <label key={role.id} className="flex items-center gap-2 group cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedRoleIds.includes(role.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) setSelectedRoleIds(prev => [...prev, role.id])
+                                                else setSelectedRoleIds(prev => prev.filter(id => id !== role.id))
+                                            }}
+                                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{role.name}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center justify-between">
+                                Конкретні Юзери
+                                {isLoading ? <span className="animate-pulse">...</span> : <span className="text-emerald-500">{selectedUserIds.length}</span>}
+                            </label>
+                            <div className="h-32 overflow-y-auto p-3 rounded-2xl border border-slate-100 bg-slate-50 space-y-1.5 custom-scrollbar">
+                                {allUsers.map(user => (
+                                    <label key={user.id} className="flex items-center gap-2 group cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedUserIds.includes(user.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) setSelectedUserIds(prev => [...prev, user.id])
+                                                else setSelectedUserIds(prev => prev.filter(id => id !== user.id))
+                                            }}
+                                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[11px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors">{user.name || 'Анонім'}</span>
+                                            <span className="text-[9px] text-slate-400 truncate tracking-tight">{user.email}</span>
+                                        </div>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     <div className="pt-4 flex flex-col gap-4">

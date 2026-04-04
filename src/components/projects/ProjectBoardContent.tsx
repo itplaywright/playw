@@ -13,9 +13,10 @@ interface Props {
     initialTasks: any[]
     isAdmin: boolean
     users: any[]
+    roles: any[]
 }
 
-export default function ProjectBoardContent({ board, initialTasks, isAdmin, users }: Props) {
+export default function ProjectBoardContent({ board, initialTasks, isAdmin, users, roles }: Props) {
     const [showAddDialog, setShowAddDialog] = useState(false)
     const [showSettingsDialog, setShowSettingsDialog] = useState(false)
     const router = useRouter()
@@ -88,6 +89,8 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
             {showSettingsDialog && (
                 <EditProjectDialog
                     board={board}
+                    allRoles={roles}
+                    allUsers={users}
                     onClose={() => setShowSettingsDialog(false)}
                     onSuccess={() => {
                         setShowSettingsDialog(false)

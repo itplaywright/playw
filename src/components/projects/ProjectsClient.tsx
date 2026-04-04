@@ -63,7 +63,14 @@ export default function ProjectsClient({
     const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
 
     return (
-        <div className="flex flex-col h-screen bg-premium-dark overflow-hidden font-sans">
+        <div className="flex flex-col h-screen bg-[#020617] overflow-hidden font-sans relative">
+            {/* Mesh Gradient Background */}
+            <div className="mesh-gradient-container">
+                <div className="mesh-blob mesh-blob-1" />
+                <div className="mesh-blob mesh-blob-2" />
+                <div className="mesh-blob mesh-blob-3" />
+            </div>
+
             {/* Top Header */}
             <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50">
                 <div className="flex items-center gap-2 mr-4 opacity-80 hover:opacity-100 transition-opacity">
@@ -106,16 +113,20 @@ export default function ProjectsClient({
                 </div>
             </header>
 
-            <div className="flex flex-1 overflow-hidden">
-                <Sidebar
-                    tracks={tracks}
-                    getTrackProgress={getTrackProgress}
-                    isAdmin={isAdmin}
-                    role={role}
-                    currentPath="/projects"
-                />
+            {/* Below header: Sidebar + Main Content (Floating Layout) */}
+            <div className="flex flex-1 overflow-hidden p-4 pt-2 gap-4 relative z-10">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl">
+                    <Sidebar
+                        tracks={tracks}
+                        getTrackProgress={getTrackProgress}
+                        isAdmin={isAdmin}
+                        role={role}
+                        currentPath="/projects"
+                    />
+                </div>
 
-                <main className="flex-1 overflow-y-auto p-8 relative">
+                {/* Main Content Area */}
+                <main className="flex-1 overflow-y-auto custom-scrollbar glass-card-premium rounded-[2rem] border border-white/5 shadow-2xl relative p-8">
                     <div className="w-full relative z-10">
                         <div className="flex items-center justify-between mb-12">
                             <div className="flex items-center gap-5">
@@ -156,7 +167,7 @@ export default function ProjectsClient({
                                     <Link
                                         key={board.id}
                                         href={(!isAdmin && !role?.hasPracticeAccess) ? "/pricing" : `/projects/${board.id}`}
-                                        className="group relative block p-8 glass-card-premium glass-card-premium-hover rounded-[2rem] overflow-hidden"
+                                        className="group relative block p-8 glass-card-premium-v2 glass-card-premium-hover rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 active:scale-[0.98] accent-glow-top border-t-blue-500/30"
                                     >
                                         {/* Mesh Gradient Glow */}
                                         <div className={`absolute -bottom-24 -left-24 w-48 h-48 blur-[80px] opacity-10 group-hover:opacity-30 transition-opacity duration-700 rounded-full ${idx % 3 === 0 ? 'bg-blue-500' : idx % 3 === 1 ? 'bg-indigo-500' : 'bg-purple-500'}`} />

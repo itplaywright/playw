@@ -1,7 +1,7 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { projectBoards, projectColumns } from "@/db/schema"
+import { projectBoards, projectColumns, projectBoardRoles, projectBoardUsers } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { title, description } = await req.json()
+        const { title, description, allowedRoleIds, allowedUserIds } = await req.json()
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 })
@@ -32,6 +32,25 @@ export async function POST(req: Request) {
         ]
 
         await db.insert(projectColumns).values(defaultColumns)
+
+        // Insert Access Restrictions
+        if (allowedRoleIds && allowedRoleIds.length > 0) {
+            await db.insert(projectBoardRoles).values(
+                allowedRoleIds.map((roleId: number) => ({
+                    boardId: newBoard.id,
+                    roleId,
+                }))
+            )
+        }
+
+        if (allowedUserIds && allowedUserIds.length > 0) {
+            await db.insert(projectBoardUsers).values(
+                allowedUserIds.map((userId: string) => ({
+                    boardId: newBoard.id,
+                    userId,
+                }))
+            )
+        }
 
         return NextResponse.json(newBoard)
     } catch (error) {

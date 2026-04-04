@@ -36,6 +36,8 @@ interface Props {
         maxTrackOrder: number | null
         hasPracticeAccess: boolean | null
     } | null
+    allRoles: { id: number, name: string }[]
+    allUsers: { id: string, name: string | null, email: string | null }[]
 }
 
 export default function ProjectsClient({
@@ -46,7 +48,9 @@ export default function ProjectsClient({
     statusMap,
     userName,
     userImage,
-    role
+    role,
+    allRoles,
+    allUsers
 }: Props) {
     const [boards, setBoards] = useState<Board[]>(initialBoards)
     const [showCreateDialog, setShowCreateDialog] = useState(false)
@@ -205,6 +209,8 @@ export default function ProjectsClient({
  
             {showCreateDialog && (
                 <CreateProjectDialog
+                    allRoles={allRoles}
+                    allUsers={allUsers}
                     onClose={() => setShowCreateDialog(false)}
                     onSuccess={(id) => {
                         window.location.href = `/projects/${id}`

@@ -252,6 +252,18 @@ export const projectBoards = mysqlTable("project_boards", {
     createdAt: timestamp("created_at").defaultNow(),
 })
 
+export const projectBoardRoles = mysqlTable("project_board_roles", {
+    id: int("id").primaryKey().autoincrement(),
+    boardId: int("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
+    roleId: int("role_id").notNull().references(() => roles.id, { onDelete: "cascade" }),
+})
+
+export const projectBoardUsers = mysqlTable("project_board_users", {
+    id: int("id").primaryKey().autoincrement(),
+    boardId: int("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id, { onDelete: "cascade" }),
+})
+
 export const projectColumns = mysqlTable("project_columns", {
     id: int("id").primaryKey().autoincrement(),
     boardId: int("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
@@ -281,6 +293,7 @@ export const userRelations = relations(users, ({ one, many }) => ({
     questions: many(questions),
     results: many(results),
     userProducts: many(userProducts),
+    projectBoardUsers: many(projectBoardUsers),
     dynamicRole: one(roles, {
         fields: [users.dynamicRoleId],
         references: [roles.id],
@@ -290,6 +303,7 @@ export const userRelations = relations(users, ({ one, many }) => ({
 export const roleRelations = relations(roles, ({ many }) => ({
     users: many(users),
     products: many(products),
+    projectBoardRoles: many(projectBoardRoles),
 }))
 
 export const taskRelations = relations(tasks, ({ one, many }) => ({
@@ -351,6 +365,30 @@ export const userProductRelations = relations(userProducts, ({ one }) => ({
 export const projectBoardRelations = relations(projectBoards, ({ many }) => ({
     columns: many(projectColumns),
     tasks: many(projectTasks),
+    allowedRoles: many(projectBoardRoles),
+    allowedUsers: many(projectBoardUsers),
+}))
+
+export const projectBoardRoleRelations = relations(projectBoardRoles, ({ one }) => ({
+    board: one(projectBoards, {
+        fields: [projectBoardRoles.boardId],
+        references: [projectBoards.id],
+    }),
+    role: one(roles, {
+        fields: [projectBoardRoles.roleId],
+        references: [roles.id],
+    }),
+}))
+
+export const projectBoardUserRelations = relations(projectBoardUsers, ({ one }) => ({
+    board: one(projectBoards, {
+        fields: [projectBoardUsers.boardId],
+        references: [projectBoards.id],
+    }),
+    user: one(users, {
+        fields: [projectBoardUsers.userId],
+        references: [users.id],
+    }),
 }))
 
 export const projectColumnRelations = relations(projectColumns, ({ one, many }) => ({

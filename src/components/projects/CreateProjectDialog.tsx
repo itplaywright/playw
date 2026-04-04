@@ -5,13 +5,17 @@ import { toast } from "sonner"
 import { X } from "lucide-react"
 
 interface Props {
+    allRoles: { id: number, name: string }[]
+    allUsers: { id: string, name: string | null, email: string | null }[]
     onSuccess: (boardId: number) => void
     onClose: () => void
 }
 
-export default function CreateProjectDialog({ onSuccess, onClose }: Props) {
+export default function CreateProjectDialog({ allRoles, allUsers, onSuccess, onClose }: Props) {
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
+    const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([])
+    const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +30,12 @@ export default function CreateProjectDialog({ onSuccess, onClose }: Props) {
             const res = await fetch("/api/projects/boards", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description }),
+                body: JSON.stringify({ 
+                    title, 
+                    description,
+                    allowedRoleIds: selectedRoleIds,
+                    allowedUserIds: selectedUserIds
+                }),
             })
 
             if (res.ok) {
@@ -71,9 +80,61 @@ export default function CreateProjectDialog({ onSuccess, onClose }: Props) {
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Про що цей проєкт..."
-                            rows={3}
+                            rows={2}
                             className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none text-sm font-medium text-slate-900 bg-white"
                         />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center justify-between">
+                                Доступ Ролям
+                                <span className="text-blue-500">{selectedRoleIds.length}</span>
+                            </label>
+                            <div className="h-32 overflow-y-auto p-3 rounded-2xl border border-slate-100 bg-slate-50 space-y-1.5 custom-scrollbar">
+                                {allRoles.map(role => (
+                                    <label key={role.id} className="flex items-center gap-2 group cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedRoleIds.includes(role.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) setSelectedRoleIds(prev => [...prev, role.id])
+                                                else setSelectedRoleIds(prev => prev.filter(id => id !== role.id))
+                                            }}
+                                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{role.name}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center justify-between">
+                                Конкретні Юзери
+                                <span className="text-emerald-500">{selectedUserIds.length}</span>
+                            </label>
+                            <div className="h-32 overflow-y-auto p-3 rounded-2xl border border-slate-100 bg-slate-50 space-y-1.5 custom-scrollbar">
+                                {allUsers.map(user => (
+                                    <label key={user.id} className="flex items-center gap-2 group cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedUserIds.includes(user.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) setSelectedUserIds(prev => [...prev, user.id])
+                                                else setSelectedUserIds(prev => prev.filter(id => id !== user.id))
+                                            }}
+                                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[11px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors">{user.name || 'Анонім'}</span>
+                                            <span className="text-[9px] text-slate-400 truncate tracking-tight">{user.email}</span>
+                                        </div>
+                                    </label>
+                                ))}
+                                {allUsers.length === 0 && <p className="text-[10px] text-slate-400 italic">Студентів немає</p>}
+                            </div>
+                        </div>
                     </div>
 
                     <button

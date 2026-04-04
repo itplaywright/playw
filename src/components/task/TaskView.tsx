@@ -906,15 +906,15 @@ function InteractiveKeyword({ keyword, hint, description }: { keyword: string, h
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-[500] w-72 p-4 glass-panel-premium border border-blue-500/30 rounded-2xl shadow-2xl"
+                        className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-[500] w-80 p-5 glass-panel-premium border border-blue-500/30 rounded-2xl shadow-2xl not-prose"
                     >
-                        <div className="flex items-start gap-3 mb-3">
-                            <div className="p-2 rounded-lg bg-blue-500/20">
+                        <div className="flex items-start gap-4 mb-4">
+                            <div className="p-2.5 rounded-xl bg-blue-500/20 shadow-inner">
                                 <Code2 className="w-4 h-4 text-blue-400" />
                             </div>
-                            <div>
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-1">Syntax Hint</h4>
-                                <p className="text-[11px] font-bold text-white leading-relaxed">{description}</p>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-1.5 opacity-80">Syntax Hint</h4>
+                                <p className="text-xs font-bold text-white leading-relaxed m-0">{description}</p>
                             </div>
                         </div>
                         

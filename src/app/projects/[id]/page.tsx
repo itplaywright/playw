@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { projectBoards, projectTasks, projectColumns, users as usersTable, roles } from "@/db/schema"
-import { eq, asc } from "drizzle-orm"
+import { projectBoards, projectTasks, projectColumns, users as usersTable, roles, projectBoardRoles, projectBoardUsers } from "@/db/schema"
+import { eq, asc, and, or } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import ProjectBoardContent from "@/components/projects/ProjectBoardContent"
 
@@ -14,17 +14,19 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
     const { id } = await params
     const boardId = parseInt(id)
 
-    // Role Validation
+    // Role & Project Specific Validation
     if ((session.user as any).role !== "admin") {
-        const userRecord = await db.query.users.findFirst({
-            where: eq(usersTable.id, session.user.id!)
-        })
-        if (!userRecord?.dynamicRoleId) redirect("/pricing")
+        const userRoleId = userWithRole?.dynamicRole?.id
+
+        const roleAccess = userRoleId ? await db.select().from(projectBoardRoles)
+            .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))) : []
+            
+        const userAccess = await db.select().from(projectBoardUsers)
+            .where(and(eq(projectBoardUsers.boardId, boardId), eq(projectBoardUsers.userId, session.user.id!)))
+
+        const hasSpecificAccess = roleAccess.length > 0 || userAccess.length > 0
         
-        const userRole = await db.query.roles.findFirst({
-            where: eq(roles.id, userRecord.dynamicRoleId)
-        })
-        if (!userRole || !userRole.hasPracticeAccess) {
+        if (!hasSpecificAccess) {
             redirect("/pricing")
         }
     }

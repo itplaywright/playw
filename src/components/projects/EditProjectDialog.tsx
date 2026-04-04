@@ -33,8 +33,8 @@ export default function EditProjectDialog({ board, allRoles, allUsers, onClose, 
                 const res = await fetch(`/api/projects/boards/${board.id}`)
                 if (res.ok) {
                     const data = await res.json()
-                    setSelectedRoleIds(data.allowedRoles?.map((r: any) => r.roleId) || [])
-                    setSelectedUserIds(data.allowedUsers?.map((u: any) => u.userId) || [])
+                    setSelectedRoleIds(data.allowedRoles?.map((r: any) => Number(r.roleId)) || [])
+                    setSelectedUserIds(data.allowedUsers?.map((u: any) => String(u.userId)) || [])
                 }
             } catch (error) {
                 console.error("Failed to fetch project access", error)
@@ -173,10 +173,11 @@ export default function EditProjectDialog({ board, allRoles, allUsers, onClose, 
                                     <label key={role.id} className="flex items-center gap-2 group cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            checked={selectedRoleIds.includes(role.id)}
+                                            checked={selectedRoleIds.includes(Number(role.id))}
                                             onChange={(e) => {
-                                                if (e.target.checked) setSelectedRoleIds(prev => [...prev, role.id])
-                                                else setSelectedRoleIds(prev => prev.filter(id => id !== role.id))
+                                                const id = Number(role.id)
+                                                if (e.target.checked) setSelectedRoleIds(prev => [...prev, id])
+                                                else setSelectedRoleIds(prev => prev.filter(rid => rid !== id))
                                             }}
                                             className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                                         />
@@ -196,10 +197,11 @@ export default function EditProjectDialog({ board, allRoles, allUsers, onClose, 
                                     <label key={user.id} className="flex items-center gap-2 group cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            checked={selectedUserIds.includes(user.id)}
+                                            checked={selectedUserIds.includes(String(user.id))}
                                             onChange={(e) => {
-                                                if (e.target.checked) setSelectedUserIds(prev => [...prev, user.id])
-                                                else setSelectedUserIds(prev => prev.filter(id => id !== user.id))
+                                                const id = String(user.id)
+                                                if (e.target.checked) setSelectedUserIds(prev => [...prev, id])
+                                                else setSelectedUserIds(prev => prev.filter(uid => uid !== id))
                                             }}
                                             className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                                         />

@@ -906,25 +906,27 @@ function InteractiveKeyword({ keyword, hint, description }: { keyword: string, h
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-[500] w-80 p-5 glass-panel-premium border border-blue-500/30 rounded-2xl shadow-2xl not-prose"
+                        className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-[500] w-80 p-5 glass-card-premium border border-blue-500/30 rounded-2xl shadow-2xl not-prose flex flex-col gap-4 antialiased"
                     >
-                        <div className="flex items-start gap-4 mb-4">
-                            <div className="p-2.5 rounded-xl bg-blue-500/20 shadow-inner">
+                        <div className="flex items-start gap-4">
+                            <div className="flex-shrink-0 p-2.5 rounded-xl bg-blue-500/20 border border-blue-500/20 shadow-inner">
                                 <Code2 className="w-4 h-4 text-blue-400" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-1.5 opacity-80">Syntax Hint</h4>
-                                <p className="text-xs font-bold text-white leading-relaxed m-0">{description}</p>
+                            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400/80">Syntax Hint</span>
+                                <div className="text-sm font-bold text-white leading-5">
+                                    {description}
+                                </div>
                             </div>
                         </div>
                         
-                        <div className="bg-black/40 rounded-xl p-3 border border-white/5">
-                            <code className="text-[10px] font-mono text-emerald-400 whitespace-nowrap overflow-x-auto block custom-scrollbar py-1">
+                        <div className="bg-black/40 rounded-xl p-3 border border-white/5 overflow-hidden">
+                            <code className="text-[11px] font-mono text-emerald-400 whitespace-nowrap overflow-x-auto block custom-scrollbar py-1 leading-normal">
                                 {hint}
                             </code>
                         </div>
                         
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-blue-500/30" />
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-white/10" />
                     </motion.div>
                 )}
             </AnimatePresence>

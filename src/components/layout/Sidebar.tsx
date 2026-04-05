@@ -25,6 +25,7 @@ interface SidebarProps {
     isAdmin: boolean
     role?: Role | null
     currentPath: string
+    overallPct?: number
 }
 
 export default function Sidebar({
@@ -34,7 +35,8 @@ export default function Sidebar({
     setSelectedTrackId,
     isAdmin,
     role,
-    currentPath
+    currentPath,
+    overallPct
 }: SidebarProps) {
     const isProTrack = (order: number | null) => {
         if (isAdmin) return false
@@ -63,6 +65,19 @@ export default function Sidebar({
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-bold text-white tracking-tight">{role.name}</span>
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        </div>
+                    </div>
+                )}
+                
+                {/* Thin Overall Progress Bar */}
+                {overallPct !== undefined && (
+                    <div className="w-full flex flex-col gap-1.5 mt-2">
+                        <div className="flex justify-between items-center px-1">
+                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Прогрес курсу</span>
+                            <span className="text-[9px] font-black text-blue-400">{overallPct}%</span>
+                        </div>
+                        <div className="w-full h-[3px] bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)] transition-all duration-1000" style={{ width: `${overallPct}%` }} />
                         </div>
                     </div>
                 )}

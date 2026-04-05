@@ -253,55 +253,11 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                 <div className="mesh-blob mesh-blob-3" />
             </div>
 
-            {/* Top Header */}
-            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50 sticky top-0">
-                {/* Brand */}
-                <div className="flex items-center gap-2 mr-4 opacity-80 hover:opacity-100 transition-opacity">
-                    <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
-                        <Terminal className="w-3 h-3 text-white" />
-                    </div>
-                    <span className="text-white font-bold text-xs tracking-tight">IT Playwright</span>
-                </div>
-
-                {/* Global progress */}
-                <div className="hidden md:flex items-center gap-3 flex-1 max-w-[200px]">
-                    <div className="flex-1 bg-white/5 rounded-full h-1 overflow-hidden relative">
-                        <div
-                            className="progress-glow-blue animate-wave"
-                            style={{ width: `${overallPct}%` }}
-                        />
-                    </div>
-                    <span className="text-slate-400 text-[10px] font-bold whitespace-nowrap">{overallPct}%</span>
-                </div>
-
-                <div className="flex-1" />
-
-                {/* Quick nav */}
-                <div className="flex items-center gap-4">
-                    <Link href="/setup" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
-                        <Layers className="w-3 h-3" />
-                        Налаштування
-                    </Link>
-                    <Link href="/cabinet" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
-                        <BarChart2 className="w-3 h-3" />
-                        Кабінет
-                    </Link>
-                </div>
-
-                {/* User avatar */}
-                <div className="flex items-center gap-2 pl-4 border-l border-white/5 h-6">
-                    <div className="w-6 h-6 rounded-lg bg-blue-600/80 flex items-center justify-center text-white text-[10px] font-black shadow-inner">
-                        {userImage
-                            ? <img src={userImage} alt={userName ?? ''} className="w-6 h-6 rounded-lg object-cover" />
-                            : initials
-                        }
-                    </div>
-                </div>
-            </header>
+            {/* Header removed in favor of global DynamicHeader */}
 
             {/* Below header: Sidebar + Main Content (Floating Layout) */}
             <div className="flex p-4 pt-2 gap-4 relative z-10">
-                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-[3.5rem] self-start h-[calc(100vh-4.5rem)]">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-[5rem] self-start h-[calc(100vh-6rem)]">
                     <Sidebar
                         tracks={tracks}
                         getTrackProgress={getTrackProgress}
@@ -310,6 +266,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                         isAdmin={isAdmin}
                         role={role}
                         currentPath="/dashboard"
+                        overallPct={overallPct}
                     />
                 </div>
 

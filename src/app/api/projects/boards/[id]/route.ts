@@ -17,21 +17,14 @@ export async function GET(
         const { id } = await params
         const boardId = parseInt(id)
 
-        console.log(`[GET] Fetching board access. ID: ${id}, Parsed boardId: ${boardId}`)
-
         // Refactored to avoid JSON_ARRAYAGG (MySQL version compatibility)
         const boards = await db.select().from(projectBoards).where(eq(projectBoards.id, boardId))
         const board = boards[0]
 
-        if (!board) {
-            console.log(`[GET] Board not found for ID: ${boardId}`)
-            return NextResponse.json({ error: "Not found" }, { status: 404 })
-        }
+        if (!board) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
         const allowedRoles = await db.select().from(projectBoardRoles).where(eq(projectBoardRoles.boardId, boardId))
         const allowedUsers = await db.select().from(projectBoardUsers).where(eq(projectBoardUsers.boardId, boardId))
-
-        console.log(`[GET] Board: ${board.title}, Allowed Roles: ${allowedRoles.length}, Allowed Users: ${allowedUsers.length}`)
 
         return NextResponse.json({
             ...board,

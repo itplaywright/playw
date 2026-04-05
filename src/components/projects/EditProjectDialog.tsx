@@ -45,16 +45,6 @@ export default function EditProjectDialog({ board, allRoles, allUsers, onClose, 
         fetchCurrentAccess()
     }, [board.id])
 
-    // Diagnostic Toast (Temporary)
-    useEffect(() => {
-        if (!isLoading) {
-            toast.info(`Fetched IDs for Board [${board.id}]:`, {
-                description: `Roles: [${selectedRoleIds.join(", ")}] | Users count: ${selectedUserIds.length}`,
-                duration: 5000
-            })
-        }
-    }, [isLoading])
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!title.trim()) {

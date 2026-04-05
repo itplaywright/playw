@@ -13,6 +13,7 @@ import Sidebar from "@/components/layout/Sidebar"
 interface Task {
     id: number
     title: string
+    numbering: string | null
     description: string
     type: "code" | "quiz"
     difficulty: string | null

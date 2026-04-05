@@ -41,6 +41,11 @@ export const users = mysqlTable("user", {
     onboardingCompleted: boolean("onboarding_completed").default(false),
     learningPath: mysqlEnum("learning_path", learningPathEnumValues),
     createdAt: timestamp("created_at").defaultNow(),
+    firstName: varchar("first_name", { length: 255 }),
+    lastName: varchar("last_name", { length: 255 }),
+    phone: varchar("phone", { length: 50 }),
+    telegram: varchar("telegram", { length: 255 }),
+    whatsapp: varchar("whatsapp", { length: 255 }),
 })
 
 export const accounts = mysqlTable(

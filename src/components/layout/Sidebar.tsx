@@ -38,10 +38,16 @@ export default function Sidebar({
     currentPath,
     overallPct
 }: SidebarProps) {
-    const isProTrack = (order: number | null) => {
+    // Extract level number from track title (e.g. "Рівень 2 — ..." -> 2)
+    const getLevelNum = (title: string, order: number | null) => {
+        const match = title.match(/[Рр][іи]вень\s*(\d+)/)
+        return match ? parseInt(match[1]) : (order ?? 0)
+    }
+
+    const isProTrack = (title: string, order: number | null) => {
         if (isAdmin) return false
         const maxOrder = role?.maxTrackOrder ?? 1 // allow up to Level 1 by default
-        return (order ?? 0) > maxOrder            // order 2+ is locked for maxOrder=1
+        return getLevelNum(title, order) > maxOrder
     }
 
     return (
@@ -124,7 +130,7 @@ export default function Sidebar({
                     const { done, total } = getTrackProgress(track.id)
                     const pct = total > 0 ? Math.round((done / total) * 100) : 0
                     const isSelected = track.id === selectedTrackId
-                    const isPro = isProTrack(track.order)
+                    const isPro = isProTrack(track.title, track.order)
 
                     const content = (
                         <div className="flex flex-col gap-1.5 w-full">

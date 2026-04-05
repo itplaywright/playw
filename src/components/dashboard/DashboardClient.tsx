@@ -105,10 +105,16 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
 
     const filteredTasks = trackTasks
 
-    const isProTrack = (order: number | null) => {
+    // Extract level number from track title (e.g. "Рівень 2 — ..." -> 2)
+    const getLevelNum = (title: string, order: number | null) => {
+        const match = title.match(/[Рр][іи]вень\s*(\d+)/)
+        return match ? parseInt(match[1]) : (order ?? 0)
+    }
+
+    const isProTrack = (order: number | null, title?: string) => {
         if (isAdmin) return false
-        const maxOrder = role?.maxTrackOrder ?? 1 // allow up to Level 1 by default
-        return (order ?? 0) > maxOrder
+        const maxOrder = role?.maxTrackOrder ?? 1
+        return getLevelNum(title ?? "", order) > maxOrder
     }
 
     const totalDone = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).done, 0)
@@ -122,7 +128,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const findNextTask = () => {
         const unlockedTasks = tasks.filter(t => {
             const track = tracks.find(tr => tr.id === t.trackId)
-            return track && (!isProTrack(track.order) || isAdmin)
+            return track && (!isProTrack(track.order, track.title) || isAdmin)
         })
 
         unlockedTasks.sort((a, b) => {
@@ -362,7 +368,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
                                         const isDone = statusLabel === "Виконано"
                                         const isInProgress = statusLabel === "В процесі"
-                                        const isLocked = isProTrack(selectedTrack.order) && !isAdmin
+                                        const isLocked = isProTrack(selectedTrack.order, selectedTrack.title) && !isAdmin
 
                                         return (
                                             <Link

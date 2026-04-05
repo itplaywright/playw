@@ -174,6 +174,76 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
         setShowContactModal(false)
     }
 
+    const [greetingInfo, setGreetingInfo] = useState({
+        greeting: "Привіт",
+        subtitleNext: "Раді бачити тебе знову. Твоя наступна ціль вже чекає.",
+        subtitleDone: "Всі таски закриті. Відмінна робота!"
+    })
+
+    useEffect(() => {
+        const h = new Date().getHours()
+        let timeGreeting = "Привіт"
+        if (h >= 5 && h < 12) timeGreeting = "Доброго ранку"
+        else if (h >= 12 && h < 18) timeGreeting = "Доброго дня"
+        else if (h >= 18 && h < 23) timeGreeting = "Доброго вечора"
+        else timeGreeting = "Доброї ночі"
+
+        const GREETINGS = [
+            timeGreeting,
+            "Вітаємо на борту",
+            "Готовий кодити?",
+            "Час для нових звершень",
+            "Раді бачити в строю",
+            "Ідеальний день для кодингу",
+            "Твій код чекає",
+            "Магія починається тут",
+            "Ready, set, code",
+            "Скучив за консоллю?",
+            "Новий спринт, нові перемоги",
+            "Вітаємо в матриці",
+            "npm start",
+            "git commit -m 'Here again'",
+            "Час ламати й будувати",
+            "Додай магії у код"
+        ]
+        
+        const SUBTITLES_NEXT = [
+            "Твоя наступна ціль вже чекає.",
+            "Підготували для тебе свіженьке завдання.",
+            "Продовжмо з того місця, де ти зупинився.",
+            "Новий код сам себе не напише. До роботи!",
+            "Налаштовуй середовище, попереду цікавий челендж.",
+            "Відкриємо IDE та підкоримо цей таск?",
+            "Не гаймо часу, наступне завдання вже у твоєму беклозі.",
+            "Сила автоматизації чекає на тебе.",
+            "Світ розробки став ще ближчим. Поїхали!",
+            "Хтось сказав 'чистий код'? Твій наступний крок чекає.",
+            "Bugfix чи нова фіча? Час дізнатися.",
+            "Сервер працює, кава готова. Твоя черга.",
+            "Натхнення є? Тоді давай писати тести!",
+            "Додай трохи логіки у цей світ. Наступний таск відкрито."
+        ]
+
+        const SUBTITLES_DONE = [
+            "Ти виконав усі завдання. Справжній джедай!",
+            "Zero bugs, zero tasks. Ідеальний стан.",
+            "Нічого собі! Твій беклог порожній.",
+            "Усі таски закриті. Можна сміливо братися за пет-проєкти.",
+            "Все чисто! Ти справжній ніндзя кодингу.",
+            "Твоя гілка змерджена, таски закриті. Відпочивай!",
+            "Тут більше нічого робити. Ти переміг цей рівень!",
+            "Production готовий. Ти молодець!",
+            "Можна заварювати чай, ти все виконав.",
+            "git push origin main. Всі завдання здані!"
+        ]
+
+        setGreetingInfo({
+            greeting: GREETINGS[Math.floor(Math.random() * GREETINGS.length)],
+            subtitleNext: SUBTITLES_NEXT[Math.floor(Math.random() * SUBTITLES_NEXT.length)],
+            subtitleDone: SUBTITLES_DONE[Math.floor(Math.random() * SUBTITLES_DONE.length)]
+        })
+    }, [])
+
     return (
         <div className="flex flex-col min-h-screen bg-[#020617] overflow-x-hidden font-sans relative">
             {/* Mesh Gradient Background */}
@@ -289,9 +359,9 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
                                         <Sparkles className="w-5 h-5 text-amber-400" />
-                                        <h3 className="text-2xl font-black text-white">Привіт, {displayFirstName}!</h3>
+                                        <h3 className="text-2xl font-black text-white">{greetingInfo.greeting}, {displayFirstName}!</h3>
                                     </div>
-                                    <p className="text-slate-400 text-sm font-medium">Раді бачити тебе знову. Твоя наступна ціль вже чекає.</p>
+                                    <p className="text-slate-400 text-sm font-medium">{nextTask ? greetingInfo.subtitleNext : greetingInfo.subtitleDone}</p>
                                 </div>
                                 
                                 {nextTask ? (

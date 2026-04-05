@@ -59,12 +59,20 @@ export default function Sidebar({
                 </div>
 
                 {/* User Plan Badge */}
-                {role && (
+                {role ? (
                     <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border border-blue-500/20 flex flex-col gap-1 shadow-lg shadow-blue-500/5 dark:shadow-blue-900/10">
                         <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">Поточний доступ</span>
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-bold text-foreground tracking-tight">{role.name}</span>
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-amber-600/10 to-orange-600/10 border border-amber-500/20 flex flex-col gap-1 shadow-lg shadow-amber-500/5 dark:shadow-amber-900/10">
+                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.2em] opacity-80">Доступ</span>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm font-bold text-foreground tracking-tight">Демо-режим</span>
+                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
                         </div>
                     </div>
                 )}

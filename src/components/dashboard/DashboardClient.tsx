@@ -116,7 +116,28 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const initials = displayFirstName.substring(0, 2).toUpperCase()
 
     // Find next suggested task
-    const nextTask = tasks.find(t => statusMap[t.id] === "В процесі") || tasks.find(t => statusMap[t.id] === "Не розпочато")
+    const findNextTask = () => {
+        const unlockedTasks = tasks.filter(t => {
+            const track = tracks.find(tr => tr.id === t.trackId)
+            return track && (!isProTrack(track.order) || isAdmin)
+        })
+
+        unlockedTasks.sort((a, b) => {
+            const trackA = tracks.find(tr => tr.id === a.trackId)
+            const trackB = tracks.find(tr => tr.id === b.trackId)
+            if (trackA && trackB && trackA.order !== trackB.order) {
+                return (trackA.order ?? 0) - (trackB.order ?? 0)
+            }
+            return (a.order ?? 0) - (b.order ?? 0)
+        })
+
+        const inProgress = unlockedTasks.find(t => statusMap[t.id] === "В процесі")
+        if (inProgress) return inProgress
+
+        return unlockedTasks.find(t => statusMap[t.id] === "Не розпочато")
+    }
+
+    const nextTask = findNextTask()
 
     // Contact Modal Logic
     const [showContactModal, setShowContactModal] = useState(false)

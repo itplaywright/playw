@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import {
-    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight
+    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock
 } from "lucide-react"
 
 interface Track {
@@ -131,7 +131,7 @@ export default function Sidebar({
                             <div className="flex items-center gap-2">
                                 <span className={`text-xs font-bold tracking-wide truncate flex-1 ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>{track.title}</span>
                                 {isPro && !isAdmin && (
-                                    <Star className="w-3 h-3 star-gold-premium flex-shrink-0" />
+                                    <Lock className="w-3 h-3 text-amber-500 flex-shrink-0" />
                                 )}
                             </div>
                             {/* Mini progress bar */}
@@ -155,13 +155,16 @@ export default function Sidebar({
                     const baseClass = `flex flex-col gap-1.5 px-4 py-3 rounded-r-2xl transition-all duration-300 text-left group relative ${isSelected
                         ? "sidebar-active-item text-blue-600 dark:text-blue-400"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 border-l-[3px] border-transparent"
-                        }`
+                        } ${isPro && !isAdmin ? "opacity-40 grayscale cursor-not-allowed" : ""}`
 
                     if (setSelectedTrackId) {
                         return (
                             <button
                                 key={track.id}
-                                onClick={() => setSelectedTrackId(track.id)}
+                                onClick={() => {
+                                    if (isPro && !isAdmin) return
+                                    setSelectedTrackId(track.id)
+                                }}
                                 className={baseClass}
                             >
                                 {content}
@@ -172,8 +175,13 @@ export default function Sidebar({
                     return (
                         <Link
                             key={track.id}
-                            href={`/dashboard?trackId=${track.id}`}
+                            href={(isPro && !isAdmin) ? "#" : `/dashboard?trackId=${track.id}`}
                             className={baseClass}
+                            onClick={(e) => {
+                                if (isPro && !isAdmin) {
+                                    e.preventDefault()
+                                }
+                            }}
                         >
                             {content}
                         </Link>

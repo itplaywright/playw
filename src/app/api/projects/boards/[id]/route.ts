@@ -17,16 +17,27 @@ export async function GET(
         const { id } = await params
         const boardId = parseInt(id)
 
-        const board = await db.query.projectBoards.findFirst({
-            where: eq(projectBoards.id, boardId),
-            with: {
-                allowedRoles: true,
-                allowedUsers: true,
-            }
-        })
+        console.log(`[GET] Fetching board access. ID: ${id}, Parsed boardId: ${boardId}`)
 
-        if (!board) return NextResponse.json({ error: "Not found" }, { status: 404 })
-        return NextResponse.json(board)
+        // Refactored to avoid JSON_ARRAYAGG (MySQL version compatibility)
+        const boards = await db.select().from(projectBoards).where(eq(projectBoards.id, boardId))
+        const board = boards[0]
+
+        if (!board) {
+            console.log(`[GET] Board not found for ID: ${boardId}`)
+            return NextResponse.json({ error: "Not found" }, { status: 404 })
+        }
+
+        const allowedRoles = await db.select().from(projectBoardRoles).where(eq(projectBoardRoles.boardId, boardId))
+        const allowedUsers = await db.select().from(projectBoardUsers).where(eq(projectBoardUsers.boardId, boardId))
+
+        console.log(`[GET] Board: ${board.title}, Allowed Roles: ${allowedRoles.length}, Allowed Users: ${allowedUsers.length}`)
+
+        return NextResponse.json({
+            ...board,
+            allowedRoles,
+            allowedUsers,
+        })
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 })
     }
@@ -51,7 +62,7 @@ export async function PATCH(
                 description,
             }).where(eq(projectBoards.id, boardId))
 
-        // Update Access Restrictions
+        // Update Access Restrictions: Delete and Re-insert
         await db.delete(projectBoardRoles).where(eq(projectBoardRoles.boardId, boardId))
         if (allowedRoleIds && allowedRoleIds.length > 0) {
             await db.insert(projectBoardRoles).values(

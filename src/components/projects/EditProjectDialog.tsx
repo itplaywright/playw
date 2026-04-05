@@ -48,8 +48,8 @@ export default function EditProjectDialog({ board, allRoles, allUsers, onClose, 
     // Diagnostic Toast (Temporary)
     useEffect(() => {
         if (!isLoading) {
-            toast.info(`Fetched Role IDs: [${selectedRoleIds.join(", ")}]`, {
-                description: `Fetched User IDs: [${selectedUserIds.map(u => u.substring(0, 5)).join(", ")}]`,
+            toast.info(`Fetched IDs for Board [${board.id}]:`, {
+                description: `Roles: [${selectedRoleIds.join(", ")}] | Users count: ${selectedUserIds.length}`,
                 duration: 5000
             })
         }

@@ -21,6 +21,8 @@ export default async function Dashboard() {
         id: users.id,
         createdAt: users.createdAt,
         firstName: users.firstName,
+        telegram: users.telegram,
+        whatsapp: users.whatsapp,
         dynamicRole: {
             id: roles.id,
             name: roles.name,
@@ -64,6 +66,8 @@ export default async function Dashboard() {
         }
     }
 
+    const hasContacts = Boolean(userWithRole?.telegram || userWithRole?.whatsapp)
+
     return (
         <DashboardClient
             tracks={visibleTracks as any}
@@ -73,6 +77,7 @@ export default async function Dashboard() {
             userName={session.user.name}
             userImage={session.user.image}
             firstName={userWithRole?.firstName}
+            hasContacts={hasContacts}
             projects={boards as any}
             role={userWithRole?.dynamicRole}
         />

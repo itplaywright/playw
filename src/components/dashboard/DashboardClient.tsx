@@ -48,6 +48,7 @@ interface Props {
     userName?: string | null
     userImage?: string | null
     firstName?: string | null
+    hasContacts?: boolean
     projects: Project[]
     role?: {
         id: number
@@ -74,7 +75,7 @@ const STATUS_STYLES: Record<string, string> = {
     "Не розпочато": "bg-slate-100 text-slate-500",
 }
 
-export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, projects, role }: Props) {
+export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role }: Props) {
     const searchParams = useSearchParams()
     const urlTrackId = searchParams.get("trackId")
     const [selectedTrackId, setSelectedTrackId] = useState<number>(
@@ -117,6 +118,40 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     // Find next suggested task
     const nextTask = tasks.find(t => statusMap[t.id] === "В процесі") || tasks.find(t => statusMap[t.id] === "Не розпочато")
 
+    // Contact Modal Logic
+    const [showContactModal, setShowContactModal] = useState(false)
+    const [contactForm, setContactForm] = useState({ telegram: "", whatsapp: "" })
+    const [isSavingContacts, setIsSavingContacts] = useState(false)
+
+    useEffect(() => {
+        if (hasContacts === false && !localStorage.getItem("contacts_prompted")) {
+            // Slight delay so the user sees the dashboard first
+            const timer = setTimeout(() => setShowContactModal(true), 1500)
+            return () => clearTimeout(timer)
+        }
+    }, [hasContacts])
+
+    const handleSaveContacts = async () => {
+        setIsSavingContacts(true)
+        try {
+            await fetch("/api/user/profile", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(contactForm),
+            })
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setIsSavingContacts(false)
+            localStorage.setItem("contacts_prompted", "true")
+            setShowContactModal(false)
+        }
+    }
+
+    const handleSkipContacts = () => {
+        localStorage.setItem("contacts_prompted", "true")
+        setShowContactModal(false)
+    }
 
     return (
         <div className="flex flex-col min-h-screen bg-[#020617] overflow-x-hidden font-sans relative">
@@ -366,6 +401,68 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                     )}
                 </main>
             </div>{/* end sidebar+main row */}
+
+            {/* Contacts Prompt Modal */}
+            {showContactModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[40px] pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-[40px] pointer-events-none" />
+                        
+                        <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600 shadow-inner">
+                            <Bell className="w-6 h-6" />
+                        </div>
+                        
+                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Для зворотного зв'язку</h3>
+                        <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                            Залиште свій Telegram або WhatsApp. Ментор надішле вам повідомлення, коли перевірить ваші завдання.
+                        </p>
+                        
+                        <div className="space-y-4 mb-8">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2" htmlFor="telegram-input">Telegram</label>
+                                <input
+                                    id="telegram-input"
+                                    type="text"
+                                    placeholder="@username або номер"
+                                    value={contactForm.telegram}
+                                    onChange={(e) => setContactForm({ ...contactForm, telegram: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2" htmlFor="whatsapp-input">WhatsApp</label>
+                                <input
+                                    id="whatsapp-input"
+                                    type="text"
+                                    placeholder="+380 XX XXX XX XX"
+                                    value={contactForm.whatsapp}
+                                    onChange={(e) => setContactForm({ ...contactForm, whatsapp: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={handleSkipContacts}
+                                className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors text-sm"
+                            >
+                                Пізніше
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isSavingContacts || (!contactForm.telegram && !contactForm.whatsapp)}
+                                onClick={handleSaveContacts}
+                                className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+                            >
+                                {isSavingContacts ? "Збереження..." : "Зберегти"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

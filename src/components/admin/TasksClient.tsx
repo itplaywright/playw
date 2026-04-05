@@ -25,6 +25,7 @@ interface Task {
     difficulty: "easy" | "medium" | "hard" | null
     isActive: boolean | null
     order: number | null
+    numbering: string | null
     successRate: number | null
 }
 
@@ -173,7 +174,7 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
                 <table className="min-w-full divide-y divide-border/60">
                     <thead className="bg-secondary/50">
                         <tr>
-                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest w-10">#</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest w-10">№</th>
                             <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Завдання</th>
                             <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Складність</th>
                             <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Успішність</th>
@@ -184,7 +185,7 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
                     <tbody className="bg-card divide-y divide-border">
                         {filteredTasks.map((task) => (
                             <tr key={task.id} className="hover:bg-secondary/30 transition-colors group">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground font-mono">{task.order}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-black">{task.numbering || "—"}</td>
                                 <td className="px-6 py-4">
                                     <div className="text-sm font-bold text-foreground">{task.title}</div>
                                     <div className="text-xs text-blue-600 font-medium">{task.trackTitle}</div>

@@ -41,6 +41,7 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
         trackId: initialData?.trackId || (tracks[0]?.id || ""),
         difficulty: initialData?.difficulty || "easy",
         initialCode: initialData?.initialCode || "// Write your code here...",
+        numbering: initialData?.numbering || "",
         order: initialData?.order || 0,
         isActive: initialData?.isActive ?? true
     })
@@ -210,16 +211,28 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                             <h3 className="font-black uppercase tracking-widest text-[10px]">Основна інформація</h3>
                         </div>
 
-                        <div>
-                            <label className="block text-[10px] font-black uppercase text-muted-foreground mb-2 ml-1">Назва завдання</label>
-                            <input
-                                required
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-black text-foreground text-sm"
-                                placeholder="Наприклад: 1.1 Вступ: Перший запуск"
-                            />
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                            <div className="sm:col-span-1">
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-2 ml-1">№</label>
+                                <input
+                                    type="text"
+                                    value={formData.numbering}
+                                    onChange={(e) => setFormData({ ...formData, numbering: e.target.value })}
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-black text-foreground text-sm"
+                                    placeholder="1.2"
+                                />
+                            </div>
+                            <div className="sm:col-span-3">
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-2 ml-1">Назва завдання (без номеру)</label>
+                                <input
+                                    required
+                                    type="text"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-black text-foreground text-sm"
+                                    placeholder="Вступ: Перший запуск"
+                                />
+                            </div>
                         </div>
 
                         <div>

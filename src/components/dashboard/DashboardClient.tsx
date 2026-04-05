@@ -391,7 +391,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-3 mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{selectedTrack.title.split(' — ')[0]} • ЗАВДАННЯ #{getTaskLabel(task.title, task.order)}</span>
+                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{selectedTrack.title.split(' — ')[0]} • ЗАВДАННЯ #{task.numbering || task.id}</span>
                                                                 {/* Skill Tags */}
                                                                 <div className="flex gap-1.5 ml-2">
                                                                     {task.type === 'code' && (

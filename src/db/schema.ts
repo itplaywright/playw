@@ -119,6 +119,7 @@ export const tracks = mysqlTable("tracks", {
 export const tasks = mysqlTable("tasks", {
     id: int("id").primaryKey().autoincrement(),
     trackId: int("track_id").references(() => tracks.id),
+    numbering: varchar("numbering", { length: 20 }), // e.g. "1.2"
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description").notNull(), // Markdown
     difficulty: mysqlEnum("difficulty", difficultyEnumValues).default("easy"),
@@ -130,9 +131,7 @@ export const tasks = mysqlTable("tasks", {
     options: json("options").$type<string[]>(), // For quiz answers
     correctAnswer: text("correct_answer"), // For quiz validation
     videoUrl: text("video_url"), // Auto-generated Ukrainian voiceover video
-}, (table) => ({
-    trackTitleIdx: uniqueIndex("task_track_title_idx").on(table.trackId, table.title),
-}))
+})
 
 export const taskQuestions = mysqlTable("task_questions", {
     id: int("id").primaryKey().autoincrement(),

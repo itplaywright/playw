@@ -20,6 +20,7 @@ export async function GET() {
             header_theme: settingsMap.header_theme ?? "dark",
             header_visible: settingsMap.header_visible ?? "true",
             header_logo_url: settingsMap.header_logo_url ?? null, // From admin
+            available_themes: settingsMap.available_themes ?? "light,dark,system",
         }
 
         // 2. Fetch menu items

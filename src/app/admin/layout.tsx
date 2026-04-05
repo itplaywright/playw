@@ -15,6 +15,7 @@ import {
     Send
 } from "lucide-react"
 import AdminSidebarItems from "@/components/admin/AdminSidebarItems"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 
 export default async function AdminLayout({
     children,
@@ -45,63 +46,74 @@ export default async function AdminLayout({
         { name: "Header", href: "/admin/settings/header" },
         { name: "Меню", href: "/admin/settings/menu" },
         { name: "Реклама", href: "/admin/settings/ads" },
+        { name: "Теми", href: "/admin/settings/themes" },
     ]
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-background/50">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full">
-                <div className="h-16 flex items-center px-6 border-b border-gray-100">
-                    <span className="text-2xl mr-2">👑</span>
-                    <span className="font-bold text-xl text-gray-900 tracking-tight">Admin CMS</span>
+            <aside className="w-64 bg-card border-r border-border flex flex-col fixed h-full shadow-xl shadow-black/[0.02] z-20 transition-all">
+                <div className="h-20 flex items-center px-8 border-b border-border bg-secondary/20">
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 mr-3">
+                        <span className="text-sm">👑</span>
+                    </div>
+                    <span className="font-black text-lg text-foreground tracking-tighter uppercase">Admin CMS</span>
                 </div>
 
                 <AdminSidebarItems navigation={navigation} />
 
-                <div className="px-4 py-4 space-y-1">
-                    <div className="flex items-center px-3 py-2 text-xs font-black text-gray-400 uppercase tracking-widest">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Налаштування
+                <div className="px-4 py-6 space-y-2 border-t border-border/50">
+                    <div className="flex items-center px-4 py-2 text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-1">
+                        <Settings className="mr-2 h-3.5 w-3.5" />
+                        Settings
                     </div>
                     {settingsNav.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="flex items-center px-3 py-2 ml-6 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-blue-600 transition-all"
+                            className="flex items-center px-4 py-2 text-xs font-black text-muted-foreground/70 rounded-xl hover:bg-secondary hover:text-foreground transition-all tracking-tight"
                         >
+                            <ChevronRight className="mr-2 h-3 w-3 opacity-30" />
                             {item.name}
                         </Link>
                     ))}
                 </div>
 
-                <div className="p-4 border-t border-gray-100">
-                    <div className="flex items-center p-2 mb-4">
-                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase">
+                <div className="p-4 mt-auto border-t border-border/50 mb-4 mx-2">
+                    <div className="flex items-center p-3 bg-secondary/30 rounded-2xl border border-border/50 hover:bg-secondary/50 transition-all cursor-pointer group">
+                        <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 font-black text-xs uppercase shadow-inner group-hover:scale-105 transition-transform">
                             {session.user.email?.[0]}
                         </div>
                         <div className="ml-3 overflow-hidden">
-                            <p className="text-sm font-medium text-gray-900 truncate">{session.user.email}</p>
-                            <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Administrator</p>
+                            <p className="text-[11px] font-black text-foreground truncate">{session.user.email}</p>
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-50">Master Admin</p>
                         </div>
                     </div>
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64">
-                <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 sticky top-0 z-10">
-                    <h2 className="text-lg font-semibold text-gray-800">Керування платформою</h2>
+            <main className="flex-1 ml-64 min-h-screen">
+                <header className="h-20 bg-card/80 backdrop-blur-md border-b border-border flex items-center justify-between px-8 sticky top-0 z-10">
+                    <div>
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                            Platform Management
+                        </h2>
+                    </div>
                     <div className="flex items-center space-x-4">
+                        <ThemeToggle />
                         <Link
                             href="/dashboard"
-                            className="text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                            className="text-[10px] font-black text-blue-600 hover:text-white uppercase tracking-widest bg-blue-500/10 hover:bg-blue-600 px-4 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-2"
                         >
-                            До платформи
+                            <LayoutDashboard className="w-3.5 h-3.5" />
+                            Go to Console
                         </Link>
                     </div>
                 </header>
 
-                <div className="p-8">
+                <div className="p-10 max-w-7xl mx-auto">
                     {children}
                 </div>
             </main>

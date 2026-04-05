@@ -117,11 +117,11 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
                         <Shield className="w-6 h-6 text-blue-600" />
                         Керування ролями
                     </h1>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1 font-medium">
                         Налаштуйте рівні доступу та підписки для користувачів
                     </p>
                 </div>
@@ -136,63 +136,63 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
 
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {roles.map((role) => (
-                    <div key={role.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 transition-all hover:shadow-md">
-                        <div className="flex items-start justify-between mb-4">
+                    <div key={role.id} className="bg-card rounded-3xl p-6 shadow-md border border-border/60 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
+                        <div className="flex items-start justify-between mb-5">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 rounded-xl">
+                                <div className="p-2.5 bg-blue-500/10 rounded-2xl shadow-inner">
                                     <Shield className="w-5 h-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-gray-900">{role.name}</h3>
+                                    <h3 className="font-black text-foreground tracking-tight">{role.name}</h3>
                                     {role.isDefault && (
-                                        <span className="text-[10px] font-black uppercase text-green-600 bg-green-50 px-1.5 py-0.5 rounded">За замовчуванням</span>
+                                        <span className="text-[9px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-lg tracking-widest mt-0.5 block w-fit">Default Role</span>
                                     )}
                                 </div>
                             </div>
-                            <div className="flex gap-1">
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                     onClick={() => openModal(role)}
-                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                                    className="p-2 text-muted-foreground/40 hover:text-blue-600 hover:bg-blue-500/10 rounded-xl transition-all"
                                 >
                                     <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(role.id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                    className="p-2 text-muted-foreground/40 hover:text-red-600 hover:bg-red-500/10 rounded-xl transition-all"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
 
-                        <p className="text-sm text-gray-600 mb-6 line-clamp-2">
-                            {role.description || "Опис відсутній"}
+                        <p className="text-[10px] text-muted-foreground mb-6 line-clamp-2 font-black uppercase tracking-widest leading-relaxed">
+                            {role.description || "No description provided"}
                         </p>
 
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <div className="flex items-center gap-2">
-                                    <Lock className="w-3.5 h-3.5 text-gray-400" />
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Доступ до треків</span>
+                            <div className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-3">
+                                    <Lock className="w-4 h-4 text-muted-foreground/50" />
+                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Tracks Access</span>
                                 </div>
-                                <span className="text-sm font-black text-blue-600">До рівня {role.maxTrackOrder}</span>
+                                <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Up to {role.maxTrackOrder}</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <div className="flex items-center gap-2">
-                                    {role.hasPracticeAccess ? <Unlock className="w-3.5 h-3.5 text-green-500" /> : <Lock className="w-3.5 h-3.5 text-gray-400" />}
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Доступ до Практики</span>
+                            <div className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-3">
+                                    {role.hasPracticeAccess ? <Unlock className="w-4 h-4 text-emerald-500" /> : <Lock className="w-4 h-4 text-muted-foreground/30" />}
+                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Practice Access</span>
                                 </div>
-                                <span className={`text-sm font-black ${role.hasPracticeAccess ? "text-green-600" : "text-gray-400"}`}>
-                                    {role.hasPracticeAccess ? "Так" : "Ні"}
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${role.hasPracticeAccess ? "text-emerald-500" : "text-muted-foreground/40"}`}>
+                                    {role.hasPracticeAccess ? "Enabled" : "Disabled"}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <div className="flex items-center gap-2">
-                                    {role.hasAiReview ? <Unlock className="w-3.5 h-3.5 text-purple-500" /> : <Lock className="w-3.5 h-3.5 text-gray-400" />}
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">AI Review (Швидка перевірка)</span>
+                            <div className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-3">
+                                    {role.hasAiReview ? <Unlock className="w-4 h-4 text-purple-500" /> : <Lock className="w-4 h-4 text-muted-foreground/30" />}
+                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">AI Expert Review</span>
                                 </div>
-                                <span className={`text-sm font-black ${role.hasAiReview ? "text-purple-600" : "text-gray-400"}`}>
-                                    {role.hasAiReview ? "Так" : "Ні"}
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${role.hasAiReview ? "text-purple-600" : "text-muted-foreground/40"}`}>
+                                    {role.hasAiReview ? "Enabled" : "Disabled"}
                                 </span>
                             </div>
                         </div>
@@ -201,96 +201,94 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <div className="px-6 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                            <h2 className="text-xl font-bold text-gray-900">
-                                {editingRole ? "Редагувати роль" : "Нова роль"}
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+                    <div className="bg-card rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-border">
+                        <div className="px-8 py-8 border-b border-border flex items-center justify-between bg-secondary/30">
+                            <h2 className="text-xl font-black text-foreground tracking-tight">
+                                {editingRole ? "Editing Role" : "New Security Role"}
                             </h2>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white rounded-xl transition-all">
-                                <X className="w-5 h-5 text-gray-500" />
+                            <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-card border border-transparent hover:border-border rounded-xl transition-all">
+                                <X className="w-5 h-5 text-muted-foreground" />
                             </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Назва ролі</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground/50 mb-2 ml-1 tracking-widest">Role Name</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                                    placeholder="Наприклад: Gold Покупець"
+                                    className="w-full px-4 py-3 bg-secondary border border-border rounded-2xl text-foreground font-black text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    placeholder="e.g. Master Archer"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Опис</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground/50 mb-2 ml-1 tracking-widest">Description</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-24"
-                                    placeholder="Короткий опис можливостей цієї ролі..."
+                                    className="w-full px-4 py-3 bg-secondary border border-border rounded-2xl text-foreground font-bold text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-24"
+                                    placeholder="What flags does this role enable?"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Макс. рівень треку (Access)</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground/50 mb-2 ml-1 tracking-widest">Max Track Level Access</label>
                                 <input
                                     type="number"
                                     required
                                     min="0"
                                     value={formData.maxTrackOrder}
                                     onChange={(e) => setFormData({ ...formData, maxTrackOrder: parseInt(e.target.value) || 0 })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-secondary border border-border rounded-2xl text-foreground font-black text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                                 />
-                                <p className="text-[10px] text-gray-400 mt-1.5 ml-1 flex items-start gap-1">
-                                    <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                                    Користувач зможе бачити тільки ті треки, у яких поле 'Order' менше або дорівнює цьому значенню.
-                                </p>
                             </div>
-                            <div className="flex items-center gap-3 p-1">
-                                <button
-                                    type="button"
+
+                            <div className="space-y-4">
+                                <div 
                                     onClick={() => setFormData({ ...formData, hasPracticeAccess: !formData.hasPracticeAccess })}
-                                    className={`w-11 h-6 rounded-full transition-all relative ${formData.hasPracticeAccess ? "bg-blue-600" : "bg-gray-200"}`}
+                                    className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
                                 >
-                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.hasPracticeAccess ? "left-6" : "left-1"}`} />
-                                </button>
-                                <span className="text-sm font-bold text-gray-700">Надати доступ до Практики (Проєкти)</span>
-                            </div>
-                            <div className="flex items-center gap-3 p-1">
-                                <button
-                                    type="button"
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Practice Projects Access</span>
+                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasPracticeAccess ? "bg-blue-600" : "bg-muted"}`}>
+                                        <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.hasPracticeAccess ? "left-6" : "left-1"}`} />
+                                    </div>
+                                </div>
+
+                                <div 
                                     onClick={() => setFormData({ ...formData, hasAiReview: !formData.hasAiReview })}
-                                    className={`w-11 h-6 rounded-full transition-all relative ${formData.hasAiReview ? "bg-purple-600" : "bg-gray-200"}`}
+                                    className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
                                 >
-                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.hasAiReview ? "left-6" : "left-1"}`} />
-                                </button>
-                                <span className="text-sm font-bold text-gray-700">Надати доступ до AI Review (Швидка перевірка)</span>
-                            </div>
-                            <div className="flex items-center gap-3 p-1">
-                                <button
-                                    type="button"
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">AI Expert Mentor Access</span>
+                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasAiReview ? "bg-purple-600" : "bg-muted"}`}>
+                                        <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.hasAiReview ? "left-6" : "left-1"}`} />
+                                    </div>
+                                </div>
+
+                                <div 
                                     onClick={() => setFormData({ ...formData, isDefault: !formData.isDefault })}
-                                    className={`w-11 h-6 rounded-full transition-all relative ${formData.isDefault ? "bg-blue-600" : "bg-gray-200"}`}
+                                    className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
                                 >
-                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.isDefault ? "left-6" : "left-1"}`} />
-                                </button>
-                                <span className="text-sm font-bold text-gray-700">Встановити як роль за замовчуванням</span>
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Set as Default Role</span>
+                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.isDefault ? "bg-blue-600" : "bg-muted"}`}>
+                                        <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.isDefault ? "left-6" : "left-1"}`} />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="pt-4 flex gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                                    className="flex-1 py-3.5 bg-secondary text-foreground rounded-2xl font-black text-sm hover:bg-secondary/80 transition-all active:scale-95"
                                 >
-                                    Скасувати
+                                    Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
+                                    className="flex-[2] py-3.5 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95"
                                 >
-                                    Зберегти
+                                    {editingRole ? "Update Securely" : "Create Security Role"}
                                 </button>
                             </div>
                         </form>

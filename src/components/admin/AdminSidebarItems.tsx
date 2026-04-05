@@ -65,12 +65,12 @@ export default function AdminSidebarItems({ navigation }: { navigation: any[] })
                     <Link
                         key={item.href}
                         href={item.href}
-                        className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-blue-600 transition-all group relative"
+                        className="flex items-center px-3 py-2.5 text-sm font-black text-muted-foreground/80 rounded-xl hover:bg-secondary hover:text-foreground transition-all group relative tracking-tight"
                     >
-                        <Icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                        <Icon className="mr-3 h-5 w-5 text-muted-foreground/50 group-hover:text-blue-500 transition-colors" />
                         {item.name}
                         {counts[item.href] > 0 && (
-                            <span className="ml-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                            <span className="ml-2 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm shadow-red-600/20">
                                 {counts[item.href]}
                             </span>
                         )}

@@ -557,18 +557,18 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                     <div className="p-6">
                                                         {submission.mentorFeedback ? (
                                                             <>
-                                                                <div className="mb-4 flex items-center gap-2 pb-4 border-b border-white/5">
-                                                                    <MessageSquare className="w-4 h-4 text-blue-400" />
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Коментарі ментора</span>
+                                                                <div className="mb-4 flex items-center gap-2 pb-4 border-b border-border">
+                                                                    <MessageSquare className="w-4 h-4 text-blue-500" />
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Коментарі ментора</span>
                                                                 </div>
-                                                                <div className="prose prose-invert prose-sm max-w-none">
+                                                                <div className="prose prose-slate dark:prose-invert prose-sm max-w-none">
                                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                                         {submission.mentorFeedback}
                                                                     </ReactMarkdown>
                                                                 </div>
                                                             </>
                                                         ) : (
-                                                            <div className="text-slate-400 text-sm leading-relaxed italic text-center py-4">
+                                                            <div className="text-muted-foreground text-sm leading-relaxed italic text-center py-4">
                                                                 Код надіслано ментору. Очікуйте на фідбек найближчим часом. Сповіщення прийде сюди та в кабінет.
                                                             </div>
                                                         )}
@@ -577,7 +577,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                             )}
                                         </div>
                                     ) : (
-                                        <pre className="text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                        <pre className="text-foreground/80 whitespace-pre-wrap leading-relaxed font-mono text-xs">
                                             {activeConsoleTab === "Output" ? (output || "Консоль готова. Запустіть тест для перевірки...") : "Термінал активний (локально)..."}
                                         </pre>
                                     )}

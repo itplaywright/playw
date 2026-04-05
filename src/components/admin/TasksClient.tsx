@@ -121,8 +121,8 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Управління завданнями</h1>
-                    <p className="text-sm text-gray-500 mt-1">Керуйте контентом та складністю навчання</p>
+                    <h1 className="text-2xl font-black text-foreground tracking-tight">Управління завданнями</h1>
+                    <p className="text-sm text-muted-foreground mt-1 font-medium">Керуйте контентом та складністю навчання</p>
                 </div>
                 <div className="flex gap-2">
                     <button
@@ -146,20 +146,20 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
             {/* Filters bar */}
             <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                         type="text"
                         placeholder="Пошук завдань..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                        className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm text-foreground placeholder:text-muted-foreground/50 font-medium"
                     />
                 </div>
                 <div className="flex gap-2">
                     <select
                         value={filterTrack}
                         onChange={(e) => setFilterTrack(e.target.value === "all" ? "all" : parseInt(e.target.value))}
-                        className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 bg-card border border-border text-foreground rounded-xl text-sm font-medium hover:bg-secondary/50 transition-all outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="all">Усі треки</option>
                         {tracks.map(track => (
@@ -169,24 +169,24 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            <div className="bg-card rounded-3xl shadow-md border border-border/60 overflow-hidden">
+                <table className="min-w-full divide-y divide-border/60">
+                    <thead className="bg-secondary/50">
                         <tr>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-10">#</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Завдання</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Складність</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Успішність</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Статус</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Дії</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest w-10">#</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Завдання</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Складність</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Успішність</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Статус</th>
+                            <th className="px-6 py-4 text-right text-[10px] font-black text-muted-foreground uppercase tracking-widest">Дії</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-100">
+                    <tbody className="bg-card divide-y divide-border">
                         {filteredTasks.map((task) => (
-                            <tr key={task.id} className="hover:bg-gray-50 transition-colors group">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">{task.order}</td>
+                            <tr key={task.id} className="hover:bg-secondary/30 transition-colors group">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground font-mono">{task.order}</td>
                                 <td className="px-6 py-4">
-                                    <div className="text-sm font-bold text-gray-900">{task.title}</div>
+                                    <div className="text-sm font-bold text-foreground">{task.title}</div>
                                     <div className="text-xs text-blue-600 font-medium">{task.trackTitle}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -195,15 +195,15 @@ export default function TasksClient({ initialTasks, tracks }: { initialTasks: an
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex items-center text-sm font-bold text-gray-700">
-                                        <BarChart2 className="mr-1.5 h-4 w-4 text-gray-400" />
+                                    <div className="flex items-center text-sm font-black text-foreground">
+                                        <BarChart2 className="mr-1.5 h-4 w-4 text-muted-foreground" />
                                         {task.successRate ?? 0}%
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <button
                                         onClick={() => toggleStatus(task)}
-                                        className={`inline-flex items-center text-xs font-bold transition-colors ${task.isActive ? 'text-green-600 hover:text-green-700' : 'text-gray-400 hover:text-gray-500'}`}
+                                        className={`inline-flex items-center text-xs font-bold transition-colors ${task.isActive ? 'text-green-600 hover:text-green-700' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
                                         {task.isActive ? <Eye className="mr-1 h-3.5 w-3.5" /> : <EyeOff className="mr-1 h-3.5 w-3.5" />}
                                         {task.isActive ? 'Активне' : 'Вимкнено'}

@@ -136,11 +136,11 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
                         <ShoppingBag className="w-6 h-6 text-blue-600" />
                         Товари та підписки
                     </h1>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1 font-medium">
                         Створюйте товари, які надають користувачам певні ролі та доступ
                     </p>
                 </div>
@@ -155,60 +155,60 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
 
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
-                    <div key={product.id} className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 transition-all hover:shadow-md ${!product.isActive ? 'opacity-75 grayscale' : ''}`}>
+                    <div key={product.id} className={`bg-card rounded-3xl p-6 shadow-md border border-border/60 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group ${!product.isActive ? 'opacity-75 grayscale' : ''}`}>
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 rounded-xl">
+                                <div className="p-2 bg-blue-500/10 rounded-xl">
                                     <ShoppingBag className="w-5 h-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-gray-900">{product.title}</h3>
-                                    <p className="text-xs font-black text-blue-600">{(product.price / 100).toFixed(2)} {product.currency}</p>
+                                    <h3 className="font-black text-foreground tracking-tight">{product.title}</h3>
+                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{(product.price / 100).toFixed(2)} {product.currency}</p>
                                 </div>
                             </div>
                             <div className="flex gap-1">
                                 <button
                                     onClick={() => openModal(product)}
-                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                                    className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
                                 >
                                     <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(product.id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                    className="p-2 text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
 
-                        <p className="text-sm text-gray-600 mb-6 line-clamp-2">
+                        <p className="text-sm text-muted-foreground mb-6 line-clamp-2 font-medium">
                             {product.description || "Опис відсутній"}
                         </p>
 
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <div className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border/60">
                                 <div className="flex items-center gap-2">
                                     <Shield className="w-3.5 h-3.5 text-blue-500" />
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Тип</span>
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Тип</span>
                                 </div>
-                                <span className="text-sm font-black text-gray-900">
+                                <span className="text-sm font-black text-foreground">
                                     {product.type === "subscription" ? `Підписка (${product.durationMonths} міс)` :
                                      product.type === "b2b" ? "B2B Команда" : "B2C Довічно"}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-xl border border-border">
                                 <div className="flex items-center gap-2">
                                     <Shield className="w-3.5 h-3.5 text-blue-500" />
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-tight">Надає роль</span>
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Надає роль</span>
                                 </div>
-                                <span className="text-sm font-black text-gray-900">
+                                <span className="text-sm font-black text-foreground">
                                     {roles.find(r => r.id === product.grantedRoleId)?.name || "Не призначено"}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between px-3">
-                                <span className="text-xs font-bold text-gray-400 uppercase">Статус</span>
-                                <span className={`text-xs font-black px-2 py-0.5 rounded ${product.isActive ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Статус</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${product.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-muted text-muted-foreground'}`}>
                                     {product.isActive ? 'Активний' : 'Вимкнено'}
                                 </span>
                             </div>
@@ -219,55 +219,55 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <div className="px-6 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                            <h2 className="text-xl font-bold text-gray-900">
+                    <div className="bg-card rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 border border-border">
+                        <div className="px-6 py-6 border-b border-border flex items-center justify-between bg-secondary/30">
+                            <h2 className="text-xl font-black text-foreground tracking-tight">
                                 {editingProduct ? "Редагувати товар" : "Новий товар"}
                             </h2>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white rounded-xl transition-all">
-                                <X className="w-5 h-5 text-gray-500" />
+                            <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-card rounded-xl transition-all">
+                                <X className="w-5 h-5 text-muted-foreground" />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Назва товару</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-1.5 ml-1">Назва товару</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-400"
+                                    className="w-full px-4 py-3 bg-card border border-border text-foreground font-black rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-muted-foreground/30 text-sm"
                                     placeholder="Наприклад: Підписка Gold (1 міс)"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Опис</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-1.5 ml-1">Опис</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-20 placeholder:text-gray-400"
+                                    className="w-full px-4 py-3 bg-card border border-border text-foreground font-black rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-20 placeholder:text-muted-foreground/30 text-sm"
                                     placeholder="Що входить у цей товар..."
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Ціна</label>
+                                    <label className="block text-[10px] font-black uppercase text-muted-foreground mb-1.5 ml-1">Ціна</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         required
                                         value={formData.price}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                        className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-400"
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border text-foreground font-black rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-muted-foreground/30 text-sm"
                                         placeholder="0.00"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Валюта</label>
+                                    <label className="block text-[10px] font-black uppercase text-muted-foreground mb-1.5 ml-1">Валюта</label>
                                     <select
                                         value={formData.currency}
                                         onChange={(e) => setFormData({ ...formData, currency: e.target.value as any })}
-                                        className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border text-foreground font-black rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
                                     >
                                         <option value="USD">USD ($)</option>
                                         <option value="UAH">UAH (₴)</option>
@@ -276,11 +276,11 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Тип Товару</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-1.5 ml-1">Тип Товару</label>
                                 <select
                                     value={formData.type}
                                     onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border text-foreground font-black rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
                                 >
                                     <option value="b2c">B2C (Довічний доступ)</option>
                                     <option value="subscription">Підписка (Щомісячно)</option>
@@ -290,24 +290,24 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                             
                             {formData.type === "subscription" && (
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Тривалість (Місяців)</label>
+                                    <label className="block text-[10px] font-black uppercase text-muted-foreground mb-1.5 ml-1">Тривалість (Місяців)</label>
                                     <input
                                         type="number"
                                         min="1"
                                         required
                                         value={formData.durationMonths}
                                         onChange={(e) => setFormData({ ...formData, durationMonths: e.target.value })}
-                                        className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border text-foreground font-black rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
                                     />
                                 </div>
                             )}
 
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Роль, що надається</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-1.5 ml-1">Роль, що надається</label>
                                 <select
                                     value={formData.grantedRoleId}
                                     onChange={(e) => setFormData({ ...formData, grantedRoleId: e.target.value })}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 text-gray-900 font-medium rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border text-foreground font-black rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
                                 >
                                     <option value="none">Не надає ролі</option>
                                     {roles.map(role => (
@@ -319,18 +319,18 @@ export default function ProductsClient({ initialProducts, roles }: { initialProd
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-                                    className={`w-11 h-6 rounded-full transition-all relative ${formData.isActive ? "bg-blue-600" : "bg-gray-200"}`}
+                                    className={`w-11 h-6 rounded-full transition-all relative ${formData.isActive ? "bg-blue-600" : "bg-muted"}`}
                                 >
                                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${formData.isActive ? "left-6" : "left-1"}`} />
                                 </button>
-                                <span className="text-sm font-bold text-gray-700">Активний для продажу</span>
+                                <span className="text-sm font-black text-foreground">Активний для продажу</span>
                             </div>
 
                             <div className="pt-4 flex gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                                    className="flex-1 py-3 bg-secondary text-foreground rounded-2xl font-bold hover:bg-secondary/80 transition-all"
                                 >
                                     Скасувати
                                 </button>

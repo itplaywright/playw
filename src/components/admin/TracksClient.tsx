@@ -118,8 +118,8 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Управління треками</h1>
-                    <p className="text-sm text-gray-500 mt-1">Створюйте та редагуйте навчальні модулі</p>
+                    <h1 className="text-2xl font-black text-foreground tracking-tight">Управління треками</h1>
+                    <p className="text-sm text-muted-foreground mt-1 font-bold">Створюйте та редагуйте навчальні модулі</p>
                 </div>
                 <button
                     onClick={() => openModal()}
@@ -130,36 +130,36 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                 </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            <div className="bg-card rounded-3xl shadow-md border border-border/60 overflow-hidden">
+                <table className="min-w-full divide-y divide-border/60">
+                    <thead className="bg-secondary/50">
                         <tr>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-10">#</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Назва</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Завдань</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Статус</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Дії</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest w-10">#</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Назва</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Завдань</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Статус</th>
+                            <th className="px-6 py-4 text-right text-[10px] font-black text-muted-foreground uppercase tracking-widest">Дії</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-100">
+                    <tbody className="bg-card divide-y divide-border">
                         {tracks.map((track) => (
-                            <tr key={track.id} className="hover:bg-gray-50 transition-colors group">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono">{track.order}</td>
+                            <tr key={track.id} className="hover:bg-secondary/50 transition-colors group">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground font-mono">{track.order}</td>
                                 <td className="px-6 py-4">
-                                    <div className="text-sm font-bold text-gray-900">{track.title}</div>
-                                    <div className="text-xs text-gray-500 truncate max-w-xs">{track.description}</div>
+                                    <div className="text-sm font-bold text-foreground">{track.title}</div>
+                                    <div className="text-xs text-muted-foreground truncate max-w-xs">{track.description}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-500/10 text-blue-600 border border-blue-500/20">
                                         {track.taskCount ?? 0} задач
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <button
                                         onClick={() => toggleStatus(track)}
-                                        className={`inline-flex items-center text-xs font-bold px-2 py-1 rounded-lg transition-colors ${track.isActive ? 'text-green-600 bg-green-50 hover:bg-green-100' : 'text-gray-400 bg-gray-50 hover:bg-gray-100'}`}
+                                        className={`inline-flex items-center text-xs font-black px-2.5 py-1 rounded-lg transition-all ${track.isActive ? 'text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20' : 'text-muted-foreground bg-secondary hover:bg-secondary/80'}`}
                                     >
-                                        {track.isActive ? <Eye className="mr-1 h-3.5 w-3.5" /> : <EyeOff className="mr-1 h-3.5 w-3.5" />}
+                                        {track.isActive ? <Eye className="mr-1.5 h-3.5 w-3.5" /> : <EyeOff className="mr-1.5 h-3.5 w-3.5" />}
                                         {track.isActive ? 'Активний' : 'Прихований'}
                                     </button>
                                 </td>
@@ -167,13 +167,13 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                                     <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => openModal(track)}
-                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                            className="p-2 text-muted-foreground/40 hover:text-blue-600 hover:bg-blue-500/10 rounded-xl transition-all"
                                         >
                                             <Pencil className="h-4 w-4" />
                                         </button>
                                         <button
                                             onClick={() => deleteTrack(track.id)}
-                                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                            className="p-2 text-muted-foreground/40 hover:text-red-600 hover:bg-red-500/10 rounded-xl transition-all"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </button>
@@ -187,57 +187,57 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                            <h2 className="text-xl font-bold text-gray-900">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-card rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 border border-border">
+                        <div className="px-8 py-6 border-b border-border flex items-center justify-between bg-secondary/30">
+                            <h2 className="text-xl font-black text-foreground tracking-tight">
                                 {editingTrack ? 'Редагувати трек' : 'Створити новий трек'}
                             </h2>
-                            <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-xl transition-all">
+                            <button onClick={closeModal} className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl transition-all">
                                 <X className="h-6 w-6" />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-8 space-y-5">
                             <div>
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Назва треку</label>
+                                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">Назва треку</label>
                                 <input
                                     required
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium text-gray-900"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-black text-foreground text-sm"
                                     placeholder="Наприклад: Основи Playwright"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Опис</label>
+                                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">Опис</label>
                                 <textarea
                                     rows={3}
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium resize-none text-gray-900"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-medium resize-none text-foreground text-sm"
                                     placeholder="Короткий опис того, чому навчиться студент..."
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Порядок</label>
+                                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">Порядок</label>
                                     <input
                                         type="number"
                                         value={formData.order}
                                         onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all font-medium text-gray-900"
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-black text-foreground text-sm"
                                     />
                                 </div>
                                 <div className="flex items-end">
                                     <label className="flex items-center space-x-3 mb-3 cursor-pointer group">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.isActive}
-                                            onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                                            className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                        <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900 transition-colors">Активний</span>
+                                        <div 
+                                            onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+                                            className={`w-11 h-6 rounded-full transition-all relative ${formData.isActive ? "bg-blue-600" : "bg-muted"}`}
+                                        >
+                                            <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.isActive ? "left-6" : "left-1"}`} />
+                                        </div>
+                                        <span className="text-sm font-black text-foreground transition-colors tracking-tight">Активний</span>
                                     </label>
                                 </div>
                             </div>
@@ -245,14 +245,14 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-200 transition-all active:scale-95"
+                                    className="flex-1 px-4 py-3 bg-secondary text-foreground rounded-2xl font-black hover:bg-secondary/80 transition-all active:scale-95 text-sm"
                                 >
                                     Скасувати
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="flex-[2] px-4 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center disabled:opacity-50"
+                                    className="flex-[2] px-4 py-3 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all active:scale-95 flex items-center justify-center disabled:opacity-50 text-sm"
                                 >
                                     {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (editingTrack ? 'Зберегти зміни' : 'Створити трек')}
                                 </button>

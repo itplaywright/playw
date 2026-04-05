@@ -124,88 +124,88 @@ export default function AccessCodesClient({ products }: { products: Product[] })
     }
 
     if (isLoading) {
-        return <div className="p-8 text-center text-gray-500">Завантаження...</div>
+        return <div className="p-20 text-center text-muted-foreground font-black uppercase tracking-widest text-xs animate-pulse">Завантаження...</div>
     }
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <Key className="w-6 h-6 text-indigo-600" />
-                        Коди Доступу (Промокоди)
+                    <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+                        <Key className="w-6 h-6 text-indigo-500" />
+                        Коди Доступу
                     </h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Генеруйте інвайти для B2B команд, подарункові підписки або B2C продажі
+                    <p className="text-sm text-muted-foreground mt-1 font-bold">
+                        Генеруйте інвайти для B2B команд та промокоди
                     </p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                    className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 text-sm"
                 >
-                    <Plus className="w-4 h-4" />
-                    Згенерувати код
+                    <Plus className="w-5 h-5" />
+                    Згенерувати ключ
                 </button>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+            <div className="bg-card rounded-3xl border border-border/60 overflow-hidden shadow-md">
                 <table className="w-full text-left">
-                    <thead className="bg-gray-50/50 text-gray-500 text-xs uppercase font-black tracking-wider">
+                    <thead className="bg-secondary/50 text-muted-foreground text-[10px] uppercase font-black tracking-widest">
                         <tr>
-                            <th className="px-6 py-4">Код</th>
-                            <th className="px-6 py-4">Продукт</th>
-                            <th className="px-6 py-4">Використання</th>
-                            <th className="px-6 py-4">Дата Створення</th>
-                            <th className="px-6 py-4">Статус</th>
-                            <th className="px-6 py-4 text-right">Дії</th>
+                            <th className="px-6 py-4 border-b border-border/50">Код</th>
+                            <th className="px-6 py-4 border-b border-border/50">Продукт</th>
+                            <th className="px-6 py-4 border-b border-border/50">Використання</th>
+                            <th className="px-6 py-4 border-b border-border/50">Дата Створення</th>
+                            <th className="px-6 py-4 border-b border-border/50">Статус</th>
+                            <th className="px-6 py-4 text-right border-b border-border/50">Дії</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 text-sm">
+                    <tbody className="divide-y divide-border/50 text-sm">
                         {codes.map((c) => (
-                            <tr key={c.id} className="hover:bg-gray-50/50 transition-colors group">
+                            <tr key={c.id} className="hover:bg-secondary/30 transition-colors group">
                                 <td className="px-6 py-4">
-                                    <div className="font-mono font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg inline-block border border-indigo-100 uppercase">
+                                    <div className="font-mono font-black text-indigo-500 bg-indigo-500/10 px-3 py-1.5 rounded-xl inline-block border border-indigo-500/10 uppercase tracking-wider">
                                         {c.code}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="font-bold text-gray-900">{c.productTitle || "—"}</div>
-                                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                                        <Shield className="w-3 h-3" />
-                                        Надає: {c.grantedRoleName || "Немає"}
+                                    <div className="font-black text-foreground tracking-tight">{c.productTitle || "—"}</div>
+                                    <div className="text-[10px] text-muted-foreground font-black uppercase tracking-widest flex items-center gap-1.5 mt-1 opacity-70">
+                                        <Shield className="w-3 h-3 text-indigo-500" />
+                                        Надає: {c.grantedRoleName || "None"}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
-                                        <Users className="w-4 h-4 text-gray-400" />
-                                        <span className="font-bold text-gray-900">{c.usedCount}</span>
-                                        <span className="text-gray-400">/</span>
-                                        <span className="text-gray-500">{c.maxUses}</span>
+                                        <Users className="w-4 h-4 text-muted-foreground/50" />
+                                        <span className="font-black text-foreground">{c.usedCount}</span>
+                                        <span className="text-muted-foreground/30">/</span>
+                                        <span className="text-muted-foreground/50 font-bold">{c.maxUses}</span>
                                     </div>
                                     {c.usedCount >= c.maxUses && (
-                                        <span className="text-[10px] font-bold text-red-500 uppercase">Ліміт вичерпано</span>
+                                        <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest mt-1 block">Full</span>
                                     )}
                                 </td>
-                                <td className="px-6 py-4 text-gray-500">
+                                <td className="px-6 py-4 text-muted-foreground font-black text-xs">
                                     {new Date(c.createdAt).toLocaleDateString("uk-UA")}
                                 </td>
                                 <td className="px-6 py-4">
                                     <button
                                         onClick={() => toggleStatus(c.id, c.isActive)}
-                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
                                             c.isActive
-                                                ? 'bg-green-50 text-green-600 hover:bg-green-100'
-                                                : 'bg-red-50 text-red-600 hover:bg-red-100'
+                                                ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'
+                                                : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'
                                         }`}
                                     >
                                         {c.isActive ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Ban className="w-3.5 h-3.5" />}
-                                        {c.isActive ? 'Активний' : 'Вимкнений'}
+                                        {c.isActive ? 'Active' : 'Disabled'}
                                     </button>
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <button
                                         onClick={() => handleDelete(c.id)}
-                                        className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                        className="p-2 text-muted-foreground/20 hover:text-rose-600 hover:bg-rose-500/10 rounded-xl transition-all"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
@@ -214,7 +214,7 @@ export default function AccessCodesClient({ products }: { products: Product[] })
                         ))}
                         {codes.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground/50 font-black uppercase tracking-widest text-xs">
                                     Ще немає жодного коду доступу. Згенеруйте перший!
                                 </td>
                             </tr>
@@ -224,51 +224,51 @@ export default function AccessCodesClient({ products }: { products: Product[] })
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <div className="px-6 py-6 border-b border-gray-100 bg-gray-50/50">
-                            <h2 className="text-xl font-bold text-gray-900">Новий код доступу</h2>
-                            <p className="text-sm text-gray-500 mt-1">Згенерувати ключ для активації продукту</p>
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+                    <div className="bg-card rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-border">
+                        <div className="px-8 py-8 border-b border-border bg-secondary/30">
+                            <h2 className="text-xl font-black text-foreground tracking-tight">Новий код доступу</h2>
+                            <p className="text-[10px] text-muted-foreground mt-1 font-black uppercase tracking-widest">Згенерувати ключ для активації</p>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Товар / Продукт</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-2 ml-1 tracking-widest">Товар / Продукт</label>
                                 <select
                                     required
                                     value={formData.productId}
                                     onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-black text-foreground cursor-pointer"
                                 >
-                                    <option value="">Оберіть продукт...</option>
+                                    <option value="" className="bg-card">Оберіть продукт...</option>
                                     {products.map(p => (
-                                        <option key={p.id} value={p.id}>
-                                            {p.title} ({p.type === 'b2b' ? 'B2B' : p.type === 'subscription' ? 'Підписка' : 'B2C'})
+                                        <option key={p.id} value={p.id} className="bg-card">
+                                            {p.title} ({p.type.toUpperCase()})
                                         </option>
                                     ))}
                                 </select>
                             </div>
                             
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Кількість використань (Ліміт)</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-2 ml-1 tracking-widest">Кількість використань</label>
                                 <input
                                     type="number"
                                     min="1"
                                     required
                                     value={formData.maxUses}
                                     onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                                    placeholder="1 для B2C, 5+ для B2B"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-black text-foreground"
+                                    placeholder="e.g. 5 for team"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-black uppercase text-gray-500 mb-1.5 ml-1">Власний код (необов'язково)</label>
+                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-2 ml-1 tracking-widest">Власний код (Optional)</label>
                                 <input
                                     type="text"
                                     value={formData.customCode}
                                     onChange={(e) => setFormData({ ...formData, customCode: e.target.value })}
-                                    className="w-full px-4 py-3 font-mono uppercase bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                                    placeholder="Залиште пустим для авто-генерації"
+                                    className="w-full px-4 py-3 font-mono uppercase bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-black text-foreground"
+                                    placeholder="AUTO-GENERATED IF BLANK"
                                 />
                             </div>
 
@@ -276,13 +276,13 @@ export default function AccessCodesClient({ products }: { products: Product[] })
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                                    className="flex-1 py-3 bg-secondary text-foreground rounded-2xl font-black text-sm hover:bg-secondary/80 transition-all active:scale-95"
                                 >
                                     Скасувати
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20"
+                                    className="flex-[2] py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
                                 >
                                     Згенерувати
                                 </button>

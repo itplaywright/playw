@@ -288,22 +288,22 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-slate-400 text-lg font-medium max-w-2xl leading-relaxed opacity-50 italic">{selectedTrack.description}</p>
+                                        <p className="text-slate-400 text-[15px] font-medium max-w-2xl leading-relaxed opacity-60 mt-1">{selectedTrack.description}</p>
                                     </div>
 
                                     {/* Gamified Stats Widgets */}
                                     <div className="flex flex-wrap items-center gap-3">
-                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-blue-500/20 flex flex-col items-center min-w-[110px] shadow-lg shadow-blue-500/5">
-                                            <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1.5 opacity-80">🔥 Streak</span>
-                                            <span className="text-2xl font-black text-white tracking-tighter">5 Днів</span>
+                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-blue-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-blue-500/5">
+                                            <span className="text-3xl font-black text-white tracking-tighter leading-none mb-1.5 text-shadow-sm">5</span>
+                                            <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] opacity-80">🔥 ДНІВ СТРІКУ</span>
                                         </div>
-                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-emerald-500/20 flex flex-col items-center min-w-[110px] shadow-lg shadow-emerald-500/5">
-                                            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 opacity-80">🧠 Скілів</span>
-                                            <span className="text-2xl font-black text-white tracking-tighter">14</span>
+                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-emerald-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-emerald-500/5">
+                                            <span className="text-3xl font-black text-white tracking-tighter leading-none mb-1.5 text-shadow-sm">14</span>
+                                            <span className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.2em] opacity-80">🧠 СКІЛІВ</span>
                                         </div>
-                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-purple-500/20 flex flex-col items-center min-w-[110px] shadow-lg shadow-purple-500/5">
-                                            <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1.5 opacity-80">⌨️ Код</span>
-                                            <span className="text-2xl font-black text-white tracking-tighter">1.2k</span>
+                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-purple-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-purple-500/5">
+                                            <span className="text-3xl font-black text-white tracking-tighter leading-none mb-1.5 text-shadow-sm">1.2k</span>
+                                            <span className="text-[9px] font-black text-purple-400 uppercase tracking-[0.2em] opacity-80">⌨️ РЯДКІВ КОДУ</span>
                                         </div>
                                     </div>
                                 </div>
@@ -402,20 +402,20 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-3 mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[9px] font-black text-slate-400 tracking-widest uppercase">РІВЕНЬ {selectedTrack.order} • ЗАВДАННЯ #{task.order}</span>
+                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">РІВЕНЬ {selectedTrack.order} • ЗАВДАННЯ #{task.order}</span>
                                                                 {/* Skill Tags */}
                                                                 <div className="flex gap-1.5 ml-2">
                                                                     {task.type === 'code' && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[8px] font-bold text-blue-400 uppercase tracking-tighter">DOM</span>
+                                                                        <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-bold text-blue-400 uppercase tracking-tighter">DOM</span>
                                                                     )}
                                                                     {task.title.toLowerCase().includes('selector') && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-[8px] font-bold text-purple-400 uppercase tracking-tighter">Locators</span>
+                                                                        <span className="px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-[9px] font-bold text-purple-400 uppercase tracking-tighter">Locators</span>
                                                                     )}
                                                                     {task.title.toLowerCase().includes('hook') && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[8px] font-bold text-indigo-400 uppercase tracking-tighter">Hooks</span>
+                                                                        <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[9px] font-bold text-indigo-400 uppercase tracking-tighter">Hooks</span>
                                                                     )}
                                                                     {task.title.toLowerCase().includes('api') && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[8px] font-bold text-amber-400 uppercase tracking-tighter">API</span>
+                                                                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] font-bold text-amber-400 uppercase tracking-tighter">API</span>
                                                                     )}
                                                                 </div>
                                                             </div>

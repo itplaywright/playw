@@ -90,24 +90,24 @@ export default function Sidebar({
                 {/* Setup link */}
                 <Link
                     href="/setup"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 ${currentPath === "/setup"
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/setup"
                         ? "glass-panel text-blue-400 border-blue-500/20 shadow-blue-500/5"
                         : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         }`}
                 >
                     <Layers className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate">Крок 0. Налаштування</span>
+                    <span className="truncate tracking-wide">Крок 0. Налаштування</span>
                 </Link>
 
                 <Link
                     href="/projects"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 ${currentPath === "/projects"
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/projects"
                         ? "glass-panel text-blue-400 border-blue-500/20 shadow-blue-500/5"
                         : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         }`}
                 >
                     <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate">Проєкти (Jira)</span>
+                    <span className="truncate tracking-wide">Проєкти (Jira)</span>
                 </Link>
 
                 <div className="pt-4 pb-2 border-t border-white/5 mx-2 my-2" />
@@ -121,7 +121,7 @@ export default function Sidebar({
                     const content = (
                         <div className="flex flex-col gap-1.5 w-full">
                             <div className="flex items-center gap-2">
-                                <span className={`text-[13px] font-bold truncate flex-1 ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>{track.title}</span>
+                                <span className={`text-xs font-bold tracking-wide truncate flex-1 ${isSelected ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>{track.title}</span>
                                 {isPro && !isAdmin && (
                                     <Star className="w-3 h-3 star-gold-premium flex-shrink-0" />
                                 )}
@@ -177,13 +177,13 @@ export default function Sidebar({
             <div className="px-3 pb-6 border-t border-white/5 pt-4">
                 <Link
                     href="/cabinet"
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${currentPath === "/cabinet"
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/cabinet"
                         ? "glass-panel text-blue-400 border-blue-500/20 shadow-blue-500/5"
                         : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
                         }`}
                 >
                     <BarChart2 className="w-4 h-4" />
-                    Мій кабінет
+                    <span className="tracking-wide">Мій кабінет</span>
                     <ArrowRight className="w-3 h-3 ml-auto opacity-40 group-hover:opacity-100 transition-all" />
                 </Link>
             </div>

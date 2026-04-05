@@ -32,6 +32,7 @@ interface UserProfile {
     telegram: string | null
     telegramChatId?: string | null
     whatsapp: string | null
+    botUsername?: string
 }
 
 export default function UserCabinetPage() {
@@ -393,7 +394,7 @@ export default function UserCabinetPage() {
                                             <div className="flex flex-col gap-2">
                                                 <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Telegram</label>
                                                 <a 
-                                                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}?start=${profile?.id}`}
+                                                    href={`https://t.me/${profile?.botUsername || ''}?start=${profile?.id}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center justify-center gap-2 w-full bg-[#0088cc] hover:bg-[#0077b5] text-white rounded-xl px-4 py-3 text-sm font-bold transition-all shadow-md shadow-blue-500/20"

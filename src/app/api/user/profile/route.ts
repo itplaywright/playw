@@ -30,7 +30,20 @@ export async function GET() {
         return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    return NextResponse.json(user)
+    let botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "";
+    if (!botUsername && process.env.TELEGRAM_BOT_TOKEN) {
+        try {
+            const botRes = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getMe`);
+            const botData = await botRes.json();
+            if (botData.ok && botData.result?.username) {
+                botUsername = botData.result.username;
+            }
+        } catch(e) {
+            console.error("Failed to fetch bot data", e);
+        }
+    }
+
+    return NextResponse.json({ ...user, botUsername })
 }
 
 export async function PATCH(req: Request) {

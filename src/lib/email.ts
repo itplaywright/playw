@@ -40,7 +40,9 @@ export async function sendMentorFeedbackEmail({ toEmail, userName, taskTitle, fe
             <div style="background-color: #ffffff; padding: 32px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                 <h2 style="color: #0f172a; margin-top: 0;">Привіт, ${userName}! 👋</h2>
                 <p style="color: #475569; font-size: 16px; line-height: 1.5;">
-                    Ваше виконання завдання <strong>"${taskTitle}"</strong> було перевірено ментором.
+                    ${isPassed 
+                        ? `Вітаємо! Ваше виконання завдання <strong>"${taskTitle}"</strong> було успішно схвалено ментором! 🎉`
+                        : `Ваше виконання завдання <strong>"${taskTitle}"</strong> було перевірено ментором.`}
                 </p>
                 
                 <div style="margin: 24px 0; padding: 16px; background-color: #f1f5f9; border-left: 4px solid ${statusColor}; border-radius: 4px;">

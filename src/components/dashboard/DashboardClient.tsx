@@ -106,7 +106,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
 
     const isProTrack = (order: number | null) => {
         if (isAdmin) return false
-        const maxOrder = role?.maxTrackOrder ?? 1
+        const maxOrder = role?.maxTrackOrder ?? 2
         return (order ?? 0) > maxOrder
     }
 
@@ -387,7 +387,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-3 mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">РІВЕНЬ {selectedTrack.order} • ЗАВДАННЯ #{task.order}</span>
+                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{selectedTrack.title.split(' — ')[0]} • ЗАВДАННЯ #{task.order}</span>
                                                                 {/* Skill Tags */}
                                                                 <div className="flex gap-1.5 ml-2">
                                                                     {task.type === 'code' && (

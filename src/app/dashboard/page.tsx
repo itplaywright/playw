@@ -45,7 +45,7 @@ export default async function Dashboard() {
     if (!hasAccess) redirect("/pricing")
 
     const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))
-    const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order))
+    const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order), asc(tasks.id))
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
     const boards = await db.select().from(projectBoards)
 

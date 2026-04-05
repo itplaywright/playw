@@ -47,7 +47,7 @@ export default function Sidebar({
     return (
         <aside className="w-full h-full bg-slate-950/20 flex flex-col z-40">
             {/* Logo area */}
-            <div className="px-6 pt-4 pb-5 border-b border-white/5 space-y-4">
+            <div className="px-6 pt-2 pb-4 border-b border-white/5 space-y-3">
                 <div className="flex items-center gap-3 group cursor-default">
                     <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300">
                         <Terminal className="w-4 h-4 text-white" />

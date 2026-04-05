@@ -45,6 +45,7 @@ export const users = mysqlTable("user", {
     lastName: varchar("last_name", { length: 255 }),
     phone: varchar("phone", { length: 50 }),
     telegram: varchar("telegram", { length: 255 }),
+    telegramChatId: varchar("telegram_chat_id", { length: 255 }),
     whatsapp: varchar("whatsapp", { length: 255 }),
 })
 

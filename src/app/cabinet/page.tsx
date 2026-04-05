@@ -30,6 +30,7 @@ interface UserProfile {
     lastName: string | null
     phone: string | null
     telegram: string | null
+    telegramChatId?: string | null
     whatsapp: string | null
 }
 
@@ -45,6 +46,7 @@ export default function UserCabinetPage() {
         lastName: "",
         phone: "",
         telegram: "",
+        telegramChatId: "",
         whatsapp: "",
     })
     const [isSavingProfile, setIsSavingProfile] = useState(false)
@@ -99,6 +101,7 @@ export default function UserCabinetPage() {
                     lastName: data.lastName ?? "",
                     phone: data.phone ?? "",
                     telegram: data.telegram ?? "",
+                    telegramChatId: data.telegramChatId ?? "",
                     whatsapp: data.whatsapp ?? "",
                 })
             }
@@ -378,14 +381,28 @@ export default function UserCabinetPage() {
                                             onChange={(v) => setProfileForm(f => ({ ...f, phone: v }))}
                                             icon={<Phone className="w-4 h-4 text-slate-400" />}
                                         />
-                                        <ProfileField
-                                            label="Telegram"
-                                            id="profile-telegram"
-                                            placeholder="@username або номер"
-                                            value={profileForm.telegram}
-                                            onChange={(v) => setProfileForm(f => ({ ...f, telegram: v }))}
-                                            icon={<Send className="w-4 h-4 text-slate-400" />}
-                                        />
+                                        {profileForm.telegramChatId ? (
+                                            <div className="flex flex-col gap-2">
+                                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Telegram</label>
+                                                <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                                    <span className="text-sm font-bold text-emerald-700">Бот підключений</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-2">
+                                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Telegram</label>
+                                                <a 
+                                                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}?start=${profile?.id}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-center gap-2 w-full bg-[#0088cc] hover:bg-[#0077b5] text-white rounded-xl px-4 py-3 text-sm font-bold transition-all shadow-md shadow-blue-500/20"
+                                                >
+                                                    <Send className="w-4 h-4" />
+                                                    Підключити Бота
+                                                </a>
+                                            </div>
+                                        )}
                                         <ProfileField
                                             label="WhatsApp"
                                             id="profile-whatsapp"

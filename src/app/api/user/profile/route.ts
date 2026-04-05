@@ -21,6 +21,7 @@ export async function GET() {
             lastName: true,
             phone: true,
             telegram: true,
+            telegramChatId: true,
             whatsapp: true,
         },
     })

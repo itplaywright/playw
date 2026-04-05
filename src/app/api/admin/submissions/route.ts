@@ -56,12 +56,13 @@ export async function PATCH(req: Request) {
             })
             .where(eq(taskSubmissions.id, submissionId))
 
-        // Get details to send email
+        // Get details to send email and telegram
         const submissionWithUser = await db.select({
             userEmail: users.email,
             userName: users.firstName,
             backupName: users.name,
-            taskTitle: tasks.title
+            taskTitle: tasks.title,
+            telegramChatId: users.telegramChatId,
         })
         .from(taskSubmissions)
         .innerJoin(users, eq(taskSubmissions.userId, users.id))
@@ -69,15 +70,45 @@ export async function PATCH(req: Request) {
         .where(eq(taskSubmissions.id, submissionId))
         .then(res => res[0])
 
-        if (submissionWithUser && submissionWithUser.userEmail) {
-            const { sendMentorFeedbackEmail } = await import("@/lib/email")
-            await sendMentorFeedbackEmail({
-                toEmail: submissionWithUser.userEmail,
-                userName: submissionWithUser.userName || submissionWithUser.backupName || "Студент",
-                taskTitle: submissionWithUser.taskTitle,
-                feedback,
-                status: status || "reviewed"
-            })
+        if (submissionWithUser) {
+            const finalStatus = status || "reviewed";
+            const name = submissionWithUser.userName || submissionWithUser.backupName || "Студент";
+            
+            // Send Email
+            if (submissionWithUser.userEmail) {
+                const { sendMentorFeedbackEmail } = await import("@/lib/email")
+                // Do not block response on email sending
+                sendMentorFeedbackEmail({
+                    toEmail: submissionWithUser.userEmail,
+                    userName: name,
+                    taskTitle: submissionWithUser.taskTitle,
+                    feedback,
+                    status: finalStatus
+                }).catch(console.error)
+            }
+
+            // Send Telegram Notification
+            if (submissionWithUser.telegramChatId && process.env.TELEGRAM_BOT_TOKEN) {
+                const isPassed = finalStatus === "reviewed"
+                const emoji = isPassed ? "✅" : "⚠️"
+                const statusText = isPassed ? "Успішно складено" : "Потребує доопрацювання"
+                
+                const tgMessage = `Привіт, ${name}! 👋\n\n` +
+                    `Ваше виконання завдання *"${submissionWithUser.taskTitle}"* перевірено ментором.\n\n` +
+                    `Статус: ${emoji} *${statusText}*\n\n` +
+                    `📝 Відгук:\n_${feedback}_\n\n` +
+                    `[Увійдіть на платформу](https://itplatform-three.vercel.app/dashboard)`
+
+                fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: submissionWithUser.telegramChatId,
+                        text: tgMessage,
+                        parse_mode: "Markdown"
+                    })
+                }).catch(e => console.error("Failed to send telegram mentor feedback:", e))
+            }
         }
 
         return NextResponse.json({ success: true })

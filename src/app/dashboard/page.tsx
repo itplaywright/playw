@@ -20,6 +20,7 @@ export default async function Dashboard() {
     const userWithRole = await db.select({
         id: users.id,
         createdAt: users.createdAt,
+        firstName: users.firstName,
         dynamicRole: {
             id: roles.id,
             name: roles.name,
@@ -71,6 +72,7 @@ export default async function Dashboard() {
             isAdmin={isAdmin}
             userName={session.user.name}
             userImage={session.user.image}
+            firstName={userWithRole?.firstName}
             projects={boards as any}
             role={userWithRole?.dynamicRole}
         />

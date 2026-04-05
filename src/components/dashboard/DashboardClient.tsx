@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
     BookOpen, Code2, ArrowRight, CheckCircle2, Clock, ChevronRight,
-    BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid, Sparkles
+    BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid, Sparkles, Target as TargetIcon
 } from "lucide-react"
 
 import Sidebar from "@/components/layout/Sidebar"
@@ -47,6 +47,7 @@ interface Props {
     isAdmin: boolean
     userName?: string | null
     userImage?: string | null
+    firstName?: string | null
     projects: Project[]
     role?: {
         id: number
@@ -73,7 +74,7 @@ const STATUS_STYLES: Record<string, string> = {
     "Не розпочато": "bg-slate-100 text-slate-500",
 }
 
-export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, projects, role }: Props) {
+export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, projects, role }: Props) {
     const searchParams = useSearchParams()
     const urlTrackId = searchParams.get("trackId")
     const [selectedTrackId, setSelectedTrackId] = useState<number>(
@@ -109,7 +110,13 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const totalDone = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).done, 0)
     const totalAll = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).total, 0)
     const overallPct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0
-    const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
+    
+    const displayFirstName = firstName || (userName ? userName.split(' ')[0] : 'Студент')
+    const initials = displayFirstName.substring(0, 2).toUpperCase()
+
+    // Find next suggested task
+    const nextTask = tasks.find(t => statusMap[t.id] === "В процесі") || tasks.find(t => statusMap[t.id] === "Не розпочато")
+
 
     return (
         <div className="flex flex-col min-h-screen bg-[#020617] overflow-x-hidden font-sans relative">
@@ -218,6 +225,47 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Welcome back / Suggested Task */}
+                            <div className="mb-10 p-6 glass-card-premium-v2 rounded-[2rem] border border-blue-500/20 shadow-xl shadow-blue-900/20 flex flex-col md:flex-row items-center gap-6 justify-between relative overflow-hidden">
+                                <div className="absolute right-0 top-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
+                                
+                                <div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Sparkles className="w-5 h-5 text-amber-400" />
+                                        <h3 className="text-2xl font-black text-white">Привіт, {displayFirstName}!</h3>
+                                    </div>
+                                    <p className="text-slate-400 text-sm font-medium">Раді бачити тебе знову. Твоя наступна ціль вже чекає.</p>
+                                </div>
+                                
+                                {nextTask ? (
+                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 min-w-[300px] z-10 w-full md:w-auto hover:bg-white/10 transition-colors">
+                                        <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex flex-shrink-0 items-center justify-center">
+                                            <TargetIcon className="w-6 h-6 text-blue-400" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1">Рекомендовано для тебе</p>
+                                            <p className="text-white font-bold text-sm truncate max-w-[200px] hover:text-blue-300 transition-colors">
+                                                <Link href={`/tasks/${nextTask.id}`}>
+                                                    {nextTask.title}
+                                                </Link>
+                                            </p>
+                                        </div>
+                                        <Link href={`/tasks/${nextTask.id}`} className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-500 transition-colors">
+                                            <ArrowRight className="w-5 h-5 text-white" />
+                                        </Link>
+                                    </div>
+                                ) : (
+                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 px-6 flex items-center gap-4 z-10 w-full md:w-auto">
+                                        <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                                        <div>
+                                            <p className="text-white font-bold text-sm">Всі завдання виконано!</p>
+                                            <p className="text-slate-400 text-xs">Чудова робота.</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
 
 
 

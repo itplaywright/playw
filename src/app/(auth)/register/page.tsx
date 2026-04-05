@@ -10,6 +10,7 @@ import { UserPlus, Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
 
 export default function RegisterPage() {
     const router = useRouter()
+    const [firstName, setFirstName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
@@ -24,7 +25,7 @@ export default function RegisterPage() {
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, firstName }),
             })
 
             if (!res.ok) {
@@ -85,6 +86,24 @@ export default function RegisterPage() {
                         )}
 
                         <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-muted-foreground ml-1" htmlFor="firstName">
+                                    Ім'я
+                                </label>
+                                <div className="relative">
+                                    <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
+                                    <input
+                                        id="firstName"
+                                        type="text"
+                                        placeholder="Іван"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        required
+                                        className="w-full h-12 bg-muted/30 border border-border rounded-xl pl-12 pr-4 text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all dark:bg-white/5"
+                                    />
+                                </div>
+                            </div>
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-muted-foreground ml-1" htmlFor="email">
                                     Email

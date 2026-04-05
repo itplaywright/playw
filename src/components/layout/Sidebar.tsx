@@ -40,7 +40,7 @@ export default function Sidebar({
 }: SidebarProps) {
     const isProTrack = (order: number | null) => {
         if (isAdmin) return false
-        const maxOrder = role?.maxTrackOrder ?? 2 // Default to 2 if no role/sub
+        const maxOrder = role?.maxTrackOrder ?? 1 // Default to 1 for demo/new users
         return (order ?? 0) > maxOrder
     }
 

@@ -9,12 +9,31 @@ export async function seedDatabase() {
     const impPage = "import { test, expect, Page } from '@playwright/test';\n\n";
 
     // ==========================================
+    // Рівень 0 — Основи TypeScript
+    // ==========================================
+    const level0Data = {
+        title: "Рівень 0 — Основи TypeScript",
+        description: "Базові концепції мови, необхідні для швидкого старту з автотестами.",
+        order: 1
+    };
+
+    await db.insert(tracks).values(level0Data)
+        .onDuplicateKeyUpdate({
+            set: {
+                description: level0Data.description,
+                order: level0Data.order
+            }
+        });
+    
+    const [level0] = await db.select().from(tracks).where(eq(tracks.title, level0Data.title));
+
+    // ==========================================
     // Рівень 1 — Base (15 завдань)
     // ==========================================
     const level1Data = {
         title: "Рівень 1 — Base (Основи майстерності)",
         description: "Фундамент автоматизації: від першого кліку до мобільної емуляції.",
-        order: 1
+        order: 2
     };
 
     await db.insert(tracks).values(level1Data)
@@ -52,6 +71,70 @@ export async function seedDatabase() {
             });
         }
     }
+
+    // Level 0 Tasks
+    await addTasks(level0.id, [
+        {
+            title: "0.1 Змінні: const та let",
+            description: "## 📦 Контейнери для даних\n\n**Теорія**: В TypeScript (як і в JavaScript) значення зберігаються у змінних. `const` використовується для значень, які не будуть змінюватись після створення (це найпопулярніший варіант). `let` — коли ви точно знаєте, що значення зміниться згодом.\n\n**Приклад**:\n```typescript\nconst siteUrl = 'https://google.com'; // не можна змінити\nlet attempt = 1; // можна змінити\nattempt = 2;\n```\n\n### Завдання\nЯке ключове слово слід використовувати для створення змінної, яка НЕ повинна змінювати своє значення?",
+            code: "const answer = \"\"; // Виберіть правильний варіант",
+            options: [
+                "const",
+                "let",
+                "var",
+                "fixed"
+            ],
+            correctAnswer: "const"
+        },
+        {
+            title: "0.2 Основні типи даних",
+            description: "## 🧩 Рядки та числа\n\n**Теорія**: TypeScript любить знати, який саме тип даних ви використовуєте.\n- `string`: текстові дані (наприклад, `'Email'` або `\"Password\"`)\n- `number`: числа (`42`, `3.14`)\n- `boolean`: логічний тип (`true` або `false`)\n\nАвтотести постійно працюють з рядками тексту (локатори CSS або повідомлення).",
+            code: "const text = \"Hello Playwright\"; // Це тип string\n\n// Виберіть тип, яким є true чи false:",
+            options: [
+                "boolean",
+                "string",
+                "number",
+                "object"
+            ],
+            correctAnswer: "boolean"
+        },
+        {
+            title: "0.3 Асинхронність: await",
+            description: "## ⏳ Чекаємо на відповідь браузера\n\n**Теорія**: Браузер — повільна програма у порівнянні з кодом. Коли ви командуєте клікнути на кнопку, код повинен **дочекатися** виконання цієї дії, перш ніж йти далі. \nДля цього використовується слово `await` перед обіцянкою (Promise).\n\n**Приклад**:\n```typescript\nawait page.goto('https://go.com'); // Чекаємо завантаження\nawait page.click('#btn'); // Чекаємо кліку\n```",
+            code: "// Що треба поставити перед page.click(), щоб дочекатись завершення?",
+            options: [
+                "await",
+                "async",
+                "wait",
+                "delay"
+            ],
+            correctAnswer: "await"
+        },
+        {
+            title: "0.4 Функції та async",
+            description: "## ⚙️ Асинхронні функції\n\n**Теорія**: Якщо всередині функції (навіть тесту) ми хочемо використовувати `await`, сама функція повинна бути позначена як `async`! В Playwright всі тести є `async` функціями.\n\n**Приклад**:\n```typescript\ntest('мій тест', async ({ page }) => {\n  await page.click('button');\n});\n```",
+            code: "// Напишіть слово, яке робить функцію асинхронною",
+            options: [
+                "async",
+                "await",
+                "sync",
+                "promise"
+            ],
+            correctAnswer: "async"
+        },
+        {
+            title: "0.5 Деструктуризація об'єкта",
+            description: "## 🎁 Витягування властивостей\n\n**Теорія**: Замість того, щоб звертатися до об'єкта цілком (`options.page`), ми можемо \"витягнути\" з нього лише те, що нам потрібно (`{ page }`). Це називається **деструктуризація** і використовується в Playwright всюди.\n\n**Приклад**:\n```typescript\n// Замість:\nfunction doTest(options) { const page = options.page; }\n// Ми пишемо:\nfunction doTest({ page }) { ... }\n```",
+            code: "const data = { page: 'browserTab', context: 'session' };\n// Як витягнути змінну page з data?",
+            options: [
+                "const { page } = data;",
+                "const [ page ] = data;",
+                "const page = data(page);",
+                "extract page from data;"
+            ],
+            correctAnswer: "const { page } = data;"
+        }
+    ], "easy");
 
     // Level 1 Tasks
     await addTasks(level1.id, [

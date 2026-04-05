@@ -170,7 +170,7 @@ export default function ProjectsClient({
                                 {boards.map((board, idx) => (
                                     <Link
                                         key={board.id}
-                                        href={(!isAdmin && !role?.hasPracticeAccess) ? "/pricing" : `/projects/${board.id}`}
+                                        href={`/projects/${board.id}`}
                                         className="group relative block p-8 glass-card-premium-v2 glass-card-premium-hover rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:-translate-y-1 active:scale-[0.98] accent-glow-top border-t-blue-500/30"
                                     >
                                         {/* Mesh Gradient Glow */}

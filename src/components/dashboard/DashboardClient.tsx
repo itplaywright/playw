@@ -256,8 +256,8 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
             {/* Header removed in favor of global DynamicHeader */}
 
             {/* Below header: Sidebar + Main Content (Floating Layout) */}
-            <div className="flex px-4 py-0 gap-4 relative z-10 w-full max-w-[1600px] mx-auto">
-                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-16 self-start h-[calc(100vh-4rem)]">
+            <div className="flex px-4 pb-4 gap-4 relative z-10 w-full max-w-[1600px] mx-auto -mt-2">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-[4.5rem] self-start h-[calc(100vh-5rem)]">
                     <Sidebar
                         tracks={tracks}
                         getTrackProgress={getTrackProgress}

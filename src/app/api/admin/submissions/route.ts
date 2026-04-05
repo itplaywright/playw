@@ -56,6 +56,30 @@ export async function PATCH(req: Request) {
             })
             .where(eq(taskSubmissions.id, submissionId))
 
+        // Get details to send email
+        const submissionWithUser = await db.select({
+            userEmail: users.email,
+            userName: users.firstName,
+            backupName: users.name,
+            taskTitle: tasks.title
+        })
+        .from(taskSubmissions)
+        .innerJoin(users, eq(taskSubmissions.userId, users.id))
+        .innerJoin(tasks, eq(taskSubmissions.taskId, tasks.id))
+        .where(eq(taskSubmissions.id, submissionId))
+        .then(res => res[0])
+
+        if (submissionWithUser && submissionWithUser.userEmail) {
+            const { sendMentorFeedbackEmail } = await import("@/lib/email")
+            await sendMentorFeedbackEmail({
+                toEmail: submissionWithUser.userEmail,
+                userName: submissionWithUser.userName || submissionWithUser.backupName || "Студент",
+                taskTitle: submissionWithUser.taskTitle,
+                feedback,
+                status: status || "reviewed"
+            })
+        }
+
         return NextResponse.json({ success: true })
     } catch (error) {
         console.error("Update submission error:", error)

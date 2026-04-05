@@ -26,7 +26,7 @@ export async function sendMentorFeedbackEmail({ toEmail, userName, taskTitle, fe
         return false
     }
 
-    const isPassed = status === "passed"
+    const isPassed = status === "reviewed"
     const statusText = isPassed ? "Успішно складено ✅" : "Потребує доопрацювання ⚠️"
     const statusColor = isPassed ? "#10b981" : "#f59e0b"
 

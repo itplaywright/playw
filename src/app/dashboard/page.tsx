@@ -22,6 +22,7 @@ export default async function Dashboard() {
         createdAt: users.createdAt,
         firstName: users.firstName,
         telegram: users.telegram,
+        telegramChatId: users.telegramChatId,
         whatsapp: users.whatsapp,
         dynamicRole: {
             id: roles.id,
@@ -66,10 +67,13 @@ export default async function Dashboard() {
         }
     }
 
-    const hasContacts = Boolean(userWithRole?.telegram || userWithRole?.whatsapp)
+    // We prompt them if they haven't connected the bot
+    const hasContacts = Boolean(userWithRole?.telegramChatId)
 
     return (
         <DashboardClient
+            userId={session.user.id!}
+            botUsername={process.env.TELEGRAM_BOT_USERNAME || 'PlaywrightMentorBot'}
             tracks={visibleTracks as any}
             tasks={visibleTasks as any}
             statusMap={statusMap}

@@ -50,6 +50,8 @@ interface Props {
     firstName?: string | null
     hasContacts?: boolean
     projects: Project[]
+    userId?: string
+    botUsername?: string
     role?: {
         id: number
         name: string
@@ -75,7 +77,7 @@ const STATUS_STYLES: Record<string, string> = {
     "Не розпочато": "bg-slate-100 text-slate-500",
 }
 
-export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role }: Props) {
+export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername }: Props) {
     const searchParams = useSearchParams()
     const urlTrackId = searchParams.get("trackId")
     const [selectedTrackId, setSelectedTrackId] = useState<number>(
@@ -141,8 +143,6 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
 
     // Contact Modal Logic
     const [showContactModal, setShowContactModal] = useState(false)
-    const [contactForm, setContactForm] = useState({ telegram: "", whatsapp: "" })
-    const [isSavingContacts, setIsSavingContacts] = useState(false)
 
     useEffect(() => {
         const storageKey = `contacts_prompted_${userName || 'unknown'}`
@@ -152,24 +152,6 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
             return () => clearTimeout(timer)
         }
     }, [hasContacts, userName])
-
-    const handleSaveContacts = async () => {
-        setIsSavingContacts(true)
-        try {
-            await fetch("/api/user/profile", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(contactForm),
-            })
-        } catch (e) {
-            console.error(e)
-        } finally {
-            const storageKey = `contacts_prompted_${userName || 'unknown'}`
-            setIsSavingContacts(false)
-            localStorage.setItem(storageKey, "true")
-            setShowContactModal(false)
-        }
-    }
 
     const handleSkipContacts = () => {
         const storageKey = `contacts_prompted_${userName || 'unknown'}`
@@ -464,51 +446,33 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                             <Bell className="w-6 h-6" />
                         </div>
                         
-                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Для зворотного зв'язку</h3>
+                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Залишайся на зв'язку</h3>
                         <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                            Залиште свій Telegram або WhatsApp. Ментор надішле вам повідомлення, коли перевірить ваші завдання.
+                            Підключи нашого Telegram бота, щоб миттєво отримувати сповіщення, коли ментор перевірить твоє завдання. Це зручно та безпечно.
                         </p>
                         
                         <div className="space-y-4 mb-8">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2" htmlFor="telegram-input">Telegram</label>
-                                <input
-                                    id="telegram-input"
-                                    type="text"
-                                    placeholder="@username або номер"
-                                    value={contactForm.telegram}
-                                    onChange={(e) => setContactForm({ ...contactForm, telegram: e.target.value })}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2" htmlFor="whatsapp-input">WhatsApp</label>
-                                <input
-                                    id="whatsapp-input"
-                                    type="text"
-                                    placeholder="+380 XX XXX XX XX"
-                                    value={contactForm.whatsapp}
-                                    onChange={(e) => setContactForm({ ...contactForm, whatsapp: e.target.value })}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all"
-                                />
-                            </div>
+                            <a 
+                                href={`https://t.me/${botUsername || ''}?start=${userId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={handleSkipContacts} // Also dismiss modal when they click the bot
+                                className="flex items-center justify-center gap-3 w-full bg-[#0088cc] hover:bg-[#0077b5] text-white rounded-xl px-4 py-4 text-sm font-bold transition-all shadow-lg shadow-blue-500/30"
+                            >
+                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
+                                </svg>
+                                Підключити Telegram Бот
+                            </a>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <button
                                 type="button"
                                 onClick={handleSkipContacts}
-                                className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors text-sm"
+                                className="w-full py-3 px-4 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors text-sm"
                             >
-                                Пізніше
-                            </button>
-                            <button
-                                type="button"
-                                disabled={isSavingContacts || (!contactForm.telegram && !contactForm.whatsapp)}
-                                onClick={handleSaveContacts}
-                                className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 disabled:opacity-60 disabled:cursor-not-allowed text-sm"
-                            >
-                                {isSavingContacts ? "Збереження..." : "Зберегти"}
+                                Я зроблю це пізніше
                             </button>
                         </div>
                     </div>

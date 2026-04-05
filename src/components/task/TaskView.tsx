@@ -266,20 +266,20 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
     }
 
     return (
-        <div className="flex flex-col h-screen bg-premium-dark overflow-hidden font-sans">
+        <div className="flex flex-col h-screen bg-background overflow-hidden font-sans">
             {/* Header */}
-            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50">
+            <header className="flex-shrink-0 h-10 border-b border-border bg-card/80 backdrop-blur-md flex items-center px-4 gap-6 z-50">
                 {/* Logo */}
                 <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 group opacity-80 hover:opacity-100 transition-opacity">
                     <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
                         <Terminal className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-white font-bold text-xs tracking-tight hidden sm:block">IT Playwright</span>
+                    <span className="text-foreground font-bold text-xs tracking-tight hidden sm:block">IT Playwright</span>
                 </Link>
 
-                <div className="h-4 w-px bg-white/5 flex-shrink-0 mx-2" />
+                <div className="h-4 w-px bg-border flex-shrink-0 mx-2" />
                 
-                <Link href="/dashboard" className="flex items-center gap-1.5 text-slate-500 hover:text-white transition-all flex-shrink-0 text-[10px] font-bold uppercase tracking-wider group">
+                <Link href="/dashboard" className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-all flex-shrink-0 text-[10px] font-bold uppercase tracking-wider group">
                     <svg className="h-3 w-3 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
@@ -288,13 +288,13 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
 
                 {/* Task title + Next Task */}
                 <div className="flex-1 min-w-0 flex items-center gap-3">
-                    <h1 className="text-white text-xs font-bold truncate opacity-90">{task.title}</h1>
+                    <h1 className="text-foreground text-xs font-bold truncate opacity-90">{task.title}</h1>
                     {nextTask && (
                         <>
-                            <div className="h-2 w-px bg-white/5 flex-shrink-0" />
+                            <div className="h-2 w-px bg-border flex-shrink-0" />
                             <Link
                                 href={`/tasks/${nextTask.id}`}
-                                className="flex items-center gap-1.5 text-slate-500 hover:text-blue-400 transition-all flex-shrink-0 text-[10px] font-bold uppercase tracking-wider group"
+                                className="flex items-center gap-1.5 text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 transition-all flex-shrink-0 text-[10px] font-bold uppercase tracking-wider group"
                             >
                                 <span className="hidden sm:inline truncate max-w-[150px]">{nextTask.title}</span>
                                 <svg className="h-3 w-3 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,7 +314,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     setCode(task.initialCode || "")
                                 }
                             }}
-                            className="px-3 py-1 text-[10px] font-bold text-slate-500 hover:text-slate-300 transition-colors uppercase tracking-widest"
+                            className="px-3 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest"
                         >
                             Скинути
                         </button>
@@ -377,18 +377,18 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             {/* Main Content */}
             <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                 {/* Left/Top: Description */}
-                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/5 p-0 prose prose-invert prose-sm lg:prose-base max-w-none bg-slate-950 custom-scrollbar relative">
+                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-border p-0 prose prose-slate dark:prose-invert prose-sm lg:prose-base max-w-none bg-card custom-scrollbar relative">
                     {/* Sticky Header for Theory */}
-                    <div className="sticky top-0 z-20 header-glass-premium px-4 lg:px-8 py-4 border-b border-white/5 flex items-center justify-between">
+                    <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-md px-4 lg:px-8 py-4 border-b border-border flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 shadow-[0_0_12px_rgba(59,130,246,0.1)]">
-                                <BookOpen className="w-4 h-4 text-blue-400" />
+                                <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <h2 className="text-white text-sm font-black m-0 tracking-tight uppercase">
+                            <h2 className="text-foreground text-sm font-black m-0 tracking-tight uppercase">
                                 Теорія та завдання
                             </h2>
                         </div>
-                        <span className="text-[10px] font-black text-slate-600 tracking-[0.3em] uppercase opacity-50">LEVEL {task.id}</span>
+                        <span className="text-[10px] font-black text-muted-foreground tracking-[0.3em] uppercase opacity-50">LEVEL {task.id}</span>
                     </div>
 
                     <div className="p-4 lg:p-8 pt-4 lg:pt-6">
@@ -466,12 +466,12 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                         }
 
                                         if (isInline) {
-                                            return <code className="bg-white/10 px-1 rounded text-blue-400 font-mono" {...props}>{children}</code>
+                                            return <code className="bg-blue-500/10 px-1 rounded text-blue-600 dark:text-blue-400 font-mono" {...props}>{children}</code>
                                         }
                                         return (
-                                            <div className="border border-white/5 rounded-xl overflow-hidden shadow-2xl my-6">
-                                                <div className="bg-[#121212] flex items-center justify-between px-4 py-2 border-b border-white/5">
-                                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                            <div className="border border-border rounded-xl overflow-hidden shadow-2xl my-6">
+                                                <div className="bg-secondary flex items-center justify-between px-4 py-2 border-b border-border">
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                                                         {match ? `Example Code (${match[1]})` : "Example Code"}
                                                     </span>
                                                     <div className="flex gap-1">
@@ -480,7 +480,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                         <div className="w-2 h-2 rounded-full bg-green-500/50" />
                                                     </div>
                                                 </div>
-                                                <code className="block bg-[#0d0d0d] p-4 text-sm font-mono overflow-x-auto" {...props}>
+                                                <code className="block bg-card p-4 text-sm font-mono overflow-x-auto text-foreground" {...props}>
                                                     {children}
                                                 </code>
                                             </div>
@@ -496,7 +496,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                 </div>
 
                 {/* Right/Bottom: Editor or Quiz Feedback */}
-                <div className="w-full lg:w-1/2 h-[60%] lg:h-full flex flex-col bg-[#1e1e1e]">
+                <div className="w-full lg:w-1/2 h-[60%] lg:h-full flex flex-col bg-background">
                     {task.type === "code" ? (
                         <>
                             <div className="flex-1 min-h-0">
@@ -508,18 +508,18 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             {/* Pro Console Tabs */}
                             <div 
                                 ref={consoleRef} 
-                                className={`border-t border-white/10 bg-[#0d0d0d] flex flex-col transition-all duration-300 ${
+                                className={`border-t border-border bg-background flex flex-col transition-all duration-300 ${
                                     activeConsoleTab === "Mentor" ? "h-64 lg:h-80" : "h-40 lg:h-48"
                                 }`}
                             >
-                                <div className="flex items-center px-4 border-b border-white/5 bg-[#121212]">
+                                <div className="flex items-center px-4 border-b border-border bg-secondary/50">
                                     {["Output", "Terminal", "Mentor"].map((tab) => (
                                         <button
                                             key={tab}
                                             onClick={() => setActiveConsoleTab(tab as any)}
                                             className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 relative ${activeConsoleTab === tab
-                                                ? "text-blue-500 border-blue-500"
-                                                : "text-slate-500 border-transparent hover:text-slate-300"
+                                                ? "text-blue-600 dark:text-blue-500 border-blue-600 dark:border-blue-500"
+                                                : "text-muted-foreground border-transparent hover:text-foreground"
                                                 }`}
                                         >
                                             {tab}
@@ -539,19 +539,19 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     {activeConsoleTab === "Mentor" ? (
                                         <div className="space-y-4 font-sans">
                                             {!submission ? (
-                                                <div className="text-slate-500 text-center py-4">Ви ще не надсилали код на перевірку.</div>
+                                                <div className="text-muted-foreground text-center py-4">Ви ще не надсилали код на перевірку.</div>
                                             ) : (
-                                                <div className={`border border-white/5 rounded-2xl overflow-hidden shadow-2xl ${
+                                                <div className={`border border-border rounded-2xl overflow-hidden shadow-2xl ${
                                                     submission.status === 'reviewed' ? 'bg-emerald-500/5' : 
                                                     submission.status === 'rejected' ? 'bg-red-500/5' : 
                                                     'bg-amber-500/5'
                                                 }`}>
-                                                    <div className="flex items-center justify-between p-4 border-b border-white/5 bg-black/20">
+                                                    <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/30">
                                                         <div className="flex items-center gap-2">
                                                             <div className={`w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : submission.status === 'rejected' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`} />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-white">Статус: {submission.status}</span>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Статус: {submission.status}</span>
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{new Date(submission.createdAt).toLocaleDateString()}</span>
+                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{new Date(submission.createdAt).toLocaleDateString()}</span>
                                                     </div>
                                                     
                                                     <div className="p-6">
@@ -585,28 +585,28 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex flex-col bg-gradient-to-b from-[#1e1e1e] to-[#0a0a0a] overflow-y-auto custom-scrollbar">
+                        <div className="flex-1 flex flex-col bg-gradient-to-b from-background to-secondary/20 overflow-y-auto custom-scrollbar">
                             {!isCompleted && currentQuestion ? (
                                <div className="p-8 lg:p-12 max-w-2xl mx-auto w-full space-y-8 animate-in mt-1">
-                                    <div className="glass-panel p-10 rounded-[2.5rem] relative overflow-hidden backdrop-blur-3xl">
+                                    <div className="bg-card border border-border p-10 rounded-[2.5rem] relative overflow-hidden backdrop-blur-3xl shadow-xl">
                                         {/* Background accent */}
                                         <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full" />
                                         
                                         <div className="relative z-10">
                                             <div className="flex items-center gap-3 mb-6">
-                                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-xl shadow-blue-500/20">
+                                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-sm shadow-xl shadow-blue-500/20">
                                                     {currentQuestionIndex + 1}
                                                 </div>
                                                 <div className="space-y-0.5">
-                                                    <span className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Питання {currentQuestionIndex + 1} з {totalQuestions}</span>
+                                                    <span className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Питання {currentQuestionIndex + 1} з {totalQuestions}</span>
                                                     <div className="flex gap-1">
                                                         {allQuestions.map((_, i) => (
-                                                            <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === currentQuestionIndex ? 'w-4 bg-blue-500' : i < currentQuestionIndex ? 'w-2 bg-emerald-500' : 'w-2 bg-white/10'}`} />
+                                                            <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === currentQuestionIndex ? 'w-4 bg-blue-500' : i < currentQuestionIndex ? 'w-2 bg-emerald-500' : 'w-2 bg-secondary'}`} />
                                                         ))}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <h3 className="text-2xl lg:text-3xl font-black text-white leading-[1.15] tracking-tight">{currentQuestion.text}</h3>
+                                            <h3 className="text-2xl lg:text-3xl font-black text-foreground leading-[1.15] tracking-tight">{currentQuestion.text}</h3>
                                         </div>
                                     </div>
 
@@ -617,17 +617,17 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                 onClick={() => handleOptionClick(option)}
                                                 className={`w-full text-left p-6 rounded-3xl border-2 transition-all duration-300 transform active:scale-[0.98] group relative overflow-hidden ${selectedOption === option
                                                     ? (option === currentQuestion.correctAnswer ? "bg-emerald-500/10 border-emerald-500 shadow-2xl shadow-emerald-500/10" : "bg-red-500/10 border-red-500 shadow-2xl shadow-red-500/10")
-                                                    : "bg-white/[0.03] border-white/5 hover:border-white/20 hover:bg-white/[0.05]"
+                                                    : "bg-card border-border hover:border-blue-500/50 hover:bg-secondary/50"
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-5 relative z-10">
                                                     <div className={`w-6 h-6 rounded-xl border-2 flex items-center justify-center flex-shrink-0 transition-all duration-300 ${selectedOption === option
                                                         ? (option === currentQuestion.correctAnswer ? "border-emerald-500 bg-emerald-500" : "border-red-500 bg-red-500")
-                                                        : "border-white/10 group-hover:border-blue-500/50"
+                                                        : "border-border group-hover:border-blue-500/50"
                                                         }`}>
                                                         {selectedOption === option && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
                                                     </div>
-                                                    <span className={`text-[17px] font-bold tracking-tight transition-colors ${selectedOption === option ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
+                                                    <span className={`text-[17px] font-bold tracking-tight transition-colors ${selectedOption === option ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"}`}>
                                                         {option}
                                                     </span>
                                                 </div>
@@ -639,10 +639,10 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 <div className="flex-1 flex items-center justify-center p-8 text-center">
                                     <div className="max-w-md">
                                         <div className="text-6xl mb-6">{output.includes("✅") ? "🎉" : (output.includes("❌") ? "🤔" : "📝")}</div>
-                                        <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">
+                                        <h2 className="text-3xl font-extrabold text-foreground mb-4 tracking-tight">
                                             {isCompleted ? "Чудова робота!" : (output.includes("✅") ? "Правильно!" : "Спробуйте ще раз")}
                                         </h2>
-                                        <div className="text-slate-400 font-medium text-lg mb-8">{output}</div>
+                                        <div className="text-muted-foreground font-medium text-lg mb-8">{output}</div>
                                         {isCompleted && (
                                             <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
                                                 <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold bg-emerald-500/10 py-3 px-6 rounded-2xl border border-emerald-500/20">
@@ -667,19 +667,19 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             {/* Code Review Modal */}
             {
                 isReviewModalOpen && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="bg-[#131b2c] w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-                            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-indigo-900/20">
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <div className="bg-card w-full max-w-3xl max-h-[85vh] flex flex-col rounded-3xl border border-border shadow-2xl overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b border-border bg-gradient-to-r from-purple-500/10 to-indigo-500/5">
                                 <div className="flex items-center gap-3">
                                     <div className="text-2xl">🔍</div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-white tracking-tight">Рев'ю коду</h2>
-                                        <p className="text-xs text-purple-300 font-medium tracking-wide uppercase">АВТОМАТИЧНИЙ АНАЛІЗ</p>
+                                        <h2 className="text-xl font-bold text-foreground tracking-tight">Рев'ю коду</h2>
+                                        <p className="text-xs text-purple-600 dark:text-purple-300 font-medium tracking-wide uppercase">АВТОМАТИЧНИЙ АНАЛІЗ</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setIsReviewModalOpen(false)}
-                                    className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-full transition-colors"
+                                    className="p-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground rounded-full transition-colors"
                                 >
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -731,13 +731,13 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             {/* Quiz Modal */}
             {
                 isQuizModalOpen && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="bg-[#0f172a] w-full max-w-2xl flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
-                            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-gradient-to-r from-emerald-900/30 to-teal-900/20">
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <div className="bg-card w-full max-w-2xl flex flex-col rounded-3xl border border-border shadow-2xl overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b border-border bg-gradient-to-r from-emerald-500/10 to-teal-500/5">
                                 <div className="flex items-center gap-3">
                                     <div className="text-2xl">🧠</div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-white tracking-tight">Перевірка знань</h2>
+                                        <h2 className="text-xl font-bold text-foreground tracking-tight">Перевірка знань</h2>
                                         <p className="text-xs text-emerald-300 font-medium tracking-wide uppercase">Прогрес: {Object.keys(answeredQuestions).length} / {totalQuestions}</p>
                                     </div>
                                 </div>

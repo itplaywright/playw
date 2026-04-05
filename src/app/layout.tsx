@@ -7,6 +7,8 @@ import { Toaster } from "sonner";
 import { auth } from "@/lib/auth";
 import GlobalMentorNotification from "@/components/notifications/GlobalMentorNotification";
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,17 +32,24 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <DynamicHeader user={session?.user} />
-        <main className="flex-1 flex flex-col">
-          {children}
-        </main>
-        <Footer />
-        <Toaster />
-        {session?.user && <GlobalMentorNotification />}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <DynamicHeader user={session?.user} />
+          <main className="flex-1 flex flex-col">
+            {children}
+          </main>
+          <Footer />
+          <Toaster />
+          {session?.user && <GlobalMentorNotification />}
+        </ThemeProvider>
       </body>
     </html>
   );

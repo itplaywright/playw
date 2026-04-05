@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LogOut, User, LayoutGrid, Key, Bell, Settings, ChevronDown, Terminal } from "lucide-react"
+import { Menu, X, LogOut, User, LayoutGrid, Key, Bell, Settings, ChevronDown, Terminal, Moon, Sun } from "lucide-react"
 import { logoutAction } from "@/app/actions"
+import { ThemeToggle } from "./ThemeToggle"
 
 const LANDING_MENU: MenuItem[] = [
     { id: -1, title: "Програма", url: "#curriculum", type: "internal", isVisible: true },
@@ -92,10 +93,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
         return null
     }
 
-    const isDark = true
-    const bgClass = "bg-[#0d1117] bg-opacity-80"
-    const textClass = "text-white"
-    const linkClass = "text-zinc-400 hover:text-white"
+    const bgClass = "header-glass-premium"
+    const textClass = "text-foreground"
+    const linkClass = "text-muted-foreground hover:text-foreground transition-colors"
 
     if (isLoading) {
         return (
@@ -114,7 +114,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
     }
 
     return (
-        <header className={`sticky top-0 z-50 border-b border-white/10 ${bgClass} backdrop-blur-[15px] transition-all duration-300`}>
+        <header className={`sticky top-0 z-50 ${bgClass} transition-all duration-300`}>
             <div className="w-full max-w-[1600px] mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo and Platform Name */}
@@ -167,7 +167,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
                         ))}
                     </nav>
 
-                    <div className="hidden md:flex items-center gap-4 relative">
+                    <div className="hidden md:flex items-center gap-3 relative">
+                        <ThemeToggle />
+                        <div className="h-4 w-[1px] bg-border mx-1" />
                         {user ? (
                             <div className="relative">
                                 <button 
@@ -193,7 +195,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                 {isProfileOpen && (
                                     <>
                                         <div className="fixed inset-0 z-30" onClick={() => setIsProfileOpen(false)} />
-                                        <div className="absolute right-0 mt-3 w-56 rounded-2xl bg-[#0f141b] border border-white/10 shadow-2xl py-2 z-40 animate-in fade-in zoom-in-95 duration-200">
+                                        <div className="absolute right-0 mt-3 w-56 rounded-2xl bg-card border border-border shadow-2xl py-2 z-40 animate-in fade-in zoom-in-95 duration-200">
                                             <div className="px-5 py-3 border-b border-white/5 mb-2">
                                                 <p className="text-[13px] font-bold text-white truncate">{user.email}</p>
                                                 <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">{user.role === 'admin' ? 'Адміністратор' : 'Студент'}</p>
@@ -229,13 +231,15 @@ export default function DynamicHeader({ user }: { user?: any }) {
                     </div>
 
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className={`md:hidden p-2 rounded-lg ${linkClass}`}
-                    >
-                        {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                    </button>
+                    <div className="md:hidden flex items-center gap-3">
+                        <ThemeToggle />
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className={`p-2 rounded-lg ${linkClass}`}
+                        >
+                            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Navigation */}

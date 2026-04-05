@@ -22,7 +22,7 @@ export default async function PricingPage() {
     const currentRoleId = userData?.dynamicRoleId;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col items-center justify-center p-6">
+        <div className="min-h-screen bg-background bg-premium flex flex-col items-center justify-center p-6">
             <div className="max-w-4xl w-full">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -30,10 +30,10 @@ export default async function PricingPage() {
                         <Zap className="w-4 h-4" />
                         Пробний період завершився
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
+                    <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4">
                         Оберіть свій тариф
                     </h1>
-                    <p className="text-slate-400 text-lg max-w-xl mx-auto">
+                    <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
                         Для продовження навчання виберіть підходящий план. Отримайте повний доступ до всіх матеріалів платформи.
                     </p>
                 </div>
@@ -49,10 +49,10 @@ export default async function PricingPage() {
                                 <div
                                     key={product.id}
                                     className={`relative rounded-3xl p-8 flex flex-col h-full transition-all ${isCurrentPlan
-                                        ? "bg-slate-800/80 border-2 border-emerald-500/50 shadow-2xl shadow-emerald-500/10"
+                                        ? "bg-card border-2 border-emerald-500/50 shadow-2xl shadow-emerald-500/10"
                                         : isPopular
                                             ? "bg-blue-600 border-2 border-blue-400 shadow-2xl shadow-blue-500/30"
-                                            : "bg-white/5 border border-white/10 hover:border-white/20"
+                                            : "bg-card border border-border hover:border-blue-500/30 dark:hover:border-white/20"
                                         }`}
                                 >
                                     {isCurrentPlan && (
@@ -79,15 +79,15 @@ export default async function PricingPage() {
                                         )}
                                     </div>
 
-                                    <h2 className={`text-xl font-black mb-2 ${isPopular ? "text-white" : "text-white"}`}>
+                                    <h2 className={`text-xl font-black mb-2 ${isPopular ? "text-white" : "text-foreground"}`}>
                                         {product.title}
                                     </h2>
-                                    <p className={`text-sm mb-6 flex-1 ${isPopular ? "text-blue-100" : "text-slate-400"}`}>
+                                    <p className={`text-sm mb-6 flex-1 font-medium ${isPopular ? "text-blue-100" : "text-muted-foreground"}`}>
                                         {product.description || "Повний доступ до матеріалів платформи."}
                                     </p>
 
                                     <div className="mt-auto space-y-6">
-                                        <div className={`text-4xl font-black ${isPopular ? "text-white" : "text-white"}`}>
+                                        <div className={`text-4xl font-black ${isPopular ? "text-white" : "text-foreground"}`}>
                                             {product.price === 0 ? "Безкоштовно" : 
                                              product.currency === "UAH" ? `${(product.price / 100).toLocaleString()} ₴` :
                                              product.currency === "USD" ? `$${(product.price / 100).toLocaleString()}` :
@@ -125,17 +125,17 @@ export default async function PricingPage() {
                 )}
 
                 {/* Bottom links */}
-                <div className="flex justify-center gap-6 text-sm">
+                <div className="flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
                     {session?.user ? (
-                        <Link href="/cabinet" className="text-slate-400 hover:text-white transition-colors">
+                        <Link href="/cabinet" className="hover:text-foreground transition-colors">
                             Мій кабінет
                         </Link>
                     ) : (
-                        <Link href="/login" className="text-slate-400 hover:text-white transition-colors">
+                        <Link href="/login" className="hover:text-foreground transition-colors">
                             Увійти
                         </Link>
                     )}
-                    <Link href="/" className="text-slate-400 hover:text-white transition-colors">
+                    <Link href="/" className="hover:text-foreground transition-colors">
                         Головна
                     </Link>
                 </div>

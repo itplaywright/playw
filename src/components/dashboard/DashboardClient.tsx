@@ -230,7 +230,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     }, [])
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#020617] overflow-x-hidden font-sans relative">
+        <div className="flex flex-col min-h-screen bg-background overflow-x-hidden font-sans relative">
             {/* Mesh Gradient Background */}
             <div className="mesh-gradient-container">
                 <div className="mesh-blob mesh-blob-1" />
@@ -264,7 +264,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <h1 className="text-4xl font-black text-white tracking-tight leading-none">
+                                            <h1 className="text-4xl font-black text-foreground tracking-tight leading-none">
                                                 {selectedTrack.title}
                                             </h1>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
@@ -273,22 +273,22 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-slate-400 text-[15px] font-medium max-w-2xl leading-relaxed opacity-60 mt-1">{selectedTrack.description}</p>
+                                        <p className="text-muted-foreground text-[15px] font-medium max-w-2xl leading-relaxed opacity-70 mt-1">{selectedTrack.description}</p>
                                     </div>
 
                                     {/* Gamified Stats Widgets */}
                                     <div className="flex flex-wrap items-center gap-3">
                                         <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-blue-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-blue-500/5">
-                                            <span className="text-3xl font-black text-white tracking-tighter leading-none mb-1.5 text-shadow-sm">5</span>
-                                            <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] opacity-80">🔥 ДНІВ СТРІКУ</span>
+                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">5</span>
+                                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">🔥 ДНІВ СТРІКУ</span>
                                         </div>
                                         <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-emerald-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-emerald-500/5">
-                                            <span className="text-3xl font-black text-white tracking-tighter leading-none mb-1.5 text-shadow-sm">14</span>
-                                            <span className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.2em] opacity-80">🧠 СКІЛІВ</span>
+                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">14</span>
+                                            <span className="text-[9px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-[0.2em] opacity-80">🧠 СКІЛІВ</span>
                                         </div>
                                         <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-purple-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-purple-500/5">
-                                            <span className="text-3xl font-black text-white tracking-tighter leading-none mb-1.5 text-shadow-sm">1.2k</span>
-                                            <span className="text-[9px] font-black text-purple-400 uppercase tracking-[0.2em] opacity-80">⌨️ РЯДКІВ КОДУ</span>
+                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">1.2k</span>
+                                            <span className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-[0.2em] opacity-80">⌨️ РЯДКІВ КОДУ</span>
                                         </div>
                                     </div>
                                 </div>
@@ -300,10 +300,10 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                 
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <Sparkles className="w-5 h-5 text-amber-400" />
-                                        <h3 className="text-2xl font-black text-white">{greetingInfo.greeting}, {displayFirstName}!</h3>
+                                        <Sparkles className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+                                        <h3 className="text-2xl font-black text-foreground">{greetingInfo.greeting}, {displayFirstName}!</h3>
                                     </div>
-                                    <p className="text-slate-400 text-sm font-medium">{nextTask ? greetingInfo.subtitleNext : greetingInfo.subtitleDone}</p>
+                                    <p className="text-muted-foreground text-sm font-medium">{nextTask ? greetingInfo.subtitleNext : greetingInfo.subtitleDone}</p>
                                 </div>
                                 
                                 {nextTask ? (
@@ -312,8 +312,8 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                             <TargetIcon className="w-6 h-6 text-blue-400" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1">Рекомендовано для тебе</p>
-                                            <p className="text-white font-bold text-sm truncate max-w-[200px] hover:text-blue-300 transition-colors">
+                                            <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mb-1">Рекомендовано для тебе</p>
+                                            <p className="text-foreground font-bold text-sm truncate max-w-[200px] hover:text-blue-600 dark:hover:text-blue-300 transition-colors">
                                                 <Link href={`/tasks/${nextTask.id}`}>
                                                     {nextTask.title}
                                                 </Link>
@@ -325,10 +325,10 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                     </div>
                                 ) : (
                                     <div className="bg-white/5 border border-white/10 rounded-2xl p-4 px-6 flex items-center gap-4 z-10 w-full md:w-auto">
-                                        <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                                        <CheckCircle2 className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
                                         <div>
-                                            <p className="text-white font-bold text-sm">Всі завдання виконано!</p>
-                                            <p className="text-slate-400 text-xs">Чудова робота.</p>
+                                            <p className="text-foreground font-bold text-sm">Всі завдання виконано!</p>
+                                            <p className="text-muted-foreground text-xs">Чудова робота.</p>
                                         </div>
                                     </div>
                                 )}
@@ -347,11 +347,11 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                             ) : (
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-10 h-10 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center">
-                                            <BookOpen className="w-5 h-5 text-blue-400" />
+                                        <div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center">
+                                            <BookOpen className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                                         </div>
                                         <div className="flex-1 h-[2px] bg-gradient-to-r from-blue-500/50 via-blue-500/10 to-transparent" />
-                                        <h2 className="text-[11px] font-black text-white uppercase tracking-[0.3em] whitespace-nowrap">Програма навчання</h2>
+                                        <h2 className="text-[11px] font-black text-foreground uppercase tracking-[0.3em] whitespace-nowrap">Програма навчання</h2>
                                     </div>
                                     {filteredTasks.map(task => {
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
@@ -407,7 +407,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                             <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} />
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <h4 className={`font-bold text-lg transition-colors ${isDone ? "text-slate-500" : "text-white group-hover:text-blue-300"}`}>
+                                                            <h4 className={`font-bold text-lg transition-colors ${isDone ? "text-muted-foreground" : "text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-300"}`}>
                                                                 {task.title}
                                                             </h4>
                                                             {isLocked && !isDone && (

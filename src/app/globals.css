@@ -4,98 +4,108 @@
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
-
     --card: 224 71.4% 4.1%;
     --card-foreground: 210 20% 98%;
-
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
-
     --primary: 263.4 70% 50.4%;
     --primary-foreground: 210 20% 98%;
-
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
-
     --muted: 215 27.9% 16.9%;
     --muted-foreground: 217.9 10.6% 64.9%;
-
     --accent: 263.4 70% 50.4%;
     --accent-foreground: 210 20% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 20% 98%;
-
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
     --ring: 263.4 70% 50.4%;
-
-    --radius: 0.75rem;
   }
 }
 
 @layer utilities {
-  .bg-premium-dark {
-    background: radial-gradient(circle at top center, #1e293b 0%, #0f172a 100%);
+  .bg-premium {
+    @apply bg-background;
+    background: radial-gradient(circle at top center, hsl(var(--secondary) / 0.3) 0%, hsl(var(--background)) 100%);
   }
 
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    @apply bg-white/40 dark:bg-white/5 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
   }
 
   .glass-panel-hover {
-    @apply hover:bg-white/10 hover:border-white/20 hover:shadow-blue-500/10 transition-all duration-300;
+    @apply hover:bg-white/60 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/20 hover:shadow-blue-500/10 transition-all duration-300;
   }
 
   .text-gradient-premium {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-slate-200 to-slate-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400;
   }
 
   .badge-gradient-blue {
-    @apply bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/20;
+    @apply bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20;
   }
 
   .badge-gradient-emerald {
-    @apply bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-900/20;
+    @apply bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20;
   }
 
   .star-gold {
-    @apply text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-yellow-400 to-orange-500 fill-current;
+    @apply text-transparent bg-clip-text bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-600 fill-current;
   }
 
   .glass-card-premium {
-    background: linear-gradient(180deg, #1a202c 0%, #111827 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    @apply backdrop-blur-md shadow-xl;
+    @apply bg-white/70 dark:bg-[#1a202c] border border-black/5 dark:border-white/10 backdrop-blur-md shadow-xl;
   }
 
   .glass-card-premium-hover {
-    @apply transition-all duration-500 hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.5),0_0_20px_rgba(59,130,246,0.1)] hover:border-white/20;
+    @apply transition-all duration-500 hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.1),0_0_20px_rgba(59,130,246,0.1)] dark:hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.5),0_0_20px_rgba(59,130,246,0.1)] hover:border-black/20 dark:hover:border-white/20;
   }
 
   .status-done-glass {
-    @apply bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest;
+    @apply bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest;
   }
 
   .sidebar-active-item {
-    @apply bg-white/[0.03] border-l-[3px] border-blue-500 shadow-[4px_0_24px_rgba(59,130,246,0.1)];
+    @apply bg-blue-500/5 dark:bg-white/[0.03] border-l-[3px] border-blue-600 dark:border-blue-500 shadow-[4px_0_24px_rgba(59,130,246,0.05)] dark:shadow-[4px_0_24px_rgba(59,130,246,0.1)];
   }
 
   .header-glass-premium {
-    background: rgba(13, 17, 23, 0.8);
-    backdrop-filter: blur(12px);
-    @apply border-b border-white/5;
+    @apply bg-white/80 dark:bg-[#0d1117]/80 backdrop-blur-[12px] border-b border-black/5 dark:border-white/5;
   }
 
   .progress-glow-blue {
     background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
-    @apply h-[4px] shadow-[0_0_12px_rgba(59,130,246,0.8)] transition-all duration-700 ease-out;
+    @apply h-[4px] shadow-[0_0_12px_rgba(59,130,246,0.4)] dark:shadow-[0_0_12px_rgba(59,130,246,0.8)] transition-all duration-700 ease-out;
   }
 
   .lesson-number-bg {
-    @apply absolute -right-4 -bottom-4 text-8xl font-black text-white/[0.05] select-none pointer-events-none;
+    @apply absolute -right-4 -bottom-4 text-8xl font-black text-black/[0.03] dark:text-white/[0.05] select-none pointer-events-none;
   }
 
   .star-gold-premium {
@@ -132,8 +142,7 @@
 
   /* Enhanced Glassmorphism v2 */
   .glass-card-premium-v2 {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
-    @apply backdrop-blur-[24px] border border-white/[0.08] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)];
+    @apply bg-white/50 dark:bg-white/[0.02] backdrop-blur-[24px] border border-black/5 dark:border-white/[0.08] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)];
   }
 
   .accent-glow-top {
@@ -170,17 +179,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  @apply bg-background;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 10px;
-  border: 2px solid #0f172a;
+  @apply bg-muted-foreground/20 rounded-full border-[3px] border-background;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  @apply bg-muted-foreground/30;
 }
 
 /* Custom Scrollbar Utility */

@@ -56,15 +56,15 @@ export default function PseudoVideoPlayer({ videoUrl, initialCode, title }: { vi
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-4 rounded-2xl font-black shadow-xl shadow-blue-500/20 transition-all transform hover:scale-[1.02] active:scale-[0.98] mb-6"
+                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-6 py-4 rounded-2xl font-black shadow-xl shadow-blue-500/20 transition-all transform hover:scale-[1.02] active:scale-[0.98] mb-6 group"
             >
-                <MonitorPlay className="w-5 h-5 fill-current" />
+                <MonitorPlay className="w-5 h-5 fill-current transition-transform group-hover:scale-110" />
                 Дивитись відео-пояснення
             </button>
 
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 lg:p-12 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="relative w-full max-w-5xl h-full lg:h-[85vh] flex flex-col bg-[#0f172a] rounded-3xl overflow-hidden border border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.15)] ring-1 ring-white/10">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-xl p-4 lg:p-12 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="relative w-full max-w-5xl h-full lg:h-[85vh] flex flex-col bg-slate-950 dark:bg-[#0f172a] rounded-3xl overflow-hidden border border-border/50 dark:border-blue-500/30 shadow-2xl relative">
 
                         {/* Hidden Audio Element */}
                         <audio
@@ -97,9 +97,9 @@ export default function PseudoVideoPlayer({ videoUrl, initialCode, title }: { vi
                         <div className="flex-1 p-4 lg:p-12 flex flex-col items-center justify-center relative bg-[#0a0f1d]">
                             <div className="absolute inset-0 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
 
-                            <div className="w-full max-w-4xl bg-[#1e1e1e] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative z-10 opacity-95">
+                            <div className="w-full max-w-4xl bg-[#1e1e1e] border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative z-10 opacity-95">
                                 {/* Editor Header */}
-                                <div className="h-10 bg-[#2d2d2d] flex items-center px-4 border-b border-slate-700">
+                                <div className="h-10 bg-[#252525] flex items-center px-4 border-b border-white/5">
                                     <div className="flex gap-2">
                                         <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
                                         <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
@@ -129,7 +129,7 @@ export default function PseudoVideoPlayer({ videoUrl, initialCode, title }: { vi
                         </div>
 
                         {/* Bottom Controls */}
-                        <div className="h-24 bg-slate-900 border-t border-slate-800 flex items-center px-4 lg:px-8 gap-4 lg:gap-8 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                        <div className="h-24 bg-card/50 dark:bg-slate-900 backdrop-blur-md border-t border-border/50 dark:border-slate-800 flex items-center px-4 lg:px-8 gap-4 lg:gap-8 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
                             <button
                                 onClick={togglePlay}
                                 className="text-white hover:text-blue-400 transition-colors w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/5 active:scale-90"

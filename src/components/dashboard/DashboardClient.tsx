@@ -145,12 +145,13 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const [isSavingContacts, setIsSavingContacts] = useState(false)
 
     useEffect(() => {
-        if (hasContacts === false && !localStorage.getItem("contacts_prompted")) {
+        const storageKey = `contacts_prompted_${userName || 'unknown'}`
+        if (hasContacts === false && !localStorage.getItem(storageKey)) {
             // Slight delay so the user sees the dashboard first
             const timer = setTimeout(() => setShowContactModal(true), 1500)
             return () => clearTimeout(timer)
         }
-    }, [hasContacts])
+    }, [hasContacts, userName])
 
     const handleSaveContacts = async () => {
         setIsSavingContacts(true)
@@ -163,14 +164,16 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
         } catch (e) {
             console.error(e)
         } finally {
+            const storageKey = `contacts_prompted_${userName || 'unknown'}`
             setIsSavingContacts(false)
-            localStorage.setItem("contacts_prompted", "true")
+            localStorage.setItem(storageKey, "true")
             setShowContactModal(false)
         }
     }
 
     const handleSkipContacts = () => {
-        localStorage.setItem("contacts_prompted", "true")
+        const storageKey = `contacts_prompted_${userName || 'unknown'}`
+        localStorage.setItem(storageKey, "true")
         setShowContactModal(false)
     }
 

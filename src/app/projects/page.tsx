@@ -47,23 +47,27 @@ export default async function ProjectsPage() {
         boards = await db.select().from(projectBoards).orderBy(desc(projectBoards.createdAt))
     } else {
         // Boards matching user's role OR specifically assigned to user
-        const boardsByRoleQuery = db.select({ id: projectBoardRoles.boardId })
-            .from(projectBoardRoles)
-            .where(userRoleId ? eq(projectBoardRoles.roleId, userRoleId) : undefined);
-            
-        const boardsByUserQuery = db.select({ id: projectBoardUsers.boardId })
-            .from(projectBoardUsers)
-            .where(eq(projectBoardUsers.userId, session.user.id!));
+        const conditions = []
+        
+        // 1. Direct User Assignment
+        conditions.push(inArray(projectBoards.id, 
+            db.select({ id: projectBoardUsers.boardId })
+              .from(projectBoardUsers)
+              .where(eq(projectBoardUsers.userId, session.user.id!))
+        ))
 
-        // Get the actual boards
+        // 2. Role Based Assignment (only if user has a role)
+        if (userRoleId) {
+            conditions.push(inArray(projectBoards.id, 
+                db.select({ id: projectBoardRoles.boardId })
+                  .from(projectBoardRoles)
+                  .where(eq(projectBoardRoles.roleId, userRoleId))
+            ))
+        }
+
         boards = await db.select()
             .from(projectBoards)
-            .where(
-                or(
-                    inArray(projectBoards.id, boardsByRoleQuery),
-                    inArray(projectBoards.id, boardsByUserQuery)
-                )
-            )
+            .where(or(...conditions))
             .orderBy(desc(projectBoards.createdAt));
     }
     const visibleTracks = isAdmin ? allTracks : allTracks.filter(t => t.isActive)

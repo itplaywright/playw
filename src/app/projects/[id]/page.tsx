@@ -21,6 +21,18 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
         })
         const userRoleId = userRecord?.dynamicRoleId
 
+        // Assemble access conditions
+        const accessConditions = [
+            and(eq(projectBoardUsers.boardId, boardId), eq(projectBoardUsers.userId, session.user.id!))
+        ]
+        
+        if (userRoleId) {
+            accessConditions.push(
+                and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))
+            )
+        }
+
+        // Optimized verification: check if any assignment exists
         const roleAccess = userRoleId ? await db.select().from(projectBoardRoles)
             .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))) : []
             

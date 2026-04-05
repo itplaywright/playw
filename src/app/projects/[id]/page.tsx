@@ -21,27 +21,20 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
         })
         const userRoleId = userRecord?.dynamicRoleId
 
-        // Assemble access conditions
-        const accessConditions = [
-            and(eq(projectBoardUsers.boardId, boardId), eq(projectBoardUsers.userId, session.user.id!))
-        ]
-        
-        if (userRoleId) {
-            accessConditions.push(
-                and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))
-            )
-        }
+        console.log(`[AUTH] Checking board ${boardId} for user ${session.user.id} (Role: ${userRoleId})`)
 
-        // Optimized verification: check if any assignment exists
-        const roleAccess = userRoleId ? await db.select().from(projectBoardRoles)
-            .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))) : []
-            
+        // 1. Check direct user assignment
         const userAccess = await db.select().from(projectBoardUsers)
             .where(and(eq(projectBoardUsers.boardId, boardId), eq(projectBoardUsers.userId, session.user.id!)))
 
-        const hasSpecificAccess = roleAccess.length > 0 || userAccess.length > 0
+        // 2. Check role-based assignment
+        const roleAccess = userRoleId ? await db.select().from(projectBoardRoles)
+            .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))) : []
+
+        console.log(`[AUTH] Matches - User: ${userAccess.length}, Role: ${roleAccess.length}`)
         
-        if (!hasSpecificAccess) {
+        if (userAccess.length === 0 && roleAccess.length === 0) {
+            console.log(`[AUTH] Access denied. Redirecting to /pricing`)
             redirect("/pricing")
         }
     }

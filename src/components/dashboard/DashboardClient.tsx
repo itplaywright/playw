@@ -107,7 +107,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
 
     const isProTrack = (order: number | null) => {
         if (isAdmin) return false
-        const maxOrder = role?.maxTrackOrder ?? 2
+        const maxOrder = role?.maxTrackOrder ?? 1 // allow up to Level 1 by default
         return (order ?? 0) > maxOrder
     }
 

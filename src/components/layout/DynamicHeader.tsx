@@ -100,7 +100,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
     if (isLoading) {
         return (
             <header className={`sticky top-0 z-50 border-b border-white/10 ${bgClass} backdrop-blur-[15px]`}>
-                <div className="container mx-auto px-4 py-4">
+                <div className="w-full max-w-[1600px] mx-auto px-4 py-4">
                     <div className="flex justify-between items-center">
                         <div className="h-8 w-48 bg-gray-600/20 animate-pulse rounded"></div>
                         <div className="hidden md:flex space-x-6">
@@ -115,7 +115,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
 
     return (
         <header className={`sticky top-0 z-50 border-b border-white/10 ${bgClass} backdrop-blur-[15px] transition-all duration-300`}>
-            <div className="container mx-auto px-4">
+            <div className="w-full max-w-[1600px] mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo and Platform Name */}
                     <Link href="/" className="flex items-center space-x-3 group">

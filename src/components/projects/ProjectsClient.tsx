@@ -67,7 +67,7 @@ export default function ProjectsClient({
     const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
 
     return (
-        <div className="flex flex-col h-screen bg-[#020617] overflow-hidden font-sans relative">
+        <div className="flex flex-col min-h-screen bg-[#020617] overflow-x-hidden font-sans relative">
             {/* Mesh Gradient Background */}
             <div className="mesh-gradient-container">
                 <div className="mesh-blob mesh-blob-1" />
@@ -76,7 +76,7 @@ export default function ProjectsClient({
             </div>
 
             {/* Top Header */}
-            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50">
+            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50 sticky top-0">
                 <div className="flex items-center gap-2 mr-4 opacity-80 hover:opacity-100 transition-opacity">
                     <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
                         <Terminal className="w-3 h-3 text-white" />
@@ -118,8 +118,8 @@ export default function ProjectsClient({
             </header>
 
             {/* Below header: Sidebar + Main Content (Floating Layout) */}
-            <div className="flex flex-1 overflow-hidden p-4 pt-2 gap-4 relative z-10">
-                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl">
+            <div className="flex p-4 pt-2 gap-4 relative z-10">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-[3.5rem] self-start h-[calc(100vh-4.5rem)]">
                     <Sidebar
                         tracks={tracks}
                         getTrackProgress={getTrackProgress}
@@ -130,7 +130,7 @@ export default function ProjectsClient({
                 </div>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto custom-scrollbar glass-card-premium rounded-[2rem] border border-white/5 shadow-2xl relative p-8">
+                <main className="flex-1 glass-card-premium rounded-[2rem] border border-white/5 shadow-2xl relative p-8">
                     <div className="w-full relative z-10">
                         <div className="flex items-center justify-between mb-12">
                             <div className="flex items-center gap-5">

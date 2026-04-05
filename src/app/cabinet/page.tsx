@@ -77,9 +77,9 @@ export default function UserCabinetPage() {
     const pendingSubmissionsCount = submissions.filter(s => s.status === "pending").length
 
     return (
-        <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
+        <div className="flex min-h-screen bg-[#f8fafc] overflow-x-hidden">
             {/* Sidebar */}
-            <aside className="w-64 flex-shrink-0 bg-[#0f172a] flex flex-col">
+            <aside className="w-64 flex-shrink-0 bg-[#0f172a] flex flex-col sticky top-16 h-[calc(100vh-4rem)]">
                 {/* Logo/User area */}
                 <div className="px-6 py-8 border-b border-white/10">
                     <div className="flex items-center gap-3 mb-1">
@@ -134,7 +134,7 @@ export default function UserCabinetPage() {
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                         <div className="flex flex-col items-center gap-4">

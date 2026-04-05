@@ -64,9 +64,7 @@ export async function GET() {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const boards = await db.query.projectBoards.findMany({
-        orderBy: (boards, { desc }) => [desc(boards.createdAt)],
-    })
+    const boards = await db.select().from(projectBoards).orderBy(desc(projectBoards.createdAt))
 
     return NextResponse.json(boards)
 }

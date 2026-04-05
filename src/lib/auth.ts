@@ -3,8 +3,8 @@ import Credentials from "next-auth/providers/credentials"
 import GitHub from "next-auth/providers/github"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import { db } from "@/db"
-import { accounts, sessions, users, verificationTokens } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { accounts, sessions, users, verificationTokens, roles } from "@/db/schema"
+import { eq, or } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -87,6 +87,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
             return session
         },
+    },
+    events: {
+        async createUser({ user }) {
+            try {
+                // Find first role that is either marked as default or named 'Demo'
+                const defaultRole = await db.query.roles.findFirst({
+                    where: or(eq(roles.isDefault, true), eq(roles.name, "Demo")),
+                    // Prioritize isDefault true over just 'Demo' name
+                    orderBy: (roles, { desc }) => [desc(roles.isDefault)]
+                })
+
+                if (defaultRole && user.id) {
+                    await db.update(users)
+                        .set({ dynamicRoleId: defaultRole.id })
+                        .where(eq(users.id, user.id))
+                }
+            } catch (error) {
+                console.error("Error setting default role for new user:", error)
+            }
+        }
     },
     session: {
         strategy: "jwt",

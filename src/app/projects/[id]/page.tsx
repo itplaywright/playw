@@ -21,8 +21,6 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
         })
         const userRoleId = userRecord?.dynamicRoleId
 
-        console.log(`[AUTH] Checking board ${boardId} for user ${session.user.id} (Role: ${userRoleId})`)
-
         // 1. Check direct user assignment
         const userAccess = await db.select().from(projectBoardUsers)
             .where(and(eq(projectBoardUsers.boardId, boardId), eq(projectBoardUsers.userId, session.user.id!)))
@@ -31,10 +29,7 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
         const roleAccess = userRoleId ? await db.select().from(projectBoardRoles)
             .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))) : []
 
-        console.log(`[AUTH] Matches - User: ${userAccess.length}, Role: ${roleAccess.length}`)
-        
         if (userAccess.length === 0 && roleAccess.length === 0) {
-            console.log(`[AUTH] Access denied. Redirecting to /pricing`)
             redirect("/pricing")
         }
     }

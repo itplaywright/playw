@@ -337,41 +337,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
 
 
 
-                            {isProTrack(selectedTrack.order) && !isAdmin ? (
-                                <div className="glass-panel rounded-[2.5rem] p-max border border-amber-500/10 bg-amber-500/[0.02] relative overflow-hidden flex flex-col items-center text-center py-24 min-h-[500px] justify-center backdrop-blur-md">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] -mr-32 -mt-32" />
-                                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-[80px] -ml-32 -mb-32" />
-                                    
-                                    <div className="w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-8 shadow-xl shadow-amber-500/10 scale-110 active:scale-95 transition-transform cursor-default group">
-                                        <Lock className="w-10 h-10 text-amber-500 drop-shadow-glow group-hover:rotate-12 transition-transform duration-500" />
-                                    </div>
-                                    
-                                    <h3 className="text-4xl font-black text-foreground tracking-tighter mb-4 uppercase scale-90 sm:scale-100">
-                                        Преміум доступ
-                                    </h3>
-                                    
-                                    <p className="text-muted-foreground font-black uppercase tracking-widest text-xs max-w-md mx-auto leading-relaxed mb-10 opacity-70">
-                                        Цей рівень та усі наступні доступні лише за повною підпискою. 
-                                        Отримайте повний шлях до Senior-рівня вже сьогодні.
-                                    </p>
-                                    
-                                    <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10 w-full max-w-xs sm:max-w-none justify-center">
-                                        <Link 
-                                            href="/pricing"
-                                            className="px-8 py-4 bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 active:scale-95 flex items-center gap-2 group"
-                                        >
-                                            <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
-                                            Розблокувати все
-                                        </Link>
-                                    </div>
-
-                                    {/* Structure Preview hint */}
-                                    <div className="mt-16 flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all cursor-default">
-                                        <BookOpen className="w-4 h-4" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Ви бачите структуру курсу</span>
-                                    </div>
-                                </div>
-                            ) : filteredTasks.length === 0 ? (
+                            {filteredTasks.length === 0 ? (
                                 <div className="glass-panel rounded-3xl p-16 text-center">
                                     <Code2 className="w-10 h-10 text-slate-500 mx-auto mb-4 opacity-20" />
                                     <p className="text-slate-400 font-medium">

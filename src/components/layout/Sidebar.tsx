@@ -155,16 +155,13 @@ export default function Sidebar({
                     const baseClass = `flex flex-col gap-1.5 px-4 py-3 rounded-r-2xl transition-all duration-300 text-left group relative ${isSelected
                         ? "sidebar-active-item text-blue-600 dark:text-blue-400"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 border-l-[3px] border-transparent"
-                        } ${isPro && !isAdmin ? "opacity-40 grayscale cursor-not-allowed" : ""}`
+                        } ${isPro && !isAdmin ? "opacity-60 grayscale" : ""}`
 
                     if (setSelectedTrackId) {
                         return (
                             <button
                                 key={track.id}
-                                onClick={() => {
-                                    if (isPro && !isAdmin) return
-                                    setSelectedTrackId(track.id)
-                                }}
+                                onClick={() => setSelectedTrackId(track.id)}
                                 className={baseClass}
                             >
                                 {content}
@@ -175,13 +172,8 @@ export default function Sidebar({
                     return (
                         <Link
                             key={track.id}
-                            href={(isPro && !isAdmin) ? "#" : `/dashboard?trackId=${track.id}`}
+                            href={`/dashboard?trackId=${track.id}`}
                             className={baseClass}
-                            onClick={(e) => {
-                                if (isPro && !isAdmin) {
-                                    e.preventDefault()
-                                }
-                            }}
                         >
                             {content}
                         </Link>

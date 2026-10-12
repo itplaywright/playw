@@ -1,21 +1,23 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, LogOut, User, LayoutGrid, Key, Bell, Settings, ChevronDown, Terminal, Moon, Sun } from "lucide-react"
+import { Link } from "@/i18n/routing"
+import {
+    Menu, X, LogOut, User, LayoutGrid, Key, Settings,
+    ChevronDown, Terminal, BookOpen, FolderKanban, GraduationCap,
+    Shield, CreditCard
+} from "lucide-react"
 import { logoutAction } from "@/app/actions"
 import { ThemeToggle } from "./ThemeToggle"
-
-const LANDING_MENU: MenuItem[] = [
-    { id: -1, title: "Програма", url: "#curriculum", type: "internal", isVisible: true },
-    { id: -2, title: "Як це працює", url: "#how-it-works", type: "internal", isVisible: true },
-    { id: -3, title: "FAQ", url: "#faq", type: "internal", isVisible: true },
-]
+import { LanguageSwitcher } from "./LanguageSwitcher"
+import { useTranslations, useLocale } from "next-intl"
 
 interface MenuItem {
     id: number
     title: string
+    titleEn?: string
+    titleRu?: string
     url: string
     type: "internal" | "external"
     isVisible: boolean
@@ -29,6 +31,15 @@ interface HeaderSettings {
 }
 
 export default function DynamicHeader({ user }: { user?: any }) {
+    const t = useTranslations('Header')
+    const locale = useLocale()
+
+    const getMenuTitle = (item: MenuItem) => {
+        if (locale === 'en' && item.titleEn) return item.titleEn
+        if (locale === 'ru' && item.titleRu) return item.titleRu
+        return item.title
+    }
+
     const [settings, setSettings] = useState<HeaderSettings>({})
     const [menuItems, setMenuItems] = useState<MenuItem[]>([])
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -36,14 +47,10 @@ export default function DynamicHeader({ user }: { user?: any }) {
     const [isLoading, setIsLoading] = useState(true)
     const [unreadQuestions, setUnreadQuestions] = useState(0)
     const [unreadSubmissions, setUnreadSubmissions] = useState(0)
+    const [scrolled, setScrolled] = useState(false)
     const pathname = usePathname()
-
     const totalUnreadCount = unreadQuestions + unreadSubmissions
-
-    const isTaskPage = pathname?.startsWith("/tasks/") || pathname?.startsWith("/projects/")
-    const displayMenuItems = user
-        ? menuItems.filter(item => !LANDING_MENU.some(l => l.url === item.url))
-        : LANDING_MENU
+    const isTaskPage = pathname?.includes("/tasks/") || pathname?.includes("/projects/")
 
     useEffect(() => {
         loadConfig()
@@ -53,6 +60,18 @@ export default function DynamicHeader({ user }: { user?: any }) {
             return () => clearInterval(interval)
         }
     }, [user])
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 10)
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
+
+    // Close profile dropdown on route change
+    useEffect(() => {
+        setIsProfileOpen(false)
+        setMobileMenuOpen(false)
+    }, [pathname])
 
     const fetchUnreadCount = async () => {
         try {
@@ -88,214 +107,369 @@ export default function DynamicHeader({ user }: { user?: any }) {
         }
     }
 
-    // Don't render if header is hidden or on task pages
     if (settings.header_visible === "false" || isTaskPage) {
         return null
     }
 
-    const bgClass = "header-glass-premium"
-    const textClass = "text-foreground"
-    const linkClass = "text-muted-foreground hover:text-foreground transition-colors"
+    const activeLocales = ['uk', 'en', 'ru'].filter(lang => settings[`lang_${lang}` as keyof HeaderSettings] !== "false")
 
+    const isActive = (href: string) => {
+        if (!pathname) return false
+        // Strip locale prefix for comparison
+        const clean = pathname.replace(/^\/(uk|en|ru)/, '')
+        return clean === href || clean.startsWith(href + '/')
+    }
+
+    // Loading skeleton
     if (isLoading) {
         return (
-            <header className={`sticky top-0 z-50 border-b border-white/10 ${bgClass} backdrop-blur-[15px]`}>
-                <div className="w-full max-w-[1600px] mx-auto px-4 py-4">
-                    <div className="flex justify-between items-center">
-                        <div className="h-8 w-48 bg-gray-600/20 animate-pulse rounded"></div>
-                        <div className="hidden md:flex space-x-6">
-                            <div className="h-6 w-20 bg-gray-600/20 animate-pulse rounded"></div>
-                            <div className="h-6 w-20 bg-gray-600/20 animate-pulse rounded"></div>
-                        </div>
+            <header className="sticky top-0 z-50 h-16 bg-background/80 backdrop-blur-xl border-b border-border/50">
+                <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+                    <div className="h-8 w-40 bg-muted animate-pulse rounded-lg" />
+                    <div className="hidden md:flex gap-4">
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded-lg" />
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded-lg" />
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded-lg" />
                     </div>
+                    <div className="h-9 w-9 bg-muted animate-pulse rounded-full" />
                 </div>
             </header>
         )
     }
 
-    return (
-        <header className={`sticky top-0 z-50 ${bgClass} transition-all duration-300`}>
-            <div className="w-full max-w-[1600px] mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo and Platform Name */}
-                    <Link href="/" className="flex items-center space-x-3 group">
-                        {settings.header_logo_url ? (
-                            <img
-                                src={settings.header_logo_url}
-                                alt="Logo"
-                                className="h-7 w-auto object-contain group-hover:scale-105 transition-transform"
-                            />
-                        ) : (
-                            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300">
-                                <Terminal className="w-4 h-4 text-white" />
-                            </div>
-                        )}
-                        {user && (
-                            <span className={`text-[15px] font-bold ${textClass} tracking-tight ml-1`}>
+    // ─── GUEST HEADER (not logged in) ────────────────────────
+    if (!user) {
+        return (
+            <header className={`sticky top-0 z-50 transition-all duration-300 ${
+                scrolled
+                    ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
+                    : 'bg-transparent'
+            }`}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="flex items-center justify-between h-16">
+                        {/* Logo */}
+                        <Link href="/" className="flex items-center gap-2.5 group">
+                            {settings.header_logo_url ? (
+                                <img src={settings.header_logo_url} alt="Logo" className="h-7 w-auto" />
+                            ) : (
+                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow">
+                                    <Terminal className="w-4.5 h-4.5 text-white" />
+                                </div>
+                            )}
+                            <span className="text-base font-bold text-foreground tracking-tight hidden sm:block">
                                 {settings.header_platform_name || "Playwright Platform"}
                             </span>
-                        )}
-                    </Link>
+                        </Link>
 
-                    {/* Navigation */}
-                    <nav className="hidden md:flex items-center space-x-6">
-                        {user && (
-                            <Link href="/projects" className={`text-[14px] font-medium transition-colors ${linkClass}`}>
-                                Проєкти
-                            </Link>
-                        )}
-                        {displayMenuItems.map((item: MenuItem) => (
-                            item.type === "internal" ? (
+                        {/* Landing menu items */}
+                        <nav className="hidden md:flex items-center gap-1">
+                            {menuItems.map((item: MenuItem) => {
+                                const finalUrl = item.url.startsWith('#') ? `/${item.url}` : item.url
+                                return item.type === "external" ? (
+                                    <a
+                                        key={item.id}
+                                        href={finalUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-all"
+                                    >
+                                        {getMenuTitle(item)}
+                                    </a>
+                                ) : (
+                                    <Link
+                                        key={item.id}
+                                        href={finalUrl as any}
+                                        className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-all"
+                                    >
+                                        {getMenuTitle(item)}
+                                    </Link>
+                                )
+                            })}
+                        </nav>
+
+                        {/* Right side */}
+                        <div className="flex items-center gap-2">
+                            <div className="hidden md:flex items-center gap-2">
+                                <LanguageSwitcher activeLocales={activeLocales} />
+                                <ThemeToggle />
+                                <div className="h-5 w-px bg-border mx-1" />
                                 <Link
-                                    key={item.id}
-                                    href={item.url}
-                                    className={`text-[14px] font-medium transition-colors ${linkClass}`}
+                                    href="/login"
+                                    className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/50 transition-all"
                                 >
-                                    {item.title}
+                                    {t('login')}
                                 </Link>
-                            ) : (
-                                <a
-                                    key={item.id}
-                                    href={item.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`text-[14px] font-medium transition-colors ${linkClass}`}
+                                <Link
+                                    href="/register"
+                                    className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-all shadow-md shadow-blue-600/25 hover:shadow-blue-500/40 active:scale-[0.98]"
                                 >
-                                    {item.title}
-                                </a>
-                            )
-                        ))}
-                    </nav>
-
-                    <div className="hidden md:flex items-center gap-3 relative">
-                        <ThemeToggle />
-                        <div className="h-4 w-[1px] bg-border mx-1" />
-                        {user ? (
-                            <div className="relative">
-                                <button 
-                                    onClick={() => setIsProfileOpen(!isProfileOpen)} 
-                                    className="flex items-center gap-3 pl-3 py-1 hover:bg-white/5 rounded-full transition-all group"
+                                    {t('register')}
+                                </Link>
+                            </div>
+                            <div className="md:hidden flex items-center gap-2">
+                                <LanguageSwitcher activeLocales={activeLocales} />
+                                <ThemeToggle />
+                                <button
+                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                    className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
                                 >
-                                    <div className="flex flex-col text-right">
-                                        <span className={`text-[13px] font-bold leading-none ${textClass} group-hover:text-blue-400 transition-colors`}>
-                                            {user.email?.split('@')[0]}
-                                        </span>
-                                    </div>
-                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-[0_0_15px_rgba(59,130,246,0.2)] relative group-hover:scale-105 transition-transform">
-                                        {user.email?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
-                                        {totalUnreadCount > 0 && (
-                                            <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-[#0d1117]">
-                                                {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                                    {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                                 </button>
-
-                                {isProfileOpen && (
-                                    <>
-                                        <div className="fixed inset-0 z-30" onClick={() => setIsProfileOpen(false)} />
-                                        <div className="absolute right-0 mt-3 w-56 rounded-2xl bg-card border border-border shadow-2xl py-2 z-40 animate-in fade-in zoom-in-95 duration-200">
-                                            <div className="px-5 py-3 border-b border-white/5 mb-2">
-                                                <p className="text-[13px] font-bold text-white truncate">{user.email}</p>
-                                                <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">{user.role === 'admin' ? 'Адміністратор' : 'Студент'}</p>
-                                            </div>
-                                            <Link href="/cabinet" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-5 py-2.5 text-[13px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
-                                                <LayoutGrid className="w-4 h-4" />
-                                                Мій кабінет
-                                            </Link>
-                                            <Link href="/setup" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-5 py-2.5 text-[13px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
-                                                <Settings className="w-4 h-4" />
-                                                Налаштування
-                                            </Link>
-                                            <Link href="/activate" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-5 py-2.5 text-[13px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
-                                                <Key className="w-4 h-4" />
-                                                Активація коду
-                                            </Link>
-                                            <div className="border-t border-white/5 mt-2 pt-2">
-                                                <button onClick={() => { setIsProfileOpen(false); logoutAction(); }} className="w-full flex items-center gap-3 px-5 py-2.5 text-[13px] font-bold text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                                                    <LogOut className="w-4 h-4" />
-                                                    Вийти
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
                             </div>
-                        ) : (
-                            <div className="flex items-center gap-4">
-                                <Link href="/api/auth/signin" className={`text-sm font-bold ${linkClass}`}>Вхід</Link>
-                                <Link href="/register" className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20 active:scale-95">Реєстрація</Link>
-                            </div>
-                        )}
-                    </div>
-
-
-                    <div className="md:hidden flex items-center gap-3">
-                        <ThemeToggle />
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className={`p-2 rounded-lg ${linkClass}`}
-                        >
-                            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                        </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Mobile Navigation */}
+                {/* Mobile menu (guest) */}
                 {mobileMenuOpen && (
-                    <nav className="md:hidden py-4 border-t border-gray-100 animate-in slide-in-from-top-2">
-                        <div className="flex flex-col space-y-3">
-                            {user && (
-                                <Link
-                                    href="/projects"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className={`font-bold transition-colors px-4 py-3 rounded-xl hover:bg-gray-50 ${linkClass} flex items-center gap-3`}
-                                >
-                                    <LayoutGrid className="w-5 h-5 flex-shrink-0" />
-                                    <span>Проєкти</span>
+                    <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200">
+                        <div className="px-4 py-4 space-y-1">
+                            {menuItems.map((item: MenuItem) => {
+                                const finalUrl = item.url.startsWith('#') ? `/${item.url}` : item.url
+                                return (
+                                    <Link
+                                        key={item.id}
+                                        href={finalUrl as any}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground rounded-xl hover:bg-muted/50 transition-all"
+                                    >
+                                        {getMenuTitle(item)}
+                                    </Link>
+                                )
+                            })}
+                            <div className="border-t border-border/50 pt-3 mt-3 flex flex-col gap-2">
+                                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-semibold text-foreground rounded-xl hover:bg-muted/50">
+                                    {t('login')}
                                 </Link>
-                            )}
-                            {displayMenuItems.map((item: MenuItem) => (
-                                <Link
-                                    key={item.id}
-                                    href={item.url}
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className={`font-medium transition-colors px-4 py-3 rounded-xl hover:bg-gray-50 ${linkClass}`}
-                                >
-                                    {item.title}
+                                <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-semibold text-center text-white bg-blue-600 rounded-xl">
+                                    {t('register')}
                                 </Link>
-                            ))}
-                            {user && (
-                                <div className="border-t border-gray-100 pt-3 mt-3 px-4">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold">
-                                            {user.email?.[0]?.toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </header>
+        )
+    }
+
+    // ─── AUTHENTICATED HEADER ────────────────────────────────
+    const navLinks = [
+        { href: "/dashboard", label: t('dashboard'), icon: LayoutGrid },
+        { href: "/theory", label: t('theory'), icon: BookOpen },
+        { href: "/projects", label: t('projects'), icon: FolderKanban },
+        { href: "/cabinet", label: t('myDashboard'), icon: User },
+        { href: "/pricing", label: t('pricing'), icon: CreditCard },
+    ]
+
+    return (
+        <header className={`sticky top-0 z-50 transition-all duration-300 ${
+            scrolled
+                ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
+                : 'bg-background/60 backdrop-blur-xl border-b border-border/30'
+        }`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                <div className="flex items-center justify-between h-14">
+                    {/* Logo */}
+                    <Link href="/dashboard" className="flex items-center gap-2.5 group shrink-0">
+                        {settings.header_logo_url ? (
+                            <img src={settings.header_logo_url} alt="Logo" className="h-7 w-auto" />
+                        ) : (
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:shadow-blue-500/35 transition-shadow">
+                                <Terminal className="w-4 h-4 text-white" />
+                            </div>
+                        )}
+                        <span className="text-sm font-bold text-foreground tracking-tight hidden lg:block">
+                            {settings.header_platform_name || "Playwright Platform"}
+                        </span>
+                    </Link>
+
+                    {/* Desktop Nav */}
+                    <nav className="hidden md:flex items-center gap-0.5 bg-muted/40 rounded-lg p-0.5">
+                        {navLinks.map((link) => {
+                            const active = isActive(link.href)
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href as any}
+                                    className={`flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium rounded-md transition-all ${
+                                        active
+                                            ? 'bg-background text-foreground shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    <link.icon className="w-3.5 h-3.5" />
+                                    {link.label}
+                                </Link>
+                            )
+                        })}
+                        {user.role === 'admin' && (
+                            <Link
+                                href="/admin"
+                                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium rounded-md transition-all ${
+                                    isActive('/admin')
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                <Shield className="w-3.5 h-3.5" />
+                                {t('adminPanel')}
+                            </Link>
+                        )}
+                    </nav>
+
+                    {/* Right side */}
+                    <div className="flex items-center gap-2">
+                        <div className="hidden md:flex items-center gap-1.5">
+                            <LanguageSwitcher activeLocales={activeLocales} />
+                            <ThemeToggle />
+                        </div>
+
+                        {/* Profile dropdown */}
+                        <div className="relative hidden md:block">
+                            <button
+                                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                className={`flex items-center gap-2 pl-2 pr-1.5 py-1 rounded-full transition-all ${
+                                    isProfileOpen ? 'bg-muted' : 'hover:bg-muted/50'
+                                }`}
+                            >
+                                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[11px] relative">
+                                    {user.firstName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || <User className="h-3.5 w-3.5" />}
+                                    {totalUnreadCount > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white ring-2 ring-background">
+                                            {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                                        </span>
+                                    )}
+                                </div>
+                                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isProfileOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-30" onClick={() => setIsProfileOpen(false)} />
+                                    <div className="absolute right-0 mt-2 w-60 rounded-xl bg-popover border border-border shadow-xl py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
+                                        <div className="px-4 py-3 border-b border-border/50">
+                                            <p className="text-sm font-semibold text-foreground truncate">
+                                                {user.firstName || user.email?.split('@')[0]}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground truncate mt-0.5">{user.email}</p>
+                                            <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md bg-muted text-muted-foreground">
+                                                {user.role === 'admin' ? t('admin') : t('student')}
+                                            </span>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-gray-900">{user.email}</span>
-                                            <div className="flex items-center gap-3 mt-1">
-                                                <Link href="/cabinet" onClick={() => setMobileMenuOpen(false)} className="text-xs text-blue-600 font-bold hover:underline flex items-center gap-2">
-                                                    Мій кабінет
-                                                    {totalUnreadCount > 0 && (
-                                                        <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full min-w-[16px] h-4 flex items-center justify-center font-bold">
-                                                            {totalUnreadCount}
-                                                        </span>
-                                                    )}
-                                                </Link>
-                                                <Link href="/activate" onClick={() => setMobileMenuOpen(false)} className="text-xs text-indigo-600 font-bold hover:underline flex items-center gap-2">
-                                                    Активація коду
-                                                </Link>
-                                                <button onClick={() => logoutAction()} className="text-xs text-red-500 font-bold">Вийти</button>
-                                            </div>
+                                        <div className="py-1">
+                                            <Link href="/cabinet" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2.5 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+                                                <User className="w-4 h-4" />
+                                                {t('myDashboard')}
+                                            </Link>
+                                            <Link href="/setup" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2.5 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+                                                <Settings className="w-4 h-4" />
+                                                {t('settings')}
+                                            </Link>
+                                            <Link href="/activate" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2.5 px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+                                                <Key className="w-4 h-4" />
+                                                {t('activateCode')}
+                                            </Link>
+                                        </div>
+                                        <div className="border-t border-border/50 pt-1">
+                                            <button
+                                                onClick={() => { setIsProfileOpen(false); logoutAction(); }}
+                                                className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-red-500/5 transition-colors"
+                                            >
+                                                <LogOut className="w-4 h-4" />
+                                                {t('logout')}
+                                            </button>
                                         </div>
                                     </div>
-                                </div>
+                                </>
                             )}
                         </div>
-                    </nav>
-                )}
+
+                        {/* Mobile hamburger */}
+                        <div className="md:hidden flex items-center gap-1.5">
+                            <LanguageSwitcher activeLocales={activeLocales} />
+                            <ThemeToggle />
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                            >
+                                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {/* Mobile menu (authenticated) */}
+            {mobileMenuOpen && (
+                <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200">
+                    <div className="px-3 py-3 space-y-0.5">
+                        {navLinks.map((link) => {
+                            const active = isActive(link.href)
+                            return (
+                                <Link
+                                    key={link.href}
+                                    href={link.href as any}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all ${
+                                        active
+                                            ? 'bg-muted text-foreground'
+                                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                    }`}
+                                >
+                                    <link.icon className="w-4 h-4 shrink-0" />
+                                    {link.label}
+                                </Link>
+                            )
+                        })}
+                        {user.role === 'admin' && (
+                            <Link
+                                href="/admin"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all ${
+                                    isActive('/admin')
+                                        ? 'bg-muted text-foreground'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                }`}
+                            >
+                                <Shield className="w-4 h-4 shrink-0" />
+                                {t('adminPanel')}
+                            </Link>
+                        )}
+
+                        <div className="border-t border-border/50 pt-3 mt-2">
+                            <div className="flex items-center gap-3 px-4 py-3">
+                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm relative">
+                                    {user.firstName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                                    {totalUnreadCount > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-background">
+                                            {totalUnreadCount}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-foreground truncate">{user.firstName || user.email?.split('@')[0]}</p>
+                                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                                </div>
+                            </div>
+                            <Link href="/cabinet" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl">
+                                <User className="w-4 h-4" /> {t('myDashboard')}
+                            </Link>
+                            <Link href="/setup" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl">
+                                <Settings className="w-4 h-4" /> {t('settings')}
+                            </Link>
+                            <Link href="/activate" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl">
+                                <Key className="w-4 h-4" /> {t('activateCode')}
+                            </Link>
+                            <button
+                                onClick={() => { setMobileMenuOpen(false); logoutAction(); }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/5 rounded-xl mt-1"
+                            >
+                                <LogOut className="w-4 h-4" /> {t('logout')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </header>
     )
 }

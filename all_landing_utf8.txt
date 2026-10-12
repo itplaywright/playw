@@ -1,0 +1,897 @@
+﻿"use client"
+
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
+
+export default function CallToAction() {
+    return (
+        <section className="py-32 relative overflow-hidden bg-background">
+            {/* Gradients */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 blur-[130px] rounded-full -z-10 dark:bg-blue-600/10" />
+            <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600/5 blur-[100px] rounded-full -z-10 dark:bg-purple-600/10" />
+
+            <div className="container mx-auto px-4 relative z-10 text-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="max-w-5xl mx-auto glass rounded-[2.5rem] p-12 md:p-20 shadow-2xl relative overflow-hidden dark:glass-dark"
+                >
+                    {/* Inner glow */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-30" />
+
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-foreground mb-10 tracking-tight leading-tight">
+                        Р“РѕС‚РѕРІРёР№ РїРµСЂРµСЃС‚Р°С‚Рё "РІС‡РёС‚РёСЃСЊ" <br className="hidden md:block" />
+                        С– РїРѕС‡Р°С‚Рё <span className="text-gradient">РїРёСЃР°С‚Рё Р°РІС‚РѕС‚РµСЃС‚Рё?</span>
+                    </h2>
+
+                    <p className="text-muted-foreground text-xl md:text-2xl mb-12 max-w-2xl mx-auto">
+                        РџСЂРёС”РґРЅСѓР№СЃСЏ РґРѕ СЃРѕС‚РµРЅСЊ СЃС‚СѓРґРµРЅС‚С–РІ, СЏРєС– РІР¶Рµ РїСЂР°РєС‚РёРєСѓСЋС‚СЊСЃСЏ РЅР° СЂРµР°Р»СЊРЅРёС… Р·Р°РІРґР°РЅРЅСЏС….
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                        <Link
+                            href="/register"
+                            className="group relative inline-flex h-16 items-center justify-center overflow-hidden rounded-2xl bg-blue-600 px-12 text-xl font-bold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_40px_-10px_rgba(37,99,235,0.6)] active:scale-95"
+                        >
+                            <span>РџРѕС‡Р°С‚Рё РїСЂР°РєС‚РёРєСѓ Р·Р°СЂР°Р·</span>
+                            <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                    </div>
+                </motion.div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { Check, X } from "lucide-react"
+
+const comparisons = [
+    { feature: "РџСЂР°РєС‚РёРєР° РІ Р±СЂР°СѓР·РµСЂС–", usual: false, ours: true },
+    { feature: "Р РµР°Р»СЊРЅС– СЃС†РµРЅР°СЂС–С—", usual: "Р С–РґРєРѕ", ours: "Р—Р°РІР¶РґРё" },
+    { feature: "РњРёС‚С‚С”РІР° РїРµСЂРµРІС–СЂРєР°", usual: false, ours: true },
+    { feature: "РџС–РґС‚СЂРёРјРєР° РјРµРЅС‚РѕСЂР°", usual: "Р—Р° РіСЂР°С„С–РєРѕРј", ours: "24/7 РїС–РґС‚СЂРёРјРєР°" },
+    { feature: "Р¦С–РЅР°", usual: "$300 - $1000+", ours: "Р”РѕСЃС‚СѓРїРЅРѕ РєРѕР¶РЅРѕРјСѓ" },
+]
+
+export default function Comparison() {
+    return (
+        <section className="py-32 bg-background">
+            <div className="container mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="max-w-4xl mx-auto"
+                >
+                    <h2 className="text-4xl font-extrabold text-center text-foreground mb-16 tracking-tight">Р§РѕРјСѓ РјРё?</h2>
+
+                    <div className="overflow-hidden rounded-[2.5rem] border border-border bg-card shadow-2xl">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="bg-muted/50 border-b border-border">
+                                    <th className="p-8 text-lg font-bold text-foreground">РџРµСЂРµРІР°РіРё</th>
+                                    <th className="p-8 text-lg font-bold text-muted-foreground text-center">Р—РІРёС‡Р°Р№РЅС– РєСѓСЂСЃРё</th>
+                                    <th className="p-8 text-xl font-extrabold text-blue-600 text-center dark:text-blue-400">Playwright Platform</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border">
+                                {comparisons.map((item, idx) => (
+                                    <tr key={idx} className="hover:bg-muted/30 transition-colors">
+                                        <td className="p-8 font-bold text-foreground">{item.feature}</td>
+                                        <td className="p-8 text-center text-muted-foreground">
+                                            {typeof item.usual === "boolean" ? (
+                                                <X className="h-6 w-6 text-red-500 mx-auto" />
+                                            ) : item.usual}
+                                        </td>
+                                        <td className="p-8 text-center font-bold text-foreground">
+                                            {typeof item.ours === "boolean" ? (
+                                                <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto">
+                                                    <Check className="h-6 w-6 text-emerald-500" />
+                                                </div>
+                                            ) : item.ours}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </motion.div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { ChevronRight, Target, Layout, Database, Terminal } from "lucide-react"
+
+const modules = [
+    {
+        title: "РћСЃРЅРѕРІРё Playwright",
+        icon: Terminal,
+        topics: ["Р†РЅСЃС‚Р°Р»СЏС†С–СЏ С‚Р° РєРѕРЅС„С–РіСѓСЂР°С†С–СЏ", "Р РѕР±РѕС‚Р° Р· Р»РѕРєР°С‚РѕСЂР°РјРё", "Р‘Р°Р·РѕРІС– РґС–С— (click, type, hover)", "Assertions"],
+        color: "text-blue-500"
+    },
+    {
+        title: "Page Object Model",
+        icon: Layout,
+        topics: ["РЎС‚СЂСѓРєС‚СѓСЂР° РїСЂРѕРµРєС‚Сѓ", "Component Object Model", "Р РµС„Р°РєС‚РѕСЂРёРЅРі С‚РµСЃС‚С–РІ", "Clean Code РїСЂРёРЅС†РёРїРё"],
+        color: "text-purple-500"
+    },
+    {
+        title: "Advanced Playwright",
+        icon: Target,
+        topics: ["API Testing", "Authentication & Storage State", "РњРёС‚С‚С”РІРµ РїРµСЂРµС…РѕРїР»РµРЅРЅСЏ РјРµСЂРµР¶С–", "Visual Testing"],
+        color: "text-pink-500"
+    },
+    {
+        title: "Best Practices",
+        icon: Database,
+        topics: ["Parallelization", "Reporter configuration", "CI/CD Integration", "Data-driven testing"],
+        color: "text-emerald-500"
+    }
+]
+
+export default function Curriculum() {
+    return (
+        <section id="curriculum" className="py-32 bg-muted/30">
+            <div className="container mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-20"
+                >
+                    <h2 className="text-4xl font-extrabold text-foreground mb-6 tracking-tight">РџСЂРѕРіСЂР°РјР° РЅР°РІС‡Р°РЅРЅСЏ</h2>
+                    <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+                        РџРѕРєСЂРѕРєРѕРІРёР№ С€Р»СЏС… РІС–Рґ РЅРѕРІР°С‡РєР° РґРѕ РІРїРµРІРЅРµРЅРѕРіРѕ СЃРїРµС†С–Р°Р»С–СЃС‚Р°
+                    </p>
+                </motion.div>
+
+                <div className="grid gap-8 md:grid-cols-2 max-w-6xl mx-auto">
+                    {modules.map((module, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="bg-card border border-border rounded-[2.5rem] p-10 hover:shadow-2xl transition-all duration-500 group"
+                        >
+                            <div className="flex items-center gap-6 mb-8">
+                                <div className={`h-16 w-16 rounded-2xl bg-muted/50 ${module.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
+                                    <module.icon className="h-8 w-8" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-foreground">{module.title}</h3>
+                            </div>
+
+                            <ul className="space-y-4">
+                                {module.topics.map((topic, tIdx) => (
+                                    <li key={tIdx} className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
+                                        <ChevronRight className={`h-5 w-5 ${module.color} shrink-0`} />
+                                        <span className="font-medium">{topic}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { BarChart3, CheckCircle, RotateCcw } from "lucide-react"
+
+export default function DashboardPreview() {
+    return (
+        <section className="py-24 bg-muted/30 overflow-hidden">
+            <div className="container mx-auto px-4">
+                <div className="flex flex-col lg:flex-row items-center gap-16">
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="lg:w-1/2"
+                    >
+                        <div className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-sm font-medium text-blue-600 mb-6 dark:text-blue-400">
+                            <BarChart3 className="mr-2 h-4 w-4" />
+                            <span>РџСЂРѕР·РѕСЂРёР№ РїСЂРѕРіСЂРµСЃ</span>
+                        </div>
+                        <h2 className="text-4xl font-extrabold text-foreground mb-8 tracking-tight">РЇРє РІРёРіР»СЏРґР°С” С‚РІС–Р№ СЂС–СЃС‚</h2>
+                        <ul className="space-y-8">
+                            <li className="flex items-start gap-5">
+                                <div className="h-12 w-12 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
+                                    <span className="text-green-500 font-bold text-lg">%</span>
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-bold text-foreground mb-1">Р’С–РґСЃРѕС‚РѕРє РїСЂРѕС…РѕРґР¶РµРЅРЅСЏ</h4>
+                                    <p className="text-muted-foreground">Р‘Р°С‡РёС€ СЂРµР°Р»СЊРЅСѓ СЃС‚Р°С‚РёСЃС‚РёРєСѓ СЃРІРѕРіРѕ РЅР°РІС‡Р°РЅРЅСЏ</p>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-5">
+                                <div className="h-12 w-12 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                                    <CheckCircle className="h-6 w-6 text-blue-500" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-bold text-foreground mb-1">РЎС‚Р°С‚СѓСЃ РєРѕР¶РЅРѕРіРѕ Р·Р°РІРґР°РЅРЅСЏ</h4>
+                                    <p className="text-muted-foreground">Р РѕР·СѓРјС–С”С€, С‰Рѕ РІР¶Рµ Р·Р°РєСЂС–РїРёРІ, Р° С‰Рѕ С‚СЂРµР±Р° РґРѕРІС‡РёС‚Рё</p>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-5">
+                                <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                                    <RotateCcw className="h-6 w-6 text-purple-500" />
+                                </div>
+                                <div>
+                                    <h4 className="text-xl font-bold text-foreground mb-1">РљС–Р»СЊРєС–СЃС‚СЊ СЃРїСЂРѕР±</h4>
+                                    <p className="text-muted-foreground">Р‘Р°С‡РёС€, РґРµ СЃР°РјРµ С‚Рё Р·Р°СЃС‚СЂСЏРі С– С‚СЂРµРЅСѓС”С€СЃСЏ</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="lg:w-1/2 relative"
+                    >
+                        {/* Abstract visualization of a dashboard Card */}
+                        <div className="relative z-10 glass rounded-[2.5rem] p-10 shadow-2xl dark:glass-dark">
+                            <div className="flex items-center justify-between mb-10">
+                                <h3 className="text-foreground font-bold text-2xl">РўРІС–Р№ РїСЂРѕРіСЂРµСЃ</h3>
+                                <span className="text-emerald-600 bg-emerald-500/10 px-4 py-1.5 rounded-full text-sm font-bold border border-emerald-500/20">Level 2: Junior</span>
+                            </div>
+
+                            <div className="space-y-8">
+                                <div>
+                                    <div className="flex justify-between text-sm mb-3">
+                                        <span className="text-muted-foreground font-medium">Р—Р°РіР°Р»СЊРЅРёР№ РїСЂРѕРіСЂРµСЃ</span>
+                                        <span className="text-foreground font-bold">67%</span>
+                                    </div>
+                                    <div className="h-3 bg-muted rounded-full overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-blue-600 to-purple-600 w-[67%]" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="bg-muted/50 p-6 rounded-[2rem] border border-border">
+                                        <span className="text-5xl font-extrabold text-foreground">12</span>
+                                        <p className="text-muted-foreground font-medium mt-2">Р’РёРєРѕРЅР°РЅРѕ Р·Р°РґР°С‡</p>
+                                    </div>
+                                    <div className="bg-muted/50 p-6 rounded-[2rem] border border-border">
+                                        <span className="text-5xl font-extrabold text-blue-600 dark:text-blue-400">35</span>
+                                        <p className="text-muted-foreground font-medium mt-2">РЎРїСЂРѕР± РєРѕРґСѓ</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Decorative background blurs */}
+                        <div className="absolute -top-10 -right-10 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px] -z-10 dark:bg-blue-600/20" />
+                        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -z-10 dark:bg-purple-600/20" />
+
+                    </motion.div>
+                </div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ChevronDown } from "lucide-react"
+
+const faqs = [
+    {
+        q: "Р§Рё РїС–РґС–Р№РґРµ РјРµРЅС– РєСѓСЂСЃ, СЏРєС‰Рѕ СЏ Р·РѕРІСЃС–Рј РЅРµ Р·РЅР°СЋ РїСЂРѕРіСЂР°РјСѓРІР°РЅРЅСЏ?",
+        a: "РўР°Рє! РњРё РїРѕС‡РёРЅР°С”РјРѕ Р· РѕСЃРЅРѕРІ. РўР°РєРѕР¶ РјРё РЅР°РґР°С”РјРѕ РґРµС‚Р°Р»СЊРЅСѓ РґРѕРєСѓРјРµРЅС‚Р°С†С–СЋ С‚Р° РїС–РґС‚СЂРёРјРєСѓ РЅР° РєРѕР¶РЅРѕРјСѓ РµС‚Р°РїС–."
+    },
+    {
+        q: "Р§РёРј С†Рµ РІС–РґСЂС–Р·РЅСЏС”С‚СЊСЃСЏ РІС–Рґ РІС–РґРµРѕ РЅР° YouTube?",
+        a: "Р“РѕР»РѕРІРЅР° РІС–РґРјС–РЅРЅС–СЃС‚СЊ вЂ” РїСЂР°РєС‚РёРєР°. РўРё РЅРµ РїСЂРѕСЃС‚Рѕ РґРёРІРёС€СЃСЏ, Р° РїРёС€РµС€ РєРѕРґ РІ Р±СЂР°СѓР·РµСЂС–, РѕС‚СЂРёРјСѓС”С€ РјРёС‚С‚С”РІСѓ РїРµСЂРµРІС–СЂРєСѓ С‚Р° С„С–РґР±РµРє."
+    },
+    {
+        q: "РЇРєС– С‚РµС…РЅРѕР»РѕРіС–С— РІРёРІС‡Р°СЋС‚СЊСЃСЏ РЅР° РєСѓСЂСЃС–?",
+        a: "РњРё С„РѕРєСѓСЃСѓС”РјРѕСЃСЏ РЅР° Playwright С‚Р° TypeScript вЂ” РЅР°Р№СЃСѓС‡Р°СЃРЅС–С€РѕРјСѓ СЃС‚РµРєСѓ РґР»СЏ Р°РІС‚РѕРјР°С‚РёР·Р°С†С–С— С‚РµСЃС‚СѓРІР°РЅРЅСЏ."
+    },
+    {
+        q: "Р§Рё РѕС‚СЂРёРјСѓСЋ СЏ СЃРµСЂС‚РёС„С–РєР°С‚ РїС–СЃР»СЏ Р·Р°РІРµСЂС€РµРЅРЅСЏ?",
+        a: "РўР°Рє, РїС–СЃР»СЏ РІРёРєРѕРЅР°РЅРЅСЏ РІСЃС–С… РїСЂР°РєС‚РёС‡РЅРёС… Р·Р°РІРґР°РЅСЊ РІРё РѕС‚СЂРёРјР°С”С‚Рµ РїРµСЂСЃРѕРЅР°Р»СЊРЅРёР№ СЃРµСЂС‚РёС„С–РєР°С‚ РїСЂРѕ РїСЂРѕС…РѕРґР¶РµРЅРЅСЏ РєСѓСЂСЃСѓ."
+    },
+    {
+        q: "РЇРє РґРѕРІРіРѕ С‚СЂРёРІР°С” РЅР°РІС‡Р°РЅРЅСЏ?",
+        a: "РљСѓСЂСЃ СЂРѕР·СЂР°С…РѕРІР°РЅРёР№ РЅР° С‚Рµ, С‰Рѕ РІРё РїСЂРѕС…РѕРґРёС‚Рµ Р№РѕРіРѕ Сѓ РІР»Р°СЃРЅРѕРјСѓ С‚РµРјРїС–. Р’ СЃРµСЂРµРґРЅСЊРѕРјСѓ С†Рµ Р·Р°Р№РјР°С” РІС–Рґ 4 РґРѕ 8 С‚РёР¶РЅС–РІ."
+    },
+    {
+        q: "Р§Рё РїРѕС‚СЂС–Р±РЅРµ СЃРїРµС†С–Р°Р»СЊРЅРµ РџР— РґР»СЏ РЅР°РІС‡Р°РЅРЅСЏ?",
+        a: "РќС–, РІСЃРµ РЅРµРѕР±С…С–РґРЅРµ РґР»СЏ РЅР°РїРёСЃР°РЅРЅСЏ С‚Р° Р·Р°РїСѓСЃРєСѓ С‚РµСЃС‚С–РІ СѓР¶Рµ РІР±СѓРґРѕРІР°РЅРѕ РІ РЅР°С€Сѓ РѕРЅР»Р°Р№РЅ-РїР»Р°С‚С„РѕСЂРјСѓ."
+    },
+    {
+        q: "Р§Рё С” РїС–РґС‚СЂРёРјРєР° РїС–Рґ С‡Р°СЃ РЅР°РІС‡Р°РЅРЅСЏ?",
+        a: "Р—РІРёС‡Р°Р№РЅРѕ! Р’Рё РјРѕР¶РµС‚Рµ СЃС‚Р°РІРёС‚Рё Р·Р°РїРёС‚Р°РЅРЅСЏ РІ РЅР°С€РѕРјСѓ Р·Р°РєСЂРёС‚РѕРјСѓ РєРѕРј'СЋРЅС–С‚С– Р°Р±Рѕ Р·РІРµСЂС‚Р°С‚РёСЃСЏ РґРѕ РїС–РґС‚СЂРёРјРєРё."
+    },
+    {
+        q: "Р§Рё РїС–РґС–Р№РґРµ С†РµР№ РєСѓСЂСЃ РґР»СЏ РїС–РґРіРѕС‚РѕРІРєРё РґРѕ СЃРїС–РІР±РµСЃС–РґРё?",
+        a: "РўР°Рє, РјРё СЂРѕР·Р±РёСЂР°С”РјРѕ СЂРµР°Р»СЊРЅС– РєРµР№СЃРё С‚Р° Р°СЂС…С–С‚РµРєС‚СѓСЂРЅС– РїС–РґС…РѕРґРё (РЅР°РїСЂРёРєР»Р°Рґ, Page Object Model), СЏРєС– С‡Р°СЃС‚Рѕ Р·Р°РїРёС‚СѓСЋС‚СЊ РЅР° С‚РµС…РЅС–С‡РЅРёС… С–РЅС‚РµСЂРІ'СЋ."
+    }
+]
+
+export default function FAQ() {
+    const [openIdx, setOpenIdx] = useState<number | null>(null)
+
+    return (
+        <section id="faq" className="py-32 bg-muted/30">
+            <div className="container mx-auto px-4 max-w-4xl">
+                <h2 className="text-4xl font-extrabold text-center text-foreground mb-16 tracking-tight">РџРѕС€РёСЂРµРЅС– Р·Р°РїРёС‚Р°РЅРЅСЏ</h2>
+                <div className="space-y-6">
+                    {faqs.map((faq, idx) => (
+                        <div key={idx} className="rounded-3xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg">
+                            <button
+                                onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+                                className="w-full flex items-center justify-between p-8 text-left group"
+                            >
+                                <span className="text-xl font-bold text-foreground group-hover:text-blue-600 transition-colors dark:group-hover:text-blue-400">
+                                    {faq.q}
+                                </span>
+                                <ChevronDown className={`h-6 w-6 text-muted-foreground transition-transform duration-300 ${openIdx === idx ? 'rotate-180 text-blue-600' : ''}`} />
+                            </button>
+                            <AnimatePresence>
+                                {openIdx === idx && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <div className="px-8 pb-8 text-muted-foreground text-lg leading-relaxed">
+                                            {faq.a}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import Link from "next/link"
+
+export default function Footer() {
+    return (
+        <footer className="py-16 bg-background border-t border-border">
+            <div className="container mx-auto px-4">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-2">
+                        <span className="text-2xl">рџЋ­</span>
+                        <span className="text-xl font-extrabold text-foreground tracking-tight">Playwright Platform</span>
+                    </div>
+
+                    <nav className="flex items-center gap-10">
+                        <Link href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors font-medium">РЇРє С†Рµ РїСЂР°С†СЋС”</Link>
+                        <Link href="#program" className="text-muted-foreground hover:text-primary transition-colors font-medium">РџСЂРѕРіСЂР°РјР°</Link>
+                        <Link href="#faq" className="text-muted-foreground hover:text-primary transition-colors font-medium">FAQ</Link>
+                        <Link href="/api/auth/signin" className="text-muted-foreground hover:text-primary transition-colors font-medium">Р›РѕРіС–РЅ</Link>
+                        <Link href="/register" className="text-muted-foreground hover:text-primary transition-colors font-medium">Р РµС”СЃС‚СЂР°С†С–СЏ</Link>
+                    </nav>
+
+                    <div className="text-muted-foreground text-sm font-medium">
+                        В© {new Date().getFullYear()} РЈСЃС– РїСЂР°РІР° Р·Р°С…РёС‰РµРЅС–.
+                    </div>
+                </div>
+            </div>
+        </footer>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
+import { useTranslations } from "next-intl"
+
+export default function Hero() {
+    const t = useTranslations('Hero');
+
+    return (
+        <section className="relative overflow-hidden pt-32 pb-20 lg:pt-48 lg:pb-32 bg-background">
+            {/* Background animated gradients */}
+            <div className="absolute top-0 left-1/4 -z-10 h-[600px] w-[600px] rounded-full bg-blue-600/10 blur-[130px] animate-pulse dark:bg-blue-600/20" />
+            <div className="absolute top-1/2 right-0 -z-10 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-purple-600/10 blur-[120px] dark:bg-purple-600/20" />
+            <div className="absolute bottom-0 left-1/2 -z-10 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-pink-600/5 blur-[150px] dark:bg-pink-600/10" />
+
+            <div className="container mx-auto px-4 text-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="mx-auto max-w-5xl"
+                >
+                    <div className="mb-8 inline-flex items-center rounded-full border border-border bg-card/50 px-4 py-1.5 text-sm font-medium text-blue-600 backdrop-blur-md shadow-lg shadow-blue-500/5 dark:text-blue-400 dark:bg-white/5">
+                        <span className="flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-blue-500 animate-ping" />
+                            {t('badge')}
+                        </span>
+                    </div>
+
+                    <h1 className="mb-8 text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl leading-[1.1]">
+                        {t('title1')} <span className="text-gradient">{t('titleHighlight')}</span> {t('title2')}
+                    </h1>
+
+                    <p className="mx-auto mb-12 max-w-3xl text-xl text-muted-foreground sm:text-2xl leading-relaxed">
+                        {t('description')}
+                    </p>
+
+                    <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
+                        <Link
+                            href="/register"
+                            className="group relative inline-flex h-14 items-center justify-center overflow-hidden rounded-2xl bg-blue-600 px-10 text-lg font-bold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_30px_-5px_rgba(37,99,235,0.5)] active:scale-95"
+                        >
+                            <span>{t('startLearning')}</span>
+                            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                        </Link>
+
+                        <Link
+                            href="#curriculum"
+                            className="inline-flex h-14 items-center justify-center rounded-2xl border border-border bg-card/50 px-10 text-lg font-bold text-foreground backdrop-blur-md transition-all hover:bg-card/80 active:scale-95 dark:bg-white/5 dark:hover:bg-white/10"
+                        >
+                            {t('curriculum')}
+                        </Link>
+                    </div>
+
+                </motion.div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { Code2, Play, Search, GraduationCap } from "lucide-react"
+
+const steps = [
+    {
+        title: "РћР±РёСЂР°С”С€ Р·Р°РІРґР°РЅРЅСЏ",
+        desc: "Р’С–Рґ РїСЂРѕСЃС‚РёС… СЃРµР»РµРєС‚РѕСЂС–РІ РґРѕ Р°СЂС…С–С‚РµРєС‚СѓСЂРё Page Object",
+        icon: Search,
+        color: "bg-blue-500",
+    },
+    {
+        title: "РџРёС€РµС€ РєРѕРґ",
+        desc: "РџСЂСЏРјРѕ РІ Р±СЂР°СѓР·РµСЂС– С‡РµСЂРµР· Р·СЂСѓС‡РЅРёР№ СЂРµРґР°РєС‚РѕСЂ Р· РїС–РґРєР°Р·РєР°РјРё",
+        icon: Code2,
+        color: "bg-purple-500",
+    },
+    {
+        title: "Р—Р°РїСѓСЃРєР°С”С€ С‚РµСЃС‚Рё",
+        desc: "РњРёС‚С‚С”РІРёР№ С„С–РґР±РµРє РІС–Рґ РїРµСЂРµРІС–СЂСЏСЋС‡РѕС— СЃРёСЃС‚РµРјРё",
+        icon: Play,
+        color: "bg-emerald-500",
+    },
+    {
+        title: "РћС‚СЂРёРјСѓС”С€ СЂРµР·СѓР»СЊС‚Р°С‚",
+        desc: "Р”РѕРєСѓРјРµРЅС‚Р°С†С–СЏ, РґРѕСЃРІС–Рґ С‚Р° РіРѕС‚РѕРІС– СЂС–С€РµРЅРЅСЏ РІ С‚РІС–Р№ Р±Р°РіР°Р¶",
+        icon: GraduationCap,
+        color: "bg-amber-500",
+    },
+]
+
+export default function HowItWorks() {
+    return (
+        <section id="how-it-works" className="py-32 bg-muted/30">
+            <div className="container mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-20"
+                >
+                    <h2 className="text-4xl font-extrabold text-foreground mb-6 tracking-tight">РЇРє С†Рµ РїСЂР°С†СЋС”?</h2>
+                    <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
+                        Р—Р°РјС–СЃС‚СЊ РЅСѓРґРЅРѕС— С‚РµРѕСЂС–С— вЂ” СЂРµР°Р»СЊРЅРёР№ РґРѕСЃРІС–Рґ С‡РµСЂРµР· 4 РїСЂРѕСЃС‚С– РєСЂРѕРєРё
+                    </p>
+                </motion.div>
+
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+                    {steps.map((step, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="relative group h-full"
+                        >
+                            {idx < steps.length - 1 && (
+                                <div className="hidden lg:block absolute top-12 left-[calc(100%-20px)] w-full h-[2px] bg-gradient-to-r from-border to-transparent z-0" />
+                            )}
+
+                            <div className="relative h-full flex flex-col items-center p-8 rounded-[2.5rem] bg-card border border-border shadow-sm group-hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2 z-10">
+                                <div className={`h-16 w-16 rounded-2xl ${step.color} flex items-center justify-center text-white mb-8 shadow-lg shadow-${step.color.split('-')[1]}-500/20 group-hover:scale-110 transition-transform`}>
+                                    <step.icon className="h-8 w-8" />
+                                </div>
+                                <h3 className="text-xl font-bold text-foreground mb-4">{step.title}</h3>
+                                <p className="text-muted-foreground text-center line-relaxed">{step.desc}</p>
+
+                                <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-border flex items-center justify-center text-sm font-bold text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                    {idx + 1}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { useTranslations } from "next-intl"
+import { Terminal, Code2, Cpu } from "lucide-react"
+
+export default function LanguagesBlocks() {
+    const t = useTranslations('LanguagesBlocks')
+
+    const languages = [
+        {
+            id: "typescript",
+            name: "TypeScript",
+            icon: <Terminal className="w-8 h-8 text-blue-500" />,
+            color: "border-blue-500/20 bg-blue-500/5",
+            shadow: "hover:shadow-blue-500/20",
+        },
+        {
+            id: "python",
+            name: "Python",
+            icon: <Cpu className="w-8 h-8 text-yellow-500" />,
+            color: "border-yellow-500/20 bg-yellow-500/5",
+            shadow: "hover:shadow-yellow-500/20",
+        },
+        {
+            id: "csharp",
+            name: "C#",
+            icon: <Code2 className="w-8 h-8 text-purple-500" />,
+            color: "border-purple-500/20 bg-purple-500/5",
+            shadow: "hover:shadow-purple-500/20",
+        }
+    ]
+
+    return (
+        <section className="py-24 bg-background">
+            <div className="container mx-auto px-4">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
+                        {t('title')}
+                    </h2>
+                    <p className="mt-4 text-lg text-muted-foreground">
+                        {t('subtitle')}
+                    </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    {languages.map((lang, idx) => (
+                        <motion.div
+                            key={lang.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.1 }}
+                            className={`flex flex-col items-center justify-center p-8 rounded-3xl border ${lang.color} ${lang.shadow} transition-all duration-300 hover:-translate-y-2`}
+                        >
+                            <div className="mb-4">
+                                {lang.icon}
+                            </div>
+                            <h3 className="text-2xl font-bold text-foreground mb-2">
+                                {lang.name}
+                            </h3>
+                            <p className="text-center text-muted-foreground">
+                                {t(`desc_${lang.id}`)}
+                            </p>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { Download, Laptop, Terminal, Chrome, CheckCircle2 } from "lucide-react"
+
+const setupSteps = [
+    {
+        title: "Р’СЃС‚Р°РЅРѕРІРё Node.js",
+        desc: "Р—Р°РІР°РЅС‚Р°Р¶ С‚Р° РІСЃС‚Р°РЅРѕРІРё РѕСЃС‚Р°РЅРЅСЋ LTS РІРµСЂСЃС–СЋ Node.js Р· РѕС„С–С†С–Р№РЅРѕРіРѕ СЃР°Р№С‚Сѓ. Р¦Рµ СЃРµСЂРµРґРѕРІРёС‰Рµ РґР»СЏ Р·Р°РїСѓСЃРєСѓ С‚РІРѕС—С… С‚РµСЃС‚С–РІ.",
+        icon: Download,
+        color: "bg-green-500",
+        link: "https://nodejs.org/",
+        linkText: "РЎРєР°С‡Р°С‚Рё Node.js"
+    },
+    {
+        title: "Р’СЃС‚Р°РЅРѕРІРё VS Code",
+        desc: "РќР°Р№РєСЂР°С‰РёР№ СЂРµРґР°РєС‚РѕСЂ РґР»СЏ СЂРѕР·СЂРѕР±РєРё С‚РµСЃС‚С–РІ. РњР°С” С‡СѓРґРѕРІСѓ РїС–РґС‚СЂРёРјРєСѓ TypeScript С‚Р° Playwright.",
+        icon: Laptop,
+        color: "bg-blue-500",
+        link: "https://code.visualstudio.com/",
+        linkText: "РЎРєР°С‡Р°С‚Рё VS Code"
+    },
+    {
+        title: "Р РѕР·С€РёСЂРµРЅРЅСЏ Playwright",
+        desc: "Р’СЃС‚Р°РЅРѕРІРё СЂРѕР·С€РёСЂРµРЅРЅСЏ 'Playwright Test for VS Code' Р· РјР°СЂРєРµС‚РїР»РµР№СЃСѓ. Р¦Рµ РґРѕР·РІРѕР»РёС‚СЊ Р·Р°РїСѓСЃРєР°С‚Рё С‚РµСЃС‚Рё РѕРґРЅРёРј РєР»С–РєРѕРј.",
+        icon: Chrome,
+        color: "bg-orange-500",
+    },
+    {
+        title: "Р†РЅС–С†С–Р°Р»С–Р·Р°С†С–СЏ",
+        desc: "Р—Р°РїСѓСЃС‚Рё РІ С‚РµСЂРјС–РЅР°Р»С– РєРѕРјР°РЅРґСѓ: npm init playwright@latest. Р¦Рµ СЃС‚РІРѕСЂРёС‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ РїСЂРѕРµРєС‚Сѓ С‚Р° РІСЃС‚Р°РЅРѕРІРёС‚СЊ Р±СЂР°СѓР·РµСЂРё.",
+        icon: Terminal,
+        color: "bg-purple-500",
+        code: "npm init playwright@latest"
+    }
+]
+
+export default function Setup() {
+    return (
+        <section id="setup" className="py-32 bg-background relative overflow-hidden">
+            <div className="container mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-20"
+                >
+                    <h2 className="text-4xl font-extrabold text-white mb-6 tracking-tight">РџС–РґРіРѕС‚РѕРІРєР° РґРѕ СЂРѕР±РѕС‚Рё</h2>
+                    <p className="text-zinc-400 text-xl max-w-2xl mx-auto">
+                        РќР°Р»Р°С€С‚СѓР№С‚Рµ СЃРІРѕС” СЂРѕР±РѕС‡Рµ РѕС‚РѕС‡РµРЅРЅСЏ РґР»СЏ Р»РѕРєР°Р»СЊРЅРѕС— СЂРѕР·СЂРѕР±РєРё Р°РІС‚РѕС‚РµСЃС‚С–РІ
+                    </p>
+                </motion.div>
+
+                <div className="grid gap-8 lg:grid-cols-2 max-w-6xl mx-auto">
+                    {setupSteps.map((step, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 hover:border-blue-500/50 transition-colors group relative"
+                        >
+                            <div className="flex gap-6 items-start">
+                                <div className={`flex-shrink-0 h-14 w-14 rounded-2xl ${step.color} flex items-center justify-center text-white shadow-lg shadow-black/20`}>
+                                    <step.icon className="h-7 w-7" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <span className="text-sm font-mono text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded">РљСЂРѕРє {idx + 1}</span>
+                                        <h3 className="text-xl font-bold text-white">{step.title}</h3>
+                                    </div>
+                                    <p className="text-zinc-400 leading-relaxed mb-6">{step.desc}</p>
+
+                                    {step.link && (
+                                        <a
+                                            href={step.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                                        >
+                                            {step.linkText}
+                                            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="Ref 10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        </a>
+                                    )}
+
+                                    {step.code && (
+                                        <div className="mt-4 bg-black/50 p-4 rounded-xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">
+                                            <code className="text-blue-400 font-mono text-sm">{step.code}</code>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-16 flex justify-center"
+                >
+                    <div className="flex items-center gap-2 px-6 py-3 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 font-medium">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                        Р“РѕС‚РѕРІРѕ! РўРµРїРµСЂ С‚Рё РіРѕС‚РѕРІРёР№ РґРѕ РїСЂР°РєС‚РёРєРё
+                    </div>
+                </motion.div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+
+const skills = [
+    "Locators & Selectors",
+    "Actions & Assertions",
+    "Page Object Model",
+    "API Testing",
+    "Parallel Execution",
+    "Visual Testing",
+    "Network Interception",
+    "Authentication Flows",
+]
+
+export default function Skills() {
+    return (
+        <section className="py-24 bg-background">
+            <div className="container mx-auto px-4">
+                <div className="flex flex-wrap justify-center gap-4 max-w-5xl mx-auto">
+                    {skills.map((skill, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="px-8 py-4 rounded-2xl bg-muted/50 border border-border text-foreground font-bold text-lg hover:border-blue-500/50 hover:bg-card transition-all cursor-default shadow-sm hover:shadow-lg hover:-translate-y-1"
+                        >
+                            {skill}
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { CheckCircle2, XCircle } from "lucide-react"
+
+const audienceList = [
+    { text: "Manual QA, СЏРєС– С…РѕС‡СѓС‚СЊ РІ Р°РІС‚РѕРјР°С‚РёР·Р°С†С–СЋ", icon: CheckCircle2, color: "text-green-500" },
+    { text: "Junior / Middle QA", icon: CheckCircle2, color: "text-green-500" },
+    { text: "РўС–, С…С‚Рѕ Р·РЅР°С” С‚РµРѕСЂС–СЋ, Р°Р»Рµ РЅРµ РїРёСЃР°РІ Р°РІС‚РѕС‚РµСЃС‚Рё Р· РЅСѓР»СЏ", icon: CheckCircle2, color: "text-green-500" },
+    { text: "РҐС‚Рѕ РіРѕС‚СѓС”С‚СЊСЃСЏ РґРѕ СЃРїС–РІР±РµСЃС–РґРё AQA", icon: CheckCircle2, color: "text-green-500" },
+]
+
+export default function TargetAudience() {
+    return (
+        <section className="py-20 bg-muted/30">
+            <div className="container mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mx-auto max-w-4xl"
+                >
+                    <h2 className="text-4xl font-bold text-center text-foreground mb-16 tracking-tight">
+                        Р”Р»СЏ РєРѕРіРѕ С†СЏ РїР»Р°С‚С„РѕСЂРјР°
+                    </h2>
+
+                    <div className="grid gap-8 md:grid-cols-2">
+                        <div className="rounded-3xl border border-border bg-card p-8 shadow-sm">
+                            <h3 className="text-xl font-bold text-foreground mb-8 flex items-center gap-3">
+                                <span className="p-2 rounded-lg bg-green-500/10 text-green-500">вњ…</span>
+                                РљРѕРјСѓ РїС–РґС–Р№РґРµ
+                            </h3>
+                            <ul className="space-y-5">
+                                {audienceList.map((item, index) => (
+                                    <li key={index} className="flex items-start gap-3">
+                                        <item.icon className={`h-6 w-6 shrink-0 ${item.color}`} />
+                                        <span className="text-muted-foreground">{item.text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="rounded-3xl border border-red-500/10 bg-red-500/5 p-8 shadow-sm">
+                            <h3 className="text-xl font-bold text-foreground mb-8 flex items-center gap-3">
+                                <span className="p-2 rounded-lg bg-red-500/10 text-red-500">вќЊ</span>
+                                РќРµ РґР»СЏ С‚РµР±Рµ, СЏРєС‰Рѕ
+                            </h3>
+                            <ul className="space-y-5">
+                                <li className="flex items-start gap-3">
+                                    <XCircle className="h-6 w-6 shrink-0 text-red-500" />
+                                    <span className="text-muted-foreground">РўРё С€СѓРєР°С”С€ "РїСЂРѕСЃС‚Рѕ РїРѕРґРёРІРёС‚РёСЃСЊ РІС–РґРµРѕ"</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <XCircle className="h-6 w-6 shrink-0 text-red-500" />
+                                    <span className="text-muted-foreground">РќРµ РіРѕС‚РѕРІРёР№ РїРёСЃР°С‚Рё РєРѕРґ СЃР°РјРѕСЃС‚С–Р№РЅРѕ</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        </section>
+    )
+}
+
+"use client"
+
+import { motion } from "framer-motion"
+import { Zap, Globe, Cpu } from "lucide-react"
+
+const features = [
+    {
+        icon: Globe,
+        title: "РЎСѓС‡Р°СЃРЅРёР№ СЃС‚Р°РЅРґР°СЂС‚",
+        desc: "Playwright СЃС‚Р°С” РґРµ-С„Р°РєС‚Рѕ СЃС‚Р°РЅРґР°СЂС‚РѕРј РІ С–РЅРґСѓСЃС‚СЂС–С—, РІРёС‚С–СЃРЅСЏСЋС‡Рё СЃС‚Р°СЂС– С–РЅСЃС‚СЂСѓРјРµРЅС‚Рё."
+    },
+    {
+        icon: Zap,
+        title: "РЁРІРёРґРєРёР№ С– СЃС‚Р°Р±С–Р»СЊРЅРёР№",
+        desc: "РђСЂС…С–С‚РµРєС‚СѓСЂР°, СЏРєР° СѓСЃСѓРІР°С” РїСЂРѕР±Р»РµРјСѓ 'flaky' С‚РµСЃС‚С–РІ С‚Р° С‡РµРєР°РЅРЅСЏ РµР»РµРјРµРЅС‚С–РІ."
+    },
+    {
+        icon: Cpu,
+        title: "TypeScript = must-have",
+        desc: "РЎС‚СЂРѕРіР° С‚РёРїС–Р·Р°С†С–СЏ РґРѕРїРѕРјР°РіР°С” РїРёСЃР°С‚Рё РЅР°РґС–Р№РЅС–С€РёР№ РєРѕРґ С‚Р° С€РІРёРґС€Рµ Р·РЅР°С…РѕРґРёС‚Рё РїРѕРјРёР»РєРё."
+    }
+]
+
+export default function WhyPlaywright() {
+    return (
+        <section className="py-32 relative overflow-hidden bg-background">
+            <div className="absolute inset-0 bg-blue-600/5 skew-y-3 transform origin-bottom-right -z-10" />
+            <div className="container mx-auto px-4">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-20"
+                >
+                    <h2 className="text-4xl font-extrabold text-foreground mb-4 tracking-tight">Р§РѕРјСѓ Playwright + TypeScript?</h2>
+                    <p className="text-muted-foreground text-lg">Р’РёР±С–СЂ С‚РѕРї-РєРѕРјРїР°РЅС–Р№ СЃРІС–С‚Сѓ</p>
+                </motion.div>
+
+                <div className="grid gap-10 md:grid-cols-3">
+                    {features.map((feature, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.2 }}
+                            className="flex flex-col items-center text-center p-10 rounded-[2.5rem] bg-card border border-border shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group"
+                        >
+                            <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center mb-8 shadow-xl shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                                <feature.icon className="h-10 w-10 text-white" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-foreground mb-4">{feature.title}</h3>
+                            <p className="text-muted-foreground leading-relaxed text-lg">{feature.desc}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    )
+}
+

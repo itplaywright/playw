@@ -35,18 +35,26 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const [isGenerating, setIsGenerating] = useState(false)
+    const [isGeneratingCode, setIsGeneratingCode] = useState(false)
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
+        titleEn: initialData?.titleEn || "",
+        titleRu: initialData?.titleRu || "",
         description: initialData?.description || "",
+        descriptionEn: initialData?.descriptionEn || "",
+        descriptionRu: initialData?.descriptionRu || "",
         trackId: initialData?.trackId || (tracks[0]?.id || ""),
         difficulty: initialData?.difficulty || "easy",
         initialCode: initialData?.initialCode || "// Write your code here...",
+        initialCodeEn: initialData?.initialCodeEn || "",
+        initialCodeRu: initialData?.initialCodeRu || "",
         numbering: initialData?.numbering || "",
         order: initialData?.order || 0,
         isActive: initialData?.isActive ?? true
     })
 
     const [isPreview, setIsPreview] = useState(false)
+    const [langTab, setLangTab] = useState<"uk"|"en"|"ru">("uk")
     const [videoUrl, setVideoUrl] = useState<string>(initialData?.videoUrl || "")
     const [isGeneratingVideo, setIsGeneratingVideo] = useState(false)
     const [videoStatus, setVideoStatus] = useState<string>("")
@@ -59,12 +67,12 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
 
         const start = textarea.selectionStart
         const end = textarea.selectionEnd
-        const text = formData.description
+        const text = langTab === 'uk' ? formData.description : langTab === 'en' ? formData.descriptionEn : formData.descriptionRu;
         const selectedText = text.substring(start, end)
 
         const newText = text.substring(0, start) + before + selectedText + after + text.substring(end)
 
-        setFormData({ ...formData, description: newText })
+        if (langTab === 'uk') setFormData({ ...formData, description: newText }); else if (langTab === 'en') setFormData({ ...formData, descriptionEn: newText }); else setFormData({ ...formData, descriptionRu: newText });
 
         // Restore selection / focus next tick
         setTimeout(() => {
@@ -141,8 +149,53 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
         }
     }
 
+    
+    const handleGenerateCode = async () => {
+        const titleToUse = langTab === 'uk' ? formData.title : langTab === 'en' ? formData.titleEn : formData.titleRu;
+        if (!titleToUse) {
+            alert("Будь ласка, введіть назву завдання для генерації коду.")
+            return
+        }
+
+        setIsGeneratingCode(true)
+        try {
+            const descToUse = langTab === 'uk' ? formData.description : langTab === 'en' ? formData.descriptionEn : formData.descriptionRu;
+            const res = await fetch("/api/admin/ai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    prompt: titleToUse,
+                    description: descToUse,
+                    type: "code",
+                    language: langTab
+                })
+            })
+
+            const data = await res.json()
+
+            if (data.content) {
+                let cleanCode = data.content.trim()
+                if (cleanCode.startsWith("```")) {
+                    cleanCode = cleanCode.replace(/^```[a-zA-Z]*\n?/, "").replace(/\n?```$/, "").trim()
+                }
+                if (langTab === 'uk') setFormData(prev => ({ ...prev, initialCode: cleanCode }))
+                else if (langTab === 'en') setFormData(prev => ({ ...prev, initialCodeEn: cleanCode }))
+                else setFormData(prev => ({ ...prev, initialCodeRu: cleanCode }))
+            } else {
+                alert("Не вдалося згенерувати код: " + (data.error || "Unknown error"))
+            }
+
+        } catch (error) {
+            console.error("Error generating code:", error)
+            alert("Помилка генерації коду")
+        } finally {
+            setIsGeneratingCode(false)
+        }
+    }
+
     const handleGenerateDescription = async () => {
-        if (!formData.title) {
+        const titleToUse = langTab === 'uk' ? formData.title : langTab === 'en' ? formData.titleEn : formData.titleRu;
+        if (!titleToUse) {
             alert("Будь ласка, введіть назву завдання для генерації опису.")
             return
         }
@@ -153,15 +206,18 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    prompt: formData.title,
-                    type: "description"
+                    prompt: titleToUse,
+                    type: "description",
+                    language: langTab
                 })
             })
 
             const data = await res.json()
 
             if (data.content) {
-                setFormData(prev => ({ ...prev, description: data.content }))
+                if (langTab === 'uk') setFormData(prev => ({ ...prev, description: data.content }))
+                else if (langTab === 'en') setFormData(prev => ({ ...prev, descriptionEn: data.content }))
+                else setFormData(prev => ({ ...prev, descriptionRu: data.content }))
             } else {
                 alert("Не вдалося згенерувати контент: " + (data.error || "Unknown error"))
             }
@@ -223,14 +279,32 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                                 />
                             </div>
                             <div className="sm:col-span-3">
-                                <label className="block text-[10px] font-black uppercase text-muted-foreground mb-2 ml-1">Назва завдання (без номеру)</label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-[10px] font-black uppercase text-muted-foreground ml-1">Назва завдання (без номеру)</label>
+                                    <div className="flex bg-secondary/50 rounded-xl p-1">
+                                        {(['uk', 'en', 'ru'] as const).map(lang => (
+                                            <button
+                                                key={lang}
+                                                type="button"
+                                                onClick={() => setLangTab(lang)}
+                                                className={`px-3 py-1 text-[9px] font-black uppercase rounded-lg transition-all ${langTab === lang ? 'bg-card text-blue-600 shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                            >
+                                                {lang}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                                 <input
-                                    required
+                                    required={langTab === 'uk'}
                                     type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    value={langTab === 'uk' ? formData.title : langTab === 'en' ? formData.titleEn : formData.titleRu}
+                                    onChange={(e) => {
+                                        if (langTab === 'uk') setFormData({ ...formData, title: e.target.value })
+                                        if (langTab === 'en') setFormData({ ...formData, titleEn: e.target.value })
+                                        if (langTab === 'ru') setFormData({ ...formData, titleRu: e.target.value })
+                                    }}
                                     className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-black text-foreground text-sm"
-                                    placeholder="Вступ: Перший запуск"
+                                    placeholder={langTab === 'uk' ? 'Вступ: Перший запуск' : langTab === 'en' ? 'Intro: First run' : 'Введение: Первый запуск'}
                                 />
                             </div>
                         </div>
@@ -247,7 +321,7 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                                         title="Згенерувати опис за допомогою AI"
                                     >
                                         {isGenerating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
-                                        AI GPT-4
+                                        AI Gemini
                                     </button>
 
                                     {!isPreview && (
@@ -297,32 +371,52 @@ export default function TaskEditor({ initialData, tracks }: TaskEditorProps) {
                             {isPreview ? (
                                 <div className="w-full px-6 py-6 bg-secondary/30 border border-border rounded-3xl prose prose-slate prose-sm max-w-none h-[282px] overflow-y-auto custom-scrollbar text-foreground">
                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                        {formData.description || "*Немає опису... Спробуйте AI Generate!*"}
+                                        {langTab === 'uk' ? (formData.description || "*Немає опису... Спробуйте AI Generate!*") : langTab === 'en' ? (formData.descriptionEn || "*No description...*") : (formData.descriptionRu || "*Нет описания...*")}
                                     </ReactMarkdown>
                                 </div>
                             ) : (
                                 <textarea
                                     id="description-editor"
-                                    required
+                                    required={langTab === 'uk'}
                                     rows={10}
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full px-6 py-5 bg-secondary/30 border border-border rounded-3xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-medium resize-none font-mono text-sm text-foreground custom-scrollbar"
-                                    placeholder="Використовуйте Markdown для форматування..."
+                                    value={langTab === 'uk' ? formData.description : langTab === 'en' ? (formData.descriptionEn || '') : (formData.descriptionRu || '')}
+                                    onChange={(e) => {
+                                        if (langTab === 'uk') setFormData({ ...formData, description: e.target.value })
+                                        if (langTab === 'en') setFormData({ ...formData, descriptionEn: e.target.value })
+                                        if (langTab === 'ru') setFormData({ ...formData, descriptionRu: e.target.value })
+                                    }}
+                                    className="w-full px-6 py-5 bg-secondary/30 border border-border rounded-3xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all resize-none custom-scrollbar text-sm font-medium leading-relaxed font-mono text-foreground"
+                                    placeholder={langTab === 'uk' ? '## Теорія...' : langTab === 'en' ? '## Theory...' : '## Теория...'}
                                 />
                             )}
                         </div>
                     </div>
 
                     <div className="bg-card p-8 rounded-3xl shadow-sm border border-border space-y-6">
-                        <div className="flex items-center space-x-2 text-purple-500 mb-2">
-                            <Code className="h-5 w-5" />
-                            <h3 className="font-black uppercase tracking-widest text-[10px]">Початковий код</h3>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2 text-purple-500">
+                                <Code className="h-5 w-5" />
+                                <h3 className="font-black uppercase tracking-widest text-[10px]">Початковий код</h3>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleGenerateCode}
+                                disabled={isGeneratingCode}
+                                className="flex items-center px-2.5 py-1.5 bg-purple-500/10 text-purple-600 rounded-xl text-[10px] font-black hover:bg-purple-500/20 transition-all shadow-sm shadow-purple-500/5 disabled:opacity-50"
+                                title="Згенерувати початковий код за допомогою AI"
+                            >
+                                {isGeneratingCode ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
+                                AI Gemini
+                            </button>
                         </div>
                         <div className="border border-border rounded-2xl overflow-hidden h-[400px] bg-secondary/10">
                             <Monaco
-                                value={formData.initialCode}
-                                onChange={(val) => setFormData({ ...formData, initialCode: val || "" })}
+                                value={langTab === 'uk' ? formData.initialCode : langTab === 'en' ? (formData.initialCodeEn ?? "") : (formData.initialCodeRu ?? "")}
+                                onChange={(val) => {
+                                    if (langTab === 'uk') setFormData({ ...formData, initialCode: val || "" })
+                                    else if (langTab === 'en') setFormData({ ...formData, initialCodeEn: val || "" })
+                                    else setFormData({ ...formData, initialCodeRu: val || "" })
+                                }}
                             />
                         </div>
                     </div>

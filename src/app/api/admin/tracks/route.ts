@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json()
-        const { title, description, order } = body
+        const { title, titleEn, titleRu, description, descriptionEn, descriptionRu, order } = body
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 })
@@ -51,7 +51,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, title, description, order, isActive } = body
+        const { id, title, titleEn, titleRu, description, descriptionEn, descriptionRu, order, isActive } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })

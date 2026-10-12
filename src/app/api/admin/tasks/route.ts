@@ -1,4 +1,3 @@
-
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { tasks } from "@/db/schema"
@@ -33,7 +32,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json()
-        const { title, description, trackId, difficulty, initialCode, order, numbering } = body
+        const { title, titleEn, titleRu, description, descriptionEn, descriptionRu, trackId, difficulty, initialCode, initialCodeEn, initialCodeRu, order, numbering } = body
 
         if (!title || !description || !trackId || !initialCode) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -41,11 +40,17 @@ export async function POST(req: Request) {
 
         const [__insertResult] = await db.insert(tasks).values({
             title,
+            titleEn,
+            titleRu,
             numbering,
             description,
+            descriptionEn,
+            descriptionRu,
             trackId: parseInt(trackId),
             difficulty: difficulty || "easy",
             initialCode,
+            initialCodeEn,
+            initialCodeRu,
             order: order || 0,
             isActive: true
         })
@@ -65,7 +70,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, title, description, trackId, difficulty, initialCode, order, isActive, videoUrl, numbering } = body
+        const { id, title, titleEn, titleRu, description, descriptionEn, descriptionRu, trackId, difficulty, initialCode, initialCodeEn, initialCodeRu, order, isActive, videoUrl, numbering } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
@@ -74,11 +79,17 @@ export async function PATCH(req: Request) {
         await db.update(tasks)
             .set({
                 title,
+                titleEn,
+                titleRu,
                 numbering,
                 description,
+                descriptionEn,
+                descriptionRu,
                 trackId: trackId ? parseInt(trackId) : undefined,
                 difficulty,
                 initialCode,
+                initialCodeEn,
+                initialCodeRu,
                 order,
                 isActive,
                 videoUrl: videoUrl ?? undefined

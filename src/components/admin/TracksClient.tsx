@@ -9,14 +9,19 @@ import {
     EyeOff,
     Trash2,
     X,
-    Loader2
+    Loader2,
+    Globe
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 interface Track {
     id: number
     title: string
+    titleEn?: string | null
+    titleRu?: string | null
     description: string | null
+    descriptionEn?: string | null
+    descriptionRu?: string | null
     isActive: boolean | null
     order: number | null
     taskCount?: number
@@ -31,7 +36,11 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
 
     const [formData, setFormData] = useState({
         title: "",
+        titleEn: "",
+        titleRu: "",
         description: "",
+        descriptionEn: "",
+        descriptionRu: "",
         order: 0,
         isActive: true
     })
@@ -41,7 +50,11 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
             setEditingTrack(track)
             setFormData({
                 title: track.title,
+                titleEn: track.titleEn || "",
+                titleRu: track.titleRu || "",
                 description: track.description || "",
+                descriptionEn: track.descriptionEn || "",
+                descriptionRu: track.descriptionRu || "",
                 order: track.order || 0,
                 isActive: track.isActive ?? true
             })
@@ -49,7 +62,11 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
             setEditingTrack(null)
             setFormData({
                 title: "",
+                titleEn: "",
+                titleRu: "",
                 description: "",
+                descriptionEn: "",
+                descriptionRu: "",
                 order: tracks.length,
                 isActive: true
             })
@@ -79,9 +96,7 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
             if (res.ok) {
                 router.refresh()
                 closeModal()
-                // Update local state temporarily or just rely on router.refresh()
-                // For better UX we could refetch or update state
-                window.location.reload() // Simple way to refresh all data after change
+                window.location.reload()
             }
         } catch (error) {
             console.error("Error saving track:", error)
@@ -137,6 +152,7 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                             <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest w-10">#</th>
                             <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Назва</th>
                             <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Завдань</th>
+                            <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Мови</th>
                             <th className="px-6 py-4 text-left text-[10px] font-black text-muted-foreground uppercase tracking-widest">Статус</th>
                             <th className="px-6 py-4 text-right text-[10px] font-black text-muted-foreground uppercase tracking-widest">Дії</th>
                         </tr>
@@ -153,6 +169,13 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-500/10 text-blue-600 border border-blue-500/20">
                                         {track.taskCount ?? 0} задач
                                     </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex gap-1">
+                                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">UK</span>
+                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black border ${track.titleEn ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : 'bg-muted/50 text-muted-foreground/40 border-border'}`}>EN</span>
+                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black border ${track.titleRu ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' : 'bg-muted/50 text-muted-foreground/40 border-border'}`}>RU</span>
+                                    </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <button
@@ -188,8 +211,8 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-card rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 border border-border">
-                        <div className="px-8 py-6 border-b border-border flex items-center justify-between bg-secondary/30">
+                    <div className="bg-card rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-border max-h-[90vh] overflow-y-auto">
+                        <div className="px-8 py-6 border-b border-border flex items-center justify-between bg-secondary/30 sticky top-0 z-10">
                             <h2 className="text-xl font-black text-foreground tracking-tight">
                                 {editingTrack ? 'Редагувати трек' : 'Створити новий трек'}
                             </h2>
@@ -197,9 +220,12 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                                 <X className="h-6 w-6" />
                             </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                            {/* Title - Ukrainian */}
                             <div>
-                                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">Назва треку</label>
+                                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">
+                                    Назва треку (Укр) *
+                                </label>
                                 <input
                                     required
                                     type="text"
@@ -209,8 +235,38 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                                     placeholder="Наприклад: Основи Playwright"
                                 />
                             </div>
+
+                            {/* Title - EN & RU */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">
+                                        <Globe className="inline h-3 w-3 mr-1" />Назва (EN)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.titleEn}
+                                        onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-medium text-foreground text-sm"
+                                        placeholder="Title in English..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">
+                                        <Globe className="inline h-3 w-3 mr-1" />Назва (RU)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.titleRu}
+                                        onChange={(e) => setFormData({ ...formData, titleRu: e.target.value })}
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-medium text-foreground text-sm"
+                                        placeholder="Название на русском..."
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Description - Ukrainian */}
                             <div>
-                                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">Опис</label>
+                                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">Опис (Укр)</label>
                                 <textarea
                                     rows={3}
                                     value={formData.description}
@@ -219,6 +275,36 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                                     placeholder="Короткий опис того, чому навчиться студент..."
                                 />
                             </div>
+
+                            {/* Description - EN & RU */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">
+                                        <Globe className="inline h-3 w-3 mr-1" />Опис (EN)
+                                    </label>
+                                    <textarea
+                                        rows={2}
+                                        value={formData.descriptionEn}
+                                        onChange={(e) => setFormData({ ...formData, descriptionEn: e.target.value })}
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-medium resize-none text-foreground text-sm"
+                                        placeholder="Description in English..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">
+                                        <Globe className="inline h-3 w-3 mr-1" />Опис (RU)
+                                    </label>
+                                    <textarea
+                                        rows={2}
+                                        value={formData.descriptionRu}
+                                        onChange={(e) => setFormData({ ...formData, descriptionRu: e.target.value })}
+                                        className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-card outline-none transition-all font-medium resize-none text-foreground text-sm"
+                                        placeholder="Описание на русском..."
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Order & Active */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 ml-1">Порядок</label>
@@ -241,6 +327,8 @@ export default function TracksClient({ initialTracks }: { initialTracks: any[] }
                                     </label>
                                 </div>
                             </div>
+
+                            {/* Buttons */}
                             <div className="pt-4 flex space-x-3">
                                 <button
                                     type="button"

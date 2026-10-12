@@ -9,14 +9,21 @@ export async function POST(req: Request) {
             return new NextResponse("Unauthorized", { status: 401 })
         }
 
-        const { prompt, type } = await req.json()
+        const { prompt, description, type, language } = await req.json()
 
         let systemPrompt = ""
         let userPrompt = ""
 
+        const langInstructions: Record<string, string> = {
+            uk: "IN UKRAINIAN language",
+            en: "IN ENGLISH language",
+            ru: "IN RUSSIAN language"
+        }
+        const langLabel = langInstructions[language] || langInstructions.uk
+
         if (type === "description") {
             systemPrompt = `You are an expert Playwright automation instructor. 
-            Generate a comprehensive and educational Markdown description for a learning task IN UKRAINIAN language.
+            Generate a comprehensive and educational Markdown description for a learning task ${langLabel}.
             
             Structure:
             1. ## Title (with emoji)
@@ -36,6 +43,21 @@ export async function POST(req: Request) {
             Use formatting (bold, code blocks) to make it readable.`
 
             userPrompt = `Create a description for a task titled: "${prompt}".`
+        } else if (type === "code") {
+            systemPrompt = `You are a senior Lead QA Automation Engineer and creator of interactive Playwright courses.
+            Your task is to generate an ENGAGING, REAL-WORLD, and INTERESTING starter code challenge for students ${langLabel}.
+
+            Key Requirements:
+            1. Real-World & Fun Context: Instead of dry one-liners, create a realistic scenario (e.g. testing an online shop cart, verifying flight booking forms, automating user authentication, handling dynamic modals, or solving an algorithmic data processing puzzle for test data).
+            2. Interactive Structure:
+               - Include necessary imports (e.g., \`import { test, expect } from '@playwright/test';\` if Playwright, or modern TS/JS functions if pure TypeScript).
+               - Provide test setup and mock data or page navigation.
+               - Include clear step-by-step "// TODO: 1. ...", "// TODO: 2. ..." instructions ${langLabel} guiding the student through the problem.
+               - Leave clever placeholder gaps (e.g. \`/* Впишіть потрібний локатор або дію сюди */\`) where the student has to apply knowledge.
+            3. Educational & Motivating: Write clear, encouraging inline comments ${langLabel} explaining WHY this step matters in real QA automation.
+            4. Pure Code ONLY: Return strictly valid executable code. Do NOT wrap in markdown fences (\`\`\`typescript ... \`\`\`), do NOT write greetings or extra text.`
+
+            userPrompt = `Task title: "${prompt}".\n${description ? `Description context: "${description.slice(0, 500)}"` : ""}\nCreate an interesting, interactive hands-on code challenge with comments ${langLabel}.`
         }
 
         // 1. Collect all available API keys
@@ -95,14 +117,14 @@ export async function POST(req: Request) {
 
                 // 3. Define and shuffle models to try
                 const preferredModelsOrder = [
+                    "models/gemini-3.8-flash",
+                    "models/gemini-3.7-flash",
+                    "models/gemini-3.5-flash",
+                    "models/gemini-flash-latest",
+                    "models/gemini-2.5-flash",
                     "models/gemini-2.0-flash",
-                    "models/gemini-2.0-flash-exp",
-                    "models/gemini-2.0-flash-lite-preview-02-05",
                     "models/gemini-1.5-flash",
-                    "models/gemini-1.5-flash-latest",
-                    "models/gemini-1.5-flash-8b",
                     "models/gemini-1.5-pro",
-                    "models/gemini-1.0-pro",
                     "models/gemini-pro"
                 ].filter(m => supportedModels.includes(m));
 

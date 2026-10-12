@@ -1,4 +1,5 @@
 "use client"
+import { useLocale } from 'next-intl';
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -78,7 +79,17 @@ const STATUS_STYLES: Record<string, string> = {
     "Не розпочато": "bg-slate-100 text-slate-500",
 }
 
-export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername }: Props) {
+export default function DashboardClient({
+ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername }: Props) {
+
+  const locale = useLocale();
+  const getTrackTitle = (t: any) => (locale === 'en' && t?.titleEn) || (locale === 'ru' && t?.titleRu) || t?.title || '';
+  const getTaskTitle = (t: any) => (locale === 'en' && t?.titleEn) || (locale === 'ru' && t?.titleRu) || t?.title || '';
+
+  const getTrackDesc = (t: any) => (locale === 'en' && t?.descriptionEn) || (locale === 'ru' && t?.descriptionRu) || t?.description || '';
+  const getTaskDesc = (t: any) => (locale === 'en' && t?.descriptionEn) || (locale === 'ru' && t?.descriptionRu) || t?.description || '';
+
+
     const searchParams = useSearchParams()
     const urlTrackId = searchParams.get("trackId")
     const [selectedTrackId, setSelectedTrackId] = useState<number>(
@@ -128,7 +139,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
     const findNextTask = () => {
         const unlockedTasks = tasks.filter(t => {
             const track = tracks.find(tr => tr.id === t.trackId)
-            return track && (!isProTrack(track.order, track.title) || isAdmin)
+            return track && (!isProTrack(track.order, getTrackTitle(track)) || isAdmin)
         })
 
         unlockedTasks.sort((a, b) => {
@@ -276,7 +287,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-4">
                                             <h1 className="text-4xl font-black text-foreground tracking-tight leading-none">
-                                                {selectedTrack.title}
+                                                {getTrackTitle(selectedTrack)}
                                             </h1>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
                                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-orange-900/40">
@@ -284,7 +295,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-muted-foreground text-[15px] font-medium max-w-2xl leading-relaxed opacity-70 mt-1">{selectedTrack.description}</p>
+                                        <p className="text-muted-foreground text-[15px] font-medium max-w-2xl leading-relaxed opacity-70 mt-1">{getTrackDesc(selectedTrack)}</p>
                                     </div>
 
                                     {/* Gamified Stats Widgets */}
@@ -326,7 +337,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                             <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mb-1">Рекомендовано для тебе</p>
                                             <p className="text-foreground font-bold text-sm truncate max-w-[200px] hover:text-blue-600 dark:hover:text-blue-300 transition-colors">
                                                 <Link href={`/tasks/${nextTask.id}`}>
-                                                    {nextTask.title}
+                                                    {getTaskTitle(nextTask)}
                                                 </Link>
                                             </p>
                                         </div>
@@ -368,7 +379,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
                                         const isDone = statusLabel === "Виконано"
                                         const isInProgress = statusLabel === "В процесі"
-                                        const isLocked = isProTrack(selectedTrack.order, selectedTrack.title) && !isAdmin
+                                        const isLocked = isProTrack(selectedTrack.order, getTrackTitle(selectedTrack)) && !isAdmin
 
                                         return (
                                             <Link
@@ -398,19 +409,19 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-3 mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{selectedTrack.title.split(' — ')[0]} • ЗАВДАННЯ #{task.numbering || task.id}</span>
+                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{getTrackTitle(selectedTrack).split(' — ')[0]} • ЗАВДАННЯ #{task.numbering || task.id}</span>
                                                                 {/* Skill Tags */}
                                                                 <div className="flex gap-1.5 ml-2">
                                                                     {task.type === 'code' && (
                                                                         <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-bold text-blue-400 uppercase tracking-tighter">DOM</span>
                                                                     )}
-                                                                    {task.title.toLowerCase().includes('selector') && (
+                                                                    {getTaskTitle(task).toLowerCase().includes('selector') && (
                                                                         <span className="px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-[9px] font-bold text-purple-400 uppercase tracking-tighter">Locators</span>
                                                                     )}
-                                                                    {task.title.toLowerCase().includes('hook') && (
+                                                                    {getTaskTitle(task).toLowerCase().includes('hook') && (
                                                                         <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[9px] font-bold text-indigo-400 uppercase tracking-tighter">Hooks</span>
                                                                     )}
-                                                                    {task.title.toLowerCase().includes('api') && (
+                                                                    {getTaskTitle(task).toLowerCase().includes('api') && (
                                                                         <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] font-bold text-amber-400 uppercase tracking-tighter">API</span>
                                                                     )}
                                                                 </div>
@@ -419,7 +430,7 @@ export default function DashboardClient({ tracks, tasks, statusMap, isAdmin, use
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <h4 className={`font-bold text-lg transition-colors ${isDone ? "text-muted-foreground" : "text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-300"}`}>
-                                                                {task.title}
+                                                                {getTaskTitle(task)}
                                                             </h4>
                                                             {isLocked && !isDone && (
                                                                 <Lock className="w-4 h-4 text-amber-500/80 star-gold-premium drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />

@@ -1,8 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 export default function Footer() {
+    const t = useTranslations('Footer')
+
     return (
         <footer className="py-16 bg-background border-t border-border">
             <div className="container mx-auto px-4">
@@ -13,15 +16,15 @@ export default function Footer() {
                     </div>
 
                     <nav className="flex items-center gap-10">
-                        <Link href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors font-medium">Як це працює</Link>
-                        <Link href="#program" className="text-muted-foreground hover:text-primary transition-colors font-medium">Програма</Link>
+                        <Link href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors font-medium">{t('howItWorks')}</Link>
+                        <Link href="#curriculum" className="text-muted-foreground hover:text-primary transition-colors font-medium">{t('program')}</Link>
                         <Link href="#faq" className="text-muted-foreground hover:text-primary transition-colors font-medium">FAQ</Link>
-                        <Link href="/api/auth/signin" className="text-muted-foreground hover:text-primary transition-colors font-medium">Логін</Link>
-                        <Link href="/register" className="text-muted-foreground hover:text-primary transition-colors font-medium">Реєстрація</Link>
+                        <Link href="/api/auth/signin" className="text-muted-foreground hover:text-primary transition-colors font-medium">{t('login')}</Link>
+                        <Link href="/register" className="text-muted-foreground hover:text-primary transition-colors font-medium">{t('register')}</Link>
                     </nav>
 
                     <div className="text-muted-foreground text-sm font-medium">
-                        © {new Date().getFullYear()} Усі права захищені.
+                        © {new Date().getFullYear()} {t('rights')}
                     </div>
                 </div>
             </div>

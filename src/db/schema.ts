@@ -40,6 +40,7 @@ export const users = mysqlTable("user", {
     isBlocked: boolean("is_blocked").default(false),
     onboardingCompleted: boolean("onboarding_completed").default(false),
     learningPath: mysqlEnum("learning_path", learningPathEnumValues),
+    programmingLanguage: varchar("programming_language", { length: 50 }),
     createdAt: timestamp("created_at").defaultNow(),
     firstName: varchar("first_name", { length: 255 }),
     lastName: varchar("last_name", { length: 255 }),
@@ -109,7 +110,11 @@ export const roles = mysqlTable("roles", {
 export const tracks = mysqlTable("tracks", {
     id: int("id").primaryKey().autoincrement(),
     title: varchar("title", { length: 255 }).notNull(),
+    titleEn: varchar("title_en", { length: 255 }),
+    titleRu: varchar("title_ru", { length: 255 }),
     description: text("description"),
+    descriptionEn: text("description_en"),
+    descriptionRu: text("description_ru"),
     isActive: boolean("is_active").default(true),
     order: int("order").default(0),
 }, (table) => ({
@@ -121,9 +126,15 @@ export const tasks = mysqlTable("tasks", {
     trackId: int("track_id").references(() => tracks.id),
     numbering: varchar("numbering", { length: 20 }), // e.g. "1.2"
     title: varchar("title", { length: 255 }).notNull(),
+    titleEn: varchar("title_en", { length: 255 }),
+    titleRu: varchar("title_ru", { length: 255 }),
     description: text("description").notNull(), // Markdown
+    descriptionEn: text("description_en"), // Markdown EN
+    descriptionRu: text("description_ru"), // Markdown RU
     difficulty: mysqlEnum("difficulty", difficultyEnumValues).default("easy"),
     initialCode: text("initial_code").notNull(),
+    initialCodeEn: text("initial_code_en"),
+    initialCodeRu: text("initial_code_ru"),
     expectedResult: text("expected_result"),
     order: int("order").default(0),
     isActive: boolean("is_active").default(true),
@@ -163,6 +174,8 @@ export const settings = mysqlTable("settings", {
 export const menuItems = mysqlTable("menu_items", {
     id: int("id").primaryKey().autoincrement(),
     title: varchar("title", { length: 255 }).notNull(),
+    titleEn: varchar("title_en", { length: 255 }),
+    titleRu: varchar("title_ru", { length: 255 }),
     url: varchar("url", { length: 255 }).notNull(),
     type: mysqlEnum("type", menuTypeEnumValues).default("internal"),
     order: int("order").default(0),
@@ -433,3 +446,24 @@ export const taskSubmissionRelations = relations(taskSubmissions, ({ one }) => (
         references: [tasks.id],
     }),
 }))
+
+export const translations = mysqlTable("translations", {
+    id: int("id").primaryKey().autoincrement(),
+    locale: varchar("locale", { length: 10 }).notNull(),
+    key: varchar("key", { length: 255 }).notNull(),
+    value: text("value").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+    localeKeyIdx: uniqueIndex("locale_key_idx").on(table.locale, table.key),
+}))
+
+export const customBlocks = mysqlTable("custom_blocks", {
+    id: int("id").primaryKey().autoincrement(),
+    title: varchar("title", { length: 255 }).notNull(),
+    content: text("content").notNull(),
+    order: int("order").default(0),
+    isVisible: boolean("is_visible").default(true),
+    locale: varchar("locale", { length: 10 }).default("uk"),
+    createdAt: timestamp("created_at").defaultNow(),
+})
+

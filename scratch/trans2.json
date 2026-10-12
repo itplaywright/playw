@@ -1,0 +1,189 @@
+{
+  "DashboardPreview": {
+    "uk": {
+      "title": "Як виглядає твій ріст",
+      "progress": "Прозорий прогрес",
+      "completionRate": "Відсоток проходження",
+      "completionRateDesc": "Бачиш реальну статистику свого навчання",
+      "taskStatus": "Статус кожного завдання",
+      "taskStatusDesc": "Розумієш, що вже закріпив, а що треба довчити",
+      "attemptCount": "Кількість спроб",
+      "attemptCountDesc": "Бачиш, де саме ти застряг і тренуєшся",
+      "yourProgress": "Твій прогрес",
+      "level": "Level 2: Junior",
+      "overallProgress": "Загальний прогрес",
+      "tasksCompleted": "Виконано задач",
+      "codeAttempts": "Спроб коду"
+    },
+    "en": {
+      "title": "How your growth looks",
+      "progress": "Transparent progress",
+      "completionRate": "Completion rate",
+      "completionRateDesc": "See real statistics of your learning",
+      "taskStatus": "Status of each task",
+      "taskStatusDesc": "Understand what you have solidified and what you need to learn",
+      "attemptCount": "Number of attempts",
+      "attemptCountDesc": "See exactly where you got stuck and train",
+      "yourProgress": "Your progress",
+      "level": "Level 2: Junior",
+      "overallProgress": "Overall progress",
+      "tasksCompleted": "Tasks completed",
+      "codeAttempts": "Code attempts"
+    },
+    "ru": {
+      "title": "Как выглядит твой рост",
+      "progress": "Прозрачный прогресс",
+      "completionRate": "Процент прохождения",
+      "completionRateDesc": "Видишь реальную статистику своего обучения",
+      "taskStatus": "Статус каждого задания",
+      "taskStatusDesc": "Понимаешь, что уже закрепил, а что надо доучить",
+      "attemptCount": "Количество попыток",
+      "attemptCountDesc": "Видишь, где именно ты застрял и тренируешься",
+      "yourProgress": "Твой прогресс",
+      "level": "Level 2: Junior",
+      "overallProgress": "Общий прогресс",
+      "tasksCompleted": "Выполнено задач",
+      "codeAttempts": "Попыток кода"
+    }
+  },
+  "WhyPlaywright": {
+    "uk": {
+      "title": "Чому Playwright + TypeScript?",
+      "subtitle": "Вибір топ-компаній світу",
+      "feature1Title": "Сучасний стандарт",
+      "feature1Desc": "Playwright стає де-факто стандартом в індустрії, витісняючи старі інструменти.",
+      "feature2Title": "Швидкий і стабільний",
+      "feature2Desc": "Архітектура, яка усуває проблему 'flaky' тестів та чекання елементів.",
+      "feature3Title": "TypeScript = must-have",
+      "feature3Desc": "Строга типізація допомагає писати надійніший код та швидше знаходити помилки."
+    },
+    "en": {
+      "title": "Why Playwright + TypeScript?",
+      "subtitle": "The choice of top companies worldwide",
+      "feature1Title": "Modern standard",
+      "feature1Desc": "Playwright is becoming the de-facto standard in the industry, displacing older tools.",
+      "feature2Title": "Fast and stable",
+      "feature2Desc": "Architecture that eliminates the problem of 'flaky' tests and waiting for elements.",
+      "feature3Title": "TypeScript = must-have",
+      "feature3Desc": "Strict typing helps write more reliable code and find errors faster."
+    },
+    "ru": {
+      "title": "Почему Playwright + TypeScript?",
+      "subtitle": "Выбор топ-компаний мира",
+      "feature1Title": "Современный стандарт",
+      "feature1Desc": "Playwright становится де-факто стандартом в индустрии, вытесняя старые инструменты.",
+      "feature2Title": "Быстрый и стабильный",
+      "feature2Desc": "Архитектура, которая устраняет проблему 'flaky' тестов и ожидания элементов.",
+      "feature3Title": "TypeScript = must-have",
+      "feature3Desc": "Строгая типизация помогает писать более надежный код и быстрее находить ошибки."
+    }
+  },
+  "CallToAction": {
+    "uk": {
+      "title1": "Готовий перестати \"вчитись\"",
+      "title2": "і почати",
+      "titleHighlight": "писати автотести?",
+      "subtitle": "Приєднуйся до сотень студентів, які вже практикуються на реальних завданнях.",
+      "button": "Почати практику зараз"
+    },
+    "en": {
+      "title1": "Ready to stop \"learning\"",
+      "title2": "and start",
+      "titleHighlight": "writing autotests?",
+      "subtitle": "Join hundreds of students who are already practicing on real tasks.",
+      "button": "Start practice now"
+    },
+    "ru": {
+      "title1": "Готов перестать \"учиться\"",
+      "title2": "и начать",
+      "titleHighlight": "писать автотесты?",
+      "subtitle": "Присоединяйся к сотням студентов, которые уже практикуются на реальных задачах.",
+      "button": "Начать практику сейчас"
+    }
+  },
+  "FAQ": {
+    "uk": {
+      "title": "Поширені запитання",
+      "q1": "Чи підійде мені курс, якщо я зовсім не знаю програмування?",
+      "a1": "Так! Ми починаємо з основ. Також ми надаємо детальну документацію та підтримку на кожному етапі.",
+      "q2": "Чим це відрізняється від відео на YouTube?",
+      "a2": "Головна відмінність — практика. Ти не просто дивишся, а пишеш код в браузері, отримуєш миттєву перевірку та фідбек.",
+      "q3": "Які технології вивчаються на курсі?",
+      "a3": "Ми фокусуємося на Playwright та TypeScript — найсучаснішому стеку для автоматизації тестування.",
+      "q4": "Чи отримую я сертифікат після завершення?",
+      "a4": "Так, після виконання всіх практичних завдань ви отримаєте персональний сертифікат про проходження курсу.",
+      "q5": "Як довго триває навчання?",
+      "a5": "Курс розрахований на те, що ви проходите його у власному темпі. В середньому це займає від 4 до 8 тижнів.",
+      "q6": "Чи потрібне спеціальне ПЗ для навчання?",
+      "a6": "Ні, все необхідне для написання та запуску тестів уже вбудовано в нашу онлайн-платформу.",
+      "q7": "Чи є підтримка під час навчання?",
+      "a7": "Звичайно! Ви можете ставити запитання в нашому закритому ком'юніті або звертатися до підтримки.",
+      "q8": "Чи підійде цей курс для підготовки до співбесіди?",
+      "a8": "Так, ми розбираємо реальні кейси та архітектурні підходи (наприклад, Page Object Model), які часто запитують на технічних інтерв'ю."
+    },
+    "en": {
+      "title": "Frequently Asked Questions",
+      "q1": "Is the course suitable for me if I don't know programming at all?",
+      "a1": "Yes! We start from the basics. We also provide detailed documentation and support at every stage.",
+      "q2": "How is this different from YouTube videos?",
+      "a2": "The main difference is practice. You don't just watch, you write code in the browser, get instant verification and feedback.",
+      "q3": "What technologies are studied in the course?",
+      "a3": "We focus on Playwright and TypeScript - the most modern stack for test automation.",
+      "q4": "Do I get a certificate after completion?",
+      "a4": "Yes, after completing all practical tasks you will receive a personal certificate of course completion.",
+      "q5": "How long does the training take?",
+      "a5": "The course is designed for you to complete it at your own pace. On average it takes 4 to 8 weeks.",
+      "q6": "Do I need special software for training?",
+      "a6": "No, everything needed to write and run tests is already built into our online platform.",
+      "q7": "Is there support during the training?",
+      "a7": "Of course! You can ask questions in our closed community or contact support.",
+      "q8": "Is this course suitable for interview preparation?",
+      "a8": "Yes, we analyze real cases and architectural approaches (for example, Page Object Model) that are often asked in technical interviews."
+    },
+    "ru": {
+      "title": "Часто задаваемые вопросы",
+      "q1": "Подойдет ли мне курс, если я совсем не знаю программирования?",
+      "a1": "Да! Мы начинаем с основ. Также мы предоставляем подробную документацию и поддержку на каждом этапе.",
+      "q2": "Чем это отличается от видео на YouTube?",
+      "a2": "Главное отличие — практика. Ты не просто смотришь, а пишешь код в браузере, получаешь мгновенную проверку и фидбек.",
+      "q3": "Какие технологии изучаются на курсе?",
+      "a3": "Мы фокусируемся на Playwright и TypeScript — самом современном стеке для автоматизации тестирования.",
+      "q4": "Получаю ли я сертификат после завершения?",
+      "a4": "Да, после выполнения всех практических заданий вы получите персональный сертификат о прохождении курса.",
+      "q5": "Как долго длится обучение?",
+      "a5": "Курс рассчитан на то, что вы проходите его в собственном темпе. В среднем это занимает от 4 до 8 недель.",
+      "q6": "Нужно ли специальное ПО для обучения?",
+      "a6": "Нет, все необходимое для написания и запуска тестов уже встроено в нашу онлайн-платформу.",
+      "q7": "Есть ли поддержка во время обучения?",
+      "a7": "Конечно! Вы можете задавать вопросы в нашем закрытом комьюнити или обращаться в поддержку.",
+      "q8": "Подойдет ли этот курс для подготовки к собеседованию?",
+      "a8": "Да, мы разбираем реальные кейсы и архитектурные подходы (например, Page Object Model), которые часто спрашивают на технических интервью."
+    }
+  },
+  "Footer": {
+    "uk": {
+      "howItWorks": "Як це працює",
+      "program": "Програма",
+      "faq": "FAQ",
+      "login": "Логін",
+      "register": "Реєстрація",
+      "rightsReserved": "Усі права захищені."
+    },
+    "en": {
+      "howItWorks": "How it works",
+      "program": "Program",
+      "faq": "FAQ",
+      "login": "Login",
+      "register": "Registration",
+      "rightsReserved": "All rights reserved."
+    },
+    "ru": {
+      "howItWorks": "Как это работает",
+      "program": "Программа",
+      "faq": "FAQ",
+      "login": "Логин",
+      "register": "Регистрация",
+      "rightsReserved": "Все права защищены."
+    }
+  }
+}

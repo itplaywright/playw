@@ -45,10 +45,26 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
         task.title = task.titleEn || task.title
         task.description = task.descriptionEn || task.description
         task.initialCode = task.initialCodeEn || task.initialCode
+        if (task.taskQuestions?.length) {
+            task.taskQuestions = task.taskQuestions.map((q: any) => ({
+                ...q,
+                text: q.textEn || q.text,
+                options: q.optionsEn || q.options,
+                correctAnswer: q.correctAnswerEn || q.correctAnswer
+            }))
+        }
     } else if (locale === 'ru') {
         task.title = task.titleRu || task.title
         task.description = task.descriptionRu || task.description
         task.initialCode = task.initialCodeRu || task.initialCode
+        if (task.taskQuestions?.length) {
+            task.taskQuestions = task.taskQuestions.map((q: any) => ({
+                ...q,
+                text: q.textRu || q.text,
+                options: q.optionsRu || q.options,
+                correctAnswer: q.correctAnswerRu || q.correctAnswer
+            }))
+        }
     }
 
     let hasAiReview = false; // Default

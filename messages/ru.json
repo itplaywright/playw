@@ -240,5 +240,16 @@
     "pwOption4": "Install Playwright browsers? <strong>Yes</strong>",
     "extPy": "Официальное расширение для поддержки языка Python.",
     "extCs": "Официальное расширение для C#."
+  },
+  "Sidebar": {
+    "courseProgress": "Прогресс курса",
+    "courseLevels": "Уровни курса",
+    "setup": "Шаг 0. Настройка",
+    "projects": "Проекты (Jira)",
+    "cabinet": "Мой кабинет",
+    "access": "Доступ",
+    "currentAccess": "Текущий доступ",
+    "demoMode": "Демо-режим",
+    "done": "выполнено"
   }
 }

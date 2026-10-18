@@ -6,6 +6,8 @@ import { eq, asc } from "drizzle-orm"
 import DashboardClient from "@/components/dashboard/DashboardClient"
 import { checkHasAccess } from "@/lib/access"
 
+import { getLocale } from "next-intl/server"
+
 export default async function Dashboard() {
     const session = await auth()
 
@@ -16,6 +18,8 @@ export default async function Dashboard() {
     if (!(session.user as any).onboardingCompleted) {
         redirect("/setup")
     }
+
+    const locale = await getLocale()
 
     const userWithRole = await db.select({
         id: users.id,
@@ -51,8 +55,21 @@ export default async function Dashboard() {
 
     const isAdmin = (session.user as any).role === "admin"
 
-    const visibleTracks = isAdmin ? allTracks : allTracks.filter(t => t.isActive)
-    const visibleTasks = isAdmin ? allTasks : allTasks.filter(t => t.isActive)
+    const localizedTracks = allTracks.map(t => ({
+        ...t,
+        title: locale === 'en' ? (t.titleEn || t.title) : locale === 'ru' ? (t.titleRu || t.title) : t.title,
+        description: locale === 'en' ? (t.descriptionEn || t.description) : locale === 'ru' ? (t.descriptionRu || t.description) : t.description,
+    }))
+
+    const localizedTasks = allTasks.map(t => ({
+        ...t,
+        title: locale === 'en' ? (t.titleEn || t.title) : locale === 'ru' ? (t.titleRu || t.title) : t.title,
+        description: locale === 'en' ? (t.descriptionEn || t.description) : locale === 'ru' ? (t.descriptionRu || t.description) : t.description,
+        initialCode: locale === 'en' ? (t.initialCodeEn || t.initialCode) : locale === 'ru' ? (t.initialCodeRu || t.initialCode) : t.initialCode,
+    }))
+
+    const visibleTracks = isAdmin ? localizedTracks : localizedTracks.filter(t => t.isActive)
+    const visibleTasks = isAdmin ? localizedTasks : localizedTasks.filter(t => t.isActive)
 
     // Pre-compute status map for all tasks
     const statusMap: Record<number, "Виконано" | "В процесі" | "Не розпочато"> = {}

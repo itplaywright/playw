@@ -240,5 +240,16 @@
     "pwOption4": "Install Playwright browsers? <strong>Yes</strong>",
     "extPy": "Official extension for Python language support.",
     "extCs": "Official extension for C#."
+  },
+  "Sidebar": {
+    "courseProgress": "Course Progress",
+    "courseLevels": "Course Levels",
+    "setup": "Step 0. Setup",
+    "projects": "Projects (Jira)",
+    "cabinet": "My Cabinet",
+    "access": "Access",
+    "currentAccess": "Current Access",
+    "demoMode": "Demo Mode",
+    "done": "Done"
   }
 }

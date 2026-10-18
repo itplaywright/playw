@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import {
     Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock
 } from "lucide-react"
@@ -38,9 +39,10 @@ export default function Sidebar({
     currentPath,
     overallPct
 }: SidebarProps) {
-    // Extract level number from track title (e.g. "Рівень 2 — ..." -> 2)
+    const t = useTranslations("Sidebar")
+    // Extract level number from track title (e.g. "Рівень 2 — ..." / "Level 2 — ..." / "Уровень 2 — ..." -> 2)
     const getLevelNum = (title: string, order: number | null) => {
-        const match = title.match(/[Рр][іи]вень\s*(\d+)/)
+        const match = title.match(/(?:[Рр][іи]вень|[Уу]ровень|Level)\s*(\d+)/i)
         return match ? parseInt(match[1]) : (order ?? 0)
     }
 
@@ -67,7 +69,7 @@ export default function Sidebar({
                 {/* User Plan Badge */}
                 {role ? (
                     <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border border-blue-500/20 flex flex-col gap-1 shadow-lg shadow-blue-500/5 dark:shadow-blue-900/10">
-                        <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">Поточний доступ</span>
+                        <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">{t("currentAccess")}</span>
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-bold text-foreground tracking-tight">{role.name}</span>
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
@@ -75,9 +77,9 @@ export default function Sidebar({
                     </div>
                 ) : (
                     <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-amber-600/10 to-orange-600/10 border border-amber-500/20 flex flex-col gap-1 shadow-lg shadow-amber-500/5 dark:shadow-amber-900/10">
-                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.2em] opacity-80">Доступ</span>
+                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.2em] opacity-80">{t("access")}</span>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-bold text-foreground tracking-tight">Демо-режим</span>
+                            <span className="text-sm font-bold text-foreground tracking-tight">{t("demoMode")}</span>
                             <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
                         </div>
                     </div>
@@ -87,7 +89,7 @@ export default function Sidebar({
                 {overallPct !== undefined && (
                     <div className="w-full flex flex-col gap-1.5 mt-2">
                         <div className="flex justify-between items-center px-1">
-                            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Прогрес курсу</span>
+                            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t("courseProgress")}</span>
                             <span className="text-[9px] font-black text-blue-600 dark:text-blue-400">{overallPct}%</span>
                         </div>
                         <div className="w-full h-[3px] bg-secondary border border-border/50 rounded-full overflow-hidden">
@@ -99,7 +101,7 @@ export default function Sidebar({
 
             {/* Track navigation */}
             <nav className="flex-1 px-3 py-6 overflow-y-auto space-y-1.5 custom-scrollbar">
-                <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Рівні курсу</p>
+                <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">{t("courseLevels")}</p>
 
                 {/* Setup link */}
                 <Link
@@ -110,7 +112,7 @@ export default function Sidebar({
                         }`}
                 >
                     <Layers className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate tracking-wide">Крок 0. Налаштування</span>
+                    <span className="truncate tracking-wide">{t("setup")}</span>
                 </Link>
 
                 <Link
@@ -121,7 +123,7 @@ export default function Sidebar({
                         }`}
                 >
                     <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate tracking-wide">Проєкти (Jira)</span>
+                    <span className="truncate tracking-wide">{t("projects")}</span>
                 </Link>
 
                 <div className="pt-4 pb-2 border-t border-border mx-2 my-2" />
@@ -149,7 +151,7 @@ export default function Sidebar({
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className={`text-[9px] font-bold uppercase tracking-wider ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/60"}`}>
-                                    {done}/{total} Done
+                                    {done}/{total} {t("done")}
                                 </span>
                                 {pct > 0 && (
                                     <span className={`text-[9px] font-bold ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/60"}`}>{pct}%</span>
@@ -197,7 +199,7 @@ export default function Sidebar({
                         }`}
                 >
                     <BarChart2 className="w-4 h-4" />
-                    <span className="tracking-wide">Мій кабінет</span>
+                    <span className="tracking-wide">{t("cabinet")}</span>
                     <ArrowRight className="w-3 h-3 ml-auto opacity-40 group-hover:opacity-100 transition-all" />
                 </Link>
             </div>

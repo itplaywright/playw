@@ -274,6 +274,11 @@
     "statusPending": "PENDING",
     "outputTab": "Output",
     "terminalTab": "Terminal",
-    "mentorTab": "Mentor"
+    "mentorTab": "Mentor",
+    "quizInstruction": "Choose the correct answer to check your knowledge.",
+    "localRunPrompt": "Tests are executed locally in your VS Code.",
+    "readyPrompt": "Run the test to see the result...",
+    "consoleReady": "Console is ready. Run a test to verify...",
+    "terminalActive": "Terminal active (locally)..."
   }
 }

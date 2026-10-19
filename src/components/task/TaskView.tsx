@@ -79,10 +79,10 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
     const [selectedOption, setSelectedOption] = useState<string | null>(null)
     const [output, setOutput] = useState(
         task.type === "quiz"
-            ? "Оберіть правильну відповідь для перевірки знань."
+            ? t("quizInstruction")
             : (isProduction
-                ? "Запуск тестів виконується локально у вашому VS Code."
-                : "Запустіть тест, щоб побачити результат...")
+                ? t("localRunPrompt")
+                : t("readyPrompt"))
     )
     const [isRunning, setIsRunning] = useState(false)
     const [questionContent, setQuestionContent] = useState("")
@@ -270,7 +270,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
     return (
         <div className="flex flex-col h-screen bg-background overflow-hidden font-sans">
             {/* Header */}
-            <header className="flex-shrink-0 h-10 border-b border-border bg-card/80 backdrop-blur-md flex items-center px-4 gap-6 z-50">
+            <header className="flex-shrink-0 h-14 border-b border-border bg-card/90 backdrop-blur-md flex items-center px-6 gap-6 z-50 shadow-sm">
                 {/* Logo */}
                 <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0 group opacity-80 hover:opacity-100 transition-opacity">
                     <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
@@ -325,7 +325,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                         <button
                             onClick={handleRun}
                             disabled={isRunning}
-                            className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isRunning
+                            className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm ${isRunning
                                 ? 'bg-white/5 text-slate-600 cursor-not-allowed'
                                 : isProduction
                                     ? 'glass-panel text-blue-400 border-blue-500/20 hover:bg-blue-500/10'
@@ -365,7 +365,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                         <button
                             onClick={handleSubmitForReview}
                             disabled={isSubmittingReview}
-                            className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isSubmittingReview
+                            className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm ${isSubmittingReview
                                 ? 'bg-white/5 text-slate-600 cursor-not-allowed'
                                 : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'
                                 }`}
@@ -580,7 +580,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                         </div>
                                     ) : (
                                         <pre className="text-foreground/80 whitespace-pre-wrap leading-relaxed font-mono text-xs">
-                                            {activeConsoleTab === "Output" ? (output || "Консоль готова. Запустіть тест для перевірки...") : "Термінал активний (локально)..."}
+                                            {activeConsoleTab === "Output" ? (output || t("consoleReady")) : t("terminalActive")}
                                         </pre>
                                     )}
                                 </div>

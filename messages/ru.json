@@ -251,5 +251,29 @@
     "currentAccess": "Текущий доступ",
     "demoMode": "Демо-режим",
     "done": "выполнено"
+  },
+  "TaskView": {
+    "back": "Назад",
+    "reset": "Сбросить",
+    "resetConfirm": "Сбросить код к начальному состоянию?",
+    "runTest": "Запустить тест",
+    "copyCode": "Скопировать код",
+    "checking": "Проверка...",
+    "quiz": "Тест",
+    "question": "Вопрос",
+    "quickCheck": "Быстрая проверка",
+    "sendToMentor": "Отправить ментору",
+    "sending": "Отправляем...",
+    "theoryAndTask": "Теория и задания",
+    "level": "УРОВЕНЬ",
+    "mentorFeedback": "Фидбек Ментора",
+    "details": "Подробнее",
+    "status": "Статус",
+    "statusPassed": "ПРИНЯТО",
+    "statusFixes": "ТРЕБУЕТ ИСПРАВЛЕНИЙ",
+    "statusPending": "В ОЖИДАНИИ",
+    "outputTab": "Вывод",
+    "terminalTab": "Терминал",
+    "mentorTab": "Ментор"
   }
 }

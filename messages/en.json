@@ -251,5 +251,29 @@
     "currentAccess": "Current Access",
     "demoMode": "Demo Mode",
     "done": "Done"
+  },
+  "TaskView": {
+    "back": "Back",
+    "reset": "Reset",
+    "resetConfirm": "Reset code to initial state?",
+    "runTest": "Run Test",
+    "copyCode": "Copy Code",
+    "checking": "Checking...",
+    "quiz": "Quiz",
+    "question": "Question",
+    "quickCheck": "Quick Check",
+    "sendToMentor": "Submit to Mentor",
+    "sending": "Submitting...",
+    "theoryAndTask": "Theory & Task",
+    "level": "LEVEL",
+    "mentorFeedback": "Mentor Feedback",
+    "details": "Details",
+    "status": "Status",
+    "statusPassed": "ACCEPTED",
+    "statusFixes": "NEEDS FIXES",
+    "statusPending": "PENDING",
+    "outputTab": "Output",
+    "terminalTab": "Terminal",
+    "mentorTab": "Mentor"
   }
 }

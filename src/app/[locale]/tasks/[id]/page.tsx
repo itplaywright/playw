@@ -112,9 +112,14 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
                 eq(t.isActive, true)
             ),
             orderBy: (t, { asc }) => [asc(t.order)],
-            columns: { id: true, title: true }
+            columns: { id: true, title: true, titleEn: true, titleRu: true }
         })
-        if (nextTask) nextTaskData = nextTask
+        if (nextTask) {
+            nextTaskData = {
+                id: nextTask.id,
+                title: locale === 'en' ? (nextTask.titleEn || nextTask.title) : locale === 'ru' ? (nextTask.titleRu || nextTask.title) : nextTask.title
+            }
+        }
     }
 
     // Fetch latest user submission for this task

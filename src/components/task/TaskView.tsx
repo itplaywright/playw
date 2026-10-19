@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm"
 import PseudoVideoPlayer from "./PseudoVideoPlayer"
 import CodeEditor from "@/components/editor/Monaco"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { CheckCircle2, Clock, Terminal, BookOpen, ShieldCheck, MessageSquare, X, Info, Code2 } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -42,6 +43,7 @@ interface TaskViewProps {
 }
 
 export default function TaskView({ task, isProduction, nextTask, submission, hasAiReview }: TaskViewProps) {
+    const t = useTranslations("TaskView")
     const searchParams = useSearchParams()
     const [code, setCode] = useState(submission?.code || task.initialCode)
     const [activeConsoleTab, setActiveConsoleTab] = useState<"Output" | "Terminal" | "Mentor">(
@@ -283,7 +285,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                     <svg className="h-3 w-3 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span className="hidden sm:inline">Назад</span>
+                    <span className="hidden sm:inline">{t("back")}</span>
                 </Link>
 
                 {/* Task title + Next Task */}
@@ -310,7 +312,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                     {task.type === "code" && (
                         <button
                             onClick={() => {
-                                if (confirm("Скинути код до початкового стану?")) {
+                                if (confirm(t("resetConfirm"))) {
                                     setCode(task.initialCode || "")
                                 }
                             }}
@@ -330,7 +332,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     : 'badge-gradient-blue'
                                 }`}
                         >
-                            {isRunning ? "Checking..." : (isProduction ? "Copy Code" : "Run Test")}
+                            {isRunning ? t("checking") : (isProduction ? t("copyCode") : t("runTest"))}
                         </button>
                     )}
                     {totalQuestions > 0 && task.type !== "quiz" && (
@@ -368,7 +370,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'
                                 }`}
                         >
-                            {isSubmittingReview ? "Відправляємо..." : "👨‍🏫 Відправити ментору"}
+                            {isSubmittingReview ? t("sending") : `👨‍🏫 ${t("sendToMentor")}`}
                         </button>
                     )}
                 </div>
@@ -385,10 +387,10 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                             </div>
                             <h2 className="text-foreground text-sm font-black m-0 tracking-tight uppercase">
-                                Теорія та завдання
+                                {t("theoryAndTask")}
                             </h2>
                         </div>
-                        <span className="text-[10px] font-black text-muted-foreground tracking-[0.3em] uppercase opacity-50">LEVEL {task.id}</span>
+                        <span className="text-[10px] font-black text-muted-foreground tracking-[0.3em] uppercase opacity-50">{t("level")} {task.id}</span>
                     </div>
 
                     <div className="p-4 lg:p-8 pt-4 lg:pt-6">
@@ -412,15 +414,15 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                             <ShieldCheck className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <h3 className="text-sm font-black uppercase tracking-widest leading-none mb-1">Фідбек Ментора</h3>
-                                            <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Статус: {submission.status === 'reviewed' ? 'ПРИЙНЯТО' : submission.status === 'rejected' ? 'ПОТРЕБУЄ ВИПРАВЛЕНЬ' : 'В ОЧІКУВАННІ'}</p>
+                                            <h3 className="text-sm font-black uppercase tracking-widest leading-none mb-1">{t("mentorFeedback")}</h3>
+                                            <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest">{t("status")}: {submission.status === "reviewed" ? t("statusPassed") : submission.status === "rejected" ? t("statusFixes") : t("statusPending")}</p>
                                         </div>
                                     </div>
                                     <button 
                                         onClick={scrollToMentor}
                                         className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-[10px] font-black uppercase tracking-widest text-white underline underline-offset-4"
                                     >
-                                        Детальніше
+                                        {t("details")}
                                     </button>
                                 </div>
                                 {submission.status === 'rejected' && (
@@ -513,7 +515,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 }`}
                             >
                                 <div className="flex items-center px-4 border-b border-border bg-secondary/50">
-                                    {["Output", "Terminal", "Mentor"].map((tab) => (
+                                    {[{ id: "Output", label: t("outputTab") }, { id: "Terminal", label: t("terminalTab") }, { id: "Mentor", label: t("mentorTab") }].map(({ id: tab, label }) => (
                                         <button
                                             key={tab}
                                             onClick={() => setActiveConsoleTab(tab as any)}

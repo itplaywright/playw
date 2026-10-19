@@ -251,5 +251,29 @@
     "currentAccess": "Поточний доступ",
     "demoMode": "Демо-режим",
     "done": "виконано"
+  },
+  "TaskView": {
+    "back": "Назад",
+    "reset": "Скинути",
+    "resetConfirm": "Скинути код до початкового стану?",
+    "runTest": "Запустити тест",
+    "copyCode": "Скопіювати код",
+    "checking": "Перевірка...",
+    "quiz": "Тест",
+    "question": "Питання",
+    "quickCheck": "Швидка перевірка",
+    "sendToMentor": "Відправити ментору",
+    "sending": "Відправляємо...",
+    "theoryAndTask": "Теорія та завдання",
+    "level": "РІВЕНЬ",
+    "mentorFeedback": "Фідбек Ментора",
+    "details": "Детальніше",
+    "status": "Статус",
+    "statusPassed": "ПРИЙНЯТО",
+    "statusFixes": "ПОТРЕБУЄ ВИПРАВЛЕНЬ",
+    "statusPending": "В ОЧІКУВАННІ",
+    "outputTab": "Вивід",
+    "terminalTab": "Термінал",
+    "mentorTab": "Ментор"
   }
 }

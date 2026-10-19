@@ -318,7 +318,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             }}
                             className="px-3 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest"
                         >
-                            Скинути
+                            {t("reset")}
                         </button>
                     )}
                     {task.type === "code" && (
@@ -340,14 +340,14 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             onClick={() => setIsQuizModalOpen(true)}
                             className="px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all"
                         >
-                            🧠 Тест
+                            🧠 {t("quiz")}
                         </button>
                     )}
                     <button
                         onClick={() => setIsQuestionModalOpen(true)}
                         className="px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all"
                     >
-                        💬 Питання
+                        💬 {t("question")}
                     </button>
                     {task.type === "code" && hasAiReview && (
                         <button
@@ -358,7 +358,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 : 'bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20'
                                 }`}
                         >
-                            🔍 Швидка перевірка
+                            🔍 {t("quickCheck")}
                         </button>
                     )}
                     {task.type === "code" && (
@@ -541,7 +541,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     {activeConsoleTab === "Mentor" ? (
                                         <div className="space-y-4 font-sans">
                                             {!submission ? (
-                                                <div className="text-muted-foreground text-center py-4">Ви ще не надсилали код на перевірку.</div>
+                                                <div className="text-muted-foreground text-center py-4">{t("noSubmission")}</div>
                                             ) : (
                                                 <div className={`border border-border rounded-2xl overflow-hidden shadow-2xl ${
                                                     submission.status === 'reviewed' ? 'bg-emerald-500/5' : 
@@ -551,7 +551,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                     <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/30">
                                                         <div className="flex items-center gap-2">
                                                             <div className={`w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : submission.status === 'rejected' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`} />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Статус: {submission.status}</span>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{t("statusLabel", { status: submission.status })}</span>
                                                         </div>
                                                         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{new Date(submission.createdAt).toLocaleDateString()}</span>
                                                     </div>
@@ -561,7 +561,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                             <>
                                                                 <div className="mb-4 flex items-center gap-2 pb-4 border-b border-border">
                                                                     <MessageSquare className="w-4 h-4 text-blue-500" />
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Коментарі ментора</span>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("mentorComments")}</span>
                                                                 </div>
                                                                 <div className="prose prose-slate dark:prose-invert prose-sm max-w-none">
                                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -571,7 +571,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                             </>
                                                         ) : (
                                                             <div className="text-muted-foreground text-sm leading-relaxed italic text-center py-4">
-                                                                Код надіслано ментору. Очікуйте на фідбек найближчим часом. Сповіщення прийде сюди та в кабінет.
+                                                                {t("awaitingFeedback")}
                                                             </div>
                                                         )}
                                                     </div>
@@ -600,7 +600,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                     {currentQuestionIndex + 1}
                                                 </div>
                                                 <div className="space-y-0.5">
-                                                    <span className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Питання {currentQuestionIndex + 1} з {totalQuestions}</span>
+                                                    <span className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{t("questionOf", { current: currentQuestionIndex + 1, total: totalQuestions })}</span>
                                                     <div className="flex gap-1">
                                                         {allQuestions.map((_, i) => (
                                                             <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === currentQuestionIndex ? 'w-4 bg-blue-500' : i < currentQuestionIndex ? 'w-2 bg-emerald-500' : 'w-2 bg-secondary'}`} />
@@ -642,18 +642,18 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     <div className="max-w-md">
                                         <div className="text-6xl mb-6">{output.includes("✅") ? "🎉" : (output.includes("❌") ? "🤔" : "📝")}</div>
                                         <h2 className="text-3xl font-extrabold text-foreground mb-4 tracking-tight">
-                                            {isCompleted ? "Чудова робота!" : (output.includes("✅") ? "Правильно!" : "Спробуйте ще раз")}
+                                            {isCompleted ? t("greatJob") : (output.includes("✅") ? t("correct") : t("tryAgain"))}
                                         </h2>
                                         <div className="text-muted-foreground font-medium text-lg mb-8">{output}</div>
                                         {isCompleted && (
                                             <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
                                                 <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold bg-emerald-500/10 py-3 px-6 rounded-2xl border border-emerald-500/20">
-                                                    <span>Знання підтверджено</span>
+                                                    <span>{t("knowledgeConfirmed")}</span>
                                                     <CheckCircle2 className="w-5 h-5" />
                                                 </div>
                                                 {nextTask && (
                                                     <Link href={`/tasks/${nextTask.id}`} className="block w-full bg-blue-600 text-white shadow-xl shadow-blue-600/30 px-8 py-4 rounded-2xl font-black hover:bg-blue-500 transition-all transform hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wider">
-                                                        До наступного завдання
+                                                        {t("nextTask")}
                                                     </Link>
                                                 )}
                                             </div>
@@ -675,8 +675,8 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 <div className="flex items-center gap-3">
                                     <div className="text-2xl">🔍</div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-foreground tracking-tight">Рев'ю коду</h2>
-                                        <p className="text-xs text-purple-600 dark:text-purple-300 font-medium tracking-wide uppercase">АВТОМАТИЧНИЙ АНАЛІЗ</p>
+                                        <h2 className="text-xl font-bold text-foreground tracking-tight">{t("codeReview")}</h2>
+                                        <p className="text-xs text-purple-600 dark:text-purple-300 font-medium tracking-wide uppercase">{t("autoAnalysis")}</p>
                                     </div>
                                 </div>
                                 <button
@@ -697,8 +697,8 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                         </div>
                                         <div className="text-6xl animate-bounce relative z-10">🤔</div>
                                         <div className="space-y-2 relative z-10">
-                                            <h3 className="text-xl font-bold text-white">Аналізуємо ваш код...</h3>
-                                            <p className="text-slate-400 text-sm">Перевіряємо структуру, селектори та Best Practices Playwright.</p>
+                                            <h3 className="text-xl font-bold text-white">{t("analyzingCode")}</h3>
+                                            <p className="text-slate-400 text-sm">{t("analyzingHint")}</p>
                                         </div>
                                         <div className="flex gap-1.5 mt-4 relative z-10">
                                             <div className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -709,7 +709,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 ) : (
                                     <div className="relative animate-in fade-in slide-in-from-bottom-2 duration-500">
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                            {reviewResult || "Жодного результату. Спробуйте ще раз."}
+                                            {reviewResult || t("noResult")}
                                         </ReactMarkdown>
                                     </div>
                                 )}
@@ -721,7 +721,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                         onClick={() => setIsReviewModalOpen(false)}
                                         className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-95"
                                     >
-                                        {reviewStatus === "SAFE" ? "Дякую, зрозуміло!" : "Зрозуміло, йду виправляти"}
+                                        {reviewStatus === "SAFE" ? t("thanksSafe") : t("thanksIssues")}
                                     </button>
                                 </div>
                             )}
@@ -739,8 +739,8 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 <div className="flex items-center gap-3">
                                     <div className="text-2xl">🧠</div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-foreground tracking-tight">Перевірка знань</h2>
-                                        <p className="text-xs text-emerald-300 font-medium tracking-wide uppercase">Прогрес: {Object.keys(answeredQuestions).length} / {totalQuestions}</p>
+                                        <h2 className="text-xl font-bold text-foreground tracking-tight">{t("knowledgeCheck")}</h2>
+                                        <p className="text-xs text-emerald-300 font-medium tracking-wide uppercase">{t("progress", { done: Object.keys(answeredQuestions).length, total: totalQuestions })}</p>
                                     </div>
                                 </div>
                                 <button
@@ -778,13 +778,13 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     ) : (
                                         <div className="py-8 text-center">
                                             <div className="text-5xl mb-4">🏆</div>
-                                            <h3 className="text-2xl font-bold text-white mb-2">Завдання виконано!</h3>
-                                            <p className="text-slate-400">Ви успішно пройшли всі питання тесту.</p>
+                                            <h3 className="text-2xl font-bold text-white mb-2">{t("quizComplete")}</h3>
+                                            <p className="text-slate-400">{t("quizCompleteDesc")}</p>
                                             <button 
                                                 onClick={() => setIsQuizModalOpen(false)}
                                                 className="mt-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl transition-all"
                                             >
-                                                Дякую, зрозуміло
+                                                {t("thanksUnderstood")}
                                             </button>
                                         </div>
                                     )}
@@ -806,8 +806,8 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                         <MessageSquare className="w-6 h-6 text-indigo-400" />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-bold text-white tracking-tight">Задати питання</h2>
-                                        <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">МЕНТОР ПЕРЕГЛЯНЕ ВАШ ЗАПИТ</p>
+                                        <h2 className="text-xl font-bold text-white tracking-tight">{t("askQuestion")}</h2>
+                                        <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">{t("mentorWillReview")}</p>
                                     </div>
                                 </div>
                                 <button
@@ -821,7 +821,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             <textarea
                                 value={questionContent}
                                 onChange={(e) => setQuestionContent(e.target.value)}
-                                placeholder="Опишіть вашу проблему або питання детально..."
+                                placeholder={t("questionPlaceholder")}
                                 className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none mb-6 placeholder-slate-600"
                             />
                             
@@ -830,7 +830,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 disabled={isSubmittingQuestion}
                                 className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98] disabled:opacity-50 uppercase tracking-widest text-xs"
                             >
-                                {isSubmittingQuestion ? "Відправляємо..." : "Надіслати ментору"}
+                                {isSubmittingQuestion ? t("sendingQuestion") : t("sendToMentorBtn")}
                             </button>
                         </div>
                     </div>

@@ -97,16 +97,15 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
     const [isQuizModalOpen, setIsQuizModalOpen] = useState(false)
     const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false)
 
-    // Combine legacy single question with the new taskQuestions if present
-    const allQuestions = [
-        ...(task.options && task.correctAnswer ? [{
+    // Use taskQuestions if present, otherwise fall back to legacy single question
+    const allQuestions = (task.taskQuestions && task.taskQuestions.length > 0)
+        ? task.taskQuestions
+        : (task.options && task.correctAnswer ? [{
             id: -1, // Legacy marker
-            text: task.type === "quiz" ? "Оберіть правильну відповідь" : "Перевірка знань",
+            text: task.type === "quiz" ? t("selectCorrectAnswer") : t("knowledgeCheck"),
             options: task.options,
             correctAnswer: task.correctAnswer
-        }] : []),
-        ...(task.taskQuestions || [])
-    ]
+        }] : []);
 
     const totalQuestions = allQuestions.length
     const currentQuestion = allQuestions[currentQuestionIndex]

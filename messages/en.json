@@ -298,6 +298,7 @@
     "thanksSafe": "Thanks, understood!",
     "thanksIssues": "Got it, fixing now",
     "knowledgeCheck": "Knowledge Check",
+    "selectCorrectAnswer": "Select the correct answer",
     "progress": "Progress: {done} / {total}",
     "quizComplete": "Quiz complete!",
     "quizCompleteDesc": "You have successfully answered all quiz questions.",

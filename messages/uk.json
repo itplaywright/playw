@@ -298,6 +298,7 @@
     "thanksSafe": "Дякую, зрозуміло!",
     "thanksIssues": "Зрозуміло, йду виправляти",
     "knowledgeCheck": "Перевірка знань",
+    "selectCorrectAnswer": "Оберіть правильну відповідь",
     "progress": "Прогрес: {done} / {total}",
     "quizComplete": "Завдання виконано!",
     "quizCompleteDesc": "Ви успішно пройшли всі питання тесту.",

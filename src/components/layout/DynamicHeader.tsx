@@ -124,7 +124,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
     if (isLoading) {
         return (
             <header className="sticky top-0 z-50 h-16 bg-background/80 backdrop-blur-xl border-b border-border/50">
-                <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+                <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
                     <div className="h-8 w-40 bg-muted animate-pulse rounded-lg" />
                     <div className="hidden md:flex gap-4">
                         <div className="h-8 w-20 bg-muted animate-pulse rounded-lg" />
@@ -145,7 +145,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                     ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
                     : 'bg-transparent'
             }`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2.5 group">
@@ -267,8 +267,8 @@ export default function DynamicHeader({ user }: { user?: any }) {
                 ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
                 : 'bg-background/60 backdrop-blur-xl border-b border-border/30'
         }`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                <div className="flex items-center justify-between h-14">
+            <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link href="/dashboard" className="flex items-center gap-2.5 group shrink-0">
                         {settings.header_logo_url ? (

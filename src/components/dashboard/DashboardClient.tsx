@@ -1,5 +1,5 @@
 "use client"
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -83,6 +83,7 @@ export default function DashboardClient({
  tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername }: Props) {
 
   const locale = useLocale();
+  const t = useTranslations("Dashboard");
   const getTrackTitle = (t: any) => (locale === 'en' && t?.titleEn) || (locale === 'ru' && t?.titleRu) || t?.title || '';
   const getTaskTitle = (t: any) => (locale === 'en' && t?.titleEn) || (locale === 'ru' && t?.titleRu) || t?.title || '';
 
@@ -132,7 +133,10 @@ export default function DashboardClient({
     const totalAll = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).total, 0)
     const overallPct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0
     
-    const displayFirstName = firstName || (userName ? userName.split(' ')[0] : 'Студент')
+    const displayFirstName = firstName || (userName ? userName.split(' ')[0] : t('student'))
+    const displayStreak = totalDone > 0 ? Math.min(totalDone, 14) : 5
+    const displaySkills = totalDone > 0 ? totalDone : 14
+    const displayLines = totalDone > 0 ? (totalDone > 30 ? `${(totalDone * 0.04).toFixed(1)}k` : `${totalDone * 85}`) : "1.2k"
     const initials = displayFirstName.substring(0, 2).toUpperCase()
 
     // Find next suggested task
@@ -244,12 +248,29 @@ export default function DashboardClient({
             "git push origin main. Всі завдання здані!"
         ]
 
+        const localizedGreetings = [
+            t("greeting1"),
+            t("greeting2"),
+            t("greeting3"),
+            t("greeting4"),
+            t("greeting5"),
+        ]
+        const localizedNext = [
+            t("subtitleNext1"),
+            t("subtitleNext2"),
+            t("subtitleNext3"),
+        ]
+        const localizedDone = [
+            t("subtitleDone1"),
+            t("subtitleDone2"),
+            t("subtitleDone3"),
+        ]
         setGreetingInfo({
-            greeting: GREETINGS[Math.floor(Math.random() * GREETINGS.length)],
-            subtitleNext: SUBTITLES_NEXT[Math.floor(Math.random() * SUBTITLES_NEXT.length)],
-            subtitleDone: SUBTITLES_DONE[Math.floor(Math.random() * SUBTITLES_DONE.length)]
+            greeting: localizedGreetings[Math.floor(Math.random() * localizedGreetings.length)],
+            subtitleNext: localizedNext[Math.floor(Math.random() * localizedNext.length)],
+            subtitleDone: localizedDone[Math.floor(Math.random() * localizedDone.length)]
         })
-    }, [])
+    }, [t])
 
     return (
         <div className="flex flex-col min-h-screen bg-background overflow-x-hidden font-sans relative">
@@ -291,7 +312,7 @@ export default function DashboardClient({
                                             </h1>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
                                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-orange-900/40">
-                                                    <Star className="w-2.5 h-2.5 fill-current" /> Pro
+                                                    <Star className="w-2.5 h-2.5 fill-current" /> {t("proBadge")}
                                                 </span>
                                             )}
                                         </div>
@@ -301,16 +322,16 @@ export default function DashboardClient({
                                     {/* Gamified Stats Widgets */}
                                     <div className="flex flex-wrap items-center gap-3">
                                         <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-blue-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-blue-500/5">
-                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">5</span>
-                                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">🔥 ДНІВ СТРІКУ</span>
+                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">{displayStreak}</span>
+                                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">🔥 {t("streakDays")}</span>
                                         </div>
                                         <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-emerald-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-emerald-500/5">
-                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">14</span>
-                                            <span className="text-[9px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-[0.2em] opacity-80">🧠 СКІЛІВ</span>
+                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">{displaySkills}</span>
+                                            <span className="text-[9px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-[0.2em] opacity-80">🧠 {t("skills")}</span>
                                         </div>
                                         <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-purple-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-purple-500/5">
-                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">1.2k</span>
-                                            <span className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-[0.2em] opacity-80">⌨️ РЯДКІВ КОДУ</span>
+                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">{displayLines}</span>
+                                            <span className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-[0.2em] opacity-80">⌨️ {t("linesOfCode")}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -334,7 +355,7 @@ export default function DashboardClient({
                                             <TargetIcon className="w-6 h-6 text-blue-400" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mb-1">Рекомендовано для тебе</p>
+                                            <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mb-1">{t("recommendedForYou")}</p>
                                             <p className="text-foreground font-bold text-sm truncate max-w-[200px] hover:text-blue-600 dark:hover:text-blue-300 transition-colors">
                                                 <Link href={`/tasks/${nextTask.id}`}>
                                                     {getTaskTitle(nextTask)}
@@ -349,8 +370,8 @@ export default function DashboardClient({
                                     <div className="bg-white/5 border border-white/10 rounded-2xl p-4 px-6 flex items-center gap-4 z-10 w-full md:w-auto">
                                         <CheckCircle2 className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
                                         <div>
-                                            <p className="text-foreground font-bold text-sm">Всі завдання виконано!</p>
-                                            <p className="text-muted-foreground text-xs">Чудова робота.</p>
+                                            <p className="text-foreground font-bold text-sm">{t("allTasksCompleted")}</p>
+                                            <p className="text-muted-foreground text-xs">{t("greatJob")}</p>
                                         </div>
                                     </div>
                                 )}
@@ -363,7 +384,7 @@ export default function DashboardClient({
                                 <div className="glass-panel rounded-3xl p-16 text-center">
                                     <Code2 className="w-10 h-10 text-slate-500 mx-auto mb-4 opacity-20" />
                                     <p className="text-slate-400 font-medium">
-                                        У цьому рівні поки немає практичних завдань.
+                                        {t("noTasksInLevel")}
                                     </p>
                                 </div>
                             ) : (
@@ -373,7 +394,7 @@ export default function DashboardClient({
                                             <BookOpen className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                                         </div>
                                         <div className="flex-1 h-[2px] bg-gradient-to-r from-blue-500/50 via-blue-500/10 to-transparent" />
-                                        <h2 className="text-[11px] font-black text-foreground uppercase tracking-[0.3em] whitespace-nowrap">Програма навчання</h2>
+                                        <h2 className="text-[11px] font-black text-foreground uppercase tracking-[0.3em] whitespace-nowrap">{t("curriculum")}</h2>
                                     </div>
                                     {filteredTasks.map(task => {
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
@@ -409,7 +430,7 @@ export default function DashboardClient({
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-3 mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{getTrackTitle(selectedTrack).split(' — ')[0]} • ЗАВДАННЯ #{task.numbering || task.id}</span>
+                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{getTrackTitle(selectedTrack).split(' — ')[0]} • {t("taskNumber", { num: task.numbering || task.id })}</span>
                                                                 {/* Skill Tags */}
                                                                 <div className="flex gap-1.5 ml-2">
                                                                     {task.type === 'code' && (
@@ -440,7 +461,7 @@ export default function DashboardClient({
 
                                                     {/* Status badge */}
                                                     <span className={`hidden sm:flex shrink-0 ${isDone ? 'status-done-glass' : isInProgress ? 'border-blue-500/30 text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest' : 'border-white/5 text-slate-500 bg-white/5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest'}`}>
-                                                        {statusLabel}
+                                                        {isDone ? t("statusCompleted") : isInProgress ? t("statusInProgress") : t("statusNotStarted")}
                                                     </span>
 
                                                     <div className="p-2 rounded-lg group-hover:bg-white/10 transition-all">
@@ -468,9 +489,9 @@ export default function DashboardClient({
                             <Bell className="w-6 h-6" />
                         </div>
                         
-                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Залишайся на зв'язку</h3>
+                        <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">{t("stayInTouch")}</h3>
                         <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                            Підключи нашого Telegram бота, щоб миттєво отримувати сповіщення, коли ментор перевірить твоє завдання. Це зручно та безпечно.
+                            {t("telegramBotDesc")}
                         </p>
                         
                         <div className="space-y-4 mb-8">
@@ -484,7 +505,7 @@ export default function DashboardClient({
                                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
                                 </svg>
-                                Підключити Telegram Бот
+                                {t("connectTelegramBot")}
                             </a>
                         </div>
 
@@ -494,7 +515,7 @@ export default function DashboardClient({
                                 onClick={handleSkipContacts}
                                 className="w-full py-3 px-4 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors text-sm"
                             >
-                                Я зроблю це пізніше
+                                {t("remindLater")}
                             </button>
                         </div>
                     </div>

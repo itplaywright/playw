@@ -22,6 +22,8 @@ interface TaskViewProps {
         options?: string[] | null
         correctAnswer?: string | null
         videoUrl?: string | null
+        order?: number | null
+        numbering?: string | null
         taskQuestions?: {
             id: number
             text: string
@@ -40,9 +42,16 @@ interface TaskViewProps {
         code: string
     } | null
     hasAiReview?: boolean
+    trackInfo?: {
+        trackTitle: string
+        trackOrder: number
+        taskIndex: number
+        totalTasks: number
+        numbering?: string
+    } | null
 }
 
-export default function TaskView({ task, isProduction, nextTask, submission, hasAiReview }: TaskViewProps) {
+export default function TaskView({ task, isProduction, nextTask, submission, hasAiReview, trackInfo }: TaskViewProps) {
     const t = useTranslations("TaskView")
     const searchParams = useSearchParams()
     const [code, setCode] = useState(submission?.code || task.initialCode)
@@ -126,13 +135,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             return
         }
 
-        // Always attempt validation/run via API
-        if (isProduction) {
-            await copyToClipboard()
-            setOutput(t("codeCopiedRun"))
-        } else {
-            setOutput(t("testStarting"))
-        }
+        setOutput(t("testStarting"))
 
         try {
             const res = await fetch("/api/tasks/run", {
@@ -143,17 +146,31 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
 
             const data = await res.json()
             const finalOutput = data.logs || data.error || t("testDone")
-            setOutput(prev => isProduction ? prev + "\n\n" + finalOutput : finalOutput)
+            setOutput(finalOutput)
 
-            if (isProduction && data.status === "passed") {
+            if (data.status === "passed") {
                 setOutput(prev => prev + "\n\n" + t("codeConfirmed"))
             }
         } catch (err: any) {
-            setOutput(prev => isProduction ? prev + `\n\n${t("reviewError", { msg: err.message })}` : `${t("reviewError", { msg: err.message })}`)
+            setOutput(t("reviewError", { msg: err.message }))
         }
 
         setIsRunning(false)
     }
+
+    // Hotkey listener: Ctrl+Enter or Cmd+Enter to run test
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                e.preventDefault()
+                if (!isRunning && task.type === "code") {
+                    handleRun()
+                }
+            }
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [code, isRunning, task])
 
     const handleOptionClick = (option: string) => {
         if (isCompleted) return
@@ -315,49 +332,66 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     setCode(task.initialCode || "")
                                 }
                             }}
-                            className="px-3 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest"
+                            className="px-2.5 py-1 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest"
+                            title="Скинути код"
                         >
                             {t("reset")}
                         </button>
                     )}
                     {task.type === "code" && (
-                        <button
-                            onClick={handleRun}
-                            disabled={isRunning}
-                            className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm ${isRunning
-                                ? 'bg-white/5 text-slate-600 cursor-not-allowed'
-                                : isProduction
-                                    ? 'glass-panel text-blue-400 border-blue-500/20 hover:bg-blue-500/10'
-                                    : 'badge-gradient-blue'
-                                }`}
-                        >
-                            {isRunning ? t("checking") : (isProduction ? t("copyCode") : t("runTest"))}
-                        </button>
+                        <>
+                            <button
+                                onClick={copyToClipboard}
+                                className="px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all glass-panel text-muted-foreground hover:text-foreground border border-border hover:border-blue-500/30 flex items-center gap-1.5"
+                                title="Скопіювати код у буфер обміну"
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <span className="hidden sm:inline">{t("copyCode")}</span>
+                            </button>
+                            <button
+                                onClick={handleRun}
+                                disabled={isRunning}
+                                className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center gap-2 ${isRunning
+                                    ? 'bg-white/5 text-slate-600 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/25 active:scale-95'
+                                    }`}
+                                title="Запустити перевірку тесту (Ctrl + Enter)"
+                            >
+                                <span>{isRunning ? "⏳" : "▶"}</span>
+                                <span>{isRunning ? t("checking") : t("runTest")}</span>
+                                <span className="hidden md:inline-block text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/25 text-white/80">Ctrl+↵</span>
+                            </button>
+                        </>
                     )}
                     {totalQuestions > 0 && task.type !== "quiz" && (
                         <button
                             onClick={() => setIsQuizModalOpen(true)}
-                            className="px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all"
+                            className="px-3.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-all flex items-center gap-1.5"
                         >
-                            🧠 {t("quiz")}
+                            <span>🧠</span>
+                            <span>{t("quiz")}</span>
                         </button>
                     )}
                     <button
                         onClick={() => setIsQuestionModalOpen(true)}
-                        className="px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all"
+                        className="px-3.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-all flex items-center gap-1.5"
                     >
-                        💬 {t("question")}
+                        <span>💬</span>
+                        <span className="hidden sm:inline">{t("question")}</span>
                     </button>
                     {task.type === "code" && hasAiReview && (
                         <button
                             onClick={handleCodeReview}
                             disabled={isReviewing}
-                            className={`px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${isReviewing
+                            className={`px-3.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 ${isReviewing
                                 ? 'bg-white/5 text-slate-600 cursor-not-allowed'
                                 : 'bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20'
                                 }`}
                         >
-                            🔍 {t("quickCheck")}
+                            <span>🔍</span>
+                            <span className="hidden sm:inline">{t("quickCheck")}</span>
                         </button>
                     )}
                     {task.type === "code" && (
@@ -366,7 +400,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             disabled={isSubmittingReview}
                             className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm ${isSubmittingReview
                                 ? 'bg-white/5 text-slate-600 cursor-not-allowed'
-                                : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'
+                                : 'bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20'
                                 }`}
                         >
                             {isSubmittingReview ? t("sending") : `👨‍🏫 ${t("sendToMentor")}`}
@@ -389,7 +423,17 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 {t("theoryAndTask")}
                             </h2>
                         </div>
-                        <span className="text-[10px] font-black text-muted-foreground tracking-[0.3em] uppercase opacity-50">{t("level")} {task.id}</span>
+                        {trackInfo ? (
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 uppercase tracking-wider">
+                                    {trackInfo.trackTitle} • Урок {trackInfo.taskIndex} з {trackInfo.totalTasks}
+                                </span>
+                            </div>
+                        ) : (
+                            <span className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase opacity-70">
+                                Урок #{task.order || task.id}
+                            </span>
+                        )}
                     </div>
 
                     <div className="p-4 lg:p-8 pt-4 lg:pt-6">
@@ -493,7 +537,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     }
                                 }}
                             >
-                                {task.description}
+                                {(task.description || "").replace(/^##\s*\?+️?\s*/gm, '## 🎯 ')}
                             </ReactMarkdown>
                         </div>
 
@@ -504,6 +548,20 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                 <div className="w-full lg:w-1/2 h-[60%] lg:h-full flex flex-col bg-background">
                     {task.type === "code" ? (
                         <>
+                            {/* Editor Tab Bar */}
+                            <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-secondary/50 border-b border-border select-none">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-card text-foreground text-xs font-bold border border-border shadow-sm">
+                                        <span className="text-blue-500 font-mono font-extrabold text-[11px]">TS</span>
+                                        <span className="tracking-tight">active.spec.ts</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2.5 text-[10px] text-muted-foreground font-medium">
+                                    <span className="hidden sm:inline">Playwright Test</span>
+                                    <span className="hidden sm:inline">•</span>
+                                    <span className="font-mono text-blue-500 dark:text-blue-400 font-bold">TypeScript</span>
+                                </div>
+                            </div>
                             <div className="flex-1 min-h-0">
                                 <CodeEditor
                                     value={code}

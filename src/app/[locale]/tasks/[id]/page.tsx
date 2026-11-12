@@ -102,9 +102,34 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
 
     const isProduction = process.env.NODE_ENV === "production"
 
-    // Find next task in the same track
+    // Find next task in the same track and compute track progress
     let nextTaskData = null
+    let trackInfo = null
+
     if (task.trackId) {
+        const currentTrack = await db.query.tracks.findFirst({
+            where: eq(tracks.id, task.trackId)
+        })
+        const allTrackTasks = await db.query.tasks.findMany({
+            where: (t, { and, eq }) => and(
+                eq(t.trackId, task.trackId),
+                eq(t.isActive, true)
+            ),
+            orderBy: (t, { asc }) => [asc(t.order)],
+            columns: { id: true, order: true }
+        })
+
+        const currentIndex = allTrackTasks.findIndex(t => t.id === taskId)
+        const trackTitle = locale === 'en' ? (currentTrack?.titleEn || currentTrack?.title) : locale === 'ru' ? (currentTrack?.titleRu || currentTrack?.title) : currentTrack?.title
+
+        trackInfo = {
+            trackTitle: trackTitle || "",
+            trackOrder: currentTrack?.order ?? 1,
+            taskIndex: currentIndex >= 0 ? currentIndex + 1 : 1,
+            totalTasks: allTrackTasks.length,
+            numbering: task.numbering || `${currentIndex + 1}`
+        }
+
         const nextTask = await db.query.tasks.findFirst({
             where: (t, { and, eq, gt }) => and(
                 eq(t.trackId, task.trackId),
@@ -140,6 +165,7 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
                 nextTask={nextTaskData} 
                 submission={submission as any}
                 hasAiReview={hasAiReview}
+                trackInfo={trackInfo}
             />
             <AdBlock placement="task" position="after" />
         </div>

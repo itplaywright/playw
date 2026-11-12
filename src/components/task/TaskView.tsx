@@ -117,7 +117,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
         if (task.type === "quiz") {
             if (totalQuestions > 0 && !isCompleted) {
                 if (!selectedOption) {
-                    toast.error("Будь ласка, оберіть варіант відповіді")
+                    toast.error(t("selectAnswer"))
                 } else {
                     handleOptionClick(selectedOption)
                 }
@@ -129,9 +129,9 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
         // Always attempt validation/run via API
         if (isProduction) {
             await copyToClipboard()
-            setOutput("⏳ Код скопійовано! Запуск симуляції (перевірка синтаксису)...")
+            setOutput(t("codeCopiedRun"))
         } else {
-            setOutput("Тест запускається...")
+            setOutput(t("testStarting"))
         }
 
         try {
@@ -142,14 +142,14 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             })
 
             const data = await res.json()
-            const finalOutput = data.logs || data.error || "Тест завершено"
+            const finalOutput = data.logs || data.error || t("testDone")
             setOutput(prev => isProduction ? prev + "\n\n" + finalOutput : finalOutput)
 
             if (isProduction && data.status === "passed") {
-                setOutput(prev => prev + "\n\n✅ Код підтверджено! Ви можете переходити до наступного завдання.")
+                setOutput(prev => prev + "\n\n" + t("codeConfirmed"))
             }
         } catch (err: any) {
-            setOutput(prev => isProduction ? prev + `\n\nПомилка: ${err.message}` : `Помилка: ${err.message}`)
+            setOutput(prev => isProduction ? prev + `\n\n${t("reviewError", { msg: err.message })}` : `${t("reviewError", { msg: err.message })}`)
         }
 
         setIsRunning(false)
@@ -161,7 +161,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
         setSelectedOption(option)
 
         if (option === currentQuestion.correctAnswer) {
-            toast.success("✅ Правильно!")
+            toast.success(`✅ ${t("correct")}`)
             const newAnswered = { ...answeredQuestions, [currentQuestion.id]: option }
             setAnsweredQuestions(newAnswered)
 
@@ -172,25 +172,25 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                     setSelectedOption(null)
                 }, 1000)
             } else {
-                setOutput("✅ Всі завдання виконано! Вітаємо.")
+                setOutput(`✅ ${t("quizCompleteDesc")}`)
             }
         } else {
-            toast.error("❌ Неправильно. Спробуйте ще раз.")
+            toast.error(`❌ ${t("tryAgain")}`)
         }
     }
 
     const copyToClipboard = async () => {
         try {
             await navigator.clipboard.writeText(code)
-            toast.success("Код скопійовано! Вставте його у active.spec.ts")
+            toast.success(t("codeCopied"))
         } catch (err) {
-            toast.error("Не вдалося скопіювати код")
+            toast.error(t("codeCopyFail"))
         }
     }
 
     const handleSubmitQuestion = async () => {
         if (!questionContent.trim()) {
-            toast.error("Будь ласка, введіть ваше питання")
+            toast.error(t("enterQuestion"))
             return
         }
         setIsSubmittingQuestion(true)
@@ -201,13 +201,13 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                 body: JSON.stringify({ taskId: task.id, content: questionContent }),
             })
             if (res.ok) {
-                toast.success("Ваше питання надіслано! Очікуйте відповіді в кабінеті.")
+                toast.success(t("questionSent"))
                 setQuestionContent("")
             } else {
-                toast.error("Не вдалося надіслати питання")
+                toast.error(t("questionFail"))
             }
         } catch (err) {
-            toast.error("Помилка при відправці")
+            toast.error(t("sendError"))
         } finally {
             setIsSubmittingQuestion(false)
         }
@@ -237,10 +237,10 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                     setReviewResult(fullText)
                 }
             } else {
-                setReviewResult(`Помилка: ${data.error || "Не вдалося отримати рев'ю"}`)
+                setReviewResult(t("reviewError", { msg: data.error || t("reviewFail") }))
             }
         } catch (err: any) {
-            setReviewResult(`Помилка: ${err.message}`)
+            setReviewResult(t("reviewError", { msg: err.message }))
         } finally {
             setIsReviewing(false)
         }
@@ -254,13 +254,13 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                 body: JSON.stringify({ code, taskId: task.id }),
             })
             if (res.ok) {
-                toast.success("Код надіслано ментору! Відповідь прийде в кабінет.")
+                toast.success(t("codeSentMentor"))
             } else {
                 const data = await res.json()
-                toast.error(data.error || "Не вдалося надіслати код")
+                toast.error(data.error || t("codeSendFail"))
             }
         } catch (err) {
-            toast.error("Помилка при відправці")
+            toast.error(t("sendError"))
         } finally {
             setIsSubmittingReview(false)
         }
@@ -425,10 +425,10 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                     </button>
                                 </div>
                                 {submission.status === 'rejected' && (
-                                    <p className="text-xs font-medium leading-relaxed opacity-90">Ментор переглянув ваш код та залишив зауваження. Будь ласка, ознайомтеся з фідбеком та внесіть правки.</p>
+                                    <p className="text-xs font-medium leading-relaxed opacity-90">{t("mentorReviewedFeedback")}</p>
                                 )}
                                 {submission.status === 'reviewed' && (
-                                    <p className="text-xs font-medium leading-relaxed opacity-90">Чудова робота! Ментор схвалив вашу реалізацію. Ви можете переходити до наступного завдання.</p>
+                                    <p className="text-xs font-medium leading-relaxed opacity-90">{t("mentorApproved")}</p>
                                 )}
                             </div>
                         )}
@@ -456,12 +456,16 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
 
                                         // Special case for interactive keywords
                                         if (isInline && KEYWORD_HINTS[cleanKeyword]) {
-                                            const hintData = KEYWORD_HINTS[cleanKeyword];
+                                            const hintKey = `kw_${cleanKeyword}_hint` as any;
+                                            const descKey = `kw_${cleanKeyword}_desc` as any;
+                                            const hintText = t.has(hintKey) ? t(hintKey) : KEYWORD_HINTS[cleanKeyword].hint;
+                                            const descText = t.has(descKey) ? t(descKey) : KEYWORD_HINTS[cleanKeyword].description;
                                             return (
                                                 <InteractiveKeyword 
                                                     keyword={codeText} 
-                                                    hint={hintData.hint}
-                                                    description={hintData.description}
+                                                    hint={hintText}
+                                                    description={descText}
+                                                    syntaxHintLabel={t("syntaxHint")}
                                                 />
                                             );
                                         }
@@ -473,7 +477,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                             <div className="border border-border rounded-xl overflow-hidden shadow-2xl my-6">
                                                 <div className="bg-secondary flex items-center justify-between px-4 py-2 border-b border-border">
                                                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                                                        {match ? `Example Code (${match[1]})` : "Example Code"}
+                                                        {match ? t("exampleCodeLang", { lang: match[1] }) : t("exampleCode")}
                                                     </span>
                                                     <div className="flex gap-1">
                                                         <div className="w-2 h-2 rounded-full bg-red-500/50" />
@@ -886,7 +890,7 @@ const KEYWORD_HINTS: Record<string, { hint: string, description: string }> = {
     }
 };
 
-function InteractiveKeyword({ keyword, hint, description }: { keyword: string, hint: string, description: string }) {
+function InteractiveKeyword({ keyword, hint, description, syntaxHintLabel }: { keyword: string, hint: string, description: string, syntaxHintLabel?: string }) {
     const [isOpen, setIsOpen] = useState(false);
     
     return (
@@ -914,7 +918,7 @@ function InteractiveKeyword({ keyword, hint, description }: { keyword: string, h
                                 <Code2 className="w-4 h-4 text-blue-400" />
                             </div>
                             <div className="flex-1 min-w-0 flex flex-col gap-1">
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400/80">Syntax Hint</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400/80">{syntaxHintLabel || "Syntax Hint"}</span>
                                 <div className="text-sm font-bold text-white leading-5">
                                     {description}
                                 </div>

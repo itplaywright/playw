@@ -4,11 +4,13 @@ import { products, users } from "@/db/schema"
 import { ne, eq, and } from "drizzle-orm"
 import Link from "next/link"
 import { ShoppingCart, Check, Zap, Crown, Shield } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 
 export const dynamic = "force-dynamic";
 
 export default async function PricingPage() {
     const session = await auth()
+    const t = await getTranslations("Pricing")
 
     const activeProducts = await db
         .select()
@@ -28,13 +30,13 @@ export default async function PricingPage() {
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 px-4 py-2 rounded-full text-sm font-bold mb-6">
                         <Zap className="w-4 h-4" />
-                        Пробний період завершився
+                        {t("trialEnded")}
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4">
-                        Оберіть свій тариф
+                        {t("choosePlan")}
                     </h1>
                     <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
-                        Для продовження навчання виберіть підходящий план. Отримайте повний доступ до всіх матеріалів платформи.
+                        {t("choosePlanSubtitle")}
                     </p>
                 </div>
 
@@ -58,7 +60,7 @@ export default async function PricingPage() {
                                     {isCurrentPlan && (
                                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-full flex justify-center px-4">
                                             <span className="bg-emerald-500 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg shadow-emerald-500/20 whitespace-nowrap">
-                                                ✅ Ваш поточний тариф
+                                                ✅ {t("currentPlan")}
                                             </span>
                                         </div>
                                     )}
@@ -66,7 +68,7 @@ export default async function PricingPage() {
                                     {!isCurrentPlan && isPopular && (
                                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-full flex justify-center px-4">
                                             <span className="bg-amber-400 text-amber-900 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg shadow-amber-500/20 whitespace-nowrap">
-                                                🔥 Популярний
+                                                🔥 {t("popular")}
                                             </span>
                                         </div>
                                     )}
@@ -83,12 +85,12 @@ export default async function PricingPage() {
                                         {product.title}
                                     </h2>
                                     <p className={`text-sm mb-6 flex-1 font-medium ${isPopular ? "text-blue-100" : "text-muted-foreground"}`}>
-                                        {product.description || "Повний доступ до матеріалів платформи."}
+                                        {product.description || t("defaultDesc")}
                                     </p>
 
                                     <div className="mt-auto space-y-6">
                                         <div className={`text-4xl font-black ${isPopular ? "text-white" : "text-foreground"}`}>
-                                            {product.price === 0 ? "Безкоштовно" : 
+                                            {product.price === 0 ? t("free") : 
                                              product.currency === "UAH" ? `${(product.price / 100).toLocaleString()} ₴` :
                                              product.currency === "USD" ? `$${(product.price / 100).toLocaleString()}` :
                                              `${(product.price / 100).toLocaleString()} ${product.currency}`}
@@ -97,7 +99,7 @@ export default async function PricingPage() {
                                         {isCurrentPlan ? (
                                             <div className="flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                                                 <Check className="w-4 h-4" />
-                                                Активно
+                                                {t("active")}
                                             </div>
                                         ) : (
                                         <Link
@@ -108,7 +110,7 @@ export default async function PricingPage() {
                                                 }`}
                                         >
                                             <ShoppingCart className="w-4 h-4" />
-                                            Обрати тариф
+                                            {t("choosePlanBtn")}
                                         </Link>
                                         )}
                                     </div>
@@ -119,8 +121,8 @@ export default async function PricingPage() {
                 ) : (
                     <div className="bg-white/5 border border-white/10 rounded-3xl p-12 text-center mb-10">
                         <Crown className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                        <p className="text-slate-400 text-lg font-medium">Тарифи ще не налаштовані.</p>
-                        <p className="text-slate-500 text-sm mt-2">Зверніться до адміністратора платформи.</p>
+                        <p className="text-slate-400 text-lg font-medium">{t("noPlans")}</p>
+                        <p className="text-slate-500 text-sm mt-2">{t("contactAdmin")}</p>
                     </div>
                 )}
 
@@ -128,15 +130,15 @@ export default async function PricingPage() {
                 <div className="flex justify-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
                     {session?.user ? (
                         <Link href="/cabinet" className="hover:text-foreground transition-colors">
-                            Мій кабінет
+                            {t("myCabinet")}
                         </Link>
                     ) : (
                         <Link href="/login" className="hover:text-foreground transition-colors">
-                            Увійти
+                            {t("login")}
                         </Link>
                     )}
                     <Link href="/" className="hover:text-foreground transition-colors">
-                        Головна
+                        {t("home")}
                     </Link>
                 </div>
             </div>

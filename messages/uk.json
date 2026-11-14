@@ -258,7 +258,10 @@
     "upgradeToPro": "Отримати PRO",
     "unlockFullCourse": "Розблокувати всі рівні",
     "fullAccess": "Повний доступ",
-    "tabCertificates": "Сертифікація"
+    "tabCertificates": "Сертифікація",
+    "certMilestoneJunior": "Фініш Рівня 3: Сертифікат Junior",
+    "certMilestoneMiddle": "Фініш Рівня 7: Сертифікат Middle",
+    "certMilestoneSenior": "Фініш Рівня 10: Диплом Lead Architect"
   },
   "TaskView": {
     "back": "Назад",
@@ -455,7 +458,11 @@
     "ruleMentorTitle": "🛡️ Менторський контроль (Фідбек)",
     "ruleMentorDesc": "Статус перевірки робіт: завдання в черзі та зауваження до виправлення.",
     "ruleMentorRule": "Виправлення зауважень обов'язкове для допуску до наступних рівнів.",
-    "gotIt": "Зрозуміло, до навчання!"
+    "gotIt": "Зрозуміло, до навчання!",
+    "nextMilestone": "НАЙБЛИЖЧИЙ СЕРТИФІКАТ",
+    "milestoneDesc": "Виконайте завдання до Рівня 3 та отримайте міжнародний сертифікат після перевірки ментором.",
+    "viewSample": "Зразок сертифіката",
+    "myCertificates": "Мої сертифікати"
   },
   "Pricing": {
     "trialEnded": "Пробний період завершився",
@@ -595,7 +602,10 @@
     "addToLinkedIn": "Додати в LinkedIn",
     "lockedNotice": "Залишилось завдань:",
     "issuedOn": "Видано:",
-    "unlockedStatus": "Отримано та підтверджено"
+    "unlockedStatus": "Отримано та підтверджено",
+    "sampleNoticeTitle": "Як виглядає сертифікат?",
+    "sampleNoticeDesc": "Перегляньте офіційний зразок сертифіката, який ви отримаєте після завершення рівня.",
+    "viewSample": "Подивитися зразок"
   },
   "Projects": {
     "title": "Проєкти",

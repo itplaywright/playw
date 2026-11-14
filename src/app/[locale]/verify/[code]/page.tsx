@@ -16,9 +16,32 @@ interface Props {
 
 export const dynamic = "force-dynamic"
 
+function getSampleCert(locale: string) {
+    return {
+        id: 9999,
+        certificateNumber: "PW-2026-A1042",
+        userId: "sample",
+        tier: "associate" as const,
+        studentName: locale === "en" ? "Alex Kovalenko (Sample)" : "Олександр Коваленко (Зразок)",
+        skills: [
+            "TypeScript for QA",
+            "Playwright Locators & Selectors",
+            "Test Structure & Hooks",
+            "Web Assertions & Expectations",
+            "Form Interactions & Actions",
+            "Debugging & Trace Viewer"
+        ],
+        tasksCompleted: 25,
+        linesOfCode: 850,
+        issuedAt: new Date(),
+    }
+}
+
+
 export async function generateMetadata({ params }: Props) {
     const { code, locale } = await params
-    const [cert] = await db.select().from(certificates).where(eq(certificates.certificateNumber, code))
+    const isSample = code.toLowerCase() === "sample" || code.toLowerCase() === "demo"
+    const cert = isSample ? getSampleCert(locale) : (await db.select().from(certificates).where(eq(certificates.certificateNumber, code)))[0]
 
     if (!cert) {
         return { title: "Certificate Not Found | IT Playwright" }
@@ -35,7 +58,8 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function VerifyCertificatePage({ params }: Props) {
     const { code, locale } = await params
-    const [cert] = await db.select().from(certificates).where(eq(certificates.certificateNumber, code))
+    const isSample = code.toLowerCase() === "sample" || code.toLowerCase() === "demo"
+    const cert = isSample ? getSampleCert(locale) : (await db.select().from(certificates).where(eq(certificates.certificateNumber, code)))[0]
 
     if (!cert) {
         return (
@@ -89,10 +113,17 @@ export default async function VerifyCertificatePage({ params }: Props) {
                     </div>
                 </Link>
 
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Офіційно підтверджено</span>
-                </div>
+                {isSample ? (
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold shadow-md shadow-amber-500/10">
+                        <Sparkles className="w-4 h-4 text-amber-400" />
+                        <span>Зразок сертифіката (Демо)</span>
+                    </div>
+                ) : (
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>Офіційно підтверджено</span>
+                    </div>
+                )}
             </div>
 
             {/* Certificate Canvas / Card */}

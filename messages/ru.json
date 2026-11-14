@@ -258,7 +258,10 @@
     "upgradeToPro": "Получить PRO",
     "unlockFullCourse": "Разблокировать все уровни",
     "fullAccess": "Полный доступ",
-    "tabCertificates": "Сертификация"
+    "tabCertificates": "Сертификация",
+    "certMilestoneJunior": "Финиш Уровня 3: Сертификат Junior",
+    "certMilestoneMiddle": "Финиш Уровня 7: Сертификат Middle",
+    "certMilestoneSenior": "Финиш Уровня 10: Диплом Lead Architect"
   },
   "TaskView": {
     "back": "Назад",
@@ -455,7 +458,11 @@
     "ruleMentorTitle": "🛡️ Контроль ментора (Фидбек)",
     "ruleMentorDesc": "Статус проверки работ: задания в очереди и замечания для исправления.",
     "ruleMentorRule": "Исправление замечаний обязательно для допуска к следующим уровням.",
-    "gotIt": "Понятно, к обучению!"
+    "gotIt": "Понятно, к обучению!",
+    "nextMilestone": "БЛИЖАЙШИЙ СЕРТИФИКАТ",
+    "milestoneDesc": "Выполните задания до Уровня 3 и получите международный сертификат после проверки ментором.",
+    "viewSample": "Образец сертификата",
+    "myCertificates": "Мои сертификаты"
   },
   "Pricing": {
     "trialEnded": "Пробный период завершился",
@@ -595,7 +602,10 @@
     "addToLinkedIn": "Добавить в LinkedIn",
     "lockedNotice": "Осталось заданий:",
     "issuedOn": "Выдано:",
-    "unlockedStatus": "Получено и подтверждено"
+    "unlockedStatus": "Получено и подтверждено",
+    "sampleNoticeTitle": "Как выглядит сертификат?",
+    "sampleNoticeDesc": "Посмотрите официальный образец сертификата, который вы получите после завершения уровня.",
+    "viewSample": "Посмотреть образец"
   },
   "Projects": {
     "title": "Проекты",

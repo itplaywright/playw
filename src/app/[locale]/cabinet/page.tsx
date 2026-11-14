@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
 import { toast } from "sonner"
 import {
@@ -49,7 +50,15 @@ export default function UserCabinetPage() {
             return dateStr
         }
     }
-    const [section, setSection] = useState<Section>("overview")
+    const searchParams = useSearchParams()
+    const tabParam = searchParams.get("tab") as Section | null
+    const [section, setSection] = useState<Section>(tabParam && ["overview", "certificates", "progress", "questions", "submissions", "profile"].includes(tabParam) ? tabParam : "overview")
+
+    useEffect(() => {
+        if (tabParam && ["overview", "certificates", "progress", "questions", "submissions", "profile"].includes(tabParam)) {
+            setSection(tabParam)
+        }
+    }, [tabParam])
     const [questions, setQuestions] = useState<any[]>([])
     const [submissions, setSubmissions] = useState<any[]>([])
     const [stats, setStats] = useState<Stats | null>(null)
@@ -470,6 +479,26 @@ export default function UserCabinetPage() {
                                 <div className="mb-8">
                                     <h1 className="text-2xl font-black text-foreground tracking-tight">{t("certificatesTitle")}</h1>
                                     <p className="text-muted-foreground mt-1 text-sm font-medium">{t("certificatesSubtitle")}</p>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 mb-8 rounded-2xl bg-gradient-to-r from-blue-600/15 via-indigo-600/10 to-amber-500/10 border border-blue-500/20 shadow-sm">
+                                    <div className="flex items-center gap-3.5">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl flex-shrink-0">
+                                            👁️
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-foreground">{t("sampleNoticeTitle")}</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">{t("sampleNoticeDesc")}</p>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/verify/sample"
+                                        target="_blank"
+                                        className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all border border-white/15 flex items-center gap-2 whitespace-nowrap shadow-sm"
+                                    >
+                                        <span>{t("viewSample")}</span>
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                    </Link>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-6">

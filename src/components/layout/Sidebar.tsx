@@ -204,7 +204,7 @@ export default function Sidebar({
             {/* Bottom: cabinet link */}
             <div className="px-3 pb-6 border-t border-border pt-3 space-y-1.5">
                 <Link
-                    href="/cabinet"
+                    href="/cabinet?tab=certificates"
                     className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-amber-500/10 border border-blue-500/20 hover:border-amber-500/40 text-xs font-bold text-foreground transition-all group shadow-sm"
                 >
                     <Award className="w-4 h-4 text-amber-400 flex-shrink-0" />

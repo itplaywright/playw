@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
-    BookOpen, Code2, Info, X, ArrowRight, CheckCircle2, Clock, ChevronRight, GraduationCap, AlertTriangle, FileCode2, HelpCircle,
+    BookOpen, Code2, Info, X, ExternalLink, ArrowRight, CheckCircle2, Clock, ChevronRight, GraduationCap, AlertTriangle, FileCode2, HelpCircle,
     BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid, Sparkles, Target as TargetIcon
 } from "lucide-react"
 
@@ -628,6 +628,48 @@ export default function DashboardClient({
                                             </p>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Milestone Certificate Goal Card */}
+                            <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                                <div className="flex items-center gap-3.5">
+                                    <div className="w-11 h-11 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
+                                        🎓
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">
+                                                {t("nextMilestone")}
+                                            </span>
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 font-bold border border-blue-500/20">
+                                                Рівні 0 — 3
+                                            </span>
+                                        </div>
+                                        <h4 className="text-sm sm:text-base font-black text-foreground tracking-tight">
+                                            Playwright Certified Associate (Junior)
+                                        </h4>
+                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                            {t("milestoneDesc")}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                                    <Link
+                                        href="/verify/sample"
+                                        target="_blank"
+                                        className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all border border-white/10 flex items-center gap-1.5"
+                                    >
+                                        <span>{t("viewSample")}</span>
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                    </Link>
+                                    <Link
+                                        href="/cabinet?tab=certificates"
+                                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20 whitespace-nowrap"
+                                    >
+                                        {t("myCertificates")} →
+                                    </Link>
                                 </div>
                             </div>
 

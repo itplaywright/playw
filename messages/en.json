@@ -258,7 +258,10 @@
     "upgradeToPro": "Upgrade to PRO",
     "unlockFullCourse": "Unlock all levels",
     "fullAccess": "Full Access",
-    "tabCertificates": "Certificates"
+    "tabCertificates": "Certificates",
+    "certMilestoneJunior": "Level 3 Finish: Junior Certificate",
+    "certMilestoneMiddle": "Level 7 Finish: Middle Certificate",
+    "certMilestoneSenior": "Level 10 Finish: Lead Architect Diploma"
   },
   "TaskView": {
     "back": "Back",
@@ -455,7 +458,11 @@
     "ruleMentorTitle": "🛡️ Mentor Control (Feedback)",
     "ruleMentorDesc": "Task review status: works in review and mentor revision requests.",
     "ruleMentorRule": "Addressing mentor feedback is mandatory to unlock advanced levels.",
-    "gotIt": "Got it, back to coding!"
+    "gotIt": "Got it, back to coding!",
+    "nextMilestone": "NEXT CERTIFICATE",
+    "milestoneDesc": "Complete tasks up to Level 3 and receive an international certificate after mentor review.",
+    "viewSample": "Sample Certificate",
+    "myCertificates": "My Certificates"
   },
   "Pricing": {
     "trialEnded": "Trial period ended",
@@ -595,7 +602,10 @@
     "addToLinkedIn": "Add to LinkedIn",
     "lockedNotice": "Tasks remaining:",
     "issuedOn": "Issued on:",
-    "unlockedStatus": "Earned and Verified"
+    "unlockedStatus": "Earned and Verified",
+    "sampleNoticeTitle": "What does the certificate look like?",
+    "sampleNoticeDesc": "View the official sample certificate you will receive upon completion.",
+    "viewSample": "View sample"
   },
   "Projects": {
     "title": "Projects",

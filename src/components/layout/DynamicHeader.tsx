@@ -45,6 +45,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const [currentUser, setCurrentUser] = useState<any>(user)
     const [unreadQuestions, setUnreadQuestions] = useState(0)
     const [unreadSubmissions, setUnreadSubmissions] = useState(0)
     const [scrolled, setScrolled] = useState(false)
@@ -52,14 +53,40 @@ export default function DynamicHeader({ user }: { user?: any }) {
     const totalUnreadCount = unreadQuestions + unreadSubmissions
     const isTaskPage = pathname?.includes("/tasks/") || pathname?.includes("/projects/")
 
+    const cleanPath = pathname?.replace(/^\/(uk|en|ru)/, '') || ''
+    const isAppRoute = cleanPath.startsWith("/dashboard") ||
+                       cleanPath.startsWith("/cabinet") ||
+                       cleanPath.startsWith("/theory") ||
+                       cleanPath.startsWith("/projects") ||
+                       cleanPath.startsWith("/setup") ||
+                       cleanPath.startsWith("/admin")
+
+    useEffect(() => {
+        if (user) {
+            setCurrentUser(user)
+        }
+    }, [user])
+
     useEffect(() => {
         loadConfig()
-        if (user) {
+        // If user prop is not present but might be logged in, fetch session
+        fetch("/api/auth/session")
+            .then(res => res.json())
+            .then(data => {
+                if (data?.user) {
+                    setCurrentUser(data.user)
+                }
+            })
+            .catch(() => {})
+    }, [pathname])
+
+    useEffect(() => {
+        if (currentUser) {
             fetchUnreadCount()
             const interval = setInterval(fetchUnreadCount, 60000)
             return () => clearInterval(interval)
         }
-    }, [user])
+    }, [currentUser])
 
     useEffect(() => {
         let ticking = false
@@ -146,8 +173,8 @@ export default function DynamicHeader({ user }: { user?: any }) {
         )
     }
 
-    // ─── GUEST HEADER (not logged in) ────────────────────────
-    if (!user) {
+    // ─── GUEST HEADER (not logged in on public pages) ────────
+    if (!currentUser && !isAppRoute) {
         return (
             <header className={`sticky top-0 z-50 transition-colors duration-200 ${
                 scrolled
@@ -311,7 +338,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                 </Link>
                             )
                         })}
-                        {user.role === 'admin' && (
+                        {currentUser?.role === 'admin' && (
                             <Link
                                 href="/admin"
                                 className={`flex items-center gap-1.5 px-3.5 py-1.5 text-[13px] font-medium rounded-md transition-all ${
@@ -342,7 +369,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                 }`}
                             >
                                 <div className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-[11px] relative">
-                                    {user.firstName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || <User className="h-3.5 w-3.5" />}
+                                    {currentUser?.firstName?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase() || <User className="h-3.5 w-3.5" />}
                                     {totalUnreadCount > 0 && (
                                         <span className="absolute -top-0.5 -right-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white ring-2 ring-background">
                                             {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
@@ -358,11 +385,11 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                     <div className="absolute right-0 mt-2 w-60 rounded-xl bg-popover border border-border shadow-xl py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
                                         <div className="px-4 py-3 border-b border-border/50">
                                             <p className="text-sm font-semibold text-foreground truncate">
-                                                {user.firstName || user.email?.split('@')[0]}
+                                                {currentUser?.firstName || currentUser?.email?.split('@')[0]}
                                             </p>
-                                            <p className="text-xs text-muted-foreground truncate mt-0.5">{user.email}</p>
+                                            <p className="text-xs text-muted-foreground truncate mt-0.5">{currentUser?.email}</p>
                                             <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md bg-muted text-muted-foreground">
-                                                {user.role === 'admin' ? t('admin') : t('student')}
+                                                {currentUser?.role === 'admin' ? t('admin') : t('student')}
                                             </span>
                                         </div>
                                         <div className="py-1">
@@ -430,7 +457,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                 </Link>
                             )
                         })}
-                        {user.role === 'admin' && (
+                        {currentUser?.role === 'admin' && (
                             <Link
                                 href="/admin"
                                 onClick={() => setMobileMenuOpen(false)}
@@ -448,7 +475,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                         <div className="border-t border-border/50 pt-3 mt-2">
                             <div className="flex items-center gap-3 px-4 py-3">
                                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm relative">
-                                    {user.firstName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                                    {currentUser?.firstName?.[0]?.toUpperCase() || currentUser?.email?.[0]?.toUpperCase()}
                                     {totalUnreadCount > 0 && (
                                         <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-background">
                                             {totalUnreadCount}
@@ -456,8 +483,8 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-foreground truncate">{user.firstName || user.email?.split('@')[0]}</p>
-                                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                                    <p className="text-sm font-semibold text-foreground truncate">{currentUser?.firstName || currentUser?.email?.split('@')[0]}</p>
+                                    <p className="text-xs text-muted-foreground truncate">{currentUser?.email}</p>
                                 </div>
                             </div>
                             <Link href="/cabinet" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl">

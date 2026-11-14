@@ -36,8 +36,7 @@ export default function LoginPage() {
                 setError(t('invalidLogin'))
                 setIsLoading(false)
             } else {
-                router.push(callbackUrl)
-                router.refresh()
+                window.location.href = callbackUrl
             }
         } catch (err) {
             setError(t('errorOccurred'))

@@ -9,6 +9,7 @@ import {
     Shield, CreditCard
 } from "lucide-react"
 import { logoutAction } from "@/app/actions"
+import { signOut } from "next-auth/react"
 import { ThemeToggle } from "./ThemeToggle"
 import { LanguageSwitcher } from "./LanguageSwitcher"
 import { useTranslations, useLocale } from "next-intl"
@@ -62,23 +63,36 @@ export default function DynamicHeader({ user }: { user?: any }) {
                        cleanPath.startsWith("/admin")
 
     useEffect(() => {
-        if (user) {
-            setCurrentUser(user)
-        }
+        setCurrentUser(user || null)
     }, [user])
 
     useEffect(() => {
         loadConfig()
-        // If user prop is not present but might be logged in, fetch session
         fetch("/api/auth/session")
             .then(res => res.json())
             .then(data => {
                 if (data?.user) {
                     setCurrentUser(data.user)
+                } else {
+                    setCurrentUser(null)
                 }
             })
-            .catch(() => {})
+            .catch(() => {
+                setCurrentUser(null)
+            })
     }, [pathname])
+
+    const handleLogout = async () => {
+        setIsProfileOpen(false)
+        setMobileMenuOpen(false)
+        setCurrentUser(null)
+        try {
+            await signOut({ callbackUrl: "/" })
+        } catch {
+            await logoutAction()
+            window.location.href = "/"
+        }
+    }
 
     useEffect(() => {
         if (currentUser) {
@@ -408,7 +422,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                         </div>
                                         <div className="border-t border-border/50 pt-1">
                                             <button
-                                                onClick={() => { setIsProfileOpen(false); logoutAction(); }}
+                                                onClick={handleLogout}
                                                 className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-red-500/5 transition-colors"
                                             >
                                                 <LogOut className="w-4 h-4" />
@@ -497,7 +511,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
                                 <Key className="w-4 h-4" /> {t('activateCode')}
                             </Link>
                             <button
-                                onClick={() => { setMobileMenuOpen(false); logoutAction(); }}
+                                onClick={handleLogout}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/5 rounded-xl mt-1"
                             >
                                 <LogOut className="w-4 h-4" /> {t('logout')}

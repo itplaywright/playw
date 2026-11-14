@@ -151,6 +151,9 @@ export default async function Dashboard() {
         totalLinesOfCode += lines
     }
 
+    const pendingReviewCount = Object.values(statusMap).filter(s => s === "pending").length
+    const rejectedCount = Object.values(statusMap).filter(s => s === "rejected").length
+
     // We prompt them if they haven't connected the bot
     const hasContacts = Boolean(userWithRole?.telegramChatId)
 
@@ -170,6 +173,8 @@ export default async function Dashboard() {
             role={userWithRole?.dynamicRole}
             realStreak={streakDays}
             realLinesOfCode={totalLinesOfCode}
+            pendingReviewCount={pendingReviewCount}
+            rejectedCount={rejectedCount}
         />
     )
 }

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
-    BookOpen, Code2, ArrowRight, CheckCircle2, Clock, ChevronRight, GraduationCap, AlertTriangle, FileCode2, HelpCircle,
+    BookOpen, Code2, Info, X, ArrowRight, CheckCircle2, Clock, ChevronRight, GraduationCap, AlertTriangle, FileCode2, HelpCircle,
     BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid, Sparkles, Target as TargetIcon
 } from "lucide-react"
 
@@ -59,6 +59,8 @@ interface Props {
     } | null
     realStreak?: number
     realLinesOfCode?: number
+    pendingReviewCount?: number
+    rejectedCount?: number
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -80,7 +82,7 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export default function DashboardClient({
- tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode }: Props) {
+ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode, pendingReviewCount, rejectedCount }: Props) {
 
   const locale = useLocale();
   const t = useTranslations("Dashboard");
@@ -93,6 +95,7 @@ export default function DashboardClient({
 
     const searchParams = useSearchParams()
     const urlTrackId = searchParams.get("trackId")
+    const [showRulesModal, setShowRulesModal] = useState(false)
     const [selectedTrackId, setSelectedTrackId] = useState<number>(
         urlTrackId ? parseInt(urlTrackId) : (tracks[0]?.id ?? 0)
     )
@@ -394,20 +397,119 @@ export default function DashboardClient({
                                         <p className="text-muted-foreground text-sm font-normal max-w-2xl leading-relaxed mt-2 opacity-80">{getTrackDesc(selectedTrack)}</p>
                                     </div>
 
-                                    {/* Gamified Stats Widgets */}
-                                    <div className="flex items-center gap-2.5 sm:gap-3">
-                                        <div className="glass-card-premium-v2 px-4 py-3 rounded-2xl border border-blue-500/20 flex flex-col items-center justify-center min-w-[95px] sm:min-w-[105px] shadow-sm">
-                                            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter leading-none mb-1">{displayStreak}</span>
+                                    {/* Gamified Stats Widgets & Mentor Accountability */}
+                                    <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                                        {/* 1. Streak Widget with Tooltip */}
+                                        <div className="group relative glass-card-premium-v2 px-3 py-2.5 rounded-2xl border border-blue-500/20 hover:border-blue-500/50 flex flex-col items-center justify-center min-w-[85px] sm:min-w-[95px] shadow-sm cursor-help transition-all">
+                                            <span className="text-xl sm:text-2xl font-black text-foreground tracking-tighter leading-none mb-1">{displayStreak}</span>
                                             <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-wider">🔥 {getStreakText(displayStreak)}</span>
+
+                                            {/* Hover Tooltip */}
+                                            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 rounded-xl bg-slate-900/95 backdrop-blur-md border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left scale-95 group-hover:scale-100">
+                                                <p className="text-xs font-black text-white flex items-center gap-1.5 mb-1">
+                                                    {t("ruleStreakTitle")}
+                                                </p>
+                                                <p className="text-[11px] text-slate-300 leading-snug mb-2">
+                                                    {t("ruleStreakDesc")}
+                                                </p>
+                                                <div className="pt-1.5 border-t border-white/10 text-[10px] text-amber-400 font-semibold leading-tight">
+                                                    ⚠️ {t("ruleStreakRule")}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="glass-card-premium-v2 px-4 py-3 rounded-2xl border border-emerald-500/20 flex flex-col items-center justify-center min-w-[95px] sm:min-w-[105px] shadow-sm">
-                                            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter leading-none mb-1">{displaySkills}</span>
+
+                                        {/* 2. Skills Widget with Tooltip */}
+                                        <div className="group relative glass-card-premium-v2 px-3 py-2.5 rounded-2xl border border-emerald-500/20 hover:border-emerald-500/50 flex flex-col items-center justify-center min-w-[85px] sm:min-w-[95px] shadow-sm cursor-help transition-all">
+                                            <span className="text-xl sm:text-2xl font-black text-foreground tracking-tighter leading-none mb-1">{displaySkills}</span>
                                             <span className="text-[9px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">🧠 {t("skills")}</span>
+
+                                            {/* Hover Tooltip */}
+                                            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 rounded-xl bg-slate-900/95 backdrop-blur-md border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left scale-95 group-hover:scale-100">
+                                                <p className="text-xs font-black text-white flex items-center gap-1.5 mb-1">
+                                                    {t("ruleSkillsTitle")}
+                                                </p>
+                                                <p className="text-[11px] text-slate-300 leading-snug mb-2">
+                                                    {t("ruleSkillsDesc")}
+                                                </p>
+                                                <div className="pt-1.5 border-t border-white/10 text-[10px] text-emerald-400 font-semibold leading-tight">
+                                                    🛡️ {t("ruleSkillsRule")}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="glass-card-premium-v2 px-4 py-3 rounded-2xl border border-purple-500/20 flex flex-col items-center justify-center min-w-[95px] sm:min-w-[105px] shadow-sm">
-                                            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter leading-none mb-1">{displayLines}</span>
+
+                                        {/* 3. Lines of Code Widget with Tooltip */}
+                                        <div className="group relative glass-card-premium-v2 px-3 py-2.5 rounded-2xl border border-purple-500/20 hover:border-purple-500/50 flex flex-col items-center justify-center min-w-[85px] sm:min-w-[95px] shadow-sm cursor-help transition-all">
+                                            <span className="text-xl sm:text-2xl font-black text-foreground tracking-tighter leading-none mb-1">{displayLines}</span>
                                             <span className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-wider">⌨️ {t("linesOfCode")}</span>
+
+                                            {/* Hover Tooltip */}
+                                            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 rounded-xl bg-slate-900/95 backdrop-blur-md border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left scale-95 group-hover:scale-100">
+                                                <p className="text-xs font-black text-white flex items-center gap-1.5 mb-1">
+                                                    {t("ruleLinesTitle")}
+                                                </p>
+                                                <p className="text-[11px] text-slate-300 leading-snug mb-2">
+                                                    {t("ruleLinesDesc")}
+                                                </p>
+                                                <div className="pt-1.5 border-t border-white/10 text-[10px] text-purple-400 font-semibold leading-tight">
+                                                    💼 {t("ruleLinesRule")}
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        {/* 4. Mentor Accountability Control Widget */}
+                                        <div className={`group relative glass-card-premium-v2 px-3 py-2.5 rounded-2xl flex flex-col items-center justify-center min-w-[85px] sm:min-w-[100px] shadow-sm cursor-help transition-all ${
+                                            (rejectedCount ?? 0) > 0
+                                                ? 'border-amber-500/50 bg-amber-500/10 shadow-amber-500/10'
+                                                : (pendingReviewCount ?? 0) > 0
+                                                    ? 'border-cyan-500/40 bg-cyan-500/5'
+                                                    : 'border-emerald-500/20'
+                                        }`}>
+                                            <span className={`text-xl sm:text-2xl font-black tracking-tighter leading-none mb-1 ${
+                                                (rejectedCount ?? 0) > 0
+                                                    ? 'text-amber-500'
+                                                    : (pendingReviewCount ?? 0) > 0
+                                                        ? 'text-cyan-400'
+                                                        : 'text-foreground'
+                                            }`}>
+                                                {(rejectedCount ?? 0) > 0 ? rejectedCount : (pendingReviewCount ?? 0) > 0 ? pendingReviewCount : 0}
+                                            </span>
+                                            <span className={`text-[9px] font-black uppercase tracking-wider ${
+                                                (rejectedCount ?? 0) > 0
+                                                    ? 'text-amber-500'
+                                                    : (pendingReviewCount ?? 0) > 0
+                                                        ? 'text-cyan-400'
+                                                        : 'text-emerald-500 dark:text-emerald-400'
+                                            }`}>
+                                                {(rejectedCount ?? 0) > 0
+                                                    ? `⚠️ ${t("mentorNeedsFix")}`
+                                                    : (pendingReviewCount ?? 0) > 0
+                                                        ? `⏳ ${t("mentorInReview")}`
+                                                        : `🛡️ ${t("mentorNoDebts")}`}
+                                            </span>
+
+                                            {/* Hover Tooltip */}
+                                            <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-64 p-3 rounded-xl bg-slate-900/95 backdrop-blur-md border border-white/10 shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left scale-95 group-hover:scale-100">
+                                                <p className="text-xs font-black text-white flex items-center gap-1.5 mb-1">
+                                                    {t("ruleMentorTitle")}
+                                                </p>
+                                                <p className="text-[11px] text-slate-300 leading-snug mb-2">
+                                                    {t("ruleMentorDesc")}
+                                                </p>
+                                                <div className="pt-1.5 border-t border-white/10 text-[10px] text-amber-400 font-semibold leading-tight">
+                                                    ⚡ {t("ruleMentorRule")}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 5. Info Button to Open Full Accountability Modal */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowRulesModal(true)}
+                                            className="p-2.5 rounded-2xl glass-card-premium-v2 border border-white/10 hover:border-blue-500/30 text-muted-foreground hover:text-foreground transition-all shadow-sm flex items-center justify-center group"
+                                            title={t("howGradingWorks")}
+                                        >
+                                            <Info className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -713,6 +815,83 @@ export default function DashboardClient({
                     </div>
                 </div>
             )}
-        </div>
+        
+            {/* Student Accountability Modal */}
+            {showRulesModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <div className="relative w-full max-w-xl bg-slate-950 border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar">
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-6">
+                            <div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+                                    Playwright Standards
+                                </span>
+                                <h2 className="text-xl sm:text-2xl font-black text-foreground mt-2 tracking-tight">
+                                    {t("rulesModalTitle")}
+                                </h2>
+                                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                                    {t("rulesModalSubtitle")}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowRulesModal(false)}
+                                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* 4 Pillars */}
+                        <div className="space-y-4 mb-6">
+                            <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/15 flex gap-3.5">
+                                <div className="text-2xl">🔥</div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-foreground mb-1">{t("ruleStreakTitle")}</h4>
+                                    <p className="text-xs text-muted-foreground leading-relaxed mb-1">{t("ruleStreakDesc")}</p>
+                                    <p className="text-[11px] text-blue-400 font-semibold">{t("ruleStreakRule")}</p>
+                                </div>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/15 flex gap-3.5">
+                                <div className="text-2xl">🧠</div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-foreground mb-1">{t("ruleSkillsTitle")}</h4>
+                                    <p className="text-xs text-muted-foreground leading-relaxed mb-1">{t("ruleSkillsDesc")}</p>
+                                    <p className="text-[11px] text-emerald-400 font-semibold">{t("ruleSkillsRule")}</p>
+                                </div>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/15 flex gap-3.5">
+                                <div className="text-2xl">⌨️</div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-foreground mb-1">{t("ruleLinesTitle")}</h4>
+                                    <p className="text-xs text-muted-foreground leading-relaxed mb-1">{t("ruleLinesDesc")}</p>
+                                    <p className="text-[11px] text-purple-400 font-semibold">{t("ruleLinesRule")}</p>
+                                </div>
+                            </div>
+
+                            <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15 flex gap-3.5">
+                                <div className="text-2xl">🛡️</div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-foreground mb-1">{t("ruleMentorTitle")}</h4>
+                                    <p className="text-xs text-muted-foreground leading-relaxed mb-1">{t("ruleMentorDesc")}</p>
+                                    <p className="text-[11px] text-amber-400 font-semibold">{t("ruleMentorRule")}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CTA Close */}
+                        <button
+                            type="button"
+                            onClick={() => setShowRulesModal(false)}
+                            className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all shadow-lg shadow-blue-600/20"
+                        >
+                            {t("gotIt")}
+                        </button>
+                    </div>
+                </div>
+            )}
+</div>
     )
 }

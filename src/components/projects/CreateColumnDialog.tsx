@@ -10,9 +10,18 @@ interface Props {
     onClose: () => void
 }
 
+const PRESET_COLORS = [
+    { label: "Slate", value: "#94a3b8" },
+    { label: "Blue", value: "#3b82f6" },
+    { label: "Purple", value: "#a855f7" },
+    { label: "Emerald", value: "#10b981" },
+    { label: "Amber", value: "#f59e0b" },
+    { label: "Rose", value: "#f43f5e" },
+]
+
 export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Props) {
     const [title, setTitle] = useState("")
-    const [color, setColor] = useState("#94a3b8")
+    const [color, setColor] = useState("#3b82f6")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -45,41 +54,46 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Нова колонка</h2>
-                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-[#0B1120] border border-white/15 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-white">
+                <div className="flex items-center justify-between p-5 border-b border-white/10 bg-white/[0.02]">
+                    <h2 className="text-base font-black text-white tracking-tight">Нова колонка</h2>
+                    <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-slate-500">Назва колонки</label>
+                <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Назва колонки</label>
                         <input
                             autoFocus
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Наприклад: Тестування"
-                            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-blue-500 max-h-12 outline-none transition-all font-semibold text-slate-900 bg-white"
+                            placeholder="Наприклад: Blocked"
+                            className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-sm outline-none"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-slate-500">Колір</label>
-                        <input
-                            type="color"
-                            value={color}
-                            onChange={(e) => setColor(e.target.value)}
-                            className="w-full h-12 p-1 rounded-2xl border border-slate-200 cursor-pointer bg-white"
-                        />
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Колір</label>
+                        <div className="flex items-center gap-2">
+                            {PRESET_COLORS.map(c => (
+                                <button
+                                    key={c.value}
+                                    type="button"
+                                    onClick={() => setColor(c.value)}
+                                    className={`w-7 h-7 rounded-full transition-transform ${color === c.value ? "scale-125 ring-2 ring-white" : "hover:scale-110"}`}
+                                    style={{ backgroundColor: c.value }}
+                                />
+                            ))}
+                        </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black shadow-lg shadow-blue-600/20 transition-all transform active:scale-[0.98] disabled:opacity-50"
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/25 transition-all disabled:opacity-50 mt-2"
                     >
                         {isSubmitting ? "Додавання..." : "Додати колонку"}
                     </button>

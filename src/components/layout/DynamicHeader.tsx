@@ -47,6 +47,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [currentUser, setCurrentUser] = useState<any>(user)
+    const [sessionChecked, setSessionChecked] = useState(!!user)
     const [unreadQuestions, setUnreadQuestions] = useState(0)
     const [unreadSubmissions, setUnreadSubmissions] = useState(0)
     const [scrolled, setScrolled] = useState(false)
@@ -64,6 +65,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
 
     useEffect(() => {
         setCurrentUser(user || null)
+        if (user) setSessionChecked(true)
     }, [user])
 
     useEffect(() => {
@@ -79,6 +81,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
             })
             .catch(() => {
                 setCurrentUser(null)
+            })
+            .finally(() => {
+                setSessionChecked(true)
             })
     }, [pathname])
 
@@ -187,8 +192,26 @@ export default function DynamicHeader({ user }: { user?: any }) {
         )
     }
 
+    // ─── APP ROUTES: always show authenticated header (pages have own auth guards) ────────
+    if (isAppRoute && !currentUser && !sessionChecked) {
+        // Still loading session on app route — show loading skeleton
+        return (
+            <header className="sticky top-0 z-50 h-16 bg-background/80 backdrop-blur-xl border-b border-border/50">
+                <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+                    <div className="h-8 w-40 bg-muted animate-pulse rounded-lg" />
+                    <div className="hidden md:flex gap-4">
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded-lg" />
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded-lg" />
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded-lg" />
+                    </div>
+                    <div className="h-9 w-9 bg-muted animate-pulse rounded-full" />
+                </div>
+            </header>
+        )
+    }
+
     // ─── GUEST HEADER (not logged in on public pages) ────────
-    if (!currentUser && !isAppRoute) {
+    if (!currentUser && !isAppRoute && sessionChecked) {
         return (
             <header className={`sticky top-0 z-50 transition-colors duration-200 ${
                 scrolled

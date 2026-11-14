@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
     DndContext,
     DragOverlay,
@@ -27,6 +27,7 @@ import { toast } from "sonner"
 import { Plus } from "lucide-react"
 import CreateColumnDialog from "./CreateColumnDialog"
 import TaskDialog from "./TaskDialog"
+import { useTranslations } from "next-intl"
 
 interface Task {
     id: number
@@ -51,9 +52,22 @@ interface Props {
     isAdmin: boolean
     boardId: number
     users: any[]
+    searchQuery?: string
+    selectedLanguage?: string
+    selectedPriority?: string
 }
 
-export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, users }: Props) {
+export default function KanbanBoard({
+    initialTasks,
+    columns,
+    isAdmin,
+    boardId,
+    users,
+    searchQuery = "",
+    selectedLanguage = "all",
+    selectedPriority = "all"
+}: Props) {
+    const t = useTranslations("Projects")
     const [tasks, setTasks] = useState<Task[]>(initialTasks)
     const [localColumns, setLocalColumns] = useState<ColumnData[]>([])
     const [activeTask, setActiveTask] = useState<Task | null>(null)
@@ -200,7 +214,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
 
             // Persist change LOCAL ONLY as requested
             saveTaskPositions(tasks)
-            toast.success("Збережено локально")
+            toast.success(t("localSaved"))
             return
         }
 
@@ -223,8 +237,46 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
         }
     }
 
+    // Filter tasks based on searchQuery, selectedLanguage, and selectedPriority
+    const filteredTasks = useMemo(() => {
+        return tasks.filter(task => {
+            // Search query
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase()
+                const matchesTitle = task.title.toLowerCase().includes(q)
+                const matchesDesc = (task.description || "").toLowerCase().includes(q)
+                if (!matchesTitle && !matchesDesc) return false
+            }
+
+            // Language filter
+            if (selectedLanguage && selectedLanguage !== "all") {
+                const t = (task.title + " " + (task.description || "")).toLowerCase()
+                if (selectedLanguage === "typescript" && !t.includes("typescript") && !t.includes("pom") && !t.includes("visual") && !t.includes("network")) return false
+                if (selectedLanguage === "python" && !t.includes("python")) return false
+                if (selectedLanguage === "csharp" && !t.includes("c#") && !t.includes(".net")) return false
+                if (selectedLanguage === "cicd" && !t.includes("ci/cd") && !t.includes("github actions")) return false
+            }
+
+            // Priority filter
+            if (selectedPriority && selectedPriority !== "all") {
+                if (task.priority !== selectedPriority) return false
+            }
+
+            return true
+        })
+    }, [tasks, searchQuery, selectedLanguage, selectedPriority])
+
+    const handleTaskMove = (taskId: number, newColumnId: number) => {
+        setTasks(prev => {
+            const updated = prev.map(t => t.id === taskId ? { ...t, columnId: newColumnId } : t)
+            saveTaskPositions(updated)
+            return updated
+        })
+        toast.success(t("localSaved"))
+    }
+
     return (
-        <div className="flex h-full w-full items-start gap-4 overflow-x-auto p-4 scrollbar-hide">
+        <div className="flex h-full w-full items-start gap-4 overflow-x-auto p-4 sm:p-6 scrollbar-thin scrollbar-thumb-white/10">
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCorners}
@@ -232,13 +284,13 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                 onDragOver={onDragOver}
                 onDragEnd={onDragEnd}
             >
-                <div className="flex gap-4">
+                <div className="flex gap-4 items-start">
                     <SortableContext items={localColumns.map(c => `column-${c.id}`)} strategy={horizontalListSortingStrategy}>
                         {localColumns.map((col) => (
                             <Column
                                 key={col.id}
                                 column={col}
-                                tasks={tasks.filter((t) => t.columnId === col.id)}
+                                tasks={filteredTasks.filter((t) => t.columnId === col.id)}
                                 isAdmin={isAdmin}
                                 onEditTask={(t) => {
                                     setEditingTask(t)
@@ -283,10 +335,10 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                     {isAdmin && (
                         <button
                             onClick={() => setShowColumnDialog(true)}
-                            className="flex h-[150px] w-80 min-w-[320px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all text-slate-400 hover:text-blue-600 gap-2 shrink-0"
+                            className="flex h-12 w-72 min-w-[288px] items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 text-slate-400 hover:text-white transition-all text-xs font-bold"
                         >
-                            <Plus className="w-8 h-8" />
-                            <span className="font-black text-xs uppercase tracking-widest">Додати колонку</span>
+                            <Plus className="w-4 h-4" />
+                            <span>Додати колонку</span>
                         </button>
                     )}
                 </div>
@@ -305,7 +357,7 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                             <div className="opacity-80">
                                 <Column
                                     column={activeColumn}
-                                    tasks={tasks.filter(t => t.columnId === activeColumn.id)}
+                                    tasks={filteredTasks.filter(t => t.columnId === activeColumn.id)}
                                     isAdmin={isAdmin}
                                 />
                             </div>
@@ -327,9 +379,15 @@ export default function KanbanBoard({ initialTasks, columns, isAdmin, boardId, u
                 <TaskDialog
                     boardId={boardId}
                     columnId={activeColumnId || (localColumns.length > 0 ? localColumns[0].id : 0)}
+                    columns={localColumns}
                     users={users}
                     task={editingTask as any}
                     mode={taskDialogMode}
+                    onMoveToColumn={(colId) => {
+                        if (editingTask) {
+                            handleTaskMove(editingTask.id, colId)
+                        }
+                    }}
                     onClose={() => {
                         setShowTaskDialog(false)
                         setEditingTask(null)

@@ -527,7 +527,9 @@
     "chooseProjects": "Обрати Проєкти",
     "practiceTitle": "Практика",
     "practiceDesc": "Відразу перейдіть до виконання завдань, написання коду та тестів.",
-    "choosePractice": "Обрати Практику"
+    "choosePractice": "Обрати Практику",
+    "theory": "Теорія",
+    "practice": "Практика"
   },
   "Cabinet": {
     "title": "Особистий кабінет",
@@ -631,7 +633,18 @@
     "mentorCondition": "Головне правило: Сертифікат видається виключно після 100% ручної перевірки коду ментором",
     "statusEarned": "Отримано",
     "statusInProgress": "У процесі",
-    "statusLocked": "Заблоковано"
+    "statusLocked": "Заблоковано",
+    "overviewSubtitle": "Загальна статистика вашого навчання та активності на платформі",
+    "kpiCompletedTasks": "Виконано завдань",
+    "kpiSuccessRate": "Успішність",
+    "kpiTotalAttempts": "Всього спроб",
+    "kpiQuestionsToMentor": "Питань ментору",
+    "courseProgress": "Прогрес курсу",
+    "courseCompletedPct": "Завершено курсу",
+    "continueLearning": "Продовжити навчання",
+    "goToTasksBtn": "Перейти до завдань",
+    "loadingData": "Завантаження даних...",
+    "toLearning": "До навчання"
   },
   "Projects": {
     "title": "Проєкти",

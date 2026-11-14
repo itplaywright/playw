@@ -527,7 +527,9 @@
     "chooseProjects": "Выбрать Проекты",
     "practiceTitle": "Практика",
     "practiceDesc": "Сразу перейдите к выполнению заданий, написанию кода и тестов.",
-    "choosePractice": "Выбрать Практику"
+    "choosePractice": "Выбрать Практику",
+    "theory": "Теория",
+    "practice": "Практика"
   },
   "Cabinet": {
     "title": "Личный кабинет",
@@ -631,7 +633,18 @@
     "mentorCondition": "Главное правило: Сертификат выдается исключительно после 100% ручной проверки кода ментором",
     "statusEarned": "Получен",
     "statusInProgress": "В процессе",
-    "statusLocked": "Заблокирован"
+    "statusLocked": "Заблокирован",
+    "overviewSubtitle": "Общая статистика вашего обучения и активности на платформе",
+    "kpiCompletedTasks": "Выполнено заданий",
+    "kpiSuccessRate": "Успешность",
+    "kpiTotalAttempts": "Всего попыток",
+    "kpiQuestionsToMentor": "Вопросов ментору",
+    "courseProgress": "Прогресс курса",
+    "courseCompletedPct": "Завершено курса",
+    "continueLearning": "Продолжить обучение",
+    "goToTasksBtn": "Перейти к заданиям",
+    "loadingData": "Загрузка данных...",
+    "toLearning": "К обучению"
   },
   "Projects": {
     "title": "Проекты",

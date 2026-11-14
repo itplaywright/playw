@@ -527,7 +527,9 @@
     "chooseProjects": "Choose Projects",
     "practiceTitle": "Practice",
     "practiceDesc": "Jump straight into tasks, writing autotest code, and assertions.",
-    "choosePractice": "Choose Practice"
+    "choosePractice": "Choose Practice",
+    "theory": "Theory",
+    "practice": "Practice"
   },
   "Cabinet": {
     "title": "Personal Cabinet",
@@ -631,7 +633,18 @@
     "mentorCondition": "Core Rule: Certificate is issued only after 100% manual code review by a senior mentor",
     "statusEarned": "Earned",
     "statusInProgress": "In Progress",
-    "statusLocked": "Locked"
+    "statusLocked": "Locked",
+    "overviewSubtitle": "Overview of your learning progress and platform activity",
+    "kpiCompletedTasks": "Completed Tasks",
+    "kpiSuccessRate": "Success Rate",
+    "kpiTotalAttempts": "Total Attempts",
+    "kpiQuestionsToMentor": "Questions to Mentor",
+    "courseProgress": "Course Progress",
+    "courseCompletedPct": "Course Completed",
+    "continueLearning": "Continue Learning",
+    "goToTasksBtn": "Go to Tasks",
+    "loadingData": "Loading data...",
+    "toLearning": "To Learning"
   },
   "Projects": {
     "title": "Projects",

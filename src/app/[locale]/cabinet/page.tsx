@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
 import { toast } from "sonner"
@@ -37,7 +37,7 @@ interface UserProfile {
     botUsername?: string
 }
 
-export default function UserCabinetPage() {
+function UserCabinetContent() {
     const t = useTranslations("Cabinet")
     const locale = useLocale()
 
@@ -51,14 +51,38 @@ export default function UserCabinetPage() {
         }
     }
     const searchParams = useSearchParams()
-    const tabParam = searchParams.get("tab") as Section | null
-    const [section, setSection] = useState<Section>(tabParam && ["overview", "certificates", "progress", "questions", "submissions", "profile"].includes(tabParam) ? tabParam : "overview")
+    const tabParam = searchParams?.get("tab") as Section | null
+    const [section, setSection] = useState<Section>("overview")
 
     useEffect(() => {
-        if (tabParam && ["overview", "certificates", "progress", "questions", "submissions", "profile"].includes(tabParam)) {
-            setSection(tabParam)
+        const detectTab = (): Section | null => {
+            if (typeof window !== "undefined") {
+                const urlParams = new URLSearchParams(window.location.search)
+                const urlTab = urlParams.get("tab") as Section | null
+                if (urlTab && ["overview", "certificates", "progress", "questions", "submissions", "profile"].includes(urlTab)) {
+                    return urlTab
+                }
+            }
+            if (tabParam && ["overview", "certificates", "progress", "questions", "submissions", "profile"].includes(tabParam)) {
+                return tabParam
+            }
+            return null
+        }
+
+        const targetTab = detectTab()
+        if (targetTab) {
+            setSection(targetTab)
         }
     }, [tabParam])
+
+    const handleTabChange = (newSection: Section) => {
+        setSection(newSection)
+        if (typeof window !== "undefined") {
+            const url = new URL(window.location.href)
+            url.searchParams.set("tab", newSection)
+            window.history.replaceState({}, "", url.toString())
+        }
+    }
     const [questions, setQuestions] = useState<any[]>([])
     const [submissions, setSubmissions] = useState<any[]>([])
     const [stats, setStats] = useState<Stats | null>(null)
@@ -215,7 +239,7 @@ export default function UserCabinetPage() {
                     {navItems.map(({ id, label, icon: Icon }) => (
                         <button
                             key={id}
-                            onClick={() => setSection(id)}
+                            onClick={() => handleTabChange(id)}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${section === id
                                 ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
                                 : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -1024,5 +1048,18 @@ function EmptyState({ icon, title, text, href, cta }: {
                 {cta} <ArrowRight className="w-4 h-4" />
             </Link>
         </div>
+    )
+}
+
+
+export default function UserCabinetPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen bg-background">
+                <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+        }>
+            <UserCabinetContent />
+        </Suspense>
     )
 }

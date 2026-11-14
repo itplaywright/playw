@@ -473,3 +473,25 @@ export const customBlocks = mysqlTable("custom_blocks", {
     createdAt: timestamp("created_at").defaultNow(),
 })
 
+export const certificateTierEnumValues = ["associate", "specialist", "architect"] as const;
+
+export const certificates = mysqlTable("certificates", {
+    id: int("id").primaryKey().autoincrement(),
+    certificateNumber: varchar("certificate_number", { length: 50 }).notNull().unique(),
+    userId: varchar("user_id", { length: 255 })
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    tier: mysqlEnum("tier", certificateTierEnumValues).notNull(),
+    studentName: varchar("student_name", { length: 255 }).notNull(),
+    skills: json("skills").$type<string[]>(),
+    tasksCompleted: int("tasks_completed").notNull().default(0),
+    linesOfCode: int("lines_of_code").notNull().default(0),
+    issuedAt: timestamp("issued_at").defaultNow().notNull(),
+})
+
+export const certificateRelations = relations(certificates, ({ one }) => ({
+    user: one(users, {
+        fields: [certificates.userId],
+        references: [users.id],
+    }),
+}))

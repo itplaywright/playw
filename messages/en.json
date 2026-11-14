@@ -257,7 +257,8 @@
     "unlockAllLevelsDesc": "10 levels, mentor code review and certificate",
     "upgradeToPro": "Upgrade to PRO",
     "unlockFullCourse": "Unlock all levels",
-    "fullAccess": "Full Access"
+    "fullAccess": "Full Access",
+    "tabCertificates": "Certificates"
   },
   "TaskView": {
     "back": "Back",
@@ -586,7 +587,15 @@
     "yourCode": "Your Code",
     "mentorFeedback": "Mentor Feedback",
     "reviewedAtTime": "Reviewed {date} at {time}",
-    "codeAwaitingReview": "Code is awaiting mentor review..."
+    "codeAwaitingReview": "Code is awaiting mentor review...",
+    "tabCertificates": "Certificates",
+    "certificatesTitle": "Official Playwright Certificates",
+    "certificatesSubtitle": "International qualification credentials verified by senior mentors",
+    "viewCertificate": "View Certificate",
+    "addToLinkedIn": "Add to LinkedIn",
+    "lockedNotice": "Tasks remaining:",
+    "issuedOn": "Issued on:",
+    "unlockedStatus": "Earned and Verified"
   },
   "Projects": {
     "title": "Projects",

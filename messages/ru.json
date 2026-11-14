@@ -257,7 +257,8 @@
     "unlockAllLevelsDesc": "10 уровней, ревью ментора и сертификат",
     "upgradeToPro": "Получить PRO",
     "unlockFullCourse": "Разблокировать все уровни",
-    "fullAccess": "Полный доступ"
+    "fullAccess": "Полный доступ",
+    "tabCertificates": "Сертификация"
   },
   "TaskView": {
     "back": "Назад",
@@ -586,7 +587,15 @@
     "yourCode": "Ваш код",
     "mentorFeedback": "Фидбек от ментора",
     "reviewedAtTime": "Проверено {date} в {time}",
-    "codeAwaitingReview": "Код ожидает проверки ментором..."
+    "codeAwaitingReview": "Код ожидает проверки ментором...",
+    "tabCertificates": "Сертификаты",
+    "certificatesTitle": "Официальные сертификаты Playwright",
+    "certificatesSubtitle": "Международное подтверждение вашей квалификации после проверки работ ментором",
+    "viewCertificate": "Посмотреть сертификат",
+    "addToLinkedIn": "Добавить в LinkedIn",
+    "lockedNotice": "Осталось заданий:",
+    "issuedOn": "Выдано:",
+    "unlockedStatus": "Получено и подтверждено"
   },
   "Projects": {
     "title": "Проекты",

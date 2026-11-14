@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/routing"
 import { useTranslations } from "next-intl"
 import {
-    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock
+    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock, Award
 } from "lucide-react"
 
 interface Track {
@@ -202,7 +202,15 @@ export default function Sidebar({
             </nav>
 
             {/* Bottom: cabinet link */}
-            <div className="px-3 pb-6 border-t border-border pt-4">
+            <div className="px-3 pb-6 border-t border-border pt-3 space-y-1.5">
+                <Link
+                    href="/cabinet"
+                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-amber-500/10 border border-blue-500/20 hover:border-amber-500/40 text-xs font-bold text-foreground transition-all group shadow-sm"
+                >
+                    <Award className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <span className="truncate tracking-wide">{t("tabCertificates")}</span>
+                    <ArrowRight className="w-3 h-3 ml-auto text-amber-400 opacity-60 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
                 <Link
                     href="/cabinet"
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/cabinet"

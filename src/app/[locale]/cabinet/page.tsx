@@ -4,14 +4,14 @@ import { useState, useEffect } from "react"
 import { useTranslations, useLocale } from "next-intl"
 import { toast } from "sonner"
 import {
-    LayoutDashboard, MessageCircle, BarChart2, CheckCircle2,
+    LayoutDashboard, Award, ExternalLink, Lock, MessageCircle, BarChart2, CheckCircle2,
     Clock, Target, Zap, TrendingUp, ChevronRight, ArrowRight,
     User, BookOpen, UserCircle, Phone, Send, Save, Loader2
 } from "lucide-react"
 import { Link } from "@/i18n/routing"
 import Image from "next/image"
 
-type Section = "overview" | "questions" | "progress" | "submissions" | "profile"
+type Section = "overview" | "certificates" | "questions" | "progress" | "submissions" | "profile"
 
 interface Stats {
     totalTasks: number
@@ -64,6 +64,19 @@ export default function UserCabinetPage() {
         whatsapp: "",
     })
     const [isSavingProfile, setIsSavingProfile] = useState(false)
+    const [certsList, setCertsList] = useState<any[]>([])
+
+    const fetchCertificates = async () => {
+        try {
+            const res = await fetch("/api/user/certificates")
+            if (res.ok) {
+                const data = await res.json()
+                setCertsList(data.certificates || [])
+            }
+        } catch (e) {
+            console.error("Failed to fetch certs", e)
+        }
+    }
 
     useEffect(() => {
         Promise.all([fetchQuestions(), fetchStats(), fetchSubmissions(), fetchProfile()]).finally(() => setIsLoading(false))
@@ -147,6 +160,7 @@ export default function UserCabinetPage() {
 
     const navItems: { id: Section; label: string; icon: any }[] = [
         { id: "overview", label: t("tabOverview"), icon: LayoutDashboard },
+        { id: "certificates", label: t("tabCertificates"), icon: Award },
         { id: "profile", label: t("tabSettings"), icon: UserCircle },
         { id: "progress", label: t("courseProgress"), icon: BarChart2 },
         { id: "questions", label: t("tabQuestions"), icon: MessageCircle },
@@ -446,6 +460,118 @@ export default function UserCabinetPage() {
                                             {isSavingProfile ? t("saving") : t("save")}
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* CERTIFICATES */}
+                        {section === "certificates" && (
+                            <div>
+                                <div className="mb-8">
+                                    <h1 className="text-2xl font-black text-foreground tracking-tight">{t("certificatesTitle")}</h1>
+                                    <p className="text-muted-foreground mt-1 text-sm font-medium">{t("certificatesSubtitle")}</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-6">
+                                    {certsList.map((item: any) => {
+                                        const { tier, totalTasks, completedTasks, percentage, isUnlocked, certificate } = item
+                                        const isAssociate = tier.id === "associate"
+                                        const isSpecialist = tier.id === "specialist"
+
+                                        const badgeBg = isAssociate
+                                            ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                            : isSpecialist
+                                                ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                                                : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+
+                                        return (
+                                            <div
+                                                key={tier.id}
+                                                className={`relative rounded-3xl border p-6 sm:p-8 transition-all ${
+                                                    isUnlocked
+                                                        ? "bg-card border-white/20 shadow-xl shadow-blue-500/5 hover:border-blue-500/40"
+                                                        : "bg-card/60 border-border/60 opacity-90"
+                                                }`}
+                                            >
+                                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                                                    <div className="flex items-center gap-3.5">
+                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ${
+                                                            isUnlocked
+                                                                ? "bg-gradient-to-br " + tier.accentClass + " text-white shadow-blue-500/20"
+                                                                : "bg-secondary text-muted-foreground"
+                                                        }`}>
+                                                            {isUnlocked ? <Award className="w-6 h-6" /> : <Lock className="w-5 h-5" />}
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${badgeBg}`}>
+                                                                    {locale === "en" ? tier.badge : locale === "ru" ? tier.badgeRu : tier.badgeUk}
+                                                                </span>
+                                                                <span className="text-xs text-muted-foreground font-semibold">
+                                                                    {tier.levelRange}
+                                                                </span>
+                                                            </div>
+                                                            <h3 className="text-xl font-black text-foreground tracking-tight">
+                                                                {tier.title}
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        {isUnlocked ? (
+                                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                                                                <CheckCircle2 className="w-4 h-4" />
+                                                                {t("unlockedStatus")}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary border border-border text-muted-foreground text-xs font-bold">
+                                                                {t("lockedNotice")} {Math.max(0, totalTasks - completedTasks)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-sm text-muted-foreground font-medium mb-6 leading-relaxed">
+                                                    {locale === "en" ? tier.description : locale === "ru" ? tier.descriptionRu : tier.descriptionUk}
+                                                </p>
+
+                                                <div className="mb-6 space-y-2">
+                                                    <div className="flex justify-between items-center text-xs font-bold">
+                                                        <span className="text-muted-foreground">{t("tasksOf", { done: completedTasks, total: totalTasks })}</span>
+                                                        <span className={isUnlocked ? "text-emerald-400" : "text-blue-400"}>{percentage}%</span>
+                                                    </div>
+                                                    <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+                                                        <div
+                                                            className={`h-2 rounded-full transition-all duration-700 ${
+                                                                isUnlocked
+                                                                    ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
+                                                                    : "bg-gradient-to-r from-blue-500 to-indigo-500"
+                                                            }`}
+                                                            style={{ width: `${percentage}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {isUnlocked && certificate && (
+                                                    <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-4">
+                                                        <div className="text-xs font-mono text-muted-foreground">
+                                                            ID: <span className="text-foreground font-bold">{certificate.certificateNumber}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <Link
+                                                                href={`/verify/${certificate.certificateNumber}`}
+                                                                target="_blank"
+                                                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-600/20"
+                                                            >
+                                                                <span>{t("viewCertificate")}</span>
+                                                                <ExternalLink className="w-3.5 h-3.5" />
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         )}

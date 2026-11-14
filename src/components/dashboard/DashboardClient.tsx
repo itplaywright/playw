@@ -455,13 +455,13 @@ export default function DashboardClient({
                                         </div>
                                         <div>
                                             <h3 className="text-base sm:text-lg font-black text-foreground tracking-tight flex items-center gap-2">
-                                                🧭 Як проходить навчання та зарахування завдань
+                                                {t("workflowTitle")}
                                             </h3>
-                                            <p className="text-xs text-muted-foreground">Пройдіть 4 обов'язкові кроки для зарахування кожного уроку</p>
+                                            <p className="text-xs text-muted-foreground">{t("workflowSubtitle")}</p>
                                         </div>
                                     </div>
                                     <span className="self-start sm:self-center px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                                        ⚡ Рев'ю ментора обов'язкове
+                                        ⚡ {t("mentorReviewMandatory")}
                                     </span>
                                 </div>
 
@@ -472,11 +472,11 @@ export default function DashboardClient({
                                         <div>
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-500 dark:text-blue-400 font-black text-xs flex items-center justify-center">1</span>
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Теорія</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t("workflowStep1Tag")}</span>
                                             </div>
-                                            <p className="font-bold text-xs text-foreground mb-1">Ознайомтеся з темою</p>
+                                            <p className="font-bold text-xs text-foreground mb-1">{t("workflowStep1Title")}</p>
                                             <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                                Читайте теорію, офіційну документацію Playwright та розбір методів зліва в уроці.
+                                                {t("workflowStep1Desc")}
                                             </p>
                                         </div>
                                     </div>
@@ -486,11 +486,11 @@ export default function DashboardClient({
                                         <div>
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 font-black text-xs flex items-center justify-center">2</span>
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Практика</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t("workflowStep2Tag")}</span>
                                             </div>
-                                            <p className="font-bold text-xs text-foreground mb-1">Напишіть автотест</p>
+                                            <p className="font-bold text-xs text-foreground mb-1">{t("workflowStep2Title")}</p>
                                             <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                                Пишіть код у вбудованому редакторі та перевіряйте його симулятором через <kbd className="px-1 py-0.5 rounded bg-background border border-border text-[9px] font-mono">Ctrl+Enter</kbd>.
+                                                {t("workflowStep2Desc")}
                                             </p>
                                         </div>
                                     </div>
@@ -500,11 +500,11 @@ export default function DashboardClient({
                                         <div>
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 font-black text-xs flex items-center justify-center">3</span>
-                                                <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Головне</span>
+                                                <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">{t("workflowStep3Tag")}</span>
                                             </div>
-                                            <p className="font-bold text-xs text-foreground mb-1">Відправте ментору</p>
+                                            <p className="font-bold text-xs text-foreground mb-1">{t("workflowStep3Title")}</p>
                                             <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                                Натисніть <strong>«Відправити ментору»</strong>. Без перевірки ментором завдання не зараховується!
+                                                {t("workflowStep3Desc")}
                                             </p>
                                         </div>
                                     </div>
@@ -514,11 +514,11 @@ export default function DashboardClient({
                                         <div>
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-black text-xs flex items-center justify-center">4</span>
-                                                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Зарахування</span>
+                                                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{t("workflowStep4Tag")}</span>
                                             </div>
-                                            <p className="font-bold text-xs text-foreground mb-1">Фідбек та оцінка</p>
+                                            <p className="font-bold text-xs text-foreground mb-1">{t("workflowStep4Title")}</p>
                                             <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                                Отримайте розбір коду в кабінеті (та Telegram) і статус <strong>«Зараховано ментором»</strong>.
+                                                {t("workflowStep4Desc")}
                                             </p>
                                         </div>
                                     </div>

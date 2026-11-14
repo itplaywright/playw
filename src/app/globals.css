@@ -229,8 +229,13 @@
   animation: shine 3s ease-in-out infinite;
 }
 
-/* Disable default backticks on prose inline code */
+/* Disable default backticks on prose inline code and markdown */
 .prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::before,
-.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::after {
+.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::after,
+.prose code::before,
+.prose code::after,
+.markdown-content code::before,
+.markdown-content code::after {
   content: "" !important;
+  display: none !important;
 }

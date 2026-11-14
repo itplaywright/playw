@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { results, tasks, tracks, questions } from "@/db/schema"
+import { results, tasks, tracks, questions, taskSubmissions } from "@/db/schema"
 import { eq, and, sql, count, countDistinct } from "drizzle-orm"
 
 export async function GET() {
@@ -18,11 +18,22 @@ export async function GET() {
             .from(tasks)
             .where(eq(tasks.isActive, true))
 
-        // User's passed unique tasks
-        const [passedRow] = await db
-            .select({ count: countDistinct(results.taskId) })
+        // User's approved tasks (reviewed submissions + passed quiz tasks)
+        const reviewedSubmissions = await db
+            .select({ taskId: taskSubmissions.taskId })
+            .from(taskSubmissions)
+            .where(and(eq(taskSubmissions.userId, userId), eq(taskSubmissions.status, "reviewed")));
+
+        const passedQuizResults = await db
+            .select({ taskId: results.taskId })
             .from(results)
-            .where(and(eq(results.userId, userId), eq(results.status, "passed")))
+            .innerJoin(tasks, eq(results.taskId, tasks.id))
+            .where(and(eq(results.userId, userId), eq(results.status, "passed"), eq(tasks.type, "quiz")));
+
+        const approvedTaskIds = new Set([
+            ...reviewedSubmissions.map(s => s.taskId).filter(Boolean),
+            ...passedQuizResults.map(r => r.taskId).filter(Boolean)
+        ]);
 
         // Total user attempts (passed + failed)
         const [attemptsRow] = await db
@@ -44,7 +55,7 @@ export async function GET() {
 
         const totalAttempts = attemptsRow?.count ?? 0
         const passedAttempts = passedAttemptsRow?.count ?? 0
-        const completedTasks = passedRow?.count ?? 0
+        const completedTasks = approvedTaskIds.size
         const totalTasks = totalTasksRow?.count ?? 0
         const pendingQuestions = pendingRow?.count ?? 0
 
@@ -61,27 +72,19 @@ export async function GET() {
 
         const trackProgress = await Promise.all(
             allTracks.map(async (track) => {
-                const [trackTasksRow] = await db
-                    .select({ count: count() })
+                const trackTasksList = await db
+                    .select({ id: tasks.id })
                     .from(tasks)
-                    .where(and(eq(tasks.trackId, track.id), eq(tasks.isActive, true)))
+                    .where(and(eq(tasks.trackId, track.id), eq(tasks.isActive, true)));
 
-                const [doneRow] = await db
-                    .select({ count: countDistinct(results.taskId) })
-                    .from(results)
-                    .innerJoin(tasks, eq(results.taskId, tasks.id))
-                    .where(and(
-                        eq(results.userId, userId),
-                        eq(results.status, "passed"),
-                        eq(tasks.trackId, track.id)
-                    ))
+                const doneCount = trackTasksList.filter(t => approvedTaskIds.has(t.id)).length;
 
                 return {
                     id: track.id,
                     title: track.title,
                     order: track.order,
-                    total: trackTasksRow?.count ?? 0,
-                    done: doneRow?.count ?? 0,
+                    total: trackTasksList.length,
+                    done: doneCount,
                 }
             })
         )

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
-    BookOpen, Code2, ArrowRight, CheckCircle2, Clock, ChevronRight,
+    BookOpen, Code2, ArrowRight, CheckCircle2, Clock, ChevronRight, GraduationCap, AlertTriangle, FileCode2, HelpCircle,
     BarChart2, Terminal, Layers, Star, Lock, Bell, User, Settings, Search, LayoutGrid, Sparkles, Target as TargetIcon
 } from "lucide-react"
 
@@ -39,7 +39,7 @@ interface Project {
 }
 
 interface TaskStatus {
-    label: "Виконано" | "В процесі" | "Не розпочато"
+    label: "Виконано" | "На перевірці" | "На доопрацюванні" | "В процесі" | "Не розпочато"
 }
 
 interface Props {
@@ -448,6 +448,85 @@ export default function DashboardClient({
                                 )}
                             </div>
 
+                            {/* Comprehensive Student Workflow Guide */}
+                            <div className="mb-8 p-5 sm:p-6 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/20 shadow-xl shadow-blue-500/5 relative overflow-hidden">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-border/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-500 dark:text-blue-400">
+                                            <GraduationCap className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-base sm:text-lg font-black text-foreground tracking-tight flex items-center gap-2">
+                                                🧭 Як проходить навчання та зарахування завдань
+                                            </h3>
+                                            <p className="text-xs text-muted-foreground">Пройдіть 4 обов'язкові кроки для зарахування кожного уроку</p>
+                                        </div>
+                                    </div>
+                                    <span className="self-start sm:self-center px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                                        ⚡ Рев'ю ментора обов'язкове
+                                    </span>
+                                </div>
+
+                                {/* 4 Steps Grid */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                                    {/* Step 1 */}
+                                    <div className="p-3.5 rounded-xl bg-secondary/40 border border-border/50 flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-500 dark:text-blue-400 font-black text-xs flex items-center justify-center">1</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Теорія</span>
+                                            </div>
+                                            <p className="font-bold text-xs text-foreground mb-1">Ознайомтеся з темою</p>
+                                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                                Читайте теорію, офіційну документацію Playwright та розбір методів зліва в уроці.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 2 */}
+                                    <div className="p-3.5 rounded-xl bg-secondary/40 border border-border/50 flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 font-black text-xs flex items-center justify-center">2</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Практика</span>
+                                            </div>
+                                            <p className="font-bold text-xs text-foreground mb-1">Напишіть автотест</p>
+                                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                                Пишіть код у вбудованому редакторі та перевіряйте його симулятором через <kbd className="px-1 py-0.5 rounded bg-background border border-border text-[9px] font-mono">Ctrl+Enter</kbd>.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 3 */}
+                                    <div className="p-3.5 rounded-xl bg-amber-500/[0.07] border border-amber-500/30 flex flex-col justify-between relative overflow-hidden">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 font-black text-xs flex items-center justify-center">3</span>
+                                                <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Головне</span>
+                                            </div>
+                                            <p className="font-bold text-xs text-foreground mb-1">Відправте ментору</p>
+                                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                                Натисніть <strong>«Відправити ментору»</strong>. Без перевірки ментором завдання не зараховується!
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 4 */}
+                                    <div className="p-3.5 rounded-xl bg-emerald-500/[0.07] border border-emerald-500/30 flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-black text-xs flex items-center justify-center">4</span>
+                                                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Зарахування</span>
+                                            </div>
+                                            <p className="font-bold text-xs text-foreground mb-1">Фідбек та оцінка</p>
+                                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                                Отримайте розбір коду в кабінеті (та Telegram) і статус <strong>«Зараховано ментором»</strong>.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {filteredTasks.length === 0 ? (
                                 <div className="glass-panel rounded-2xl p-16 text-center">
                                     <Code2 className="w-10 h-10 text-slate-500 mx-auto mb-4 opacity-20" />
@@ -469,6 +548,8 @@ export default function DashboardClient({
                                     {filteredTasks.map((task, idx) => {
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
                                         const isDone = statusLabel === "Виконано"
+                                        const isPending = statusLabel === "На перевірці"
+                                        const isRejected = statusLabel === "На доопрацюванні"
                                         const isInProgress = statusLabel === "В процесі"
                                         const isLocked = isProTrack(selectedTrack.order, getTrackTitle(selectedTrack)) && !isAdmin
                                         const badges = getTaskBadges(task, selectedTrack)
@@ -479,17 +560,21 @@ export default function DashboardClient({
                                                 key={task.id}
                                                 href={isLocked ? "/pricing" : `/tasks/${task.id}`}
                                                 className={`group flex items-center gap-4 sm:gap-6 p-4 sm:p-4.5 rounded-2xl border transition-all duration-200 relative overflow-hidden ${
-                                                    isInProgress && !isLocked
-                                                        ? 'bg-gradient-to-r from-blue-500/[0.08] via-card to-card border-blue-500/40 shadow-lg shadow-blue-500/5'
-                                                        : isDone
-                                                            ? 'bg-card/40 border-border/40 hover:bg-card/70 hover:border-border/80'
-                                                            : 'bg-card/50 border-border/50 hover:bg-card/90 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/5'
+                                                    isDone
+                                                        ? 'bg-card/40 border-border/40 hover:bg-card/70 hover:border-emerald-500/30'
+                                                        : isPending
+                                                            ? 'bg-gradient-to-r from-amber-500/[0.08] via-card to-card border-amber-500/40 shadow-md shadow-amber-500/5'
+                                                            : isRejected
+                                                                ? 'bg-gradient-to-r from-rose-500/[0.08] via-card to-card border-rose-500/40 shadow-md shadow-rose-500/5'
+                                                                : isInProgress && !isLocked
+                                                                    ? 'bg-gradient-to-r from-blue-500/[0.08] via-card to-card border-blue-500/40 shadow-lg shadow-blue-500/5'
+                                                                    : 'bg-card/50 border-border/50 hover:bg-card/90 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/5'
                                                 } ${isLocked ? 'opacity-50 grayscale hover:opacity-90 hover:grayscale-0' : 'active:scale-[0.99]'}`}
                                             >
-                                                {/* In Progress Left Accent Bar */}
-                                                {isInProgress && !isLocked && (
-                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />
-                                                )}
+                                                {/* Status Left Accent Bar */}
+                                                {isPending && !isLocked && <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500" />}
+                                                {isRejected && !isLocked && <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-500" />}
+                                                {isInProgress && !isLocked && <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />}
 
                                                 {/* Lesson number background */}
                                                 <div className="lesson-number-bg">#{task.order || idx + 1}</div>
@@ -499,14 +584,22 @@ export default function DashboardClient({
                                                     <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                                                         isDone 
                                                             ? "badge-gradient-emerald shadow-md shadow-emerald-500/20" 
-                                                            : isInProgress 
-                                                                ? "badge-gradient-blue shadow-md shadow-blue-500/20 ring-2 ring-blue-500/30 ring-offset-2 ring-offset-background" 
-                                                                : "bg-secondary/60 border border-border/60 group-hover:border-blue-500/30"
+                                                            : isPending
+                                                                ? "bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/30 ring-2 ring-amber-500/20 ring-offset-2 ring-offset-background"
+                                                                : isRejected
+                                                                    ? "bg-rose-500/20 text-rose-500 dark:text-rose-400 border border-rose-500/30 ring-2 ring-rose-500/20 ring-offset-2 ring-offset-background"
+                                                                    : isInProgress 
+                                                                        ? "badge-gradient-blue shadow-md shadow-blue-500/20 ring-2 ring-blue-500/30 ring-offset-2 ring-offset-background" 
+                                                                        : "bg-secondary/60 border border-border/60 group-hover:border-blue-500/30"
                                                     }`}>
                                                         {isDone ? (
                                                             <CheckCircle2 className="w-5 h-5 text-white" />
+                                                        ) : isPending ? (
+                                                            <Clock className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+                                                        ) : isRejected ? (
+                                                            <AlertTriangle className="w-5 h-5 text-rose-500 dark:text-rose-400" />
                                                         ) : isInProgress ? (
-                                                            <Clock className="w-5 h-5 text-white" />
+                                                            <FileCode2 className="w-5 h-5 text-white" />
                                                         ) : (
                                                             <span className="text-xs font-black text-muted-foreground group-hover:text-foreground">
                                                                 {String(idx + 1).padStart(2, '0')}
@@ -524,7 +617,7 @@ export default function DashboardClient({
                                                                 <span key={i} className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border ${b.color}`}>
                                                                     {b.label}
                                                                 </span>
-                            ))}
+                                                            ))}
                                                             <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} title={DIFFICULTY_LABELS[task.difficulty ?? "easy"]} />
                                                         </div>
                                                         <div className="flex items-center gap-2">
@@ -541,11 +634,24 @@ export default function DashboardClient({
                                                     <span className={`hidden sm:inline-flex shrink-0 ${
                                                         isDone 
                                                             ? 'status-done-glass' 
-                                                            : isInProgress 
-                                                                ? 'border border-blue-500/30 text-blue-500 dark:text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider' 
-                                                                : 'border border-border/60 text-muted-foreground/70 bg-secondary/40 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'
+                                                            : isPending
+                                                                ? 'border border-amber-500/30 text-amber-500 dark:text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider'
+                                                                : isRejected
+                                                                    ? 'border border-rose-500/30 text-rose-500 dark:text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider'
+                                                                    : isInProgress 
+                                                                        ? 'border border-blue-500/30 text-blue-500 dark:text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider' 
+                                                                        : 'border border-border/60 text-muted-foreground/70 bg-secondary/40 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'
                                                     }`}>
-                                                        {isDone ? t("statusCompleted") : isInProgress ? t("statusInProgress") : t("statusNotStarted")}
+                                                        {isDone 
+                                                            ? "✅ Зараховано ментором" 
+                                                            : isPending 
+                                                                ? "⏳ На перевірці в ментора" 
+                                                                : isRejected 
+                                                                    ? "⚠️ Потребує виправлень" 
+                                                                    : isInProgress 
+                                                                        ? "💻 В процесі (потрібно рев'ю)" 
+                                                                        : t("statusNotStarted")
+                                                        }
                                                     </span>
 
                                                     <div className="p-1.5 rounded-lg text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all">

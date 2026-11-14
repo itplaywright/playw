@@ -8,7 +8,7 @@ import PseudoVideoPlayer from "./PseudoVideoPlayer"
 import CodeEditor from "@/components/editor/Monaco"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { CheckCircle2, Clock, Terminal, BookOpen, ShieldCheck, MessageSquare, X, Info, Code2 } from "lucide-react"
+import { CheckCircle2, Clock, Terminal, BookOpen, ShieldCheck, MessageSquare, X, Info, Code2, AlertTriangle } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -58,7 +58,13 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
     const [activeConsoleTab, setActiveConsoleTab] = useState<"Output" | "Terminal" | "Mentor">(
         searchParams.get("tab") === "mentor" ? "Mentor" : "Output"
     )
+    const [currentSubmission, setCurrentSubmission] = useState(submission)
+    const [testPassedLocally, setTestPassedLocally] = useState(false)
     const [isFeedbackBannerDismissed, setIsFeedbackBannerDismissed] = useState(false)
+
+    useEffect(() => {
+        setCurrentSubmission(submission)
+    }, [submission])
     const consoleRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -149,7 +155,8 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             setOutput(finalOutput)
 
             if (data.status === "passed") {
-                setOutput(prev => prev + "\n\n" + t("codeConfirmed"))
+                setTestPassedLocally(true)
+                setOutput(prev => prev + "\n\n────────────────────────────────────────────────────────────\n🎉 Автотест пройдено успішно!\n📌 ВАЖЛИВО: Щоб завдання було зараховано в курс, обов'язково надішліть код ментору на перевірку кнопкою «👨‍🏫 Відправити ментору».\nБез схвалення ментора завдання не зараховується.\n────────────────────────────────────────────────────────────")
             }
         } catch (err: any) {
             setOutput(t("reviewError", { msg: err.message }))
@@ -271,7 +278,17 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                 body: JSON.stringify({ code, taskId: task.id }),
             })
             if (res.ok) {
-                toast.success(t("codeSentMentor"))
+                const data = await res.json()
+                setCurrentSubmission({
+                    id: data.submissionId || Date.now(),
+                    status: "pending",
+                    mentorFeedback: null,
+                    createdAt: new Date(),
+                    isSeen: true,
+                    code: code
+                })
+                setTestPassedLocally(false)
+                toast.success("Код надіслано ментору на перевірку! Відповідь прийде в кабінет та Telegram.")
             } else {
                 const data = await res.json()
                 toast.error(data.error || t("codeSendFail"))
@@ -395,15 +412,54 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                         </button>
                     )}
                     {task.type === "code" && (
+                        <div className="flex items-center gap-2">
+                            {currentSubmission?.status === "reviewed" ? (
+                                <span className="px-3 py-1 rounded-xl text-xs font-black bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5 shadow-sm">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    Зараховано ментором
+                                </span>
+                            ) : currentSubmission?.status === "pending" ? (
+                                <span className="px-3 py-1 rounded-xl text-xs font-black bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 shadow-sm">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    На перевірці в ментора
+                                </span>
+                            ) : currentSubmission?.status === "rejected" ? (
+                                <span className="px-3 py-1 rounded-xl text-xs font-black bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center gap-1.5 shadow-sm">
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    Потрібні виправлення
+                                </span>
+                            ) : (
+                                <span className="hidden sm:inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-secondary/80 border border-border text-muted-foreground items-center gap-1">
+                                    🛡️ Рев'ю обов'язкове
+                                </span>
+                            )}
+                        </div>
+                    )}
+                    {task.type === "code" && (
                         <button
                             onClick={handleSubmitForReview}
-                            disabled={isSubmittingReview}
-                            className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm ${isSubmittingReview
-                                ? 'bg-white/5 text-slate-600 cursor-not-allowed'
-                                : 'bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20'
-                                }`}
+                            disabled={isSubmittingReview || currentSubmission?.status === "pending"}
+                            className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 ${
+                                isSubmittingReview || currentSubmission?.status === "pending"
+                                    ? 'bg-amber-500/15 border border-amber-500/30 text-amber-400 cursor-not-allowed'
+                                    : currentSubmission?.status === "reviewed"
+                                        ? 'bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-600/30'
+                                        : currentSubmission?.status === "rejected"
+                                            ? 'bg-rose-600 text-white hover:bg-rose-500 shadow-lg shadow-rose-600/25'
+                                            : 'bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20'
+                            }`}
                         >
-                            {isSubmittingReview ? t("sending") : `👨‍🏫 ${t("sendToMentor")}`}
+                            {isSubmittingReview ? (
+                                t("sending")
+                            ) : currentSubmission?.status === "pending" ? (
+                                `⏳ Очікує рев'ю`
+                            ) : currentSubmission?.status === "reviewed" ? (
+                                `✅ Зараховано (Оновити)`
+                            ) : currentSubmission?.status === "rejected" ? (
+                                `⚠️ Відправити виправлення`
+                            ) : (
+                                `👨‍🏫 ${t("sendToMentor")}`
+                            )}
                         </button>
                     )}
                 </div>
@@ -412,7 +468,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
             {/* Main Content */}
             <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
                 {/* Left/Top: Description */}
-                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-border p-0 prose prose-slate dark:prose-invert prose-sm lg:prose-base max-w-none bg-card custom-scrollbar relative">
+                <div className="w-full lg:w-1/2 h-[40%] lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-border p-0 prose prose-slate dark:prose-invert prose-code:before:content-none prose-code:after:content-none prose-sm lg:prose-base max-w-none bg-card custom-scrollbar relative">
                     {/* Sticky Header for Theory */}
                     <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-md px-4 lg:px-8 py-4 border-b border-border flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -437,9 +493,20 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                     </div>
 
                     <div className="p-4 lg:p-8 pt-4 lg:pt-6">
+                        {/* Course Rule Guidance Pill */}
+                        {task.type === "code" && (
+                            <div className="mb-6 p-4 rounded-2xl bg-blue-500/[0.06] border border-blue-500/20 flex items-start gap-3 not-prose">
+                                <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-500 dark:text-blue-400 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                                    💡
+                                </div>
+                                <div className="text-xs text-muted-foreground leading-relaxed">
+                                    <span className="font-bold text-foreground">Правило проходження:</span> Напишіть автотест, перевірте його раннером (<kbd className="px-1.5 py-0.5 rounded bg-background border border-border text-[10px] font-mono">Ctrl+Enter</kbd>), після чого обов'язково надішліть код ментору на перевірку. Завдання зараховується в курс лише після схвалення ментором!
+                                </div>
+                            </div>
+                        )}
                         {/* Mentor Feedback Banner */}
                         {submission && !submission.isSeen && !isFeedbackBannerDismissed && (
-                            <div className={`mb-8 p-6 rounded-[2rem] border animate-in slide-in-from-top duration-700 relative overflow-hidden ${submission.status === 'reviewed'
+                            <div className={`mb-8 p-6 rounded-[2rem] border animate-in slide-in-from-top duration-700 relative overflow-hidden ${currentSubmission?.status === 'reviewed'
                                 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
                                 : submission.status === 'rejected'
                                     ? 'bg-red-500/10 border-red-500/20 text-red-400'
@@ -453,7 +520,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 </button>
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${submission.status === 'reviewed' ? 'bg-emerald-500 text-white' : submission.status === 'rejected' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}`}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${currentSubmission?.status === 'reviewed' ? 'bg-emerald-500 text-white' : submission.status === 'rejected' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}`}>
                                             <ShieldCheck className="w-5 h-5" />
                                         </div>
                                         <div>
@@ -471,7 +538,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 {submission.status === 'rejected' && (
                                     <p className="text-xs font-medium leading-relaxed opacity-90">{t("mentorReviewedFeedback")}</p>
                                 )}
-                                {submission.status === 'reviewed' && (
+                                {currentSubmission?.status === 'reviewed' && (
                                     <p className="text-xs font-medium leading-relaxed opacity-90">{t("mentorApproved")}</p>
                                 )}
                             </div>
@@ -586,8 +653,8 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                 }`}
                                         >
                                             {tab}
-                                            {tab === "Mentor" && submission && (
-                                                <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                                            {tab === "Mentor" && currentSubmission && (
+                                                <div className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${currentSubmission?.status === 'reviewed' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
                                             )}
                                         </button>
                                     ))}
@@ -601,24 +668,24 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                 <div className="flex-1 p-4 font-mono text-xs lg:text-sm overflow-y-auto custom-scrollbar">
                                     {activeConsoleTab === "Mentor" ? (
                                         <div className="space-y-4 font-sans">
-                                            {!submission ? (
+                                            {!currentSubmission ? (
                                                 <div className="text-muted-foreground text-center py-4">{t("noSubmission")}</div>
                                             ) : (
                                                 <div className={`border border-border rounded-2xl overflow-hidden shadow-2xl ${
-                                                    submission.status === 'reviewed' ? 'bg-emerald-500/5' : 
-                                                    submission.status === 'rejected' ? 'bg-red-500/5' : 
+                                                    currentSubmission?.status === 'reviewed' ? 'bg-emerald-500/5' : 
+                                                    currentSubmission.status === 'rejected' ? 'bg-red-500/5' : 
                                                     'bg-amber-500/5'
                                                 }`}>
                                                     <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/30">
                                                         <div className="flex items-center gap-2">
-                                                            <div className={`w-2 h-2 rounded-full ${submission.status === 'reviewed' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : submission.status === 'rejected' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`} />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{t("statusLabel", { status: submission.status })}</span>
+                                                            <div className={`w-2 h-2 rounded-full ${currentSubmission?.status === 'reviewed' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : currentSubmission.status === 'rejected' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'}`} />
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{t("statusLabel", { status: currentSubmission.status })}</span>
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{new Date(submission.createdAt).toLocaleDateString()}</span>
+                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{new Date(currentSubmission.createdAt).toLocaleDateString()}</span>
                                                     </div>
                                                     
                                                     <div className="p-6">
-                                                        {submission.mentorFeedback ? (
+                                                        {currentSubmission.mentorFeedback ? (
                                                             <>
                                                                 <div className="mb-4 flex items-center gap-2 pb-4 border-b border-border">
                                                                     <MessageSquare className="w-4 h-4 text-blue-500" />
@@ -626,7 +693,7 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                                                                 </div>
                                                                 <div className="prose prose-slate dark:prose-invert prose-sm max-w-none">
                                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                                        {submission.mentorFeedback}
+                                                                        {currentSubmission.mentorFeedback}
                                                                     </ReactMarkdown>
                                                                 </div>
                                                             </>

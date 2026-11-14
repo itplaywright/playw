@@ -99,6 +99,58 @@ export default async function Dashboard() {
         }
     }
 
+    // Calculate real activity streak
+    const activityDates = [
+        ...userResults.map(r => r.createdAt),
+        ...userSubmissions.map(s => s.createdAt)
+    ].filter(Boolean) as Date[]
+
+    const dateStrings = new Set(
+        activityDates.map(d => {
+            const date = new Date(d)
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        })
+    )
+
+    let streakDays = 0
+    if (dateStrings.size > 0) {
+        const today = new Date()
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
+        const yesterday = new Date(today)
+        yesterday.setDate(yesterday.getDate() - 1)
+        const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
+
+        let checkDate = dateStrings.has(todayStr) ? today : (dateStrings.has(yesterdayStr) ? yesterday : null)
+
+        if (checkDate) {
+            let cur = new Date(checkDate)
+            while (true) {
+                const curStr = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
+                if (dateStrings.has(curStr)) {
+                    streakDays++
+                    cur.setDate(cur.getDate() - 1)
+                } else {
+                    break
+                }
+            }
+        }
+    }
+
+    // Calculate real lines of code from submissions
+    const taskCodeMap = new Map<number, string>()
+    for (const sub of userSubmissions) {
+        if (sub.taskId && sub.code && !taskCodeMap.has(sub.taskId)) {
+            taskCodeMap.set(sub.taskId, sub.code)
+        }
+    }
+
+    let totalLinesOfCode = 0
+    for (const code of taskCodeMap.values()) {
+        const lines = code.split('\n').filter(l => l.trim().length > 0).length
+        totalLinesOfCode += lines
+    }
+
     // We prompt them if they haven't connected the bot
     const hasContacts = Boolean(userWithRole?.telegramChatId)
 
@@ -116,6 +168,8 @@ export default async function Dashboard() {
             hasContacts={hasContacts}
             projects={boards as any}
             role={userWithRole?.dynamicRole}
+            realStreak={streakDays}
+            realLinesOfCode={totalLinesOfCode}
         />
     )
 }

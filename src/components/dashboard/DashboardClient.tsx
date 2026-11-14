@@ -57,6 +57,8 @@ interface Props {
         name: string
         maxTrackOrder: number | null
     } | null
+    realStreak?: number
+    realLinesOfCode?: number
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -78,7 +80,7 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export default function DashboardClient({
- tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername }: Props) {
+ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode }: Props) {
 
   const locale = useLocale();
   const t = useTranslations("Dashboard");
@@ -132,9 +134,11 @@ export default function DashboardClient({
     const overallPct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0
     
     const displayFirstName = firstName || (userName ? userName.split(' ')[0] : t('student'))
-    const displayStreak = totalDone > 0 ? Math.min(totalDone, 14) : 5
-    const displaySkills = totalDone > 0 ? totalDone : 14
-    const displayLines = totalDone > 0 ? (totalDone > 30 ? `${(totalDone * 0.04).toFixed(1)}k` : `${totalDone * 85}`) : "1.2k"
+    const displayStreak = realStreak !== undefined ? realStreak : (totalDone > 0 ? totalDone : 0)
+    const displaySkills = totalDone
+    const displayLines = realLinesOfCode !== undefined 
+        ? (realLinesOfCode > 999 ? `${(realLinesOfCode / 1000).toFixed(1)}k` : `${realLinesOfCode}`)
+        : (totalDone > 0 ? (totalDone > 30 ? `${(totalDone * 0.04).toFixed(1)}k` : `${totalDone * 85}`) : "0")
     const initials = displayFirstName.substring(0, 2).toUpperCase()
 
     const getStreakText = (num: number) => {

@@ -75,11 +75,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
     hard: "bg-red-500",
 }
 
-const STATUS_STYLES: Record<string, string> = {
-    "Виконано": "bg-emerald-100 text-emerald-700",
-    "В процесі": "bg-blue-100 text-blue-700",
-    "Не розпочато": "bg-slate-100 text-slate-500",
-}
+
 
 export default function DashboardClient({
  tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode, pendingReviewCount, rejectedCount }: Props) {
@@ -643,15 +639,39 @@ export default function DashboardClient({
                                                 {t("nextMilestone")}
                                             </span>
                                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 font-bold border border-blue-500/20">
-                                                Рівні 0 — 3
+                                                {(selectedTrack?.order ?? 1) <= 3 
+                                                    ? t("levelsRange03") 
+                                                    : (selectedTrack?.order ?? 1) <= 7 
+                                                        ? t("levelsRange47") 
+                                                        : t("levelsRange810")}
                                             </span>
                                         </div>
                                         <h4 className="text-sm sm:text-base font-black text-foreground tracking-tight">
-                                            Playwright Certified Associate (Junior)
+                                            {(selectedTrack?.order ?? 1) <= 3
+                                                ? (locale === "en" ? "Playwright Certified Associate (Junior)" : locale === "ru" ? "Playwright Certified Associate (Junior)" : "Playwright Certified Associate (Junior)")
+                                                : (selectedTrack?.order ?? 1) <= 7
+                                                    ? (locale === "en" ? "Playwright Automation Specialist (Middle)" : locale === "ru" ? "Playwright Automation Specialist (Middle)" : "Playwright Automation Specialist (Middle)")
+                                                    : (locale === "en" ? "Playwright Lead Architect (Senior)" : locale === "ru" ? "Playwright Lead Architect (Senior)" : "Playwright Lead Architect (Senior)")}
                                         </h4>
                                         <p className="text-xs text-muted-foreground mt-0.5">
                                             {t("milestoneDesc")}
                                         </p>
+
+                                        {/* 3-Tier Visual Scale Stepper */}
+                                        <div className="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-border/40 flex-wrap">
+                                            <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mr-1">Шкала:</span>
+                                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${(selectedTrack?.order ?? 1) <= 3 ? 'bg-blue-600 text-white shadow-sm' : 'bg-secondary text-muted-foreground'}`}>
+                                                1. Associate (0-3)
+                                            </span>
+                                            <span className="text-muted-foreground text-xs">→</span>
+                                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${(selectedTrack?.order ?? 1) > 3 && (selectedTrack?.order ?? 1) <= 7 ? 'bg-purple-600 text-white shadow-sm' : 'bg-secondary text-muted-foreground'}`}>
+                                                2. Specialist (4-7)
+                                            </span>
+                                            <span className="text-muted-foreground text-xs">→</span>
+                                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${(selectedTrack?.order ?? 1) > 7 ? 'bg-amber-600 text-white shadow-sm' : 'bg-secondary text-muted-foreground'}`}>
+                                                3. Architect (8-10)
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -764,7 +784,7 @@ export default function DashboardClient({
                                                                     {b.label}
                                                                 </span>
                                                             ))}
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} title={DIFFICULTY_LABELS[task.difficulty ?? "easy"]} />
+                                                            <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} title={task.difficulty === "hard" ? t("difficultyHard") : task.difficulty === "medium" ? t("difficultyMedium") : t("difficultyEasy")} />
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <h4 className={`font-bold text-base sm:text-lg transition-colors truncate ${isDone ? "text-muted-foreground" : "text-foreground group-hover:text-blue-500 dark:group-hover:text-blue-300"}`}>
@@ -789,13 +809,13 @@ export default function DashboardClient({
                                                                         : 'border border-border/60 text-muted-foreground/70 bg-secondary/40 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'
                                                     }`}>
                                                         {isDone 
-                                                            ? "✅ Зараховано ментором" 
+                                                            ? t("statusApproved") 
                                                             : isPending 
-                                                                ? "⏳ На перевірці в ментора" 
+                                                                ? t("statusInReview") 
                                                                 : isRejected 
-                                                                    ? "⚠️ Потребує виправлень" 
+                                                                    ? t("statusNeedsFix") 
                                                                     : isInProgress 
-                                                                        ? "💻 В процесі (потрібно рев'ю)" 
+                                                                        ? t("statusInProgressNeedsReview") 
                                                                         : t("statusNotStarted")
                                                         }
                                                     </span>

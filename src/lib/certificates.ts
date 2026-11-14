@@ -8,6 +8,9 @@ export interface CertificateTierDef {
     titleUk: string
     titleRu: string
     levelRange: string
+    levelRangeUk: string
+    levelRangeEn: string
+    levelRangeRu: string
     targetOrder: number // track.order <= targetOrder
     badge: string
     badgeUk: string
@@ -28,6 +31,9 @@ export const CERTIFICATE_TIERS: CertificateTierDef[] = [
         titleUk: "Playwright Certified Associate (Junior)",
         titleRu: "Playwright Certified Associate (Junior)",
         levelRange: "Рівні 0 — 3",
+        levelRangeUk: "Рівні 0 — 3",
+        levelRangeEn: "Levels 0 — 3",
+        levelRangeRu: "Уровни 0 — 3",
         targetOrder: 3,
         badge: "Junior Automation QA",
         badgeUk: "Junior Automation QA",
@@ -53,6 +59,9 @@ export const CERTIFICATE_TIERS: CertificateTierDef[] = [
         titleUk: "Playwright Automation Specialist (Middle)",
         titleRu: "Playwright Automation Specialist (Middle)",
         levelRange: "Рівні 4 — 7",
+        levelRangeUk: "Рівні 4 — 7",
+        levelRangeEn: "Levels 4 — 7",
+        levelRangeRu: "Уровни 4 — 7",
         targetOrder: 7,
         badge: "Middle QA Engineer",
         badgeUk: "Middle QA Engineer",
@@ -78,6 +87,9 @@ export const CERTIFICATE_TIERS: CertificateTierDef[] = [
         titleUk: "Playwright Lead Architect (Senior)",
         titleRu: "Playwright Lead Architect (Senior)",
         levelRange: "Рівні 8 — 10",
+        levelRangeUk: "Рівні 8 — 10",
+        levelRangeEn: "Levels 8 — 10",
+        levelRangeRu: "Уровни 8 — 10",
         targetOrder: 10,
         badge: "Senior QA Architect",
         badgeUk: "Senior QA Architect",
@@ -195,4 +207,28 @@ export async function getUserCertificates(userId: string): Promise<UserCertifica
     }
 
     return resultsList
+}
+
+export function getTierTitle(tier: CertificateTierDef, locale: string): string {
+    if (locale === 'en') return tier.title
+    if (locale === 'ru') return tier.titleRu
+    return tier.titleUk
+}
+
+export function getTierBadge(tier: CertificateTierDef, locale: string): string {
+    if (locale === 'en') return tier.badge
+    if (locale === 'ru') return tier.badgeRu
+    return tier.badgeUk
+}
+
+export function getTierDescription(tier: CertificateTierDef, locale: string): string {
+    if (locale === 'en') return tier.description
+    if (locale === 'ru') return tier.descriptionRu
+    return tier.descriptionUk
+}
+
+export function getTierLevelRange(tier: CertificateTierDef, locale: string): string {
+    if (locale === 'en') return tier.levelRangeEn || tier.levelRange
+    if (locale === 'ru') return tier.levelRangeRu || tier.levelRange
+    return tier.levelRangeUk || tier.levelRange
 }

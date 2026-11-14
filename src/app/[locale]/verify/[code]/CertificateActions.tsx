@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Share2, Printer, Check, Copy, ExternalLink, ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { Share2, Printer, Check, Copy, ArrowRight } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/routing"
 
 interface Props {
     certNumber: string
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function CertificateActions({ certNumber, linkedInUrl }: Props) {
+    const t = useTranslations("Verify")
     const [copied, setCopied] = useState(false)
 
     const handleCopy = () => {
@@ -37,7 +39,7 @@ export function CertificateActions({ certNumber, linkedInUrl }: Props) {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold transition-all shadow-md shadow-[#0A66C2]/20"
                 >
                     <Share2 className="w-4 h-4" />
-                    <span>Додати в LinkedIn</span>
+                    <span>{t("addToLinkedIn")}</span>
                 </a>
 
                 {/* Print / Save PDF */}
@@ -47,7 +49,7 @@ export function CertificateActions({ certNumber, linkedInUrl }: Props) {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all border border-white/10"
                 >
                     <Printer className="w-4 h-4" />
-                    <span>Друк / Зберегти PDF</span>
+                    <span>{t("printSavePdf")}</span>
                 </button>
 
                 {/* Copy Link */}
@@ -57,7 +59,7 @@ export function CertificateActions({ certNumber, linkedInUrl }: Props) {
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all border border-white/10"
                 >
                     {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                    <span>{copied ? "Скопійовано!" : "Скопіювати лінк"}</span>
+                    <span>{copied ? t("copied") : t("copyLink")}</span>
                 </button>
             </div>
 
@@ -66,7 +68,7 @@ export function CertificateActions({ certNumber, linkedInUrl }: Props) {
                 href="/pricing"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors"
             >
-                <span>Пройти сертифікацію самостійно</span>
+                <span>{t("getCertifiedYourself")}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
             </Link>
         </div>

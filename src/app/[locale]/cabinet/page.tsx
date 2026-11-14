@@ -75,6 +75,12 @@ export default function UserCabinetPage() {
     const [isSavingProfile, setIsSavingProfile] = useState(false)
     const [certsList, setCertsList] = useState<any[]>([])
 
+    useEffect(() => {
+        if (section === "certificates") {
+            fetchCertificates()
+        }
+    }, [section])
+
     const fetchCertificates = async () => {
         try {
             const res = await fetch("/api/user/certificates")
@@ -88,7 +94,7 @@ export default function UserCabinetPage() {
     }
 
     useEffect(() => {
-        Promise.all([fetchQuestions(), fetchStats(), fetchSubmissions(), fetchProfile()]).finally(() => setIsLoading(false))
+        Promise.all([fetchQuestions(), fetchStats(), fetchSubmissions(), fetchProfile(), fetchCertificates()]).finally(() => setIsLoading(false))
     }, [])
 
     const fetchQuestions = async () => {
@@ -481,6 +487,140 @@ export default function UserCabinetPage() {
                                     <p className="text-muted-foreground mt-1 text-sm font-medium">{t("certificatesSubtitle")}</p>
                                 </div>
 
+                                {/* Certification Scale / Roadmap */}
+                                <div className="mb-8 rounded-3xl bg-card border border-border p-6 shadow-sm">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-border/60">
+                                        <div>
+                                            <h2 className="text-base font-black text-foreground flex items-center gap-2">
+                                                <span>🎓</span>
+                                                <span>{t("certScaleTitle")}</span>
+                                            </h2>
+                                            <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                                                {t("certScaleSubtitle")}
+                                            </p>
+                                        </div>
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold self-start sm:self-auto">
+                                            <span>3 Тьєри</span>
+                                        </div>
+                                    </div>
+
+                                    {/* 3 Steps Scale */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+                                        {/* Step 1: Associate */}
+                                        <div className="rounded-2xl p-4 bg-secondary/40 border border-blue-500/20 flex flex-col justify-between relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none" />
+                                            <div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
+                                                        {t("tier1Badge")}
+                                                    </span>
+                                                    <span className="text-xs font-mono font-bold text-muted-foreground">
+                                                        {t("tier1Range")}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-sm font-black text-foreground mb-1">
+                                                    {t("tier1Title")}
+                                                </h3>
+                                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                                    {t("tier1Req")}
+                                                </p>
+                                            </div>
+                                            <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                                    {certsList.find((c: any) => c.tier.id === 'associate')?.isUnlocked
+                                                        ? t("statusEarned")
+                                                        : t("statusInProgress")}
+                                                </span>
+                                                <span className={`text-xs font-black ${
+                                                    certsList.find((c: any) => c.tier.id === 'associate')?.isUnlocked
+                                                        ? "text-emerald-400"
+                                                        : "text-blue-400"
+                                                }`}>
+                                                    {certsList.find((c: any) => c.tier.id === 'associate')?.percentage ?? 0}%
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Step 2: Specialist */}
+                                        <div className="rounded-2xl p-4 bg-secondary/40 border border-purple-500/20 flex flex-col justify-between relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl pointer-events-none" />
+                                            <div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25">
+                                                        {t("tier2Badge")}
+                                                    </span>
+                                                    <span className="text-xs font-mono font-bold text-muted-foreground">
+                                                        {t("tier2Range")}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-sm font-black text-foreground mb-1">
+                                                    {t("tier2Title")}
+                                                </h3>
+                                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                                    {t("tier2Req")}
+                                                </p>
+                                            </div>
+                                            <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                                    {certsList.find((c: any) => c.tier.id === 'specialist')?.isUnlocked
+                                                        ? t("statusEarned")
+                                                        : t("statusInProgress")}
+                                                </span>
+                                                <span className={`text-xs font-black ${
+                                                    certsList.find((c: any) => c.tier.id === 'specialist')?.isUnlocked
+                                                        ? "text-emerald-400"
+                                                        : "text-purple-400"
+                                                }`}>
+                                                    {certsList.find((c: any) => c.tier.id === 'specialist')?.percentage ?? 0}%
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Step 3: Architect */}
+                                        <div className="rounded-2xl p-4 bg-secondary/40 border border-amber-500/20 flex flex-col justify-between relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none" />
+                                            <div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                                                        {t("tier3Badge")}
+                                                    </span>
+                                                    <span className="text-xs font-mono font-bold text-muted-foreground">
+                                                        {t("tier3Range")}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-sm font-black text-foreground mb-1">
+                                                    {t("tier3Title")}
+                                                </h3>
+                                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                                    {t("tier3Req")}
+                                                </p>
+                                            </div>
+                                            <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                                    {certsList.find((c: any) => c.tier.id === 'architect')?.isUnlocked
+                                                        ? t("statusEarned")
+                                                        : t("statusInProgress")}
+                                                </span>
+                                                <span className={`text-xs font-black ${
+                                                    certsList.find((c: any) => c.tier.id === 'architect')?.isUnlocked
+                                                        ? "text-emerald-400"
+                                                        : "text-amber-400"
+                                                }`}>
+                                                    {certsList.find((c: any) => c.tier.id === 'architect')?.percentage ?? 0}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Mentorship Rule banner */}
+                                    <div className="mt-5 p-3.5 rounded-xl bg-blue-500/5 border border-blue-500/15 flex items-center gap-3">
+                                        <span className="text-base flex-shrink-0">🛡️</span>
+                                        <p className="text-xs text-muted-foreground font-medium">
+                                            {t("mentorCondition")}
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 mb-8 rounded-2xl bg-gradient-to-r from-blue-600/15 via-indigo-600/10 to-amber-500/10 border border-blue-500/20 shadow-sm">
                                     <div className="flex items-center gap-3.5">
                                         <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl flex-shrink-0">
@@ -537,11 +677,11 @@ export default function UserCabinetPage() {
                                                                     {locale === "en" ? tier.badge : locale === "ru" ? tier.badgeRu : tier.badgeUk}
                                                                 </span>
                                                                 <span className="text-xs text-muted-foreground font-semibold">
-                                                                    {tier.levelRange}
+                                                                    {locale === "en" ? (tier.levelRangeEn || tier.levelRange) : locale === "ru" ? (tier.levelRangeRu || tier.levelRange) : (tier.levelRangeUk || tier.levelRange)}
                                                                 </span>
                                                             </div>
                                                             <h3 className="text-xl font-black text-foreground tracking-tight">
-                                                                {tier.title}
+                                                                {locale === "en" ? tier.title : locale === "ru" ? tier.titleRu : tier.titleUk}
                                                             </h3>
                                                         </div>
                                                     </div>

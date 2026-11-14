@@ -105,7 +105,7 @@
   }
 
   .lesson-number-bg {
-    @apply absolute -right-4 -bottom-4 text-8xl font-black text-black/[0.03] dark:text-white/[0.05] select-none pointer-events-none;
+    @apply absolute right-24 top-1/2 -translate-y-1/2 text-6xl font-black text-black/[0.015] dark:text-white/[0.025] select-none pointer-events-none;
   }
 
   .star-gold-premium {

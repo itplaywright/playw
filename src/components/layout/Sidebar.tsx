@@ -66,23 +66,34 @@ export default function Sidebar({
                     </div>
                 </div>
 
-                {/* User Plan Badge */}
+                {/* User Plan Badge / Upgrade Card */}
                 {role ? (
-                    <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border border-blue-500/20 flex flex-col gap-1 shadow-lg shadow-blue-500/5 dark:shadow-blue-900/10">
-                        <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">{t("currentAccess")}</span>
+                    <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20 flex flex-col gap-1 shadow-lg shadow-blue-500/5">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-bold text-foreground tracking-tight">{role.name}</span>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]" />
+                            <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">{t("currentAccess")}</span>
+                            <div className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+                                <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">Active</span>
+                            </div>
                         </div>
+                        <span className="text-sm font-bold text-foreground tracking-tight">{role.name}</span>
                     </div>
                 ) : (
-                    <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-amber-600/10 to-orange-600/10 border border-amber-500/20 flex flex-col gap-1 shadow-lg shadow-amber-500/5 dark:shadow-amber-900/10">
-                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.2em] opacity-80">{t("access")}</span>
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm font-bold text-foreground tracking-tight">{t("demoMode")}</span>
-                            <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
+                    <Link
+                        href="/pricing"
+                        className="group relative block p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 shadow-lg shadow-amber-500/5 overflow-hidden"
+                    >
+                        <div className="flex items-center justify-between mb-1.5">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/25 text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                                ⚡ {t("demoMode")}
+                            </span>
+                            <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                                Тарифи <ArrowRight className="w-3 h-3" />
+                            </span>
                         </div>
-                    </div>
+                        <p className="text-xs font-bold text-foreground mb-0.5">Розблокувати всі рівні</p>
+                        <p className="text-[10px] text-muted-foreground leading-snug">10 рівнів, AI-рев'ю та портфоліо</p>
+                    </Link>
                 )}
                 
                 {/* Thin Overall Progress Bar */}

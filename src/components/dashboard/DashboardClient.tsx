@@ -139,6 +139,73 @@ export default function DashboardClient({
     const displayLines = totalDone > 0 ? (totalDone > 30 ? `${(totalDone * 0.04).toFixed(1)}k` : `${totalDone * 85}`) : "1.2k"
     const initials = displayFirstName.substring(0, 2).toUpperCase()
 
+    const getStreakText = (num: number) => {
+        if (locale === 'en') return num === 1 ? 'DAY STREAK' : 'DAYS STREAK'
+        if (locale === 'ru') {
+            const n = Math.abs(num) % 100
+            const n1 = n % 10
+            if (n > 10 && n < 20) return 'ДНЕЙ СТРИКА'
+            if (n1 > 1 && n1 < 5) return 'ДНЯ СТРИКА'
+            if (n1 === 1) return 'ДЕНЬ СТРИКА'
+            return 'ДНЕЙ СТРИКА'
+        }
+        const n = Math.abs(num) % 100
+        const n1 = n % 10
+        if (n > 10 && n < 20) return 'ДНІВ СТРІКУ'
+        if (n1 > 1 && n1 < 5) return 'ДНІ СТРІКУ'
+        if (n1 === 1) return 'ДЕНЬ СТРІКУ'
+        return 'ДНІВ СТРІКУ'
+    }
+
+    const getTaskBadges = (task: Task, track: Track | undefined) => {
+        const title = (task.title || '').toLowerCase()
+        const desc = (task.description || '').toLowerCase()
+        const text = `${title} ${desc}`
+        const badges: { label: string; color: string }[] = []
+
+        if (task.type === 'quiz') {
+            badges.push({ label: 'Quiz', color: 'bg-purple-500/10 border-purple-500/20 text-purple-400' })
+            return badges
+        }
+
+        const trackTitle = (track?.title || '').toLowerCase()
+        const isTsTrack = trackTitle.includes('typescript') || trackTitle.includes('рівень 0')
+
+        if (isTsTrack || text.includes('const') || text.includes('let') || text.includes('типи') || text.includes('type') || text.includes('interface') || text.includes('function') || text.includes('string') || text.includes('number')) {
+            badges.push({ label: 'TypeScript', color: 'bg-blue-500/10 border-blue-500/20 text-blue-400' })
+        }
+
+        if (text.includes('locator') || text.includes('selector') || text.includes('getby') || text.includes('селектор') || text.includes('локатор')) {
+            badges.push({ label: 'Locators', color: 'bg-purple-500/10 border-purple-500/20 text-purple-400' })
+        }
+
+        if (text.includes('expect') || text.includes('tohave') || text.includes('tobe') || text.includes('assert') || text.includes('перевірк')) {
+            badges.push({ label: 'Assertions', color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' })
+        }
+
+        if (text.includes('click') || text.includes('fill') || text.includes('press') || text.includes('дії') || text.includes('action')) {
+            badges.push({ label: 'Actions', color: 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400' })
+        }
+
+        if (text.includes('api') || text.includes('endpoint') || text.includes('http') || text.includes('request')) {
+            badges.push({ label: 'API', color: 'bg-amber-500/10 border-amber-500/20 text-amber-400' })
+        }
+
+        if (text.includes('hook') || text.includes('beforeeach') || text.includes('aftereach') || text.includes('fixture')) {
+            badges.push({ label: 'Hooks', color: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' })
+        }
+
+        if (badges.length === 0) {
+            if (isTsTrack) {
+                badges.push({ label: 'Basics', color: 'bg-blue-500/10 border-blue-500/20 text-blue-400' })
+            } else {
+                badges.push({ label: 'Playwright', color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' })
+            }
+        }
+
+        return badges.slice(0, 2)
+    }
+
     // Find next suggested task
     const findNextTask = () => {
         const unlockedTasks = tasks.filter(t => {
@@ -299,173 +366,190 @@ export default function DashboardClient({
                 </div>
 
                 {/* Main content Area */}
-                <main className="flex-1 glass-card-premium rounded-[2rem] border border-white/5 shadow-2xl relative">
+                <main className="flex-1 glass-card-premium rounded-3xl border border-white/5 shadow-2xl relative">
                     {selectedTrack && (
-                        <div className="p-8 w-full">
+                        <div className="p-6 sm:p-8 w-full">
                             {/* Track header */}
-                            <div className="mb-12">
-                                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                            <div className="mb-8">
+                                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <h1 className="text-4xl font-black text-foreground tracking-tight leading-none">
-                                                {getTrackTitle(selectedTrack)}
-                                            </h1>
+                                        <div className="flex items-center gap-2.5 mb-2.5 flex-wrap">
+                                            <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] font-black text-blue-500 dark:text-blue-400 tracking-wider uppercase">
+                                                {getTrackTitle(selectedTrack).split(' — ')[0] || 'Модуль'}
+                                            </span>
+                                            <span className="text-xs font-semibold text-muted-foreground">
+                                                {trackTasks.length} {locale === 'en' ? 'lessons' : 'уроків'} • {getTrackProgress(selectedTrack.id).done} виконано
+                                            </span>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-orange-900/40">
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-md shadow-orange-900/30">
                                                     <Star className="w-2.5 h-2.5 fill-current" /> {t("proBadge")}
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-muted-foreground text-[15px] font-medium max-w-2xl leading-relaxed opacity-70 mt-1">{getTrackDesc(selectedTrack)}</p>
+                                        <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight leading-tight">
+                                            {getTrackTitle(selectedTrack)}
+                                        </h1>
+                                        <p className="text-muted-foreground text-sm font-normal max-w-2xl leading-relaxed mt-2 opacity-80">{getTrackDesc(selectedTrack)}</p>
                                     </div>
 
                                     {/* Gamified Stats Widgets */}
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-blue-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-blue-500/5">
-                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">{displayStreak}</span>
-                                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">🔥 {t("streakDays")}</span>
+                                    <div className="flex items-center gap-2.5 sm:gap-3">
+                                        <div className="glass-card-premium-v2 px-4 py-3 rounded-2xl border border-blue-500/20 flex flex-col items-center justify-center min-w-[95px] sm:min-w-[105px] shadow-sm">
+                                            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter leading-none mb-1">{displayStreak}</span>
+                                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-wider">🔥 {getStreakText(displayStreak)}</span>
                                         </div>
-                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-emerald-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-emerald-500/5">
-                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">{displaySkills}</span>
-                                            <span className="text-[9px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-[0.2em] opacity-80">🧠 {t("skills")}</span>
+                                        <div className="glass-card-premium-v2 px-4 py-3 rounded-2xl border border-emerald-500/20 flex flex-col items-center justify-center min-w-[95px] sm:min-w-[105px] shadow-sm">
+                                            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter leading-none mb-1">{displaySkills}</span>
+                                            <span className="text-[9px] font-black text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">🧠 {t("skills")}</span>
                                         </div>
-                                        <div className="glass-card-premium-v2 px-5 py-4 rounded-3xl border border-purple-500/20 flex flex-col items-center justify-center min-w-[110px] shadow-lg shadow-purple-500/5">
-                                            <span className="text-3xl font-black text-foreground tracking-tighter leading-none mb-1.5">{displayLines}</span>
-                                            <span className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-[0.2em] opacity-80">⌨️ {t("linesOfCode")}</span>
+                                        <div className="glass-card-premium-v2 px-4 py-3 rounded-2xl border border-purple-500/20 flex flex-col items-center justify-center min-w-[95px] sm:min-w-[105px] shadow-sm">
+                                            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tighter leading-none mb-1">{displayLines}</span>
+                                            <span className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-wider">⌨️ {t("linesOfCode")}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Welcome back / Suggested Task */}
-                            <div className="mb-10 p-6 glass-card-premium-v2 rounded-[2rem] border border-blue-500/20 shadow-xl shadow-blue-900/10 flex flex-col md:flex-row items-center gap-6 justify-between relative overflow-hidden">
-                                <div className="absolute right-0 top-0 w-48 h-48 bg-blue-500/5 rounded-full pointer-events-none" />
-                                
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Sparkles className="w-5 h-5 text-amber-500 dark:text-amber-400" />
-                                        <h3 className="text-2xl font-black text-foreground">{greetingInfo.greeting}, {displayFirstName}!</h3>
+                            <div className="mb-8 p-5 sm:p-6 rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-600/[0.08] via-indigo-600/[0.04] to-transparent flex flex-col md:flex-row items-center gap-5 justify-between relative overflow-hidden shadow-lg shadow-blue-500/5">
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Sparkles className="w-4 h-4 text-amber-400" />
+                                        <h3 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{greetingInfo.greeting}, {displayFirstName}!</h3>
                                     </div>
-                                    <p className="text-muted-foreground text-sm font-medium">{nextTask ? greetingInfo.subtitleNext : greetingInfo.subtitleDone}</p>
+                                    <p className="text-muted-foreground text-xs sm:text-sm font-medium">{nextTask ? greetingInfo.subtitleNext : greetingInfo.subtitleDone}</p>
                                 </div>
                                 
                                 {nextTask ? (
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 min-w-[300px] z-10 w-full md:w-auto hover:bg-white/10 transition-colors">
-                                        <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex flex-shrink-0 items-center justify-center">
-                                            <TargetIcon className="w-6 h-6 text-blue-400" />
+                                    <div className="bg-card/80 backdrop-blur-sm border border-border/80 hover:border-blue-500/40 rounded-xl p-3 sm:p-3.5 flex items-center gap-3.5 min-w-[280px] sm:min-w-[320px] z-10 w-full md:w-auto transition-all shadow-sm">
+                                        <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 flex flex-shrink-0 items-center justify-center">
+                                            <TargetIcon className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                                         </div>
-                                        <div className="flex-1">
-                                            <p className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mb-1">{t("recommendedForYou")}</p>
-                                            <p className="text-foreground font-bold text-sm truncate max-w-[200px] hover:text-blue-600 dark:hover:text-blue-300 transition-colors">
-                                                <Link href={`/tasks/${nextTask.id}`}>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[9px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest mb-0.5">{t("recommendedForYou")}</p>
+                                            <p className="text-foreground font-bold text-xs sm:text-sm truncate">
+                                                <Link href={`/tasks/${nextTask.id}`} className="hover:text-blue-500 transition-colors">
                                                     {getTaskTitle(nextTask)}
                                                 </Link>
                                             </p>
                                         </div>
-                                        <Link href={`/tasks/${nextTask.id}`} className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center hover:bg-blue-500 transition-colors">
-                                            <ArrowRight className="w-5 h-5 text-white" />
+                                        <Link href={`/tasks/${nextTask.id}`} className="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-500 flex items-center justify-center text-white transition-transform active:scale-95 shadow-md shadow-blue-600/30 flex-shrink-0">
+                                            <ArrowRight className="w-4 h-4" />
                                         </Link>
                                     </div>
                                 ) : (
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 px-6 flex items-center gap-4 z-10 w-full md:w-auto">
-                                        <CheckCircle2 className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
+                                    <div className="bg-card/80 border border-emerald-500/30 rounded-xl p-3 px-5 flex items-center gap-3 z-10 w-full md:w-auto">
+                                        <CheckCircle2 className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
                                         <div>
-                                            <p className="text-foreground font-bold text-sm">{t("allTasksCompleted")}</p>
-                                            <p className="text-muted-foreground text-xs">{t("greatJob")}</p>
+                                            <p className="text-foreground font-bold text-xs sm:text-sm">{t("allTasksCompleted")}</p>
+                                            <p className="text-muted-foreground text-[11px]">{t("greatJob")}</p>
                                         </div>
                                     </div>
                                 )}
                             </div>
 
-
-
-
                             {filteredTasks.length === 0 ? (
-                                <div className="glass-panel rounded-3xl p-16 text-center">
+                                <div className="glass-panel rounded-2xl p-16 text-center">
                                     <Code2 className="w-10 h-10 text-slate-500 mx-auto mb-4 opacity-20" />
                                     <p className="text-slate-400 font-medium">
                                         {t("noTasksInLevel")}
                                     </p>
                                 </div>
                             ) : (
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-10 h-10 rounded-xl bg-secondary border border-border flex items-center justify-center">
-                                            <BookOpen className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                                <div className="space-y-2.5">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-8 h-8 rounded-lg bg-secondary border border-border flex items-center justify-center">
+                                            <BookOpen className="w-4 h-4 text-blue-500 dark:text-blue-400" />
                                         </div>
-                                        <div className="flex-1 h-[2px] bg-gradient-to-r from-blue-500/50 via-blue-500/10 to-transparent" />
-                                        <h2 className="text-[11px] font-black text-foreground uppercase tracking-[0.3em] whitespace-nowrap">{t("curriculum")}</h2>
+                                        <h2 className="text-[11px] font-black text-foreground uppercase tracking-[0.25em] whitespace-nowrap">{t("curriculum")}</h2>
+                                        <div className="flex-1 h-[1px] bg-gradient-to-r from-border via-border/50 to-transparent" />
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{filteredTasks.length} {locale === 'en' ? 'TASKS' : 'ЗАВДАНЬ'}</span>
                                     </div>
-                                    {filteredTasks.map(task => {
+
+                                    {filteredTasks.map((task, idx) => {
                                         const statusLabel = statusMap[task.id] ?? "Не розпочато"
                                         const isDone = statusLabel === "Виконано"
                                         const isInProgress = statusLabel === "В процесі"
                                         const isLocked = isProTrack(selectedTrack.order, getTrackTitle(selectedTrack)) && !isAdmin
+                                        const badges = getTaskBadges(task, selectedTrack)
+                                        const taskIndexFormatted = task.numbering || `#${idx + 1}`
 
                                         return (
                                             <Link
                                                 key={task.id}
                                                 href={isLocked ? "/pricing" : `/tasks/${task.id}`}
-                                                className={`group flex items-center gap-8 p-8 glass-card-premium-v2 rounded-[2.5rem] relative overflow-hidden transition-shadow duration-200 ${isLocked ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0' : 'active:scale-[0.98] hover:shadow-[0_0_40px_rgba(59,130,246,0.12)] hover:border-white/20'} ${isInProgress && !isLocked ? 'ring-2 ring-blue-500/50' : ''}`}
+                                                className={`group flex items-center gap-4 sm:gap-6 p-4 sm:p-4.5 rounded-2xl border transition-all duration-200 relative overflow-hidden ${
+                                                    isInProgress && !isLocked
+                                                        ? 'bg-gradient-to-r from-blue-500/[0.08] via-card to-card border-blue-500/40 shadow-lg shadow-blue-500/5'
+                                                        : isDone
+                                                            ? 'bg-card/40 border-border/40 hover:bg-card/70 hover:border-border/80'
+                                                            : 'bg-card/50 border-border/50 hover:bg-card/90 hover:border-blue-500/30 hover:shadow-md hover:shadow-blue-500/5'
+                                                } ${isLocked ? 'opacity-50 grayscale hover:opacity-90 hover:grayscale-0' : 'active:scale-[0.99]'}`}
                                             >
-                                                {/* Lesson number background */}
-                                                <div className="lesson-number-bg">#{task.order}</div>
-                                                {/* In Progress Indicator */}
-                                                {isInProgress && (
-                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-full" />
+                                                {/* In Progress Left Accent Bar */}
+                                                {isInProgress && !isLocked && (
+                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />
                                                 )}
 
-                                                <div className="relative z-10 flex items-center gap-6 w-full">
+                                                {/* Lesson number background */}
+                                                <div className="lesson-number-bg">#{task.order || idx + 1}</div>
+
+                                                <div className="relative z-10 flex items-center gap-4 sm:gap-5 w-full">
                                                     {/* Status indicator */}
-                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${isDone ? "badge-gradient-emerald shadow-lg shadow-emerald-500/20" : isInProgress ? "badge-gradient-blue shadow-lg shadow-blue-500/20" : "bg-white/5 border border-white/10 group-hover:border-white/20"}`}>
-                                                        {isDone
-                                                            ? <CheckCircle2 className="w-7 h-7 text-white" />
+                                                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                                                        isDone 
+                                                            ? "badge-gradient-emerald shadow-md shadow-emerald-500/20" 
                                                             : isInProgress 
-                                                                ? <Clock className="w-7 h-7 text-white" />
-                                                                : <div className="w-2 h-2 rounded-full bg-slate-600" />
-                                                        }
+                                                                ? "badge-gradient-blue shadow-md shadow-blue-500/20 ring-2 ring-blue-500/30 ring-offset-2 ring-offset-background" 
+                                                                : "bg-secondary/60 border border-border/60 group-hover:border-blue-500/30"
+                                                    }`}>
+                                                        {isDone ? (
+                                                            <CheckCircle2 className="w-5 h-5 text-white" />
+                                                        ) : isInProgress ? (
+                                                            <Clock className="w-5 h-5 text-white" />
+                                                        ) : (
+                                                            <span className="text-xs font-black text-muted-foreground group-hover:text-foreground">
+                                                                {String(idx + 1).padStart(2, '0')}
+                                                            </span>
+                                                        )}
                                                     </div>
 
                                                     {/* Task Info */}
                                                     <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-3 mb-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-black text-slate-500 tracking-widest uppercase">{getTrackTitle(selectedTrack).split(' — ')[0]} • {t("taskNumber", { num: task.numbering || task.id })}</span>
-                                                                {/* Skill Tags */}
-                                                                <div className="flex gap-1.5 ml-2">
-                                                                    {task.type === 'code' && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-bold text-blue-400 uppercase tracking-tighter">DOM</span>
-                                                                    )}
-                                                                    {getTaskTitle(task).toLowerCase().includes('selector') && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-[9px] font-bold text-purple-400 uppercase tracking-tighter">Locators</span>
-                                                                    )}
-                                                                    {getTaskTitle(task).toLowerCase().includes('hook') && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[9px] font-bold text-indigo-400 uppercase tracking-tighter">Hooks</span>
-                                                                    )}
-                                                                    {getTaskTitle(task).toLowerCase().includes('api') && (
-                                                                        <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[9px] font-bold text-amber-400 uppercase tracking-tighter">API</span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} />
+                                                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                            <span className="px-2 py-0.5 rounded-md bg-secondary border border-border text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
+                                                                {getTrackTitle(selectedTrack).split(' — ')[0]} • {taskIndexFormatted}
+                                                            </span>
+                                                            {badges.map((b, i) => (
+                                                                <span key={i} className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border ${b.color}`}>
+                                                                    {b.label}
+                                                                </span>
+                            ))}
+                                                            <span className={`w-1.5 h-1.5 rounded-full ${DIFFICULTY_COLORS[task.difficulty ?? "easy"]}`} title={DIFFICULTY_LABELS[task.difficulty ?? "easy"]} />
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <h4 className={`font-bold text-lg transition-colors ${isDone ? "text-muted-foreground" : "text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-300"}`}>
+                                                            <h4 className={`font-bold text-base sm:text-lg transition-colors truncate ${isDone ? "text-muted-foreground" : "text-foreground group-hover:text-blue-500 dark:group-hover:text-blue-300"}`}>
                                                                 {getTaskTitle(task)}
                                                             </h4>
                                                             {isLocked && !isDone && (
-                                                                <Lock className="w-4 h-4 text-amber-500/80 star-gold-premium drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                                                                <Lock className="w-3.5 h-3.5 text-amber-500/80 star-gold-premium drop-shadow-[0_0_8px_rgba(245,158,11,0.5)] flex-shrink-0" />
                                                             )}
                                                         </div>
                                                     </div>
 
                                                     {/* Status badge */}
-                                                    <span className={`hidden sm:flex shrink-0 ${isDone ? 'status-done-glass' : isInProgress ? 'border-blue-500/30 text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest' : 'border-white/5 text-slate-500 bg-white/5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest'}`}>
+                                                    <span className={`hidden sm:inline-flex shrink-0 ${
+                                                        isDone 
+                                                            ? 'status-done-glass' 
+                                                            : isInProgress 
+                                                                ? 'border border-blue-500/30 text-blue-500 dark:text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider' 
+                                                                : 'border border-border/60 text-muted-foreground/70 bg-secondary/40 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider'
+                                                    }`}>
                                                         {isDone ? t("statusCompleted") : isInProgress ? t("statusInProgress") : t("statusNotStarted")}
                                                     </span>
 
-                                                    <div className="p-2 rounded-lg group-hover:bg-white/10 transition-all">
-                                                        <ChevronRight className={`w-5 h-5 transition-all ${isDone ? 'text-slate-600' : 'text-slate-400 group-hover:text-white group-hover:translate-x-0.5'}`} />
+                                                    <div className="p-1.5 rounded-lg text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all">
+                                                        <ChevronRight className="w-5 h-5" />
                                                     </div>
                                                 </div>
                                             </Link>

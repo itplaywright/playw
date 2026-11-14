@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { useTranslations } from "next-intl"
 import {
     Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock
@@ -52,6 +52,7 @@ export default function Sidebar({
         return getLevelNum(title, order) > maxOrder
     }
 
+    const isDemo = !role || role.name?.toLowerCase().includes("демо") || role.name?.toLowerCase().includes("demo") || (role.maxTrackOrder !== null && role.maxTrackOrder <= 1)
     return (
         <aside className="w-full h-full bg-secondary/5 flex flex-col z-40">
             {/* Logo area */}
@@ -67,27 +68,27 @@ export default function Sidebar({
                 </div>
 
                 {/* User Plan Badge / Upgrade Card */}
-                {role ? (
+                {!isDemo ? (
                     <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20 flex flex-col gap-1 shadow-lg shadow-blue-500/5">
                         <div className="flex items-center justify-between">
                             <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">{t("currentAccess")}</span>
                             <div className="flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
-                                <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">Active</span>
+                                <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">{t("fullAccess")}</span>
                             </div>
                         </div>
-                        <span className="text-sm font-bold text-foreground tracking-tight">{role.name}</span>
+                        <span className="text-sm font-bold text-foreground tracking-tight">{role?.name || "PRO"}</span>
                     </div>
                 ) : (
                     <Link
                         href="/pricing"
-                        className="group relative block p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 shadow-lg shadow-amber-500/5 overflow-hidden"
+                        className="group relative block p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/25 hover:border-amber-500/50 transition-all duration-300 shadow-lg shadow-amber-500/5 overflow-hidden"
                     >
                         <div className="flex items-center justify-between mb-1.5">
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/25 text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/30 text-[9px] font-black text-amber-500 dark:text-amber-400 uppercase tracking-wider">
                                 ⚡ {t("demoMode")}
                             </span>
-                            <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                            <span className="text-[10px] font-bold text-amber-500 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                                 {t("pricingLink")} <ArrowRight className="w-3 h-3" />
                             </span>
                         </div>

@@ -239,7 +239,8 @@
     "pwOption3": "Add a GitHub Actions workflow? <strong>Yes (or No)</strong>",
     "pwOption4": "Install Playwright browsers? <strong>Yes</strong>",
     "extPy": "Official extension for Python language support.",
-    "extCs": "Official extension for C#."
+    "extCs": "Official extension for C#.",
+    "continueBtn": "Continue"
   },
   "Sidebar": {
     "courseProgress": "Course Progress",
@@ -253,7 +254,10 @@
     "done": "Done",
     "pricingLink": "Pricing",
     "unlockAllLevels": "Unlock all levels",
-    "unlockAllLevelsDesc": "10 levels, AI review & portfolio"
+    "unlockAllLevelsDesc": "10 levels, mentor code review and certificate",
+    "upgradeToPro": "Upgrade to PRO",
+    "unlockFullCourse": "Unlock all levels",
+    "fullAccess": "Full Access"
   },
   "TaskView": {
     "back": "Back",
@@ -416,7 +420,7 @@
     "workflowStep3Desc": "Click 'Submit to mentor'. Tasks are not counted without mentor review!",
     "workflowStep4Tag": "Grading",
     "workflowStep4Title": "Feedback & grading",
-    "workflowStep4Desc": "Get code review in your cabinet (and Telegram) and 'Approved by mentor' status.",
+    "workflowStep4Desc": "Get code review in your cabinet (and Telegram) and 'Approved by mentor' status (feedback within 24h).",
     "difficultyEasy": "Easy",
     "difficultyMedium": "Medium",
     "difficultyHard": "Hard",
@@ -430,7 +434,8 @@
     "timeDefault": "Hello",
     "streakDay1": "DAY STREAK",
     "streakDaysFew": "DAYS STREAK",
-    "streakDaysMany": "DAYS STREAK"
+    "streakDaysMany": "DAYS STREAK",
+    "tasksCountLabel": "TASKS"
   },
   "Pricing": {
     "trialEnded": "Trial period ended",
@@ -470,7 +475,8 @@
     "totalToPay": "Total:",
     "secureNotice": "Secure payment and guaranteed access to all materials upon activation.",
     "haveAccessKey": "Have an access code?",
-    "accessKeyDesc": "You can activate access instantly if you already have a key."
+    "accessKeyDesc": "You can activate access instantly if you already have a key.",
+    "free": "Free"
   },
   "Theory": {
     "title": "Theory",
@@ -519,6 +525,58 @@
     "savedSuccess": "Changes saved!",
     "firstName": "First name",
     "phone": "Phone",
-    "telegramUsername": "Telegram username"
+    "telegramUsername": "Telegram username",
+    "unlockAllLevelsDesc": "10 levels, mentor code review and certificate",
+    "workflowStep4Desc": "Get code review in your cabinet (and Telegram) and 'Approved by mentor' status (feedback within 24h).",
+    "tasksCountLabel": "TASKS",
+    "upgradeToPro": "Upgrade to PRO",
+    "unlockFullCourse": "Unlock all levels",
+    "fullAccess": "Full Access",
+    "errorLoadQuestions": "Failed to load questions",
+    "profileSaved": "Profile saved successfully!",
+    "profileSaveError": "Failed to save profile",
+    "connectionError": "Connection error",
+    "ofCourse": "of course",
+    "ofAttempts": "from {count} attempts",
+    "simulationsAndTests": "simulations and tests",
+    "receivedAnswers": "answered",
+    "myQuestions": "My Questions",
+    "awaitingAnswer": "awaiting reply",
+    "allQuestionsAnswered": "All questions answered",
+    "myProfile": "My Profile",
+    "myProfileSubtitle": "Personal information and contacts.",
+    "defaultUser": "Student",
+    "personalData": "Personal Information",
+    "enterFirstName": "Enter first name",
+    "lastName": "Last name",
+    "enterLastName": "Enter last name",
+    "botConnected": "Bot connected",
+    "connectBot": "Connect Bot",
+    "telegramPlaceholder": "@username or phone",
+    "saving": "Saving...",
+    "save": "Save",
+    "levelsProgress": "Levels Progress",
+    "levelsProgressSubtitle": "Detailed task completion status for each track.",
+    "tasksOf": "{done} of {total} tasks",
+    "completed": "Completed",
+    "inProgress": "In progress",
+    "notStarted": "Not started",
+    "noDataTitle": "No data yet",
+    "noDataDesc": "Start solving tasks — your progress will appear here.",
+    "mentorAnswer": "Mentor Answer",
+    "yourCode": "Your Code",
+    "mentorFeedback": "Mentor Feedback",
+    "reviewedAtTime": "Reviewed {date} at {time}",
+    "codeAwaitingReview": "Code is awaiting mentor review..."
+  },
+  "Projects": {
+    "title": "Projects",
+    "newProject": "New Project",
+    "emptyTitle": "No projects yet",
+    "emptyDesc": "Create your first project to start working with Jira boards and tasks.",
+    "noDesc": "No description",
+    "viewBoard": "View board",
+    "setup": "Setup",
+    "cabinet": "Cabinet"
   }
 }

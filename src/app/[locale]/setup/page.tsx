@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Terminal, Download, Code2, ArrowLeft, CheckCircle2, ChevronRight, Boxes, Sparkles, ArrowRight, Loader2 } from "lucide-react"
@@ -87,7 +87,7 @@ export default function SetupPage() {
                         disabled={!programmingLanguage}
                         className="w-full py-4 rounded-xl font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2"
                     >
-                        Продовжити <ArrowRight className="w-5 h-5" />
+                        {t("continueBtn")} <ArrowRight className="w-5 h-5" />
                     </button>
                 </motion.div>
             </div>

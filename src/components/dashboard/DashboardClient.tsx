@@ -540,7 +540,7 @@ export default function DashboardClient({
                                         </div>
                                         <h2 className="text-[11px] font-black text-foreground uppercase tracking-[0.25em] whitespace-nowrap">{t("curriculum")}</h2>
                                         <div className="flex-1 h-[1px] bg-gradient-to-r from-border via-border/50 to-transparent" />
-                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{filteredTasks.length} {locale === 'en' ? 'TASKS' : 'ЗАВДАНЬ'}</span>
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{filteredTasks.length} {t("tasksCountLabel")}</span>
                                     </div>
 
                                     {filteredTasks.map((task, idx) => {

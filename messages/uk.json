@@ -239,7 +239,8 @@
     "pwOption3": "Add a GitHub Actions workflow? <strong>Yes (або No)</strong>",
     "pwOption4": "Install Playwright browsers? <strong>Yes</strong>",
     "extPy": "Офіційне розширення для підтримки мови Python.",
-    "extCs": "Офіційне розширення для C#."
+    "extCs": "Офіційне розширення для C#.",
+    "continueBtn": "Продовжити"
   },
   "Sidebar": {
     "courseProgress": "Прогрес курсу",
@@ -253,7 +254,10 @@
     "done": "виконано",
     "pricingLink": "Тарифи",
     "unlockAllLevels": "Розблокувати всі рівні",
-    "unlockAllLevelsDesc": "10 рівнів, AI-рев'ю та портфоліо"
+    "unlockAllLevelsDesc": "10 рівнів, рев'ю ментора та сертифікат",
+    "upgradeToPro": "Отримати PRO",
+    "unlockFullCourse": "Розблокувати всі рівні",
+    "fullAccess": "Повний доступ"
   },
   "TaskView": {
     "back": "Назад",
@@ -416,7 +420,7 @@
     "workflowStep3Desc": "Натисніть «Відправити ментору». Без перевірки ментором завдання не зараховується!",
     "workflowStep4Tag": "Зарахування",
     "workflowStep4Title": "Фідбек та оцінка",
-    "workflowStep4Desc": "Отримайте розбір коду в кабінеті (та Telegram) і статус «Зараховано ментором».",
+    "workflowStep4Desc": "Отримайте розбір коду в кабінеті (та Telegram) і статус «Зараховано ментором» (відповідь до 24 годин).",
     "difficultyEasy": "Легко",
     "difficultyMedium": "Середньо",
     "difficultyHard": "Складно",
@@ -430,7 +434,8 @@
     "timeDefault": "Привіт",
     "streakDay1": "ДЕНЬ СТРІКУ",
     "streakDaysFew": "ДНІ СТРІКУ",
-    "streakDaysMany": "ДНІВ СТРІКУ"
+    "streakDaysMany": "ДНІВ СТРІКУ",
+    "tasksCountLabel": "ЗАВДАНЬ"
   },
   "Pricing": {
     "trialEnded": "Пробний період завершився",
@@ -470,7 +475,8 @@
     "totalToPay": "До сплати:",
     "secureNotice": "Безпечна оплата та гарантований доступ до всіх матеріалів після активації.",
     "haveAccessKey": "Маєте код доступу?",
-    "accessKeyDesc": "Ви можете активувати доступ миттєво, якщо у вас вже є ключ."
+    "accessKeyDesc": "Ви можете активувати доступ миттєво, якщо у вас вже є ключ.",
+    "free": "Безкоштовно"
   },
   "Theory": {
     "title": "Теорія",
@@ -519,6 +525,58 @@
     "savedSuccess": "Зміни збережено!",
     "firstName": "Ім'я",
     "phone": "Телефон",
-    "telegramUsername": "Telegram юзернейм"
+    "telegramUsername": "Telegram юзернейм",
+    "unlockAllLevelsDesc": "10 рівнів, рев'ю ментора та сертифікат",
+    "workflowStep4Desc": "Отримайте розбір коду в кабінеті (та Telegram) і статус «Зараховано ментором» (відповідь до 24 годин).",
+    "tasksCountLabel": "ЗАВДАНЬ",
+    "upgradeToPro": "Отримати PRO",
+    "unlockFullCourse": "Розблокувати всі рівні",
+    "fullAccess": "Повний доступ",
+    "errorLoadQuestions": "Не вдалося завантажити питання",
+    "profileSaved": "Профіль успішно збережено!",
+    "profileSaveError": "Помилка збереження профілю",
+    "connectionError": "Помилка з'єднання",
+    "ofCourse": "від курсу",
+    "ofAttempts": "з {count} спроб",
+    "simulationsAndTests": "симуляцій та тестів",
+    "receivedAnswers": "отримали відповідь",
+    "myQuestions": "Мої питання",
+    "awaitingAnswer": "очікують відповіді",
+    "allQuestionsAnswered": "Всі питання опрацьовані",
+    "myProfile": "Мій профіль",
+    "myProfileSubtitle": "Особисті дані та контактна інформація.",
+    "defaultUser": "Користувач",
+    "personalData": "Особисті дані",
+    "enterFirstName": "Введіть ім'я",
+    "lastName": "Прізвище",
+    "enterLastName": "Введіть прізвище",
+    "botConnected": "Бот підключений",
+    "connectBot": "Підключити Бота",
+    "telegramPlaceholder": "@username або номер",
+    "saving": "Збереження...",
+    "save": "Зберегти",
+    "levelsProgress": "Прогрес по рівнях",
+    "levelsProgressSubtitle": "Деталізований статус виконання завдань по кожному треку.",
+    "tasksOf": "{done} з {total} завдань",
+    "completed": "Завершено",
+    "inProgress": "В процесі",
+    "notStarted": "Не розпочато",
+    "noDataTitle": "Даних ще немає",
+    "noDataDesc": "Почніть виконувати завдання — ваш прогрес з'явиться тут.",
+    "mentorAnswer": "Відповідь ментора",
+    "yourCode": "Ваш код",
+    "mentorFeedback": "Фідбек від ментора",
+    "reviewedAtTime": "Перевірено {date} о {time}",
+    "codeAwaitingReview": "Код очікує перевірки ментором..."
+  },
+  "Projects": {
+    "title": "Проєкти",
+    "newProject": "Новий Проєкт",
+    "emptyTitle": "Проєктів поки немає",
+    "emptyDesc": "Створіть свій перший проєкт, щоб почати роботу з Jira-дошками та задачами.",
+    "noDesc": "Опис відсутній",
+    "viewBoard": "Переглянути дошку",
+    "setup": "Налаштування",
+    "cabinet": "Кабінет"
   }
 }

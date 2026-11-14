@@ -239,7 +239,8 @@
     "pwOption3": "Add a GitHub Actions workflow? <strong>Yes (или No)</strong>",
     "pwOption4": "Install Playwright browsers? <strong>Yes</strong>",
     "extPy": "Официальное расширение для поддержки языка Python.",
-    "extCs": "Официальное расширение для C#."
+    "extCs": "Официальное расширение для C#.",
+    "continueBtn": "Продолжить"
   },
   "Sidebar": {
     "courseProgress": "Прогресс курса",
@@ -253,7 +254,10 @@
     "done": "выполнено",
     "pricingLink": "Тарифы",
     "unlockAllLevels": "Разблокировать все уровни",
-    "unlockAllLevelsDesc": "10 уровней, AI-ревью и портфолио"
+    "unlockAllLevelsDesc": "10 уровней, ревью ментора и сертификат",
+    "upgradeToPro": "Получить PRO",
+    "unlockFullCourse": "Разблокировать все уровни",
+    "fullAccess": "Полный доступ"
   },
   "TaskView": {
     "back": "Назад",
@@ -416,7 +420,7 @@
     "workflowStep3Desc": "Нажмите «Отправить ментору». Без проверки ментором задание не засчитывается!",
     "workflowStep4Tag": "Зачет",
     "workflowStep4Title": "Фидбек и оценка",
-    "workflowStep4Desc": "Получите разбор кода в кабинете (и Telegram) и статус «Зачтено ментором».",
+    "workflowStep4Desc": "Получите разбор кода в кабинете (и Telegram) и статус «Зачтено ментором» (ответ до 24 часов).",
     "difficultyEasy": "Легко",
     "difficultyMedium": "Средне",
     "difficultyHard": "Сложно",
@@ -430,7 +434,8 @@
     "timeDefault": "Привет",
     "streakDay1": "ДЕНЬ СТРИКА",
     "streakDaysFew": "ДНЯ СТРИКА",
-    "streakDaysMany": "ДНЕЙ СТРИКА"
+    "streakDaysMany": "ДНЕЙ СТРИКА",
+    "tasksCountLabel": "ЗАДАНИЙ"
   },
   "Pricing": {
     "trialEnded": "Пробный период завершился",
@@ -470,7 +475,8 @@
     "totalToPay": "К оплате:",
     "secureNotice": "Безопасная оплата и гарантированный доступ ко всем материалам после активации.",
     "haveAccessKey": "Есть код доступа?",
-    "accessKeyDesc": "Вы можете активировать доступ мгновенно, если у вас уже есть ключ."
+    "accessKeyDesc": "Вы можете активировать доступ мгновенно, если у вас уже есть ключ.",
+    "free": "Бесплатно"
   },
   "Theory": {
     "title": "Теория",
@@ -519,6 +525,58 @@
     "savedSuccess": "Изменения сохранены!",
     "firstName": "Имя",
     "phone": "Телефон",
-    "telegramUsername": "Telegram юзернейм"
+    "telegramUsername": "Telegram юзернейм",
+    "unlockAllLevelsDesc": "10 уровней, ревью ментора и сертификат",
+    "workflowStep4Desc": "Получите разбор кода в кабинете (и Telegram) и статус «Зачтено ментором» (ответ до 24 часов).",
+    "tasksCountLabel": "ЗАДАНИЙ",
+    "upgradeToPro": "Получить PRO",
+    "unlockFullCourse": "Разблокировать все уровни",
+    "fullAccess": "Полный доступ",
+    "errorLoadQuestions": "Не удалось загрузить вопросы",
+    "profileSaved": "Профиль успешно сохранен!",
+    "profileSaveError": "Ошибка сохранения профиля",
+    "connectionError": "Ошибка соединения",
+    "ofCourse": "от курса",
+    "ofAttempts": "из {count} попыток",
+    "simulationsAndTests": "симуляций и тестов",
+    "receivedAnswers": "получили ответ",
+    "myQuestions": "Мои вопросы",
+    "awaitingAnswer": "ожидают ответа",
+    "allQuestionsAnswered": "Все вопросы обработаны",
+    "myProfile": "Мой профиль",
+    "myProfileSubtitle": "Личные данные и контактная информация.",
+    "defaultUser": "Студент",
+    "personalData": "Личные данные",
+    "enterFirstName": "Введите имя",
+    "lastName": "Фамилия",
+    "enterLastName": "Введите фамилию",
+    "botConnected": "Бот подключен",
+    "connectBot": "Подключить Бота",
+    "telegramPlaceholder": "@username или номер",
+    "saving": "Сохранение...",
+    "save": "Сохранить",
+    "levelsProgress": "Прогресс по уровням",
+    "levelsProgressSubtitle": "Детализированный статус выполнения заданий по каждому треку.",
+    "tasksOf": "{done} из {total} заданий",
+    "completed": "Завершено",
+    "inProgress": "В процессе",
+    "notStarted": "Не начато",
+    "noDataTitle": "Данных еще нет",
+    "noDataDesc": "Начните выполнять задания — ваш прогресс появится здесь.",
+    "mentorAnswer": "Ответ ментора",
+    "yourCode": "Ваш код",
+    "mentorFeedback": "Фидбек от ментора",
+    "reviewedAtTime": "Проверено {date} в {time}",
+    "codeAwaitingReview": "Код ожидает проверки ментором..."
+  },
+  "Projects": {
+    "title": "Проекты",
+    "newProject": "Новый Проект",
+    "emptyTitle": "Проектов пока нет",
+    "emptyDesc": "Создайте свой первый проект, чтобы начать работу с Jira-досками и задачами.",
+    "noDesc": "Описание отсутствует",
+    "viewBoard": "Посмотреть доску",
+    "setup": "Настройка",
+    "cabinet": "Кабинет"
   }
 }

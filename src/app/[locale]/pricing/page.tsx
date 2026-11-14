@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { products, users } from "@/db/schema"
 import { ne, eq, and } from "drizzle-orm"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { ShoppingCart, Check, Zap, Crown, Shield } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 

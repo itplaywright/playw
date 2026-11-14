@@ -3,7 +3,7 @@ import { db } from "@/db"
 import { products } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import { ArrowLeft, CreditCard, MessageSquare, Ticket, ShieldCheck, Zap } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 
@@ -32,7 +32,7 @@ export default async function CheckoutPage({
 
     const t = await getTranslations("Checkout")
 
-    const displayPrice = product.price === 0 ? "Безкоштовно" : 
+    const displayPrice = product.price === 0 ? t("free") : 
         product.currency === "UAH" ? `${(product.price / 100).toLocaleString()} ₴` :
         product.currency === "USD" ? `$${(product.price / 100).toLocaleString()}` :
         `${(product.price / 100).toLocaleString()} ${product.currency}`

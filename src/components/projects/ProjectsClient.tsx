@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/routing"
 import {
     LayoutGrid, Plus, ArrowRight, FolderOpen, Calendar,
     Terminal, BarChart2, Layers
@@ -41,6 +42,7 @@ interface Props {
 }
 
 export default function ProjectsClient({
+
     initialBoards,
     isAdmin,
     tracks,
@@ -52,12 +54,13 @@ export default function ProjectsClient({
     allRoles,
     allUsers
 }: Props) {
+    const t = useTranslations("Projects")
     const [boards, setBoards] = useState<Board[]>(initialBoards)
     const [showCreateDialog, setShowCreateDialog] = useState(false)
 
     const getTrackProgress = (trackId: number) => {
         const tTasks = tasks.filter(t => t.trackId === trackId)
-        const done = tTasks.filter(t => statusMap[t.id] === "Виконано").length
+        const done = tTasks.filter(t => statusMap[t.id] === "completed").length
         return { done, total: tTasks.length }
     }
 
@@ -99,11 +102,11 @@ export default function ProjectsClient({
                 <div className="flex items-center gap-4">
                     <Link href="/setup" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
                         <Layers className="w-3 h-3" />
-                        Налаштування
+                        {t("setup")}
                     </Link>
                     <Link href="/cabinet" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
                         <BarChart2 className="w-3 h-3" />
-                        Кабінет
+                        {t("cabinet")}
                     </Link>
                 </div>
 
@@ -138,7 +141,7 @@ export default function ProjectsClient({
                                     <FolderOpen className="w-8 h-8 text-blue-400" />
                                 </div>
                                 <div className="space-y-1">
-                                    <h1 className="text-3xl font-black text-white tracking-tight">Проєкти</h1>
+                                    <h1 className="text-3xl font-black text-white tracking-tight">{t("title")}</h1>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                         <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Project Management System</p>
@@ -152,7 +155,7 @@ export default function ProjectsClient({
                                     className="badge-gradient-blue px-8 py-3.5 rounded-2xl text-xs font-black transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                                 >
                                     <Plus className="w-5 h-5" />
-                                    <span>Новий Проєкт</span>
+                                    <span>{t("newProject")}</span>
                                 </button>
                             )}
                         </div>
@@ -162,8 +165,8 @@ export default function ProjectsClient({
                                 <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mb-6 border border-white/5">
                                     <LayoutGrid className="w-10 h-10 text-slate-700" />
                                 </div>
-                                <h2 className="text-xl font-bold text-white mb-2">Проєктів поки немає</h2>
-                                <p className="text-slate-500 text-sm max-w-[280px] text-center">Створіть свій перший проєкт, щоб почати роботу з Jira-дошками та задачами.</p>
+                                <h2 className="text-xl font-bold text-white mb-2">{t("emptyTitle")}</h2>
+                                <p className="text-slate-500 text-sm max-w-[280px] text-center">{t("emptyDesc")}</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
@@ -190,10 +193,10 @@ export default function ProjectsClient({
                                                 {board.title}
                                             </h3>
                                             <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 mb-8 min-h-[44px]">
-                                                {board.description || "Опис відсутній"}
+                                                {board.description || t("noDesc")}
                                             </p>
                                             <div className="flex items-center justify-between opacity-60 group-hover:opacity-100 transition-opacity pt-6 border-t border-white/5">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-400 transition-colors">Переглянути дошку</span>
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-400 transition-colors">{t("viewBoard")}</span>
                                                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/5 group-hover:border-blue-500/30 group-hover:text-blue-400 transform group-hover:translate-x-1 transition-all">
                                                     <ArrowRight className="w-4 h-4" />
                                                 </div>

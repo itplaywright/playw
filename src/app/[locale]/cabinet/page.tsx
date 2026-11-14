@@ -8,7 +8,7 @@ import {
     Clock, Target, Zap, TrendingUp, ChevronRight, ArrowRight,
     User, BookOpen, UserCircle, Phone, Send, Save, Loader2
 } from "lucide-react"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 import Image from "next/image"
 
 type Section = "overview" | "questions" | "progress" | "submissions" | "profile"
@@ -78,7 +78,7 @@ export default function UserCabinetPage() {
                 await fetch("/api/questions/mark-read", { method: "POST" })
             }
         } catch {
-            toast.error("Не вдалося завантажити питання")
+            toast.error(t("errorLoadQuestions"))
         }
     }
 
@@ -133,13 +133,13 @@ export default function UserCabinetPage() {
                 body: JSON.stringify(profileForm),
             })
             if (res.ok) {
-                toast.success("Профіль успішно збережено!")
+                toast.success(t("profileSaved"))
                 await fetchProfile()
             } else {
-                toast.error("Помилка збереження профілю")
+                toast.error(t("profileSaveError"))
             }
         } catch {
-            toast.error("Помилка з'єднання")
+            toast.error(t("connectionError"))
         } finally {
             setIsSavingProfile(false)
         }
@@ -248,28 +248,28 @@ export default function UserCabinetPage() {
                                         bg="bg-emerald-500/10"
                                         label={t("kpiCompletedTasks")}
                                         value={stats ? `${stats.completedTasks} / ${stats.totalTasks}` : "—"}
-                                        sub={stats ? `${Math.round((stats.completedTasks / Math.max(stats.totalTasks, 1)) * 100)}% від курсу` : ""}
+                                        sub={stats ? `${Math.round((stats.completedTasks / Math.max(stats.totalTasks, 1)) * 100)}% ${t("ofCourse")}` : ""}
                                     />
                                     <StatCard
                                         icon={<Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
                                         bg="bg-blue-500/10"
                                         label={t("kpiSuccessRate")}
                                         value={stats ? `${stats.successRate}%` : "—"}
-                                        sub={stats ? `з ${stats.totalAttempts} спроб` : ""}
+                                        sub={stats ? t("ofAttempts", { count: stats.totalAttempts }) : ""}
                                     />
                                     <StatCard
                                         icon={<Zap className="w-5 h-5 text-violet-600 dark:text-violet-400" />}
                                         bg="bg-violet-500/10"
                                         label={t("kpiTotalAttempts")}
                                         value={stats ? String(stats.totalAttempts) : "—"}
-                                        sub="симуляцій та тестів"
+                                        sub={t("simulationsAndTests")}
                                     />
                                     <StatCard
                                         icon={<MessageCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />}
                                         bg="bg-amber-500/10"
                                         label={t("kpiQuestionsToMentor")}
                                         value={String(questions.length)}
-                                        sub={`${answeredCount} отримали відповідь`}
+                                        sub={t("receivedAnswers", { count: answeredCount })}
                                     />
                                 </div>
 
@@ -315,8 +315,8 @@ export default function UserCabinetPage() {
                                             <MessageCircle className="w-5 h-5 text-white" />
                                         </div>
                                         <div className="flex-1 text-left">
-                                            <p className="font-bold text-foreground text-sm">Мої питання</p>
-                                            <p className="text-muted-foreground text-xs font-medium">{pendingCount > 0 ? `${pendingCount} очікують відповіді` : "Всі питання опрацьовані"}</p>
+                                            <p className="font-bold text-foreground text-sm">{t("myQuestions")}</p>
+                                            <p className="text-muted-foreground text-xs font-medium">{pendingCount > 0 ? `${pendingCount} ${t("awaitingAnswer")}` : t("allQuestionsAnswered")}</p>
                                         </div>
                                         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
                                     </button>
@@ -328,8 +328,8 @@ export default function UserCabinetPage() {
                         {section === "profile" && (
                             <div>
                                 <div className="mb-8">
-                                    <h1 className="text-2xl font-black text-foreground tracking-tight">Мій профіль</h1>
-                                    <p className="text-muted-foreground mt-1 text-sm font-medium">Особисті дані та контактна інформація.</p>
+                                    <h1 className="text-2xl font-black text-foreground tracking-tight">{t("myProfile")}</h1>
+                                    <p className="text-muted-foreground mt-1 text-sm font-medium">{t("myProfileSubtitle")}</p>
                                 </div>
 
                                 {/* Avatar card */}
@@ -351,7 +351,7 @@ export default function UserCabinetPage() {
                                         <p className="font-black text-foreground text-lg leading-tight">
                                             {(profileForm.firstName || profileForm.lastName)
                                                 ? `${profileForm.firstName} ${profileForm.lastName}`.trim()
-                                                : profile?.name ?? "Користувач"}
+                                                : profile?.name ?? t("defaultUser")}
                                         </p>
                                         <p className="text-muted-foreground text-sm font-medium mt-0.5">{profile?.email}</p>
                                     </div>
@@ -361,21 +361,21 @@ export default function UserCabinetPage() {
                                 <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
                                     <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                                         <User className="w-4 h-4 text-blue-500" />
-                                        Особисті дані
+                                        {t("personalData")}
                                     </h2>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
                                         <ProfileField
-                                            label="Ім'я"
+                                            label={t("firstName")}
                                             id="profile-firstName"
-                                            placeholder="Введіть ім'я"
+                                            placeholder={t("enterFirstName")}
                                             value={profileForm.firstName}
                                             onChange={(v) => setProfileForm(f => ({ ...f, firstName: v }))}
                                         />
                                         <ProfileField
-                                            label="Прізвище"
+                                            label={t("lastName")}
                                             id="profile-lastName"
-                                            placeholder="Введіть прізвище"
+                                            placeholder={t("enterLastName")}
                                             value={profileForm.lastName}
                                             onChange={(v) => setProfileForm(f => ({ ...f, lastName: v }))}
                                         />
@@ -383,12 +383,12 @@ export default function UserCabinetPage() {
 
                                     <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                                         <Phone className="w-4 h-4 text-blue-500" />
-                                        Контактна інформація
+                                        {t("contactInfo")}
                                     </h2>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
                                         <ProfileField
-                                            label="Телефон"
+                                            label={t("phone")}
                                             id="profile-phone"
                                             placeholder="+380 XX XXX XX XX"
                                             value={profileForm.phone}
@@ -400,7 +400,7 @@ export default function UserCabinetPage() {
                                                 <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Telegram</label>
                                                 <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                                    <span className="text-sm font-bold text-emerald-500">Бот підключений</span>
+                                                    <span className="text-sm font-bold text-emerald-500">{t("botConnected")}</span>
                                                 </div>
                                             </div>
                                         ) : (
@@ -413,14 +413,14 @@ export default function UserCabinetPage() {
                                                     className="flex items-center justify-center gap-2 w-full bg-[#0088cc] hover:bg-[#0077b5] text-white rounded-xl px-4 py-3 text-sm font-bold transition-all shadow-lg shadow-blue-500/20"
                                                 >
                                                     <Send className="w-4 h-4" />
-                                                    Підключити Бота
+                                                    {t("connectBot")}
                                                 </a>
                                             </div>
                                         )}
                                         <ProfileField
                                             label="WhatsApp"
                                             id="profile-whatsapp"
-                                            placeholder="@username або номер"
+                                            placeholder={t("telegramPlaceholder")}
                                             value={profileForm.whatsapp}
                                             onChange={(v) => setProfileForm(f => ({ ...f, whatsapp: v }))}
                                             icon={
@@ -443,7 +443,7 @@ export default function UserCabinetPage() {
                                             ) : (
                                                 <Save className="w-4 h-4" />
                                             )}
-                                            {isSavingProfile ? "Збереження..." : "Зберегти"}
+                                            {isSavingProfile ? t("saving") : t("save")}
                                         </button>
                                     </div>
                                 </div>
@@ -454,8 +454,8 @@ export default function UserCabinetPage() {
                         {section === "progress" && (
                             <div>
                                 <div className="mb-8">
-                                    <h1 className="text-2xl font-black text-foreground tracking-tight">Прогрес по рівнях</h1>
-                                    <p className="text-muted-foreground mt-1 text-sm font-medium">Деталізований статус виконання завдань по кожному треку.</p>
+                                    <h1 className="text-2xl font-black text-foreground tracking-tight">{t("levelsProgress")}</h1>
+                                    <p className="text-muted-foreground mt-1 text-sm font-medium">{t("levelsProgressSubtitle")}</p>
                                 </div>
 
                                 {stats?.trackProgress && stats.trackProgress.length > 0 ? (
@@ -472,11 +472,11 @@ export default function UserCabinetPage() {
                                                             </div>
                                                             <div>
                                                                 <p className="font-bold text-foreground text-sm leading-tight">{track.title}</p>
-                                                                <p className="text-muted-foreground text-xs font-medium mt-0.5">{track.done} з {track.total} завдань</p>
+                                                                <p className="text-muted-foreground text-xs font-medium mt-0.5">{t("tasksOf", { done: track.done, total: track.total })}</p>
                                                             </div>
                                                         </div>
                                                         <div className={`px-3 py-1 rounded-full text-xs font-bold ${isDone ? "bg-emerald-500/10 text-emerald-500" : pct > 0 ? "bg-blue-500/10 text-blue-500" : "bg-secondary text-muted-foreground"}`}>
-                                                            {isDone ? "Завершено" : pct > 0 ? "В процесі" : "Не розпочато"}
+                                                            {isDone ? t("completed") : pct > 0 ? t("inProgress") : t("notStarted")}
                                                         </div>
                                                     </div>
                                                     <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
@@ -495,10 +495,10 @@ export default function UserCabinetPage() {
                                 ) : (
                                     <EmptyState
                                         icon={<BarChart2 className="w-8 h-8 text-muted-foreground" />}
-                                        title="Даних ще немає"
-                                        text="Почніть виконувати завдання — ваш прогрес з'явиться тут."
+                                        title={t("noDataTitle")}
+                                        text={t("noDataDesc")}
                                         href="/dashboard"
-                                        cta="До завдань"
+                                        cta={t("goToTasks")}
                                     />
                                 )}
                             </div>
@@ -546,7 +546,7 @@ export default function UserCabinetPage() {
                                                                     <CheckCircle2 className="w-4 h-4 text-white" />
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">Відповідь ментора</p>
+                                                                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">{t("mentorAnswer")}</p>
                                                                     <p className="text-foreground text-sm leading-relaxed">{q.answer}</p>
                                                                 </div>
                                                             </div>
@@ -604,7 +604,7 @@ export default function UserCabinetPage() {
 
                                                 <div className="p-6 bg-secondary/30 flex flex-col gap-6">
                                                     <div>
-                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">Ваш код</p>
+                                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">{t("yourCode")}</p>
                                                         <div className="bg-[#0d1117] rounded-xl overflow-hidden shadow-inner border border-border">
                                                             <pre className="p-4 text-xs font-mono text-emerald-400 overflow-x-auto">
                                                                 <code>{s.code}</code>
@@ -614,7 +614,7 @@ export default function UserCabinetPage() {
 
                                                     {s.mentorFeedback ? (
                                                         <div>
-                                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">Фідбек від ментора</p>
+                                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">{t("mentorFeedback")}</p>
                                                             <div className={`p-5 rounded-xl border ${
                                                                 s.status === 'reviewed' ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-red-500/10 border-red-500/20'
                                                             }`}>
@@ -624,7 +624,7 @@ export default function UserCabinetPage() {
                                                                 {s.reviewedAt && (
                                                                     <p className="text-[10px] text-muted-foreground mt-3 flex items-center gap-1.5 font-bold">
                                                                         <CheckCircle2 className="w-3 h-3" />
-                                                                        Перевірено {new Date(s.reviewedAt).toLocaleDateString("uk-UA")} о {new Date(s.reviewedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                                        {t("reviewedAtTime", { date: new Date(s.reviewedAt).toLocaleDateString(locale === "uk" ? "uk-UA" : locale === "ru" ? "ru-RU" : "en-US"), time: new Date(s.reviewedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })}
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -632,7 +632,7 @@ export default function UserCabinetPage() {
                                                     ) : (
                                                         <div className="flex items-center gap-2 p-4 bg-card rounded-xl border border-border border-dashed justify-center">
                                                             <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-                                                            <p className="text-xs text-muted-foreground font-medium">Код очікує перевірки ментором...</p>
+                                                            <p className="text-xs text-muted-foreground font-medium">{t("codeAwaitingReview")}</p>
                                                         </div>
                                                     )}
                                                 </div>

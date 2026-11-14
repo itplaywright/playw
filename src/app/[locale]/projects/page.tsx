@@ -74,15 +74,15 @@ export default async function ProjectsPage() {
     const visibleTasks = isAdmin ? allTasks : allTasks.filter(t => t.isActive)
 
     // Pre-compute status map
-    const statusMap: Record<number, "Виконано" | "В процесі" | "Не розпочато"> = {}
+    const statusMap: Record<number, "completed" | "in_progress" | "not_started"> = {}
     for (const task of visibleTasks) {
         const taskResults = userResults.filter(r => r.taskId === task.id)
         if (taskResults.some(r => r.status === 'passed')) {
-            statusMap[task.id] = "Виконано"
+            statusMap[task.id] = "completed"
         } else if (taskResults.length > 0) {
-            statusMap[task.id] = "В процесі"
+            statusMap[task.id] = "in_progress"
         } else {
-            statusMap[task.id] = "Не розпочато"
+            statusMap[task.id] = "not_started"
         }
     }
 

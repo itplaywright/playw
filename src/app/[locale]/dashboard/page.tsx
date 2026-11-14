@@ -74,27 +74,27 @@ export default async function Dashboard() {
 
     // Pre-compute status map for all tasks
     // RULE: Without mentor review, code tasks are NOT counted as completed!
-    const statusMap: Record<number, "Виконано" | "На перевірці" | "На доопрацюванні" | "В процесі" | "Не розпочато"> = {}
+    const statusMap: Record<number, "completed" | "pending" | "rejected" | "in_progress" | "not_started"> = {}
     for (const task of visibleTasks) {
         const taskSubs = userSubmissions.filter(s => s.taskId === task.id)
         const latestSub = taskSubs[0]
 
         if (latestSub) {
             if (latestSub.status === 'reviewed') {
-                statusMap[task.id] = "Виконано"
+                statusMap[task.id] = "completed"
             } else if (latestSub.status === 'pending') {
-                statusMap[task.id] = "На перевірці"
+                statusMap[task.id] = "pending"
             } else if (latestSub.status === 'rejected') {
-                statusMap[task.id] = "На доопрацюванні"
+                statusMap[task.id] = "rejected"
             }
         } else {
             const taskResults = userResults.filter(r => r.taskId === task.id)
             if (task.type === 'quiz' && taskResults.some(r => r.status === 'passed')) {
-                statusMap[task.id] = "Виконано"
+                statusMap[task.id] = "completed"
             } else if (taskResults.length > 0) {
-                statusMap[task.id] = "В процесі"
+                statusMap[task.id] = "in_progress"
             } else {
-                statusMap[task.id] = "Не розпочато"
+                statusMap[task.id] = "not_started"
             }
         }
     }

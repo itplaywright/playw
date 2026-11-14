@@ -416,21 +416,21 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             {currentSubmission?.status === "reviewed" ? (
                                 <span className="px-3 py-1 rounded-xl text-xs font-black bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5 shadow-sm">
                                     <CheckCircle2 className="w-3.5 h-3.5" />
-                                    Зараховано ментором
+                                    {t("statusReviewed")}
                                 </span>
                             ) : currentSubmission?.status === "pending" ? (
                                 <span className="px-3 py-1 rounded-xl text-xs font-black bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center gap-1.5 shadow-sm">
                                     <Clock className="w-3.5 h-3.5" />
-                                    На перевірці в ментора
+                                    {t("statusPendingReview")}
                                 </span>
                             ) : currentSubmission?.status === "rejected" ? (
                                 <span className="px-3 py-1 rounded-xl text-xs font-black bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center gap-1.5 shadow-sm">
                                     <AlertTriangle className="w-3.5 h-3.5" />
-                                    Потрібні виправлення
+                                    {t("statusNeedsRevisions")}
                                 </span>
                             ) : (
                                 <span className="hidden sm:inline-flex px-2.5 py-1 rounded-lg text-[10px] font-bold bg-secondary/80 border border-border text-muted-foreground items-center gap-1">
-                                    🛡️ Рев'ю обов'язкове
+                                    🛡️ {t("statusReviewMandatory")}
                                 </span>
                             )}
                         </div>
@@ -452,11 +452,11 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                             {isSubmittingReview ? (
                                 t("sending")
                             ) : currentSubmission?.status === "pending" ? (
-                                `⏳ Очікує рев'ю`
+                                `⏳ ${t("awaitingReviewBtn")}`
                             ) : currentSubmission?.status === "reviewed" ? (
-                                `✅ Зараховано (Оновити)`
+                                `✅ ${t("approvedUpdateBtn")}`
                             ) : currentSubmission?.status === "rejected" ? (
-                                `⚠️ Відправити виправлення`
+                                `⚠️ ${t("submitFixesBtn")}`
                             ) : (
                                 `👨‍🏫 ${t("sendToMentor")}`
                             )}
@@ -482,12 +482,12 @@ export default function TaskView({ task, isProduction, nextTask, submission, has
                         {trackInfo ? (
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 uppercase tracking-wider">
-                                    {trackInfo.trackTitle} • Урок {trackInfo.taskIndex} з {trackInfo.totalTasks}
+                                    {trackInfo.trackTitle} • {t("lessonProgress", { current: trackInfo.taskIndex, total: trackInfo.totalTasks })}
                                 </span>
                             </div>
                         ) : (
                             <span className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase opacity-70">
-                                Урок #{task.order || task.id}
+                                {t("lessonOrder", { order: task.order || task.id })}
                             </span>
                         )}
                     </div>

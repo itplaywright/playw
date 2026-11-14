@@ -4,9 +4,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Sparkles, Code2, ArrowRight, Loader2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export default function OnboardingPage() {
     const router = useRouter()
+    const t = useTranslations("OnboardingChoice")
     const [isLoading, setIsLoading] = useState(false)
     const [selectedPath, setSelectedPath] = useState<"theory" | "practice" | null>(null)
 
@@ -48,10 +50,10 @@ export default function OnboardingPage() {
             >
                 <div className="text-center mb-12">
                     <h1 className="text-3xl md:text-5xl font-extrabold text-foreground mb-4 tracking-tight">
-                        Оберіть свій шлях
+                        {t("title")}
                     </h1>
                     <p className="text-xl text-muted-foreground">
-                        З чого ви хочете почати своє навчання?
+                        {t("subtitle")}
                     </p>
                 </div>
 
@@ -68,9 +70,9 @@ export default function OnboardingPage() {
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
                             <Sparkles className="w-10 h-10 text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-foreground mb-3 text-center">Проєкти</h3>
+                        <h3 className="text-2xl font-bold text-foreground mb-3 text-center">{t("projectsTitle")}</h3>
                         <p className="text-muted-foreground text-center mb-6">
-                            Почніть з вивчення матеріалів, лекцій та виконання інтерактивних завдань.
+                            {t("projectsDesc")}
                         </p>
 
                         <div className="mt-auto flex items-center text-purple-600 font-semibold dark:text-purple-400 group-hover:gap-3 transition-all">
@@ -78,7 +80,7 @@ export default function OnboardingPage() {
                                 <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
-                                    Обрати Проєкти
+                                    {t("chooseProjects")}
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </>
                             )}
@@ -97,9 +99,9 @@ export default function OnboardingPage() {
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
                             <Code2 className="w-10 h-10 text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-foreground mb-3 text-center">Практика</h3>
+                        <h3 className="text-2xl font-bold text-foreground mb-3 text-center">{t("practiceTitle")}</h3>
                         <p className="text-muted-foreground text-center mb-6">
-                            Відразу перейдіть до виконання завдань, написання коду та тестів.
+                            {t("practiceDesc")}
                         </p>
 
                         <div className="mt-auto flex items-center text-blue-600 font-semibold dark:text-blue-400 group-hover:gap-3 transition-all">
@@ -107,7 +109,7 @@ export default function OnboardingPage() {
                                 <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
-                                    Обрати Практику
+                                    {t("choosePractice")}
                                     <ArrowRight className="w-5 h-5 ml-2" />
                                 </>
                             )}

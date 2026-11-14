@@ -38,14 +38,12 @@ interface Project {
     description: string | null
 }
 
-interface TaskStatus {
-    label: "Виконано" | "На перевірці" | "На доопрацюванні" | "В процесі" | "Не розпочато"
-}
+type TaskStatus = "completed" | "pending" | "rejected" | "in_progress" | "not_started"
 
 interface Props {
     tracks: Track[]
     tasks: Task[]
-    statusMap: Record<number, TaskStatus["label"]>
+    statusMap: Record<number, TaskStatus>
     isAdmin: boolean
     userName?: string | null
     userImage?: string | null
@@ -111,7 +109,7 @@ export default function DashboardClient({
     // Per-track progress
     const getTrackProgress = (trackId: number) => {
         const tTasks = tasks.filter(t => t.trackId === trackId)
-        const done = tTasks.filter(t => statusMap[t.id] === "Виконано").length
+        const done = tTasks.filter(t => statusMap[t.id] === "completed").length
         return { done, total: tTasks.length }
     }
 
@@ -222,10 +220,10 @@ export default function DashboardClient({
             return (a.order ?? 0) - (b.order ?? 0)
         })
 
-        const inProgress = unlockedTasks.find(t => statusMap[t.id] === "В процесі")
+        const inProgress = unlockedTasks.find(t => statusMap[t.id] === "in_progress")
         if (inProgress) return inProgress
 
-        return unlockedTasks.find(t => statusMap[t.id] === "Не розпочато")
+        return unlockedTasks.find(t => statusMap[t.id] === "not_started")
     }
 
     const nextTask = findNextTask()
@@ -375,10 +373,10 @@ export default function DashboardClient({
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2.5 mb-2.5 flex-wrap">
                                             <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] font-black text-blue-500 dark:text-blue-400 tracking-wider uppercase">
-                                                {getTrackTitle(selectedTrack).split(' — ')[0] || 'Модуль'}
+                                                {getTrackTitle(selectedTrack).split(' — ')[0] || t("moduleDefault")}
                                             </span>
                                             <span className="text-xs font-semibold text-muted-foreground">
-                                                {trackTasks.length} {locale === 'en' ? 'lessons' : 'уроків'} • {getTrackProgress(selectedTrack.id).done} виконано
+                                                {trackTasks.length} {t("lessonsCount")} • {getTrackProgress(selectedTrack.id).done} {t("lessonsDone")}
                                             </span>
                                             {isProTrack(selectedTrack.order) && !isAdmin && (
                                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-600 text-white text-[10px] font-black uppercase tracking-wider shadow-md shadow-orange-900/30">
@@ -546,11 +544,11 @@ export default function DashboardClient({
                                     </div>
 
                                     {filteredTasks.map((task, idx) => {
-                                        const statusLabel = statusMap[task.id] ?? "Не розпочато"
-                                        const isDone = statusLabel === "Виконано"
-                                        const isPending = statusLabel === "На перевірці"
-                                        const isRejected = statusLabel === "На доопрацюванні"
-                                        const isInProgress = statusLabel === "В процесі"
+                                        const statusLabel = statusMap[task.id] ?? "not_started"
+                                        const isDone = statusLabel === "completed"
+                                        const isPending = statusLabel === "pending"
+                                        const isRejected = statusLabel === "rejected"
+                                        const isInProgress = statusLabel === "in_progress"
                                         const isLocked = isProTrack(selectedTrack.order, getTrackTitle(selectedTrack)) && !isAdmin
                                         const badges = getTaskBadges(task, selectedTrack)
                                         const taskIndexFormatted = task.numbering || `#${idx + 1}`

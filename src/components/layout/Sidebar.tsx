@@ -88,11 +88,11 @@ export default function Sidebar({
                                 ⚡ {t("demoMode")}
                             </span>
                             <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                                Тарифи <ArrowRight className="w-3 h-3" />
+                                {t("pricingLink")} <ArrowRight className="w-3 h-3" />
                             </span>
                         </div>
-                        <p className="text-xs font-bold text-foreground mb-0.5">Розблокувати всі рівні</p>
-                        <p className="text-[10px] text-muted-foreground leading-snug">10 рівнів, AI-рев'ю та портфоліо</p>
+                        <p className="text-xs font-bold text-foreground mb-0.5">{t("unlockAllLevels")}</p>
+                        <p className="text-[10px] text-muted-foreground leading-snug">{t("unlockAllLevelsDesc")}</p>
                     </Link>
                 )}
                 

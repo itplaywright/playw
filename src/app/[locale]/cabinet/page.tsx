@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations, useLocale } from "next-intl"
 import { toast } from "sonner"
 import {
     LayoutDashboard, MessageCircle, BarChart2, CheckCircle2,
@@ -36,6 +37,18 @@ interface UserProfile {
 }
 
 export default function UserCabinetPage() {
+    const t = useTranslations("Cabinet")
+    const locale = useLocale()
+
+    const formatDate = (dateStr: string) => {
+        try {
+            const d = new Date(dateStr)
+            const loc = locale === 'uk' ? 'uk-UA' : locale === 'ru' ? 'ru-RU' : 'en-US'
+            return d.toLocaleDateString(loc) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        } catch {
+            return dateStr
+        }
+    }
     const [section, setSection] = useState<Section>("overview")
     const [questions, setQuestions] = useState<any[]>([])
     const [submissions, setSubmissions] = useState<any[]>([])
@@ -133,11 +146,11 @@ export default function UserCabinetPage() {
     }
 
     const navItems: { id: Section; label: string; icon: any }[] = [
-        { id: "overview", label: "Огляд", icon: LayoutDashboard },
-        { id: "profile", label: "Профіль", icon: UserCircle },
-        { id: "progress", label: "Прогрес", icon: BarChart2 },
-        { id: "questions", label: "Мої питання", icon: MessageCircle },
-        { id: "submissions", label: "Перевірка коду", icon: CheckCircle2 },
+        { id: "overview", label: t("tabOverview"), icon: LayoutDashboard },
+        { id: "profile", label: t("tabSettings"), icon: UserCircle },
+        { id: "progress", label: t("courseProgress"), icon: BarChart2 },
+        { id: "questions", label: t("tabQuestions"), icon: MessageCircle },
+        { id: "submissions", label: t("tabSubmissions"), icon: CheckCircle2 },
     ]
 
     const answeredCount = questions.filter(q => q.status === "answered").length
@@ -162,7 +175,7 @@ export default function UserCabinetPage() {
                             <User className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <p className="text-foreground font-bold text-sm leading-tight">Мій кабінет</p>
+                            <p className="text-foreground font-bold text-sm leading-tight">{t("title")}</p>
                             <p className="text-muted-foreground text-xs font-medium">IT Playwright Platform</p>
                         </div>
                     </div>
@@ -202,7 +215,7 @@ export default function UserCabinetPage() {
                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground text-sm font-bold transition-all group"
                     >
                         <BookOpen className="w-4 h-4" />
-                        До навчання
+                        {t("toLearning")}
                         <ArrowRight className="w-3 h-3 ml-auto transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
@@ -214,7 +227,7 @@ export default function UserCabinetPage() {
                     <div className="flex items-center justify-center h-full">
                         <div className="flex flex-col items-center gap-4">
                             <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                            <p className="text-slate-500 font-medium text-sm">Завантаження даних...</p>
+                            <p className="text-slate-500 font-medium text-sm">{t("loadingData")}</p>
                         </div>
                     </div>
                 ) : (
@@ -224,8 +237,8 @@ export default function UserCabinetPage() {
                         {section === "overview" && (
                             <div>
                                 <div className="mb-8">
-                                    <h1 className="text-2xl font-black text-foreground tracking-tight">Огляд</h1>
-                                    <p className="text-muted-foreground mt-1 text-sm font-medium">Ваш поточний статус навчання на платформі.</p>
+                                    <h1 className="text-2xl font-black text-foreground tracking-tight">{t("tabOverview")}</h1>
+                                    <p className="text-muted-foreground mt-1 text-sm font-medium">{t("overviewSubtitle")}</p>
                                 </div>
 
                                 {/* KPI Cards */}
@@ -233,28 +246,28 @@ export default function UserCabinetPage() {
                                     <StatCard
                                         icon={<CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
                                         bg="bg-emerald-500/10"
-                                        label="Виконано завдань"
+                                        label={t("kpiCompletedTasks")}
                                         value={stats ? `${stats.completedTasks} / ${stats.totalTasks}` : "—"}
                                         sub={stats ? `${Math.round((stats.completedTasks / Math.max(stats.totalTasks, 1)) * 100)}% від курсу` : ""}
                                     />
                                     <StatCard
                                         icon={<Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
                                         bg="bg-blue-500/10"
-                                        label="Успішність"
+                                        label={t("kpiSuccessRate")}
                                         value={stats ? `${stats.successRate}%` : "—"}
                                         sub={stats ? `з ${stats.totalAttempts} спроб` : ""}
                                     />
                                     <StatCard
                                         icon={<Zap className="w-5 h-5 text-violet-600 dark:text-violet-400" />}
                                         bg="bg-violet-500/10"
-                                        label="Всього спроб"
+                                        label={t("kpiTotalAttempts")}
                                         value={stats ? String(stats.totalAttempts) : "—"}
                                         sub="симуляцій та тестів"
                                     />
                                     <StatCard
                                         icon={<MessageCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />}
                                         bg="bg-amber-500/10"
-                                        label="Питань ментору"
+                                        label={t("kpiQuestionsToMentor")}
                                         value={String(questions.length)}
                                         sub={`${answeredCount} отримали відповідь`}
                                     />
@@ -265,10 +278,10 @@ export default function UserCabinetPage() {
                                     <div className="bg-card rounded-2xl border border-border p-6 shadow-sm mb-6">
                                         <h2 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
                                             <TrendingUp className="w-4 h-4 text-blue-500" />
-                                            Загальний прогрес курсу
+                                            {t("courseProgress")}
                                         </h2>
                                         <div className="mb-2 flex items-center justify-between">
-                                            <span className="text-muted-foreground text-xs font-medium">Курс пройдено</span>
+                                            <span className="text-muted-foreground text-xs font-medium">{t("courseCompletedPct")}</span>
                                             <span className="font-black text-sm text-foreground">
                                                 {Math.round((stats.completedTasks / Math.max(stats.totalTasks, 1)) * 100)}%
                                             </span>
@@ -289,8 +302,8 @@ export default function UserCabinetPage() {
                                             <BookOpen className="w-5 h-5 text-white" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="font-bold text-foreground text-sm">Продовжити навчання</p>
-                                            <p className="text-muted-foreground text-xs font-medium">Перейти до завдань</p>
+                                            <p className="font-bold text-foreground text-sm">{t("continueLearning")}</p>
+                                            <p className="text-muted-foreground text-xs font-medium">{t("goToTasksBtn")}</p>
                                         </div>
                                         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-blue-500 transition-colors" />
                                     </Link>
@@ -495,17 +508,17 @@ export default function UserCabinetPage() {
                         {section === "questions" && (
                             <div>
                                 <div className="mb-8">
-                                    <h1 className="text-2xl font-black text-foreground tracking-tight">Мої питання</h1>
-                                    <p className="text-muted-foreground mt-1 text-sm font-medium">Питання ментору та їх відповіді.</p>
+                                    <h1 className="text-2xl font-black text-foreground tracking-tight">{t("tabQuestions")}</h1>
+                                    <p className="text-muted-foreground mt-1 text-sm font-medium">{t("emptyQuestionsDesc")}</p>
                                 </div>
 
                                 {questions.length === 0 ? (
                                     <EmptyState
                                         icon={<MessageCircle className="w-8 h-8 text-muted-foreground" />}
-                                        title="Ви ще не ставили питань"
-                                        text="Якщо у вас виникнуть труднощі під час виконання завдань, запитайте ментора."
+                                        title={t("emptyQuestionsTitle")}
+                                        text={t("emptyQuestionsDesc")}
                                         href="/dashboard"
-                                        cta="До завдань"
+                                        cta={t("goToTasks")}
                                     />
                                 ) : (
                                     <div className="space-y-4">
@@ -515,10 +528,10 @@ export default function UserCabinetPage() {
                                                     <div className="flex items-start justify-between gap-4 mb-4">
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground font-bold">
                                                             <Clock className="w-3.5 h-3.5" />
-                                                            {new Date(q.createdAt).toLocaleDateString("uk-UA")} о {new Date(q.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                            {formatDate(q.createdAt)}
                                                         </div>
                                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${q.status === "pending" ? "bg-amber-500/10 text-amber-500" : "bg-emerald-500/10 text-emerald-500"}`}>
-                                                            {q.status === "pending" ? "Очікує" : "Відповідь отримано"}
+                                                            {q.status === "pending" ? t("statusPending") : t("statusReviewed")}
                                                         </span>
                                                     </div>
 
@@ -541,7 +554,7 @@ export default function UserCabinetPage() {
                                                     ) : (
                                                         <div className="flex items-center gap-2 p-3 bg-secondary rounded-xl border border-border border-dashed">
                                                             <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-                                                            <p className="text-xs text-muted-foreground font-medium">Ментор скоро відповість...</p>
+                                                            <p className="text-xs text-muted-foreground font-medium">{t("mentorReplyPending")}</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -556,17 +569,17 @@ export default function UserCabinetPage() {
                         {section === "submissions" && (
                             <div>
                                 <div className="mb-8">
-                                    <h1 className="text-2xl font-black text-foreground tracking-tight">Перевірка коду</h1>
-                                    <p className="text-muted-foreground mt-1 text-sm font-medium">Ваші надіслані розв'язки на перевірку ментору.</p>
+                                    <h1 className="text-2xl font-black text-foreground tracking-tight">{t("tabSubmissions")}</h1>
+                                    <p className="text-muted-foreground mt-1 text-sm font-medium">{t("subtitle")}</p>
                                 </div>
 
                                 {submissions.length === 0 ? (
                                     <EmptyState
                                         icon={<CheckCircle2 className="w-8 h-8 text-muted-foreground" />}
-                                        title="Ви ще не надсилали код на перевірку"
-                                        text="Виконайте завдання та натисніть 'Відправити на перевірку', щоб отримати фідбек від ментора."
+                                        title={t("emptySubmissionsTitle")}
+                                        text={t("emptySubmissionsDesc")}
                                         href="/dashboard"
-                                        cta="До завдань"
+                                        cta={t("goToTasks")}
                                     />
                                 ) : (
                                     <div className="space-y-6">
@@ -577,7 +590,7 @@ export default function UserCabinetPage() {
                                                         <h3 className="font-black text-foreground text-lg mb-1 tracking-tight">{s.taskTitle}</h3>
                                                         <div className="flex items-center gap-2 text-xs text-muted-foreground font-bold">
                                                             <Clock className="w-3.5 h-3.5" />
-                                                            {new Date(s.createdAt).toLocaleDateString("uk-UA")} о {new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                            {formatDate(s.createdAt)}
                                                         </div>
                                                     </div>
                                                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex-shrink-0 ${
@@ -585,7 +598,7 @@ export default function UserCabinetPage() {
                                                         s.status === "rejected" ? "bg-red-500/10 text-red-500" :
                                                         "bg-emerald-500/10 text-emerald-500"
                                                     }`}>
-                                                        {s.status === "pending" ? "Очікує" : s.status === "rejected" ? "Потребує змін" : "Прийнято"}
+                                                        {s.status === "pending" ? t("statusPending") : s.status === "rejected" ? t("statusRejected") : t("statusReviewed")}
                                                     </span>
                                                 </div>
 
@@ -628,7 +641,7 @@ export default function UserCabinetPage() {
                                                         href={`/tasks/${s.taskId}`}
                                                         className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-1 group"
                                                     >
-                                                        Повернутись до завдання <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                                                        {t("backToTask")} <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
                                                     </Link>
                                                 </div>
                                             </div>

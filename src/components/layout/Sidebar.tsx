@@ -72,7 +72,7 @@ export default function Sidebar({
                         <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">{t("currentAccess")}</span>
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-bold text-foreground tracking-tight">{role.name}</span>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]" />
                         </div>
                     </div>
                 ) : (
@@ -80,7 +80,7 @@ export default function Sidebar({
                         <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.2em] opacity-80">{t("access")}</span>
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-bold text-foreground tracking-tight">{t("demoMode")}</span>
-                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                            <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
                         </div>
                     </div>
                 )}
@@ -160,7 +160,7 @@ export default function Sidebar({
                         </div>
                     )
 
-                    const baseClass = `flex flex-col gap-1.5 px-4 py-3 rounded-r-2xl transition-all duration-300 text-left group relative ${isSelected
+                    const baseClass = `flex flex-col gap-1.5 px-4 py-3 rounded-r-2xl transition-colors duration-200 text-left group relative ${isSelected
                         ? "sidebar-active-item text-blue-600 dark:text-blue-400"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 border-l-[3px] border-transparent"
                         } ${isPro && !isAdmin ? "opacity-60 grayscale" : ""}`

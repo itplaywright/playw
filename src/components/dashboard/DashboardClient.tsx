@@ -338,8 +338,8 @@ export default function DashboardClient({
                             </div>
 
                             {/* Welcome back / Suggested Task */}
-                            <div className="mb-10 p-6 glass-card-premium-v2 rounded-[2rem] border border-blue-500/20 shadow-xl shadow-blue-900/20 flex flex-col md:flex-row items-center gap-6 justify-between relative overflow-hidden">
-                                <div className="absolute right-0 top-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
+                            <div className="mb-10 p-6 glass-card-premium-v2 rounded-[2rem] border border-blue-500/20 shadow-xl shadow-blue-900/10 flex flex-col md:flex-row items-center gap-6 justify-between relative overflow-hidden">
+                                <div className="absolute right-0 top-0 w-48 h-48 bg-blue-500/5 rounded-full pointer-events-none" />
                                 
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
@@ -406,13 +406,13 @@ export default function DashboardClient({
                                             <Link
                                                 key={task.id}
                                                 href={isLocked ? "/pricing" : `/tasks/${task.id}`}
-                                                className={`group flex items-center gap-8 p-8 glass-card-premium-v2 rounded-[2.5rem] relative overflow-hidden transition-all duration-500 ${isLocked ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0' : 'active:scale-[0.98] hover:shadow-[0_0_60px_rgba(59,130,246,0.15)] hover:border-white/20'} ${isInProgress && !isLocked ? 'ring-2 ring-blue-500/50' : ''}`}
+                                                className={`group flex items-center gap-8 p-8 glass-card-premium-v2 rounded-[2.5rem] relative overflow-hidden transition-shadow duration-200 ${isLocked ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0' : 'active:scale-[0.98] hover:shadow-[0_0_40px_rgba(59,130,246,0.12)] hover:border-white/20'} ${isInProgress && !isLocked ? 'ring-2 ring-blue-500/50' : ''}`}
                                             >
                                                 {/* Lesson number background */}
                                                 <div className="lesson-number-bg">#{task.order}</div>
-                                                {/* In Progress Glow */}
+                                                {/* In Progress Indicator */}
                                                 {isInProgress && (
-                                                    <div className="absolute inset-0 bg-blue-500/5 blur-xl animate-pulse" />
+                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-full" />
                                                 )}
 
                                                 <div className="relative z-10 flex items-center gap-6 w-full">

@@ -62,8 +62,17 @@ export default function DynamicHeader({ user }: { user?: any }) {
     }, [user])
 
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 10)
-        window.addEventListener('scroll', handleScroll)
+        let ticking = false
+        const handleScroll = () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    setScrolled(window.scrollY > 10)
+                    ticking = false
+                })
+                ticking = true
+            }
+        }
+        window.addEventListener('scroll', handleScroll, { passive: true })
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
@@ -140,9 +149,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
     // ─── GUEST HEADER (not logged in) ────────────────────────
     if (!user) {
         return (
-            <header className={`sticky top-0 z-50 transition-all duration-300 ${
+            <header className={`sticky top-0 z-50 transition-colors duration-200 ${
                 scrolled
-                    ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
+                    ? 'bg-background/90 backdrop-blur-sm border-b border-border/50 shadow-sm'
                     : 'bg-transparent'
             }`}>
                 <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,10 +271,10 @@ export default function DynamicHeader({ user }: { user?: any }) {
     ]
 
     return (
-        <header className={`sticky top-0 z-50 transition-all duration-300 ${
+        <header className={`sticky top-0 z-50 transition-colors duration-200 ${
             scrolled
-                ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm'
-                : 'bg-background/60 backdrop-blur-xl border-b border-border/30'
+                ? 'bg-background/90 backdrop-blur-sm border-b border-border/50 shadow-sm'
+                : 'bg-background/70 backdrop-blur-sm border-b border-border/30'
         }`}>
             <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">

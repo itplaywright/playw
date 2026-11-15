@@ -311,6 +311,20 @@ export const projectTasks = mysqlTable("project_tasks", {
     updatedAt: timestamp("updated_at").defaultNow(),
 })
 
+export const projectSubmissions = mysqlTable("project_submissions", {
+    id: int("id").primaryKey().autoincrement(),
+    userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id, { onDelete: "cascade" }),
+    boardId: int("board_id").notNull().references(() => projectBoards.id, { onDelete: "cascade" }),
+    taskId: int("task_id").notNull().references(() => projectTasks.id, { onDelete: "cascade" }),
+    githubUrl: varchar("github_url", { length: 500 }),
+    code: text("code"),
+    notes: text("notes"),
+    mentorFeedback: text("mentor_feedback"),
+    status: mysqlEnum("status", submissionStatusEnumValues).default("pending"),
+    createdAt: timestamp("created_at").defaultNow(),
+    reviewedAt: timestamp("reviewed_at"),
+})
+
 import { relations } from "drizzle-orm"
 
 export const userRelations = relations(users, ({ one, many }) => ({

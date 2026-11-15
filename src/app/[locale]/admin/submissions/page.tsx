@@ -67,7 +67,8 @@ export default function AdminSubmissionsPage() {
                 body: JSON.stringify({
                     submissionId: selectedSubmission.id,
                     feedback,
-                    status
+                    status,
+                    isProject: (selectedSubmission as any).isProject
                 })
             })
 

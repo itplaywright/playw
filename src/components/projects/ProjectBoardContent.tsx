@@ -4,7 +4,8 @@ import { useState } from "react"
 import { Link } from "@/i18n/routing"
 import {
     LayoutGrid, ChevronLeft, Plus, Settings, ExternalLink,
-    BookOpen, Search, Filter, X, CheckCircle2, ShieldAlert, Sparkles, Terminal
+    BookOpen, Search, Filter, X, CheckCircle2, ShieldAlert, Sparkles, Terminal,
+    Send, ArrowRight
 } from "lucide-react"
 import KanbanBoard from "@/components/projects/KanbanBoard"
 import TaskDialog from "@/components/projects/TaskDialog"
@@ -108,6 +109,58 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     )}
                 </div>
             </header>
+
+            {/* Context Explainer Banner (Admin vs Student) */}
+            {isAdmin ? (
+                <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3 text-xs z-20">
+                    <div className="flex items-center gap-2 text-amber-300">
+                        <ShieldAlert className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                        <span className="font-bold">{t("adminMasterNotice")}</span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        <Link
+                            href="/admin/submissions"
+                            className="px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-[11px] transition-all flex items-center gap-1.5 border border-amber-500/30 shadow-sm"
+                        >
+                            <Send className="w-3 h-3" />
+                            <span>{t("reviewQueue")}</span>
+                        </Link>
+                        <button
+                            onClick={() => setShowSettingsDialog(true)}
+                            className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-white font-bold text-[11px] transition-all flex items-center gap-1.5 border border-white/10"
+                        >
+                            <Settings className="w-3 h-3" />
+                            <span>{t("accessSettings")}</span>
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="bg-blue-600/10 border-b border-blue-500/20 px-4 sm:px-6 py-2 flex items-center justify-between gap-4 text-xs z-20">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-6 h-6 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
+                            <Sparkles className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="truncate">
+                            <span className="font-bold text-white mr-2">{t("projectSimulator")}:</span>
+                            <span className="text-slate-300 text-[11px] hidden md:inline">{t("projectSimulatorDesc")}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        <Link
+                            href="/cabinet?tab=submissions"
+                            className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold text-[11px] transition-all border border-white/10"
+                        >
+                            {t("cabinet")}
+                        </Link>
+                        <button
+                            onClick={() => setShowGuideDialog(true)}
+                            className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] transition-all"
+                        >
+                            {t("instructions")}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Filter & Search Bar */}
             <div className="flex-shrink-0 bg-[#0B1120]/40 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 z-20">

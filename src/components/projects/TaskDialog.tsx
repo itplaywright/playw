@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import {
     Plus, X, User, AlertCircle, Code2, Copy, Check,
-    CheckCircle2, ArrowRight, ShieldAlert, Sparkles, Terminal
+    CheckCircle2, ArrowRight, ShieldAlert, Sparkles, Terminal,
+    Send, Clock, ExternalLink, GitPullRequest, MessageSquare
 } from "lucide-react"
 import { getTaskHelper } from "@/lib/projectTaskSnippets"
 import { useTranslations } from "next-intl"
@@ -37,7 +38,7 @@ interface Props {
     columnId: number
     columns?: ColumnData[]
     users: User[]
-    task?: Task // Optional task for editing
+    task?: Task
     mode?: 'create' | 'edit' | 'view'
     onMoveToColumn?: (colId: number) => void
     onSuccess?: () => void
@@ -63,9 +64,45 @@ export default function TaskDialog({
     const [currentColumnId, setCurrentColumnId] = useState<number>(task?.columnId || columnId)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
-    const [activeTab, setActiveTab] = useState<'details' | 'code'>('details')
+    const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
+
+    // Submission Form State
+    const [githubUrl, setGithubUrl] = useState("")
+    const [solutionCode, setSolutionCode] = useState("")
+    const [studentNotes, setStudentNotes] = useState("")
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false)
+    const [mySubmission, setMySubmission] = useState<any>(null)
+    const [isLoadingSubmission, setIsLoadingSubmission] = useState(false)
 
     const taskHelper = getTaskHelper(title, description)
+
+    // Load existing submission for this task
+    useEffect(() => {
+        if (!task?.id || mode !== 'view') return
+
+        const loadSubmission = async () => {
+            setIsLoadingSubmission(true)
+            try {
+                const res = await fetch(`/api/projects/submissions?boardId=${boardId}`)
+                if (res.ok) {
+                    const data = await res.json()
+                    const found = data.find((s: any) => s.taskId === task.id)
+                    if (found) {
+                        setMySubmission(found)
+                        if (found.githubUrl) setGithubUrl(found.githubUrl)
+                        if (found.code) setSolutionCode(found.code)
+                        if (found.notes) setStudentNotes(found.notes)
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load submission:", err)
+            } finally {
+                setIsLoadingSubmission(false)
+            }
+        }
+
+        loadSubmission()
+    }, [task?.id, boardId, mode])
 
     const handleCopy = () => {
         if (!taskHelper.starterCode) return
@@ -78,6 +115,53 @@ export default function TaskDialog({
     const handleMoveColumn = (newColId: number) => {
         setCurrentColumnId(newColId)
         onMoveToColumn?.(newColId)
+    }
+
+    const handleSubmitToMentor = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!githubUrl.trim() && !solutionCode.trim()) {
+            toast.error("Вкажіть посилання на GitHub або вставте код")
+            return
+        }
+
+        setIsSubmittingReview(true)
+        try {
+            const res = await fetch("/api/projects/submissions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    boardId,
+                    taskId: task?.id,
+                    githubUrl,
+                    code: solutionCode,
+                    notes: studentNotes
+                })
+            })
+
+            if (res.ok) {
+                toast.success("Рішення відправлено ментору на перевірку!")
+                // Move task to Review column
+                const reviewCol = columns.find(c => c.title.toLowerCase().includes("review"))
+                if (reviewCol) {
+                    handleMoveColumn(reviewCol.id)
+                }
+                setMySubmission({
+                    status: "pending",
+                    githubUrl,
+                    code: solutionCode,
+                    notes: studentNotes,
+                    createdAt: new Date()
+                })
+                setActiveTab("submit")
+            } else {
+                const err = await res.json()
+                toast.error(err.error || "Помилка при відправці")
+            }
+        } catch {
+            toast.error("Помилка з'єднання")
+        } finally {
+            setIsSubmittingReview(false)
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -165,9 +249,22 @@ export default function TaskDialog({
                             {/* Column Status Switcher Bar */}
                             {columns.length > 0 && (
                                 <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10">
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                                        {t("moveToColumn")}:
-                                    </p>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                            {t("moveToColumn")}:
+                                        </p>
+                                        {mySubmission && (
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                                                mySubmission.status === 'reviewed'
+                                                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                                    : mySubmission.status === 'rejected'
+                                                    ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                                                    : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                                            }`}>
+                                                {mySubmission.status === 'reviewed' ? '✅ Зараховано ментором' : mySubmission.status === 'rejected' ? '⚠️ Потребує правок' : '⏳ Очікує рев\'ю'}
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                         {columns.map(col => {
                                             const isCurrent = col.id === currentColumnId
@@ -213,8 +310,23 @@ export default function TaskDialog({
                                     <Code2 className="w-3.5 h-3.5" />
                                     <span>{t("starterCode")}</span>
                                 </button>
+                                <button
+                                    onClick={() => setActiveTab('submit')}
+                                    className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 ${
+                                        activeTab === 'submit'
+                                            ? "border-purple-500 text-purple-400"
+                                            : "border-transparent text-slate-400 hover:text-white"
+                                    }`}
+                                >
+                                    <Send className="w-3.5 h-3.5" />
+                                    <span>{t("tabSubmit")}</span>
+                                    {mySubmission && (
+                                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                                    )}
+                                </button>
                             </div>
 
+                            {/* TAB 1: DETAILS */}
                             {activeTab === 'details' && (
                                 <div className="space-y-4">
                                     {/* Description */}
@@ -262,6 +374,7 @@ export default function TaskDialog({
                                 </div>
                             )}
 
+                            {/* TAB 2: STARTER CODE */}
                             {activeTab === 'code' && (
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
@@ -282,6 +395,102 @@ export default function TaskDialog({
                                             <code>{taskHelper.starterCode}</code>
                                         </pre>
                                     </div>
+                                </div>
+                            )}
+
+                            {/* TAB 3: SUBMIT TO MENTOR */}
+                            {activeTab === 'submit' && (
+                                <div className="space-y-4">
+                                    {/* Existing Status Banner if present */}
+                                    {mySubmission && (
+                                        <div className={`p-4 rounded-2xl border ${
+                                            mySubmission.status === 'reviewed'
+                                                ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-200'
+                                                : mySubmission.status === 'rejected'
+                                                ? 'bg-red-500/10 border-red-500/25 text-red-200'
+                                                : 'bg-amber-500/10 border-amber-500/25 text-amber-200'
+                                        }`}>
+                                            <div className="flex items-center gap-2 font-bold text-sm mb-1">
+                                                {mySubmission.status === 'reviewed' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                                                {mySubmission.status === 'rejected' && <AlertCircle className="w-4 h-4 text-red-400" />}
+                                                {mySubmission.status === 'pending' && <Clock className="w-4 h-4 text-amber-400" />}
+                                                <span>
+                                                    {mySubmission.status === 'reviewed' && t("submissionReviewed")}
+                                                    {mySubmission.status === 'rejected' && t("submissionRejected")}
+                                                    {mySubmission.status === 'pending' && t("submissionPending")}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs opacity-80 leading-relaxed">
+                                                {mySubmission.status === 'pending' && t("submissionPendingDesc")}
+                                                {mySubmission.status === 'rejected' && t("resubmitNotice")}
+                                            </p>
+
+                                            {mySubmission.mentorFeedback && (
+                                                <div className="mt-3 p-3 rounded-xl bg-black/40 border border-white/10">
+                                                    <p className="text-[10px] uppercase font-black tracking-wider text-slate-400 mb-1">
+                                                        {t("mentorFeedbackTitle")}
+                                                    </p>
+                                                    <p className="text-xs text-white whitespace-pre-wrap font-sans">
+                                                        {mySubmission.mentorFeedback}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Submission Form */}
+                                    <form onSubmit={handleSubmitToMentor} className="space-y-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                                <GitPullRequest className="w-3.5 h-3.5 text-blue-400" />
+                                                <span>{t("githubUrlLabel")}</span>
+                                            </label>
+                                            <input
+                                                type="url"
+                                                value={githubUrl}
+                                                onChange={(e) => setGithubUrl(e.target.value)}
+                                                placeholder={t("githubUrlPlaceholder")}
+                                                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-xs outline-none"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                                <Code2 className="w-3.5 h-3.5 text-purple-400" />
+                                                <span>{t("solutionCodeLabel")}</span>
+                                            </label>
+                                            <textarea
+                                                rows={4}
+                                                value={solutionCode}
+                                                onChange={(e) => setSolutionCode(e.target.value)}
+                                                placeholder={t("solutionCodePlaceholder")}
+                                                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-xs font-mono outline-none resize-none"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                                <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+                                                <span>{t("notesLabel")}</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={studentNotes}
+                                                onChange={(e) => setStudentNotes(e.target.value)}
+                                                placeholder={t("notesPlaceholder")}
+                                                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-xs outline-none"
+                                            />
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmittingReview}
+                                            className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                        >
+                                            <Send className="w-4 h-4" />
+                                            <span>{isSubmittingReview ? "Відправка..." : t("submitToMentorBtn")}</span>
+                                        </button>
+                                    </form>
                                 </div>
                             )}
 

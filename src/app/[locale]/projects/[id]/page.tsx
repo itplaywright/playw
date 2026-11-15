@@ -5,7 +5,7 @@ import { eq, asc, and, or } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import ProjectBoardContent from "@/components/projects/ProjectBoardContent"
 
-export default async function ProjectBoardPage({ params }: { params: { id: string } }) {
+export default async function ProjectBoardPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await auth()
     if (!session?.user) {
         redirect("/")
@@ -19,18 +19,26 @@ export default async function ProjectBoardPage({ params }: { params: { id: strin
         const userRecord = await db.query.users.findFirst({
             where: eq(usersTable.id, session.user.id!)
         })
-        const userRoleId = userRecord?.dynamicRoleId
+        let effectiveRoleId = userRecord?.dynamicRoleId
+        if (!effectiveRoleId) {
+            const [defaultRole] = await db
+                .select({ id: roles.id })
+                .from(roles)
+                .where(eq(roles.isDefault, true))
+                .limit(1)
+            effectiveRoleId = defaultRole?.id
+        }
 
         // 1. Check direct user assignment
         const userAccess = await db.select().from(projectBoardUsers)
             .where(and(eq(projectBoardUsers.boardId, boardId), eq(projectBoardUsers.userId, session.user.id!)))
 
-        // 2. Check role-based assignment
-        const roleAccess = userRoleId ? await db.select().from(projectBoardRoles)
-            .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, userRoleId))) : []
+        // 2. Check role-based assignment (supports both dynamicRoleId and default Demo role)
+        const roleAccess = effectiveRoleId ? await db.select().from(projectBoardRoles)
+            .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, effectiveRoleId))) : []
 
         if (userAccess.length === 0 && roleAccess.length === 0) {
-            redirect("/pricing")
+            redirect("/projects")
         }
     }
 

@@ -5,7 +5,7 @@ import { Link } from "@/i18n/routing"
 import {
     LayoutGrid, ChevronLeft, Plus, Settings, ExternalLink,
     BookOpen, Search, Filter, X, CheckCircle2, ShieldAlert, Sparkles, Terminal,
-    Send, ArrowRight
+    Send, ArrowRight, GitBranch, GitPullRequest, Copy, Check
 } from "lucide-react"
 import KanbanBoard from "@/components/projects/KanbanBoard"
 import TaskDialog from "@/components/projects/TaskDialog"
@@ -27,7 +27,15 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
     const [showAddDialog, setShowAddDialog] = useState(false)
     const [showSettingsDialog, setShowSettingsDialog] = useState(false)
     const [showGuideDialog, setShowGuideDialog] = useState(false)
+    const [guideTab, setGuideTab] = useState<'workflow' | 'git'>('workflow')
+    const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState("")
+
+    const copyToClipboard = (text: string, id: string) => {
+        navigator.clipboard.writeText(text)
+        setCopiedSnippet(id)
+        setTimeout(() => setCopiedSnippet(null), 2000)
+    }
 
     // Default to student's chosen language (TypeScript / Playwright by default)
     const defaultLanguage = userLanguage && ["typescript", "python", "csharp", "cicd"].includes(userLanguage)
@@ -99,7 +107,10 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
 
                     {/* Instructions Guide Button */}
                     <button
-                        onClick={() => setShowGuideDialog(true)}
+                        onClick={() => {
+                            setGuideTab('workflow')
+                            setShowGuideDialog(true)
+                        }}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-[11px] font-bold text-indigo-300 transition-all shadow-sm"
                     >
                         <BookOpen className="w-3.5 h-3.5" />
@@ -170,10 +181,14 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                             {t("cabinet")}
                         </Link>
                         <button
-                            onClick={() => setShowGuideDialog(true)}
-                            className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] transition-all"
+                            onClick={() => {
+                                setGuideTab('git')
+                                setShowGuideDialog(true)
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 font-bold text-[11px] transition-all flex items-center gap-1.5 shadow-sm"
                         >
-                            {t("instructions")}
+                            <GitBranch className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>{t("gitInstructions")}</span>
                         </button>
                     </div>
                 </div>
@@ -242,20 +257,23 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                 />
             </main>
 
-            {/* Project Instructions / Guide Modal */}
+            {/* Project Instructions / Git Guide Modal */}
             {showGuideDialog && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="bg-[#0B1120] border border-white/15 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden my-auto">
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-
-                        <div className="flex items-start justify-between mb-6">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-[#0B1120] border border-white/15 w-full max-w-3xl max-h-[88vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col text-white my-auto">
+                        {/* Modal Header */}
+                        <div className="p-5 sm:p-6 border-b border-white/10 bg-white/[0.02] flex items-start justify-between flex-shrink-0">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-                                    <BookOpen className="w-5 h-5" />
+                                <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0">
+                                    {guideTab === 'git' ? <GitBranch className="w-5 h-5" /> : <BookOpen className="w-5 h-5" />}
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-black text-white">{t("instructionsTitle")}</h2>
-                                    <p className="text-xs text-slate-400 mt-0.5">{t("instructionsDesc")}</p>
+                                    <h2 className="text-base sm:text-lg font-black text-white">
+                                        {guideTab === 'git' ? t("tabGit") : t("instructionsTitle")}
+                                    </h2>
+                                    <p className="text-xs text-slate-400 mt-0.5">
+                                        {guideTab === 'git' ? "Покрокова інструкція по роботі з гілками, коммітами та створенню Pull Request для ментора" : t("instructionsDesc")}
+                                    </p>
                                 </div>
                             </div>
                             <button
@@ -266,37 +284,185 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                             </button>
                         </div>
 
-                        <div className="space-y-4 mb-6 text-xs text-slate-300">
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                <h3 className="font-bold text-white text-sm mb-1">{t("step1Title")}</h3>
-                                <p className="text-slate-400 leading-relaxed">{t("step1Desc")}</p>
-                            </div>
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                <h3 className="font-bold text-white text-sm mb-1">{t("step2Title")}</h3>
-                                <p className="text-slate-400 leading-relaxed">{t("step2Desc")}</p>
-                            </div>
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                <h3 className="font-bold text-white text-sm mb-1">{t("step3Title")}</h3>
-                                <p className="text-slate-400 leading-relaxed">{t("step3Desc")}</p>
-                            </div>
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                <h3 className="font-bold text-white text-sm mb-1">{t("step4Title")}</h3>
-                                <p className="text-slate-400 leading-relaxed">{t("step4Desc")}</p>
-                            </div>
+                        {/* Tabs Switcher */}
+                        <div className="flex border-b border-white/10 px-6 pt-3 gap-6 bg-white/[0.01] flex-shrink-0">
+                            <button
+                                onClick={() => setGuideTab('workflow')}
+                                className={`pb-3 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-2 ${
+                                    guideTab === 'workflow'
+                                        ? "border-blue-500 text-blue-400"
+                                        : "border-transparent text-slate-400 hover:text-white"
+                                }`}
+                            >
+                                <BookOpen className="w-3.5 h-3.5" />
+                                <span>{t("tabWorkflow")}</span>
+                            </button>
+                            <button
+                                onClick={() => setGuideTab('git')}
+                                className={`pb-3 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-2 ${
+                                    guideTab === 'git'
+                                        ? "border-indigo-500 text-indigo-400"
+                                        : "border-transparent text-slate-400 hover:text-white"
+                                }`}
+                            >
+                                <GitBranch className="w-3.5 h-3.5" />
+                                <span>{t("tabGit")}</span>
+                            </button>
                         </div>
 
-                        {/* Mentorship Requirement Note */}
-                        <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3 mb-6">
-                            <ShieldAlert className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                            <p className="text-xs text-blue-200 leading-relaxed">
-                                {t("mentorNotice")}
-                            </p>
+                        {/* Modal Body */}
+                        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
+                            {guideTab === 'workflow' ? (
+                                <div className="space-y-4">
+                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <h3 className="font-bold text-white text-sm mb-1">{t("step1Title")}</h3>
+                                        <p className="text-slate-400 leading-relaxed text-xs">{t("step1Desc")}</p>
+                                    </div>
+                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <h3 className="font-bold text-white text-sm mb-1">{t("step2Title")}</h3>
+                                        <p className="text-slate-400 leading-relaxed text-xs">{t("step2Desc")}</p>
+                                    </div>
+                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <h3 className="font-bold text-white text-sm mb-1">{t("step3Title")}</h3>
+                                        <p className="text-slate-400 leading-relaxed text-xs">{t("step3Desc")}</p>
+                                    </div>
+                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                        <h3 className="font-bold text-white text-sm mb-1">{t("step4Title")}</h3>
+                                        <p className="text-slate-400 leading-relaxed text-xs">{t("step4Desc")}</p>
+                                    </div>
+
+                                    {/* Mentorship Requirement Note */}
+                                    <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3">
+                                        <ShieldAlert className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                                        <p className="text-xs text-blue-200 leading-relaxed">
+                                            {t("mentorNotice")}
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : (
+                                /* GIT & GITHUB GUIDE TAB */
+                                <div className="space-y-4 text-xs">
+                                    {/* Step 1: Init & Remote */}
+                                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2.5">
+                                        <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
+                                            <Terminal className="w-4 h-4" />
+                                            <span>{t("gitStep1Title")}</span>
+                                        </div>
+                                        <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep1Desc")}</p>
+                                        <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
+                                            <div className="space-y-1">
+                                                <p><span className="text-slate-500"># 1. Ініціалізувати локальний Git репозиторій</span></p>
+                                                <p>git init</p>
+                                                <p><span className="text-slate-500"># 2. Додати віддалений репозиторій (з вашого GitHub)</span></p>
+                                                <p>git remote add origin https://github.com/ВАШ_НІК/playwright-premier-tests.git</p>
+                                            </div>
+                                            <button
+                                                onClick={() => copyToClipboard("git init\ngit remote add origin https://github.com/USERNAME/playwright-premier-tests.git", "step1")}
+                                                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
+                                                title="Скопіювати команду"
+                                            >
+                                                {copiedSnippet === 'step1' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 2: Branching */}
+                                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2.5">
+                                        <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
+                                            <GitBranch className="w-4 h-4" />
+                                            <span>{t("gitStep2Title")}</span>
+                                        </div>
+                                        <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep2Desc")}</p>
+                                        <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
+                                            <div className="space-y-1">
+                                                <p><span className="text-slate-500"># Створити та перейти в нову гілку під конкретну задачу з дошки</span></p>
+                                                <p>git checkout -b feature/TASK-1-base-pom</p>
+                                            </div>
+                                            <button
+                                                onClick={() => copyToClipboard("git checkout -b feature/TASK-1-base-pom", "step2")}
+                                                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
+                                                title="Скопіювати команду"
+                                            >
+                                                {copiedSnippet === 'step2' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 3: Stage & Commit */}
+                                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2.5">
+                                        <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
+                                            <CheckCircle2 className="w-4 h-4" />
+                                            <span>{t("gitStep3Title")}</span>
+                                        </div>
+                                        <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep3Desc")}</p>
+                                        <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
+                                            <div className="space-y-1">
+                                                <p><span className="text-slate-500"># Перевірити змінені файли</span></p>
+                                                <p>git status</p>
+                                                <p><span className="text-slate-500"># Додати створені Page Objects та тести в індекс</span></p>
+                                                <p>git add src/ tests/ playwright.config.ts</p>
+                                                <p><span className="text-slate-500"># Зробити зрозумілий комміт за Conventional Commits</span></p>
+                                                <p>git commit -m &quot;feat(pom): implement BasePage and EventCalendarPage with custom fixtures&quot;</p>
+                                            </div>
+                                            <button
+                                                onClick={() => copyToClipboard("git add src/ tests/ playwright.config.ts\ngit commit -m \"feat(pom): implement BasePage and EventCalendarPage with custom fixtures\"", "step3")}
+                                                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
+                                                title="Скопіювати команду"
+                                            >
+                                                {copiedSnippet === 'step3' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 4: Push & PR */}
+                                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2.5">
+                                        <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
+                                            <GitPullRequest className="w-4 h-4" />
+                                            <span>{t("gitStep4Title")}</span>
+                                        </div>
+                                        <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep4Desc")}</p>
+                                        <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
+                                            <div className="space-y-1">
+                                                <p><span className="text-slate-500"># Відправити гілку на GitHub</span></p>
+                                                <p>git push -u origin feature/TASK-1-base-pom</p>
+                                                <p><span className="text-slate-500"># Далі: Перейдіть на GitHub -&gt; Натисніть &quot;Compare &amp; pull request&quot; -&gt; Створіть PR -&gt; Скопіюйте посилання на PR для здачі задачі на дошці!</span></p>
+                                            </div>
+                                            <button
+                                                onClick={() => copyToClipboard("git push -u origin feature/TASK-1-base-pom", "step4")}
+                                                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
+                                                title="Скопіювати команду"
+                                            >
+                                                {copiedSnippet === 'step4' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 5: .gitignore recommendation */}
+                                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2">
+                                        <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                                            <ShieldAlert className="w-4 h-4 text-amber-400" />
+                                            <span>{t("gitTipsTitle")}</span>
+                                        </div>
+                                        <p className="text-slate-300 text-[11px]">{t("gitTipsDesc")}</p>
+                                        <div className="p-3 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-amber-200">
+                                            <code>
+                                                node_modules/<br/>
+                                                test-results/<br/>
+                                                playwright-report/<br/>
+                                                playwright/.auth/<br/>
+                                                .env.local
+                                            </code>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        <div className="flex justify-end">
+                        {/* Modal Footer */}
+                        <div className="p-4 border-t border-white/10 bg-white/[0.02] flex justify-end flex-shrink-0">
                             <button
                                 onClick={() => setShowGuideDialog(false)}
-                                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/25 transition-all"
+                                className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/25"
                             >
                                 {t("close")}
                             </button>

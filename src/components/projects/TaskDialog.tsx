@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import {
     Plus, X, User, AlertCircle, Code2, Copy, Check,
@@ -57,6 +58,7 @@ export default function TaskDialog({
     onClose
 }: Props) {
     const t = useTranslations("Projects")
+    const [mounted, setMounted] = useState(false)
     const [title, setTitle] = useState(task?.title || "")
     const [description, setDescription] = useState(task?.description || "")
     const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">(task?.priority || "medium")
@@ -65,6 +67,10 @@ export default function TaskDialog({
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
     const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     // Submission Form State
     const [githubUrl, setGithubUrl] = useState("")
@@ -204,11 +210,13 @@ export default function TaskDialog({
         }
     }
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="bg-[#0B1120] border border-white/15 w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col text-white">
+    if (!mounted) return null
+
+    return createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-[#0B1120] border border-white/15 w-full max-w-2xl max-h-[88vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col text-white my-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 sm:p-6 border-b border-white/10 bg-white/[0.02]">
+                <div className="flex items-center justify-between p-5 sm:p-6 border-b border-white/10 bg-white/[0.02] flex-shrink-0">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
                             <Terminal className="w-4 h-4" />
@@ -582,7 +590,7 @@ export default function TaskDialog({
 
                 {/* Footer in View Mode */}
                 {mode === 'view' && (
-                    <div className="p-4 border-t border-white/10 bg-white/[0.02] flex justify-end">
+                    <div className="p-4 border-t border-white/10 bg-white/[0.02] flex justify-end flex-shrink-0">
                         <button
                             onClick={onClose}
                             className="px-6 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all"
@@ -592,6 +600,7 @@ export default function TaskDialog({
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import { X } from "lucide-react"
 
@@ -20,9 +21,14 @@ const PRESET_COLORS = [
 ]
 
 export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Props) {
+    const [mounted, setMounted] = useState(false)
     const [title, setTitle] = useState("")
     const [color, setColor] = useState("#3b82f6")
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -53,9 +59,11 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
         }
     }
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="bg-[#0B1120] border border-white/15 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-white">
+    if (!mounted) return null
+
+    return createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-[#0B1120] border border-white/15 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-white my-auto">
                 <div className="flex items-center justify-between p-5 border-b border-white/10 bg-white/[0.02]">
                     <h2 className="text-base font-black text-white tracking-tight">Нова колонка</h2>
                     <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
@@ -99,6 +107,7 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
                     </button>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }

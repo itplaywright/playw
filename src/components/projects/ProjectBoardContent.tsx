@@ -59,7 +59,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
             </div>
 
             {/* Top Navigation Bar */}
-            <header className="flex-shrink-0 h-14 bg-[#0B1120]/80 backdrop-blur-xl border-b border-white/10 flex items-center px-4 sm:px-6 justify-between z-30">
+            <header className="flex-shrink-0 h-14 bg-[#0B1120]/80 backdrop-blur-xl border-b border-white/10 flex items-center px-4 sm:px-6 justify-between">
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     <Link
                         href="/projects"
@@ -129,7 +129,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
 
             {/* Context Explainer Banner (Admin vs Student) */}
             {isAdmin ? (
-                <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3 text-xs z-20">
+                <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2 text-amber-300">
                         <ShieldAlert className="w-4 h-4 text-amber-400 flex-shrink-0" />
                         <span className="font-bold">{t("adminMasterNotice")}</span>
@@ -152,7 +152,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     </div>
                 </div>
             ) : (
-                <div className="bg-blue-600/10 border-b border-blue-500/20 px-4 sm:px-6 py-2 flex items-center justify-between gap-4 text-xs z-20">
+                <div className="bg-blue-600/10 border-b border-blue-500/20 px-4 sm:px-6 py-2 flex items-center justify-between gap-4 text-xs">
                     <div className="flex items-center gap-2.5 min-w-0">
                         <div className="w-6 h-6 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
                             <Sparkles className="w-3.5 h-3.5" />
@@ -180,7 +180,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
             )}
 
             {/* Filter & Search Bar */}
-            <div className="flex-shrink-0 bg-[#0B1120]/40 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 z-20">
+            <div className="flex-shrink-0 bg-[#0B1120]/40 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
                 {/* Search */}
                 <div className="relative flex-1 min-w-[200px] max-w-md">
                     <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -229,7 +229,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
             </div>
 
             {/* Kanban Board Area */}
-            <main className="flex-1 overflow-hidden relative z-10">
+            <main className="flex-1 overflow-hidden relative">
                 <KanbanBoard
                     initialTasks={initialTasks}
                     columns={board.columns.map((c: any) => ({ ...c, order: c.order ?? 0 }))}
@@ -244,8 +244,8 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
 
             {/* Project Instructions / Guide Modal */}
             {showGuideDialog && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="bg-[#0B1120] border border-white/15 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-[#0B1120] border border-white/15 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden my-auto">
                         <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
                         <div className="flex items-start justify-between mb-6">

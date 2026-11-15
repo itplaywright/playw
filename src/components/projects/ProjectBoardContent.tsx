@@ -142,7 +142,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                         </div>
                         <div className="truncate">
                             <span className="font-bold text-white mr-2">{t("projectSimulator")}:</span>
-                            <span className="text-slate-300 text-[11px] hidden md:inline">{t("projectSimulatorDesc")}</span>
+                            <span className="text-slate-300 text-[11px] hidden md:inline">{t("projectSimulatorDesc", { url: targetUrl })}</span>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">

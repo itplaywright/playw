@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import {
     Plus, X, User, AlertCircle, Code2, Copy, Check,
     CheckCircle2, ArrowRight, ShieldAlert, Sparkles, Terminal,
-    Send, Clock, ExternalLink, GitPullRequest, MessageSquare
+    Send, Clock, ExternalLink, GitPullRequest, MessageSquare, Globe
 } from "lucide-react"
 import { getTaskHelper } from "@/lib/projectTaskSnippets"
 import { useTranslations } from "next-intl"
@@ -22,7 +22,9 @@ interface Task {
     id: number
     columnId: number
     title: string
+    titleEn?: string | null
     description: string | null
+    descriptionEn?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
 }
@@ -67,6 +69,11 @@ export default function TaskDialog({
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
     const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
+    const [langMode, setLangMode] = useState<'en' | 'uk'>('en')
+
+    const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn)
+    const currentTitle = (langMode === 'en' && task?.titleEn) ? task.titleEn : (task?.title || title)
+    const currentDescription = (langMode === 'en' && task?.descriptionEn) ? task.descriptionEn : (task?.description || description)
 
     useEffect(() => {
         setMounted(true)
@@ -245,12 +252,53 @@ export default function TaskDialog({
                         <>
                             {/* Title & Category Badge */}
                             <div>
+                                {hasEnglish && (
+                                    <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/[0.04] border border-white/10 mb-3">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                                            <Globe className="w-3.5 h-3.5 text-blue-400" />
+                                            <span className="hidden sm:inline">Вимоги тікета (Ticket View):</span>
+                                            <span className="sm:hidden">Мова:</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+                                            <button
+                                                type="button"
+                                                onClick={() => setLangMode('en')}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 ${
+                                                    langMode === 'en'
+                                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/40'
+                                                        : 'text-slate-400 hover:text-white'
+                                                }`}
+                                            >
+                                                <span>🇬🇧</span>
+                                                <span>English (Jira)</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setLangMode('uk')}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 ${
+                                                    langMode === 'uk'
+                                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/40'
+                                                        : 'text-slate-400 hover:text-white'
+                                                }`}
+                                            >
+                                                <span>🇺🇦</span>
+                                                <span>Переклад (UA)</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-bold mb-2">
                                     <Code2 className="w-3.5 h-3.5" />
                                     <span>{taskHelper.category}</span>
+                                    {hasEnglish && (
+                                        <span className="ml-1 text-[10px] text-slate-400 border-l border-white/10 pl-2">
+                                            {langMode === 'en' ? '🇬🇧 Jira Spec' : '🇺🇦 Переклад'}
+                                        </span>
+                                    )}
                                 </div>
                                 <h1 className="text-lg sm:text-xl font-black text-white leading-snug">
-                                    {title}
+                                    {currentTitle}
                                 </h1>
                             </div>
 
@@ -340,7 +388,7 @@ export default function TaskDialog({
                                     {/* Description */}
                                     <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10">
                                         <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed font-sans">
-                                            {description || <span className="text-slate-500 italic">Опис відсутній</span>}
+                                            {currentDescription || <span className="text-slate-500 italic">Опис відсутній</span>}
                                         </p>
                                     </div>
 

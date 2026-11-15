@@ -80,7 +80,9 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
         boardId: projectTasks.boardId,
         columnId: projectTasks.columnId,
         title: projectTasks.title,
+        titleEn: projectTasks.titleEn,
         description: projectTasks.description,
+        descriptionEn: projectTasks.descriptionEn,
         assigneeId: projectTasks.assigneeId,
         creatorId: projectTasks.creatorId,
         status: projectTasks.status,
@@ -103,7 +105,7 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
     // Filter tasks strictly by student's programming language (TypeScript by default)
     // Hides tasks for all other stacks so the student only sees what they are studying
     const filteredTasks = tasks.filter(task => {
-        const t = (task.title + " " + (task.description || "")).toLowerCase()
+        const t = (task.title + " " + (task.titleEn || "") + " " + (task.description || "") + " " + (task.descriptionEn || "")).toLowerCase()
         const isPython = t.includes("python")
         const isCSharp = t.includes("c#") || t.includes(".net") || t.includes("csharp")
 

@@ -9,7 +9,9 @@ interface Task {
     id: number
     columnId: number
     title: string
+    titleEn?: string | null
     description: string | null
+    descriptionEn?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
     assignee?: { name: string | null, image: string | null }

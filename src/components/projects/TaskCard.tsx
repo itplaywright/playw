@@ -3,12 +3,15 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { AlertCircle, Clock, User as UserIcon, Trash2, Edit, Code2, Terminal } from "lucide-react"
+import { useLocale } from "next-intl"
 
 interface Task {
     id: number
     columnId: number
     title: string
+    titleEn?: string | null
     description: string | null
+    descriptionEn?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
     assignee?: { name: string | null, image: string | null }
@@ -53,6 +56,7 @@ function parseTags(title: string) {
 }
 
 export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, onView }: Props) {
+    const locale = useLocale()
     const {
         setNodeRef,
         attributes,
@@ -74,7 +78,9 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
         opacity: isDragging ? 0.3 : 1,
     }
 
-    const { tags, cleanTitle } = parseTags(task.title)
+    const rawTitle = (locale === 'en' && task.titleEn) ? task.titleEn : task.title
+    const rawDescription = (locale === 'en' && task.descriptionEn) ? task.descriptionEn : task.description
+    const { tags, cleanTitle } = parseTags(rawTitle)
     const priority = PRIORITY_BADGES[task.priority] || PRIORITY_BADGES.medium
 
     if (isOverlay) {
@@ -156,9 +162,9 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
             </h3>
 
             {/* Description Snippet */}
-            {task.description && (
+            {rawDescription && (
                 <p className="text-[11px] text-slate-400 line-clamp-2 mb-3 leading-relaxed">
-                    {task.description}
+                    {rawDescription}
                 </p>
             )}
 

@@ -33,7 +33,9 @@ interface Task {
     id: number
     columnId: number
     title: string
+    titleEn?: string | null
     description: string | null
+    descriptionEn?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
     assignee?: { name: string | null, image: string | null }
@@ -243,8 +245,8 @@ export default function KanbanBoard({
             // Search query
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase()
-                const matchesTitle = task.title.toLowerCase().includes(q)
-                const matchesDesc = (task.description || "").toLowerCase().includes(q)
+                const matchesTitle = task.title.toLowerCase().includes(q) || (task.titleEn || "").toLowerCase().includes(q)
+                const matchesDesc = (task.description || "").toLowerCase().includes(q) || (task.descriptionEn || "").toLowerCase().includes(q)
                 if (!matchesTitle && !matchesDesc) return false
             }
 

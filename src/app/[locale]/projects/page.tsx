@@ -39,7 +39,17 @@ export default async function ProjectsPage() {
     const userResults = await db.select().from(results).where(eq(results.userId, session.user.id!))
     
     const isAdmin = (session.user as any).role === "admin"
-    const userRoleId = userWithRole?.dynamicRole?.id
+
+    // Resolve effective role: use the user's dynamic role, or fall back to the default role (Demo)
+    let effectiveRoleId = userWithRole?.dynamicRole?.id
+    if (!effectiveRoleId) {
+        const [defaultRole] = await db
+            .select({ id: roles.id })
+            .from(roles)
+            .where(eq(roles.isDefault, true))
+            .limit(1)
+        effectiveRoleId = defaultRole?.id
+    }
 
     // Fetch boards with access control
     let boards;
@@ -56,12 +66,12 @@ export default async function ProjectsPage() {
               .where(eq(projectBoardUsers.userId, session.user.id!))
         ))
 
-        // 2. Role Based Assignment (only if user has a role)
-        if (userRoleId) {
+        // 2. Role Based Assignment — use dynamicRole OR fall back to default role (Demo)
+        if (effectiveRoleId) {
             conditions.push(inArray(projectBoards.id, 
                 db.select({ id: projectBoardRoles.boardId })
                   .from(projectBoardRoles)
-                  .where(eq(projectBoardRoles.roleId, userRoleId))
+                  .where(eq(projectBoardRoles.roleId, effectiveRoleId))
             ))
         }
 

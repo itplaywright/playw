@@ -31,7 +31,18 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
     const [selectedPriority, setSelectedPriority] = useState<string>("all")
     const router = useRouter()
 
-    const targetUrl = board.id === 1 ? "https://finmore.netlify.app" : "https://itplatform-three.vercel.app"
+    const getTargetUrl = () => {
+        const title = (board?.title || "").toLowerCase()
+        const desc = (board?.description || "").toLowerCase()
+        if (board?.id === 4 || title.includes("premier") || desc.includes("premieronline.com")) {
+            return "https://www.premieronline.com"
+        }
+        if (board?.id === 1 || title.includes("finmore")) {
+            return "https://finmore.netlify.app"
+        }
+        return "https://itplatform-three.vercel.app"
+    }
+    const targetUrl = getTargetUrl()
 
     return (
         <div className="flex flex-col h-screen bg-[#020617] text-white overflow-hidden font-sans relative">

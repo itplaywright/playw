@@ -14,11 +14,13 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
     const { id } = await params
     const boardId = parseInt(id)
 
+    const userRecord = await db.query.users.findFirst({
+        where: eq(usersTable.id, session.user.id!)
+    })
+    const userLanguage = userRecord?.programmingLanguage || "typescript"
+
     // Role & Project Specific Validation
     if ((session.user as any).role !== "admin") {
-        const userRecord = await db.query.users.findFirst({
-            where: eq(usersTable.id, session.user.id!)
-        })
         let effectiveRoleId = userRecord?.dynamicRoleId
         if (!effectiveRoleId) {
             const [defaultRole] = await db
@@ -105,6 +107,7 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
             isAdmin={isAdmin}
             users={allUsersList as any}
             roles={allRolesList as any}
+            userLanguage={userLanguage}
         />
     )
 }

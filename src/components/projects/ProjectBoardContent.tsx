@@ -19,15 +19,21 @@ interface Props {
     isAdmin: boolean
     users: any[]
     roles: any[]
+    userLanguage?: string
 }
 
-export default function ProjectBoardContent({ board, initialTasks, isAdmin, users, roles }: Props) {
+export default function ProjectBoardContent({ board, initialTasks, isAdmin, users, roles, userLanguage }: Props) {
     const t = useTranslations("Projects")
     const [showAddDialog, setShowAddDialog] = useState(false)
     const [showSettingsDialog, setShowSettingsDialog] = useState(false)
     const [showGuideDialog, setShowGuideDialog] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
-    const [selectedLanguage, setSelectedLanguage] = useState<string>("all")
+
+    // Default to student's chosen language (TypeScript / Playwright by default)
+    const defaultLanguage = userLanguage && ["typescript", "python", "csharp", "cicd"].includes(userLanguage)
+        ? userLanguage
+        : "typescript"
+    const [selectedLanguage, setSelectedLanguage] = useState<string>(defaultLanguage)
     const [selectedPriority, setSelectedPriority] = useState<string>("all")
     const router = useRouter()
 
@@ -201,7 +207,6 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                         {t("filterLang")}:
                     </span>
                     {[
-                        { id: "all", label: t("filterAll") },
                         { id: "typescript", label: "TypeScript", color: "hover:border-blue-500/40" },
                         { id: "python", label: "Python", color: "hover:border-yellow-500/40" },
                         { id: "csharp", label: "C# .NET", color: "hover:border-purple-500/40" },

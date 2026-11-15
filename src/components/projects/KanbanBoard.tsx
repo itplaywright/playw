@@ -251,10 +251,20 @@ export default function KanbanBoard({
             // Language filter
             if (selectedLanguage && selectedLanguage !== "all") {
                 const t = (task.title + " " + (task.description || "")).toLowerCase()
-                if (selectedLanguage === "typescript" && !t.includes("typescript") && !t.includes("pom") && !t.includes("visual") && !t.includes("network")) return false
-                if (selectedLanguage === "python" && !t.includes("python")) return false
-                if (selectedLanguage === "csharp" && !t.includes("c#") && !t.includes(".net")) return false
-                if (selectedLanguage === "cicd" && !t.includes("ci/cd") && !t.includes("github actions")) return false
+                const isExplicitPython = t.includes("python")
+                const isExplicitCSharp = t.includes("c#") || t.includes(".net") || t.includes("csharp")
+                const isExplicitCiCd = t.includes("ci/cd") || t.includes("github actions") || t.includes("workflow")
+
+                if (selectedLanguage === "python") {
+                    if (!isExplicitPython) return false
+                } else if (selectedLanguage === "csharp") {
+                    if (!isExplicitCSharp) return false
+                } else if (selectedLanguage === "cicd") {
+                    if (!isExplicitCiCd) return false
+                } else if (selectedLanguage === "typescript") {
+                    // For TypeScript: exclude tasks explicitly targeting other stacks
+                    if (isExplicitPython || isExplicitCSharp || isExplicitCiCd) return false
+                }
             }
 
             // Priority filter

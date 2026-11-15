@@ -472,15 +472,271 @@ jobs:
         tips: [
             "Прапорець `fail-fast: false` дозволяє продовжити тестування інших стеків у разі падіння одного"
         ]
+    },
+
+    // 10. Premier Online: Base POM & Fixtures
+    "premier-base-pom": {
+        language: "typescript",
+        category: "TypeScript • POM Architecture & Fixtures",
+        starterCode: `// src/pages/BasePage.ts
+import { Page, Locator, expect } from '@playwright/test';
+
+export abstract class BasePage {
+  constructor(protected readonly page: Page) {}
+
+  async open(path: string = ''): Promise<void> {
+    await this.page.goto(path);
+    await this.waitForLoaded();
+  }
+
+  async waitForLoaded(): Promise<void> {
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  async getTitle(): Promise<string> {
+    return this.page.title();
+  }
+
+  async takeScreenshot(name: string): Promise<Buffer> {
+    return this.page.screenshot({ path: \`test-results/\${name}.png\` });
+  }
+}
+
+// src/fixtures/testFixtures.ts
+import { test as base, expect } from '@playwright/test';
+import { EventCalendarPage } from '../pages/EventCalendarPage';
+
+type CustomFixtures = {
+  calendarPage: EventCalendarPage;
+};
+
+export const test = base.extend<CustomFixtures>({
+  calendarPage: async ({ page }, use) => {
+    const calendarPage = new EventCalendarPage(page);
+    await calendarPage.open('/event-calendar');
+    await use(calendarPage);
+  },
+});
+
+export { expect };`,
+        acceptanceCriteria: [
+            "Клас BasePage містить методи open(), waitForLoaded(), getTitle()",
+            "Фікстура calendarPage автоматично ініціалізує сторінку перед тестом",
+            "Тести не містять ручних викликів `new BasePage(page)`",
+            "Усі сторінки наслідують BasePage"
+        ],
+        tips: [
+            "Використовуйте Custom Fixtures для інкапсуляції сетапу та тірдауну сторінок",
+            "BasePage повинна бути абстрактною (abstract class) або містити захищений конструктор"
+        ]
+    },
+
+    // 11. Premier Online: EventCalendarPage POM
+    "premier-calendar": {
+        language: "typescript",
+        category: "TypeScript • EventCalendarPage POM",
+        starterCode: `// src/pages/EventCalendarPage.ts
+import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
+
+export class EventCalendarPage extends BasePage {
+  readonly searchInput: Locator;
+  readonly eventCards: Locator;
+  readonly clearFiltersBtn: Locator;
+  readonly emptyStateMsg: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.searchInput = page.getByPlaceholder(/search events/i);
+    this.eventCards = page.locator('.event-card, [data-testid="event-card"]');
+    this.clearFiltersBtn = page.getByRole('button', { name: /clear filters|reset/i });
+    this.emptyStateMsg = page.getByText(/no events found/i);
+  }
+
+  async filterByCategory(categoryName: string): Promise<void> {
+    await this.page.getByRole('button', { name: new RegExp(categoryName, 'i') }).click();
+  }
+
+  async search(query: string): Promise<void> {
+    await this.searchInput.fill(query);
+    await this.searchInput.press('Enter');
+  }
+
+  async getEventsCount(): Promise<number> {
+    return this.eventCards.count();
+  }
+
+  async verifyAllEventsContainText(expectedText: string): Promise<void> {
+    const count = await this.getEventsCount();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      await expect(this.eventCards.nth(i)).toContainText(new RegExp(expectedText, 'i'));
+    }
+  }
+}`,
+        acceptanceCriteria: [
+            "Інкапсуляція селекторів пошуку та фільтрації у відповідні методи",
+            "Web-first assertions (expect(locator).toBeVisible())",
+            "Перевірка відсутності жорстких таймаутів (waitForTimeout заборонено)"
+        ],
+        tips: [
+            "Використовуйте `page.getByRole('button', { name: ... })` замість ненадійних CSS-класів"
+        ]
+    },
+
+    // 12. Premier Online: EventDetailsPage POM
+    "premier-details": {
+        language: "typescript",
+        category: "TypeScript • EventDetailsPage POM",
+        starterCode: `// src/pages/EventDetailsPage.ts
+import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
+
+export class EventDetailsPage extends BasePage {
+  readonly titleHeading: Locator;
+  readonly registerBtn: Locator;
+  readonly priceDisplay: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.titleHeading = page.getByRole('heading', { level: 1 });
+    this.registerBtn = page.getByRole('button', { name: /register now|enter event/i });
+    this.priceDisplay = page.locator('.event-price, [data-testid="event-price"]');
+  }
+
+  async selectDistance(distanceName: string): Promise<void> {
+    const option = this.page.locator('.distance-option').filter({ hasText: distanceName });
+    await option.click();
+  }
+
+  async getPriceText(): Promise<string> {
+    return (await this.priceDisplay.textContent()) || '';
+  }
+
+  async isRegistrationClosed(): Promise<boolean> {
+    const soldOutBadge = this.page.getByText(/sold out|registration closed/i);
+    return soldOutBadge.isVisible();
+  }
+}`,
+        acceptanceCriteria: [
+            "Вибір дистанції оновлює відображувану ціну",
+            "Кнопка 'Register Now' доступна тільки для відкритих категорій",
+            "Для категорій 'Sold Out' відображається статус або кнопка вимкнена"
+        ],
+        tips: [
+            "Парсіть числове значення ціни за допомогою `parseFloat(priceText.replace(/[^0-9.]/g, ''))`"
+        ]
+    },
+
+    // 13. Premier Online: CheckoutPage POM
+    "premier-checkout": {
+        language: "typescript",
+        category: "TypeScript • CheckoutPage & Promo POM",
+        starterCode: `// src/pages/CheckoutPage.ts
+import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
+
+export class CheckoutPage extends BasePage {
+  readonly subtotalAmount: Locator;
+  readonly vatAmount: Locator;
+  readonly totalAmount: Locator;
+  readonly promoInput: Locator;
+  readonly applyPromoBtn: Locator;
+  readonly promoError: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.subtotalAmount = page.locator('[data-testid="subtotal"]');
+    this.vatAmount = page.locator('[data-testid="vat"]');
+    this.totalAmount = page.locator('[data-testid="total"]');
+    this.promoInput = page.getByPlaceholder(/promo code|voucher/i);
+    this.applyPromoBtn = page.getByRole('button', { name: /apply/i });
+    this.promoError = page.locator('.promo-error, [role="alert"]');
+  }
+
+  async applyVoucher(code: string): Promise<void> {
+    await this.promoInput.fill(code);
+    await this.applyPromoBtn.click();
+  }
+
+  async verifyInvalidVoucherMessage(): Promise<void> {
+    await expect(this.promoError).toBeVisible();
+    await expect(this.promoError).toContainText(/invalid|expired/i);
+  }
+}`,
+        acceptanceCriteria: [
+            "Перевірка підсумку: Total = Subtotal + VAT + ServiceFee",
+            "Валідація повідомлення про помилку при недійсному промокоді",
+            "Округлення фінансових сум до 2 знаків"
+        ],
+        tips: [
+            "Перевіряйте зміну Total після застосування успішного промокоду"
+        ]
+    },
+
+    // 14. Premier Online: Payment Route Interception
+    "premier-payment": {
+        language: "typescript",
+        category: "TypeScript • Network Route Interception",
+        starterCode: `// src/utils/PaymentMockHelper.ts
+import { Page, Route } from '@playwright/test';
+
+export class PaymentMockHelper {
+  static async mockDeclinedPayment(page: Page): Promise<void> {
+    await page.route('**/payment/process', async (route: Route) => {
+      await route.fulfill({
+        status: 402,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: false,
+          error: 'Card declined: Insufficient funds',
+          code: 'PAYMENT_DECLINED'
+        }),
+      });
+    });
+  }
+
+  static async mockSuccessfulPayment(page: Page, orderId: string = 'ORD-2026-9988'): Promise<void> {
+    await page.route('**/payment/process', async (route: Route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          orderId,
+          transactionId: 'TXN-99881122',
+        }),
+      });
+    });
+  }
+}`,
+        acceptanceCriteria: [
+            "Перехоплення POST запиту до платіжного шлюзу через page.route",
+            "Мокування статусу 402 з тілом відхиленої карти",
+            "Перевірка показу червоного алерта користувачу без падіння сторінки",
+            "Мокування 200 OK з генерацією успішного номера замовлення"
+        ],
+        tips: [
+            "Використовуйте `await page.unroute('**/payment/process')` для очищення моків"
+        ]
     }
 };
 
 export function getTaskHelper(taskTitle: string, taskDesc?: string | null): TaskHelperData {
     const t = (taskTitle + " " + (taskDesc || "")).toLowerCase();
+    
+    // Premier Online specific matchers
+    if (t.includes("basepage") || t.includes("фікстур") || t.includes("fixtures")) return TASK_SNIPPETS["premier-base-pom"];
+    if (t.includes("eventcalendar") || t.includes("календар") || t.includes("категорі") || (t.includes("пошук") && t.includes("подій"))) return TASK_SNIPPETS["premier-calendar"];
+    if (t.includes("eventdetails") || t.includes("дистанці") || t.includes("sold out") || t.includes("матриц")) return TASK_SNIPPETS["premier-details"];
+    if (t.includes("checkout") || t.includes("кошик") || t.includes("промокод") || t.includes("vat") || t.includes("підсумк")) return TASK_SNIPPETS["premier-checkout"];
+    if (t.includes("платіжн") || t.includes("шлюз") || (t.includes("мокування") && t.includes("оплат"))) return TASK_SNIPPETS["premier-payment"];
+
+    // Generic matchers
     if (t.includes("pom") || t.includes("page object")) return TASK_SNIPPETS["pom"];
     if (t.includes("verify") || t.includes("верифікація") || t.includes("linkedin")) return TASK_SNIPPETS["verify"];
     if (t.includes("network") || t.includes("мокування") || t.includes("route")) return TASK_SNIPPETS["network"];
-    if (t.includes("mobile") || t.includes("адаптивність") || t.includes("кросбраузер")) return TASK_SNIPPETS["mobile"];
+    if (t.includes("mobile") || t.includes("адаптивність") || t.includes("кросбраузер") || t.includes("бургер")) return TASK_SNIPPETS["mobile"];
     if (t.includes("visual") || t.includes("snapshot") || t.includes("знімк")) return TASK_SNIPPETS["visual"];
     if (t.includes("ci/cd") || t.includes("github actions") || t.includes("пайплайн")) return TASK_SNIPPETS["cicd"];
     if (t.includes("python") && (t.includes("контакт") || t.includes("профіл"))) return TASK_SNIPPETS["python-profile"];

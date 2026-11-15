@@ -418,8 +418,8 @@ export default function DynamicHeader({ user }: { user?: any }) {
 
                             {isProfileOpen && (
                                 <>
-                                    <div className="fixed inset-0 z-30" onClick={() => setIsProfileOpen(false)} />
-                                    <div className="absolute right-0 mt-2 w-60 rounded-xl bg-popover border border-border shadow-xl py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
+                                    <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />
+                                    <div className="absolute right-0 mt-2 w-60 rounded-xl bg-popover border border-border shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
                                         <div className="px-4 py-3 border-b border-border/50">
                                             <p className="text-sm font-semibold text-foreground truncate">
                                                 {currentUser?.firstName || currentUser?.email?.split('@')[0]}

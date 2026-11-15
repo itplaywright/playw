@@ -4,8 +4,7 @@ import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import {
-    LayoutGrid, Plus, ArrowRight, FolderOpen, Calendar,
-    Terminal, BarChart2, Layers
+    LayoutGrid, Plus, ArrowRight, FolderOpen, Calendar
 } from "lucide-react"
 import CreateProjectDialog from "./CreateProjectDialog"
 import Sidebar from "@/components/layout/Sidebar"
@@ -42,14 +41,11 @@ interface Props {
 }
 
 export default function ProjectsClient({
-
     initialBoards,
     isAdmin,
     tracks,
     tasks,
     statusMap,
-    userName,
-    userImage,
     role,
     allRoles,
     allUsers
@@ -67,7 +63,6 @@ export default function ProjectsClient({
     const totalDone = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).done, 0)
     const totalAll = tracks.reduce((acc, t) => acc + getTrackProgress(t.id).total, 0)
     const overallPct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0
-    const initials = userName ? userName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2) : 'U'
 
     return (
         <div className="flex flex-col min-h-screen bg-[#020617] overflow-x-hidden font-sans relative">
@@ -78,57 +73,16 @@ export default function ProjectsClient({
                 <div className="mesh-blob mesh-blob-3" />
             </div>
 
-            {/* Top Header */}
-            <header className="flex-shrink-0 h-10 header-glass-premium flex items-center px-4 gap-6 z-50 sticky top-0">
-                <div className="flex items-center gap-2 mr-4 opacity-80 hover:opacity-100 transition-opacity">
-                    <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
-                        <Terminal className="w-3 h-3 text-white" />
-                    </div>
-                    <span className="text-white font-bold text-xs tracking-tight">IT Playwright</span>
-                </div>
-
-                <div className="hidden md:flex items-center gap-3 flex-1 max-w-[200px]">
-                    <div className="flex-1 bg-white/5 rounded-full h-1 overflow-hidden relative">
-                        <div
-                            className="progress-glow-blue animate-wave"
-                            style={{ width: `${overallPct}%` }}
-                        />
-                    </div>
-                    <span className="text-slate-400 text-[10px] font-bold whitespace-nowrap">{overallPct}%</span>
-                </div>
-
-                <div className="flex-1" />
-
-                <div className="flex items-center gap-4">
-                    <Link href="/setup" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
-                        <Layers className="w-3 h-3" />
-                        {t("setup")}
-                    </Link>
-                    <Link href="/cabinet" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-[10px] font-bold uppercase tracking-wider transition-all">
-                        <BarChart2 className="w-3 h-3" />
-                        {t("cabinet")}
-                    </Link>
-                </div>
-
-                <div className="flex items-center gap-2 pl-4 border-l border-white/5 h-6">
-                    <div className="w-6 h-6 rounded-lg bg-blue-600/80 flex items-center justify-center text-white text-[10px] font-black shadow-inner">
-                        {userImage
-                            ? <img src={userImage} alt={userName ?? ''} className="w-6 h-6 rounded-lg object-cover" />
-                            : initials
-                        }
-                    </div>
-                </div>
-            </header>
-
             {/* Below header: Sidebar + Main Content (Floating Layout) */}
-            <div className="flex p-4 pt-2 gap-4 relative z-10">
-                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-[3.5rem] self-start h-[calc(100vh-4.5rem)]">
+            <div className="flex px-4 pt-6 pb-4 gap-4 relative z-10 w-full max-w-[1600px] mx-auto">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-4 self-start h-[calc(100vh-5rem)]">
                     <Sidebar
                         tracks={tracks}
                         getTrackProgress={getTrackProgress}
                         isAdmin={isAdmin}
                         role={role}
                         currentPath="/projects"
+                        overallPct={overallPct}
                     />
                 </div>
 
@@ -209,7 +163,7 @@ export default function ProjectsClient({
                     </div>
                 </main>
             </div>
- 
+
             {showCreateDialog && (
                 <CreateProjectDialog
                     allRoles={allRoles}

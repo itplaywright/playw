@@ -44,8 +44,8 @@ export function LanguageSwitcher({ activeLocales = ['uk', 'en', 'ru'] }: { activ
 
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-30" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-2 w-32 rounded-xl bg-card border border-border shadow-lg py-2 z-40 animate-in fade-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 mt-2 w-32 rounded-xl bg-card border border-border shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
             {languages.map((lang) => (
               <button
                 key={lang.code}

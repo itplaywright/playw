@@ -79,7 +79,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                         <div className="truncate">
                             <h1 className="text-white text-xs sm:text-sm font-bold tracking-tight truncate">{board.title}</h1>
                             <p className="text-slate-400 text-[9px] font-semibold uppercase tracking-wider hidden sm:block">
-                                {t("projectBoard")} • {initialTasks.length} {t("viewBoard").toLowerCase()}
+                                {t("projectBoard")} • {initialTasks.length} {initialTasks.length === 1 ? "завдання" : (initialTasks.length >= 2 && initialTasks.length <= 4 ? "завдання" : "завдань")}
                             </p>
                         </div>
                     </div>
@@ -201,29 +201,15 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     )}
                 </div>
 
-                {/* Filter Chips */}
+                {/* Active Stack Indicator - Only student's language is shown, all others hidden */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1 hidden lg:inline">
                         {t("filterLang")}:
                     </span>
-                    {[
-                        { id: "typescript", label: "TypeScript", color: "hover:border-blue-500/40" },
-                        { id: "python", label: "Python", color: "hover:border-yellow-500/40" },
-                        { id: "csharp", label: "C# .NET", color: "hover:border-purple-500/40" },
-                        { id: "cicd", label: "CI/CD", color: "hover:border-rose-500/40" }
-                    ].map(chip => (
-                        <button
-                            key={chip.id}
-                            onClick={() => setSelectedLanguage(chip.id)}
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
-                                selectedLanguage === chip.id
-                                    ? "bg-blue-600 text-white border-blue-500 shadow-sm"
-                                    : "bg-white/5 text-slate-400 border-white/5 hover:text-white hover:bg-white/10"
-                            }`}
-                        >
-                            {chip.label}
-                        </button>
-                    ))}
+                    <div className="px-3 py-1 rounded-lg text-[11px] font-bold bg-blue-600 text-white border border-blue-500 shadow-md shadow-blue-600/25 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-200 animate-pulse" />
+                        <span>{userLanguage === "python" ? "Python" : userLanguage === "csharp" ? "C# .NET" : "TypeScript (Playwright)"}</span>
+                    </div>
 
                     <div className="h-4 w-px bg-white/10 mx-1 hidden sm:block" />
 

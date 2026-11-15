@@ -100,10 +100,23 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
     const allUsersList = isAdmin ? await db.select({ id: usersTable.id, name: usersTable.name, email: usersTable.email }).from(usersTable).orderBy(asc(usersTable.name)) : []
     const allRolesList = isAdmin ? await db.select().from(roles).orderBy(asc(roles.name)) : []
 
+    // Filter tasks strictly by student's programming language (TypeScript by default)
+    // Hides tasks for all other stacks so the student only sees what they are studying
+    const filteredTasks = tasks.filter(task => {
+        const t = (task.title + " " + (task.description || "")).toLowerCase()
+        const isPython = t.includes("python")
+        const isCSharp = t.includes("c#") || t.includes(".net") || t.includes("csharp")
+
+        if (userLanguage === "python") return isPython
+        if (userLanguage === "csharp") return isCSharp
+        // Default TypeScript: only show TypeScript & general Playwright tasks; hide Python and C#
+        return !isPython && !isCSharp
+    })
+
     return (
         <ProjectBoardContent
             board={board}
-            initialTasks={tasks}
+            initialTasks={filteredTasks}
             isAdmin={isAdmin}
             users={allUsersList as any}
             roles={allRolesList as any}

@@ -34,8 +34,10 @@ interface Task {
     columnId: number
     title: string
     titleEn?: string | null
+    titleRu?: string | null
     description: string | null
     descriptionEn?: string | null
+    descriptionRu?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
     assignee?: { name: string | null, image: string | null }
@@ -315,30 +317,30 @@ export default function KanbanBoard({
                                     setShowTaskDialog(true)
                                 }}
                                 onDeleteTask={async (id) => {
-                                    if (!confirm("Видалити цю задачу?")) return
+                                    if (!confirm(t("deleteTaskConfirm"))) return
                                     try {
                                         const res = await fetch(`/api/projects/tasks/${id}`, { method: 'DELETE' })
                                         if (res.ok) {
                                             setTasks(prev => prev.filter(t => t.id !== id))
-                                            toast.success("Видалено")
+                                            toast.success(t("deleted"))
                                         }
-                                    } catch (e) { toast.error("Помилка") }
+                                    } catch (e) { toast.error(t("errorDeleting")) }
                                 }}
                                 onAddTask={(colId) => {
                                     setActiveColumnId(colId)
                                     setEditingTask(null)
                                     setTaskDialogMode('create')
                                     setShowTaskDialog(true)
-                                }}
+                                    }}
                                 onRemoveColumn={async (id) => {
-                                    if (!confirm("Видалити цю колонку? Усі задачі в ній також будуть видалені.")) return
+                                    if (!confirm(t("deleteColumnConfirm"))) return
                                     try {
                                         const res = await fetch(`/api/projects/columns/${id}`, { method: 'DELETE' })
                                         if (res.ok) {
-                                            toast.success("Колонку видалено")
+                                            toast.success(t("columnDeleted"))
                                             window.location.reload()
                                         }
-                                    } catch (e) { toast.error("Помилка при видаленні") }
+                                    } catch (e) { toast.error(t("errorDeleting")) }
                                 }}
                             />
                         ))}
@@ -350,7 +352,7 @@ export default function KanbanBoard({
                             className="flex h-12 w-72 min-w-[288px] items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 text-slate-400 hover:text-white transition-all text-xs font-bold"
                         >
                             <Plus className="w-4 h-4" />
-                            <span>Додати колонку</span>
+                            <span>{t("addColumn")}</span>
                         </button>
                     )}
                 </div>

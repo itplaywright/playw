@@ -9,7 +9,7 @@ import {
     Send, Clock, ExternalLink, GitPullRequest, MessageSquare, Globe
 } from "lucide-react"
 import { getTaskHelper } from "@/lib/projectTaskSnippets"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 
 interface User {
     id: string
@@ -23,8 +23,10 @@ interface Task {
     columnId: number
     title: string
     titleEn?: string | null
+    titleRu?: string | null
     description: string | null
     descriptionEn?: string | null
+    descriptionRu?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
 }
@@ -60,6 +62,7 @@ export default function TaskDialog({
     onClose
 }: Props) {
     const t = useTranslations("Projects")
+    const locale = useLocale()
     const [mounted, setMounted] = useState(false)
     const [title, setTitle] = useState(task?.title || "")
     const [description, setDescription] = useState(task?.description || "")
@@ -69,11 +72,13 @@ export default function TaskDialog({
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
     const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
-    const [langMode, setLangMode] = useState<'en' | 'uk'>('en')
+    const [langMode, setLangMode] = useState<'en' | 'native'>('en')
 
     const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn)
-    const currentTitle = (langMode === 'en' && task?.titleEn) ? task.titleEn : (task?.title || title)
-    const currentDescription = (langMode === 'en' && task?.descriptionEn) ? task.descriptionEn : (task?.description || description)
+    const nativeTitle = locale === 'ru' ? (task?.titleRu || task?.title || title) : (task?.title || title)
+    const nativeDesc = locale === 'ru' ? (task?.descriptionRu || task?.description || description) : (task?.description || description)
+    const currentTitle = (langMode === 'en' && task?.titleEn) ? task.titleEn : nativeTitle
+    const currentDescription = (langMode === 'en' && task?.descriptionEn) ? task.descriptionEn : nativeDesc
 
     useEffect(() => {
         setMounted(true)
@@ -133,7 +138,7 @@ export default function TaskDialog({
     const handleSubmitToMentor = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!githubUrl.trim() && !solutionCode.trim()) {
-            toast.error("Вкажіть посилання на GitHub або вставте код")
+            toast.error(t("provideGithubOrCode"))
             return
         }
 
@@ -152,7 +157,7 @@ export default function TaskDialog({
             })
 
             if (res.ok) {
-                toast.success("Рішення відправлено ментору на перевірку!")
+                toast.success(t("submissionSuccessToast"))
                 // Move task to Review column
                 const reviewCol = columns.find(c => c.title.toLowerCase().includes("review"))
                 if (reviewCol) {
@@ -168,10 +173,10 @@ export default function TaskDialog({
                 setActiveTab("submit")
             } else {
                 const err = await res.json()
-                toast.error(err.error || "Помилка при відправці")
+                toast.error(err.error || t("sendError"))
             }
         } catch {
-            toast.error("Помилка з'єднання")
+            toast.error(t("connectionError"))
         } finally {
             setIsSubmittingReview(false)
         }
@@ -180,7 +185,7 @@ export default function TaskDialog({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!title.trim()) {
-            toast.error("Назва обов'язкова")
+            toast.error(t("taskTitleRequired"))
             return
         }
 
@@ -204,14 +209,14 @@ export default function TaskDialog({
             })
 
             if (res.ok) {
-                toast.success(isEditing ? "Задачу оновлено" : "Задачу створено")
+                toast.success(isEditing ? t("taskUpdated") : t("taskCreated"))
                 onSuccess?.()
                 onClose()
             } else {
                 throw new Error("Failed")
             }
         } catch (error) {
-            toast.error(isEditing ? "Помилка при оновленні" : "Помилка при створенні")
+            toast.error(t("errorSaving"))
         } finally {
             setIsSubmitting(false)
         }
@@ -256,8 +261,7 @@ export default function TaskDialog({
                                     <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/[0.04] border border-white/10 mb-3">
                                         <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
                                             <Globe className="w-3.5 h-3.5 text-blue-400" />
-                                            <span className="hidden sm:inline">Вимоги тікета (Ticket View):</span>
-                                            <span className="sm:hidden">Мова:</span>
+                                            <span>{t("ticketLanguage")}</span>
                                         </div>
                                         <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
                                             <button
@@ -270,19 +274,19 @@ export default function TaskDialog({
                                                 }`}
                                             >
                                                 <span>🇬🇧</span>
-                                                <span>English (Jira)</span>
+                                                <span>{t("jiraOriginal")}</span>
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() => setLangMode('uk')}
+                                                onClick={() => setLangMode('native')}
                                                 className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 ${
-                                                    langMode === 'uk'
+                                                    langMode === 'native'
                                                         ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/40'
                                                         : 'text-slate-400 hover:text-white'
                                                 }`}
                                             >
-                                                <span>🇺🇦</span>
-                                                <span>Переклад (UA)</span>
+                                                <span>{locale === 'ru' ? '🇷🇺' : '🇺🇦'}</span>
+                                                <span>{t("nativeTranslation")}</span>
                                             </button>
                                         </div>
                                     </div>
@@ -293,7 +297,7 @@ export default function TaskDialog({
                                     <span>{taskHelper.category}</span>
                                     {hasEnglish && (
                                         <span className="ml-1 text-[10px] text-slate-400 border-l border-white/10 pl-2">
-                                            {langMode === 'en' ? '🇬🇧 Jira Spec' : '🇺🇦 Переклад'}
+                                            {langMode === 'en' ? t("jiraOriginal") : t("nativeTranslation")}
                                         </span>
                                     )}
                                 </div>
@@ -317,7 +321,7 @@ export default function TaskDialog({
                                                     ? 'bg-red-500/20 text-red-400 border-red-500/30'
                                                     : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
                                             }`}>
-                                                {mySubmission.status === 'reviewed' ? '✅ Зараховано ментором' : mySubmission.status === 'rejected' ? '⚠️ Потребує правок' : '⏳ Очікує рев\'ю'}
+                                                {mySubmission.status === 'reviewed' ? t("statusApproved") : mySubmission.status === 'rejected' ? t("statusRejected") : t("statusPending")}
                                             </span>
                                         )}
                                     </div>
@@ -388,7 +392,7 @@ export default function TaskDialog({
                                     {/* Description */}
                                     <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10">
                                         <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed font-sans">
-                                            {currentDescription || <span className="text-slate-500 italic">Опис відсутній</span>}
+                                            {currentDescription || <span className="text-slate-500 italic">{t("noDesc")}</span>}
                                         </p>
                                     </div>
 
@@ -397,7 +401,7 @@ export default function TaskDialog({
                                         <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
                                             <h3 className="text-xs font-black uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
                                                 <CheckCircle2 className="w-3.5 h-3.5" />
-                                                <span>Критерії прийомки (Acceptance Criteria)</span>
+                                                <span>{t("acceptanceCriteria")}</span>
                                             </h3>
                                             <ul className="space-y-1.5">
                                                 {taskHelper.acceptanceCriteria.map((crit, idx) => (
@@ -415,7 +419,7 @@ export default function TaskDialog({
                                         <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20">
                                             <h3 className="text-xs font-black uppercase tracking-wider text-indigo-400 mb-2 flex items-center gap-1.5">
                                                 <Sparkles className="w-3.5 h-3.5" />
-                                                <span>Поради ментора</span>
+                                                <span>{t("mentorTips")}</span>
                                             </h3>
                                             <ul className="space-y-1.5">
                                                 {taskHelper.tips.map((tip, idx) => (
@@ -544,7 +548,7 @@ export default function TaskDialog({
                                             className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                                         >
                                             <Send className="w-4 h-4" />
-                                            <span>{isSubmittingReview ? "Відправка..." : t("submitToMentorBtn")}</span>
+                                            <span>{isSubmittingReview ? t("sending") : t("submitToMentorBtn")}</span>
                                         </button>
                                     </form>
                                 </div>
@@ -569,7 +573,7 @@ export default function TaskDialog({
                                     autoFocus
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Наприклад: [TypeScript] E2E: Авторизація"
+                                    placeholder={t("taskTitlePlaceholder")}
                                     className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 focus:border-blue-500 focus:bg-white/10 outline-none transition-all font-semibold text-white text-sm"
                                 />
                             </div>
@@ -581,7 +585,7 @@ export default function TaskDialog({
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    placeholder="Вимоги та деталі..."
+                                    placeholder={t("taskDescPlaceholder")}
                                     rows={5}
                                     className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 focus:border-blue-500 focus:bg-white/10 outline-none transition-all resize-none text-xs sm:text-sm font-medium text-white"
                                 />
@@ -629,7 +633,7 @@ export default function TaskDialog({
                                     disabled={isSubmitting}
                                     className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-xs shadow-lg shadow-blue-600/25 transition-all transform active:scale-[0.98] disabled:opacity-50"
                                 >
-                                    {isSubmitting ? "Збереження..." : task ? t("saveTask") : t("createTask")}
+                                    {isSubmitting ? t("saving") : task ? t("saveTask") : t("createTask")}
                                 </button>
                             </div>
                         </form>

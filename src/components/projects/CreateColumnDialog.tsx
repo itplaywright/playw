@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import { X } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface Props {
     boardId: number
@@ -21,6 +22,7 @@ const PRESET_COLORS = [
 ]
 
 export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Props) {
+    const t = useTranslations("Projects")
     const [mounted, setMounted] = useState(false)
     const [title, setTitle] = useState("")
     const [color, setColor] = useState("#3b82f6")
@@ -33,7 +35,7 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!title.trim()) {
-            toast.error("Назва обов'язкова")
+            toast.error(t("taskTitleRequired"))
             return
         }
 
@@ -46,14 +48,14 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
             })
 
             if (res.ok) {
-                toast.success("Колонку додано")
+                toast.success(t("columnAdded"))
                 onSuccess()
                 onClose()
             } else {
                 throw new Error("Failed")
             }
         } catch (error) {
-            toast.error("Помилка при додаванні")
+            toast.error(t("columnAddError"))
         } finally {
             setIsSubmitting(false)
         }
@@ -65,7 +67,7 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
             <div className="bg-[#0B1120] border border-white/15 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden text-white my-auto">
                 <div className="flex items-center justify-between p-5 border-b border-white/10 bg-white/[0.02]">
-                    <h2 className="text-base font-black text-white tracking-tight">Нова колонка</h2>
+                    <h2 className="text-base font-black text-white tracking-tight">{t("newColumn")}</h2>
                     <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
                         <X className="w-5 h-5" />
                     </button>
@@ -73,18 +75,18 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
 
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
                     <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Назва колонки</label>
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("columnTitleLabel")}</label>
                         <input
                             autoFocus
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Наприклад: Blocked"
+                            placeholder={t("columnTitlePlaceholder")}
                             className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-sm outline-none"
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Колір</label>
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t("columnColorLabel")}</label>
                         <div className="flex items-center gap-2">
                             {PRESET_COLORS.map(c => (
                                 <button
@@ -103,7 +105,7 @@ export default function CreateColumnDialog({ boardId, onSuccess, onClose }: Prop
                         disabled={isSubmitting}
                         className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/25 transition-all disabled:opacity-50 mt-2"
                     >
-                        {isSubmitting ? "Додавання..." : "Додати колонку"}
+                        {isSubmitting ? t("columnAdding") : t("addColumn")}
                     </button>
                 </form>
             </div>

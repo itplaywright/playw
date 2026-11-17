@@ -4,14 +4,17 @@ import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities"
 import TaskCard from "./TaskCard"
 import { Plus, Trash2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface Task {
     id: number
     columnId: number
     title: string
     titleEn?: string | null
+    titleRu?: string | null
     description: string | null
     descriptionEn?: string | null
+    descriptionRu?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
     assignee?: { name: string | null, image: string | null }
@@ -43,6 +46,17 @@ const COLUMN_COLORS: Record<string, { dot: string; glow: string; border: string 
 }
 
 export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTask, onAddTask, onRemoveColumn, onViewTask }: Props) {
+    const t = useTranslations("Projects")
+
+    const getColumnTitle = (title: string) => {
+        const lower = title.toLowerCase().trim()
+        if (lower === "to do" || lower === "todo") return t("columnToDo")
+        if (lower === "in progress") return t("columnInProgress")
+        if (lower === "review") return t("columnReview")
+        if (lower === "done") return t("columnDone")
+        return title
+    }
+
     const {
         setNodeRef,
         attributes,
@@ -85,7 +99,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
                         style={column.color && !COLUMN_COLORS[column.title] ? { backgroundColor: column.color } : undefined}
                     />
                     <h2 className="text-xs font-black text-white tracking-wider uppercase truncate">
-                        {column.title}
+                        {getColumnTitle(column.title)}
                     </h2>
                     <span className="text-[10px] font-black text-slate-400 bg-white/10 px-2 py-0.5 rounded-full">
                         {tasks.length}
@@ -97,18 +111,18 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
                         <button
                             onClick={() => onAddTask?.(column.id)}
                             className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                            title="Додати задачу"
+                            title={t("addTask")}
                         >
                             <Plus className="w-3.5 h-3.5" />
                         </button>
                         <button
                             onClick={() => {
-                                if (confirm("Видалити цю колонку? Усі задачі в ній також будуть видалені.")) {
+                                if (confirm(t("deleteColumnConfirm"))) {
                                     onRemoveColumn?.(column.id)
                                 }
                             }}
                             className="p-1 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors"
-                            title="Видалити колонку"
+                            title={t("deleteColumn")}
                         >
                             <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -133,7 +147,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
 
                 {tasks.length === 0 && (
                     <div className="flex flex-1 items-center justify-center p-6 border border-dashed border-white/5 rounded-xl">
-                        <p className="text-[11px] font-medium text-slate-500 text-center">Немає задач</p>
+                        <p className="text-[11px] font-medium text-slate-500 text-center">{t("noTasks")}</p>
                     </div>
                 )}
             </div>

@@ -12,6 +12,7 @@ import TaskDialog from "@/components/projects/TaskDialog"
 import EditProjectDialog from "@/components/projects/EditProjectDialog"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher"
 
 interface Props {
     board: any
@@ -87,7 +88,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                         <div className="truncate">
                             <h1 className="text-white text-xs sm:text-sm font-bold tracking-tight truncate">{board.title}</h1>
                             <p className="text-slate-400 text-[9px] font-semibold uppercase tracking-wider hidden sm:block">
-                                {t("projectBoard")} • {initialTasks.length} {initialTasks.length === 1 ? "завдання" : (initialTasks.length >= 2 && initialTasks.length <= 4 ? "завдання" : "завдань")}
+                                {t("projectBoard")} • {initialTasks.length} {t("tasksPlural")}
                             </p>
                         </div>
                     </div>
@@ -117,6 +118,13 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                         <span>{t("instructions")}</span>
                     </button>
 
+                    <div className="h-4 w-px bg-white/10 hidden sm:block" />
+
+                    {/* Language Switcher */}
+                    <div className="flex items-center">
+                        <LanguageSwitcher />
+                    </div>
+
                     {isAdmin && (
                         <>
                             <button
@@ -129,7 +137,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                             <button
                                 onClick={() => setShowSettingsDialog(true)}
                                 className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all border border-white/10"
-                                title="Налаштування дошки"
+                                title={t("accessSettings")}
                             >
                                 <Settings className="w-4 h-4" />
                             </button>
@@ -272,7 +280,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                                         {guideTab === 'git' ? t("tabGit") : t("instructionsTitle")}
                                     </h2>
                                     <p className="text-xs text-slate-400 mt-0.5">
-                                        {guideTab === 'git' ? "Покрокова інструкція по роботі з гілками, коммітами та створенню Pull Request для ментора" : t("instructionsDesc")}
+                                        {guideTab === 'git' ? t("gitGuideSubtitle") : t("instructionsDesc")}
                                     </p>
                                 </div>
                             </div>
@@ -351,15 +359,15 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                                         <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep1Desc")}</p>
                                         <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
                                             <div className="space-y-1">
-                                                <p><span className="text-slate-500"># 1. Ініціалізувати локальний Git репозиторій</span></p>
+                                                <p><span className="text-slate-500"># {t("gitStep1Comment1")}</span></p>
                                                 <p>git init</p>
-                                                <p><span className="text-slate-500"># 2. Додати віддалений репозиторій (з вашого GitHub)</span></p>
-                                                <p>git remote add origin https://github.com/ВАШ_НІК/playwright-premier-tests.git</p>
+                                                <p><span className="text-slate-500"># {t("gitStep1Comment2")}</span></p>
+                                                <p>git remote add origin https://github.com/USERNAME/playwright-premier-tests.git</p>
                                             </div>
                                             <button
                                                 onClick={() => copyToClipboard("git init\ngit remote add origin https://github.com/USERNAME/playwright-premier-tests.git", "step1")}
                                                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
-                                                title="Скопіювати команду"
+                                                title={t("copyCommand")}
                                             >
                                                 {copiedSnippet === 'step1' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                                             </button>
@@ -375,13 +383,13 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                                         <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep2Desc")}</p>
                                         <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
                                             <div className="space-y-1">
-                                                <p><span className="text-slate-500"># Створити та перейти в нову гілку під конкретну задачу з дошки</span></p>
+                                                <p><span className="text-slate-500"># {t("gitStep2Comment")}</span></p>
                                                 <p>git checkout -b feature/TASK-1-base-pom</p>
                                             </div>
                                             <button
                                                 onClick={() => copyToClipboard("git checkout -b feature/TASK-1-base-pom", "step2")}
                                                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
-                                                title="Скопіювати команду"
+                                                title={t("copyCommand")}
                                             >
                                                 {copiedSnippet === 'step2' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                                             </button>
@@ -397,17 +405,17 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                                         <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep3Desc")}</p>
                                         <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
                                             <div className="space-y-1">
-                                                <p><span className="text-slate-500"># Перевірити змінені файли</span></p>
+                                                <p><span className="text-slate-500"># {t("gitStep3Comment1")}</span></p>
                                                 <p>git status</p>
-                                                <p><span className="text-slate-500"># Додати створені Page Objects та тести в індекс</span></p>
+                                                <p><span className="text-slate-500"># {t("gitStep3Comment2")}</span></p>
                                                 <p>git add src/ tests/ playwright.config.ts</p>
-                                                <p><span className="text-slate-500"># Зробити зрозумілий комміт за Conventional Commits</span></p>
+                                                <p><span className="text-slate-500"># {t("gitStep3Comment3")}</span></p>
                                                 <p>git commit -m &quot;feat(pom): implement BasePage and EventCalendarPage with custom fixtures&quot;</p>
                                             </div>
                                             <button
                                                 onClick={() => copyToClipboard("git add src/ tests/ playwright.config.ts\ngit commit -m \"feat(pom): implement BasePage and EventCalendarPage with custom fixtures\"", "step3")}
                                                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
-                                                title="Скопіювати команду"
+                                                title={t("copyCommand")}
                                             >
                                                 {copiedSnippet === 'step3' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                                             </button>
@@ -423,14 +431,14 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                                         <p className="text-slate-300 text-xs leading-relaxed">{t("gitStep4Desc")}</p>
                                         <div className="relative p-3.5 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-emerald-400 flex justify-between items-start">
                                             <div className="space-y-1">
-                                                <p><span className="text-slate-500"># Відправити гілку на GitHub</span></p>
+                                                <p><span className="text-slate-500"># {t("gitStep4Comment1")}</span></p>
                                                 <p>git push -u origin feature/TASK-1-base-pom</p>
-                                                <p><span className="text-slate-500"># Далі: Перейдіть на GitHub -&gt; Натисніть &quot;Compare &amp; pull request&quot; -&gt; Створіть PR -&gt; Скопіюйте посилання на PR для здачі задачі на дошці!</span></p>
+                                                <p><span className="text-slate-500"># {t("gitStep4Comment2")}</span></p>
                                             </div>
                                             <button
                                                 onClick={() => copyToClipboard("git push -u origin feature/TASK-1-base-pom", "step4")}
                                                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all ml-2 flex-shrink-0"
-                                                title="Скопіювати команду"
+                                                title={t("copyCommand")}
                                             >
                                                 {copiedSnippet === 'step4' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                                             </button>

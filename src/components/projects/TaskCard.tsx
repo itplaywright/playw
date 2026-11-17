@@ -3,15 +3,17 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { AlertCircle, Clock, User as UserIcon, Trash2, Edit, Code2, Terminal } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 interface Task {
     id: number
     columnId: number
     title: string
     titleEn?: string | null
+    titleRu?: string | null
     description: string | null
     descriptionEn?: string | null
+    descriptionRu?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
     assignee?: { name: string | null, image: string | null }
@@ -57,6 +59,7 @@ function parseTags(title: string) {
 
 export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, onView }: Props) {
     const locale = useLocale()
+    const t = useTranslations("Projects")
     const {
         setNodeRef,
         attributes,
@@ -78,8 +81,8 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
         opacity: isDragging ? 0.3 : 1,
     }
 
-    const rawTitle = (locale === 'en' && task.titleEn) ? task.titleEn : task.title
-    const rawDescription = (locale === 'en' && task.descriptionEn) ? task.descriptionEn : task.description
+    const rawTitle = (locale === 'en' && task.titleEn) ? task.titleEn : (locale === 'ru' && task.titleRu) ? task.titleRu : task.title
+    const rawDescription = (locale === 'en' && task.descriptionEn) ? task.descriptionEn : (locale === 'ru' && task.descriptionRu) ? task.descriptionRu : task.description
     const { tags, cleanTitle } = parseTags(rawTitle)
     const priority = PRIORITY_BADGES[task.priority] || PRIORITY_BADGES.medium
 
@@ -137,7 +140,7 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
                                 onEdit?.(task)
                             }}
                             className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                            title="Редагувати"
+                            title={t("edit")}
                         >
                             <Edit className="w-3 h-3" />
                         </button>
@@ -148,7 +151,7 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
                                 onDelete?.(task.id)
                             }}
                             className="p-1 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
-                            title="Видалити"
+                            title={t("delete")}
                         >
                             <Trash2 className="w-3 h-3" />
                         </button>
@@ -187,7 +190,7 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
                         <span className="truncate max-w-[80px]">{task.assignee.name}</span>
                     </div>
                 ) : (
-                    <span className="text-[9px] text-slate-500 font-medium">Без виконавця</span>
+                    <span className="text-[9px] text-slate-500 font-medium">{t("unassigned")}</span>
                 )}
             </div>
         </div>

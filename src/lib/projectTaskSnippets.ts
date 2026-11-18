@@ -3,7 +3,11 @@ export interface TaskHelperData {
     category: string;
     starterCode: string;
     acceptanceCriteria: string[];
+    acceptanceCriteriaRu?: string[];
+    acceptanceCriteriaEn?: string[];
     tips: string[];
+    tipsRu?: string[];
+    tipsEn?: string[];
 }
 
 export const TASK_SNIPPETS: Record<string, TaskHelperData> = {
@@ -49,10 +53,32 @@ test.describe('Authentication & Validation', () => {
             "Успішний вхід перевіряє редирект на /dashboard та наявність сесії",
             "Усі селектори використовують data-testid або семантичні локатори (getByRole, getByLabel)"
         ],
+        acceptanceCriteriaRu: [
+            "Тест проверяет поведение формы при пустых полях",
+            "Тест проверяет вывод ошибки при неверном пароле/email",
+            "Успешный вход проверяет редирект на /dashboard и наличие сессии",
+            "Все селекторы используют data-testid или семантические локаторы (getByRole, getByLabel)"
+        ],
+        acceptanceCriteriaEn: [
+            "Test validates form behavior on empty inputs",
+            "Test validates error alert on invalid email or password",
+            "Successful login validates redirect to /dashboard and active session",
+            "All selectors use data-testid or semantic locators (getByRole, getByLabel)"
+        ],
         tips: [
             "Використовуйте `page.waitForURL('**/dashboard')` замість статичних таймаутів",
             "Зберігайте паролі у файлі `.env` або через Test Fixtures",
             "Для скидання стану сесії запускайте тести в ізольованому браузерному контексті"
+        ],
+        tipsRu: [
+            "Используйте `page.waitForURL('**/dashboard')` вместо статических таймаутов",
+            "Храните пароли в файле `.env` или через Test Fixtures",
+            "Для сброса состояния сессии запускайте тесты в изолированном браузерном контексте"
+        ],
+        tipsEn: [
+            "Use `page.waitForURL('**/dashboard')` instead of static timeouts",
+            "Store credentials in `.env` file or via Test Fixtures",
+            "Run tests in an isolated browser context to reset session state"
         ]
     },
 
@@ -104,9 +130,29 @@ export class CabinetPage {
             "Метод `selectTab(tab)` перемикає вкладки та оновлює стан",
             "Наявний асершн для перевірки наявності 3-рівневої шкали сертифікації"
         ],
+        acceptanceCriteriaRu: [
+            "Класс CabinetPage содержит локаторы для всех 4 вкладок",
+            "Метод `goto(tab)` поддерживает прямые query-параметры",
+            "Метод `selectTab(tab)` переключает вкладки и обновляет состояние",
+            "Имеется assertion для проверки наличия 3-уровневой шкалы сертификации"
+        ],
+        acceptanceCriteriaEn: [
+            "CabinetPage class contains locators for all 4 tabs",
+            "Method `goto(tab)` supports direct query parameters",
+            "Method `selectTab(tab)` switches tabs and updates state",
+            "Assertion present to verify 3-level certification scale visibility"
+        ],
         tips: [
             "Використовуйте регулярні вирази в getByRole для підтримки мультимовності (UK/EN/RU)",
             "Не робіть викликів `page.waitForTimeout()` — покладайтесь на авто-очікування Playwright"
+        ],
+        tipsRu: [
+            "Используйте регулярные выражения в getByRole для поддержки мультиязычности (UK/EN/RU)",
+            "Не используйте `page.waitForTimeout()` — полагайтесь на авто-ожидание Playwright"
+        ],
+        tipsEn: [
+            "Use regex patterns in getByRole to support multilingual UI (UK/EN/RU)",
+            "Avoid `page.waitForTimeout()` calls — rely on Playwright's auto-waiting"
         ]
     },
 
@@ -142,8 +188,24 @@ test.describe('Certificate Verification Page', () => {
             "Валідація ступеня (Associate/Specialist/Architect)",
             "Перевірка атрибутів кнопки LinkedIn (правильні query params)"
         ],
+        acceptanceCriteriaRu: [
+            "Проверка открытия `/verify/sample` без ошибок 404/500",
+            "Валидация степени (Associate/Specialist/Architect)",
+            "Проверка атрибутов кнопки LinkedIn (правильные query params)"
+        ],
+        acceptanceCriteriaEn: [
+            "Verify `/verify/sample` opens without 404/500 errors",
+            "Validate tier level (Associate/Specialist/Architect)",
+            "Verify LinkedIn button attributes (correct query params)"
+        ],
         tips: [
             "Використовуйте `expect(href).toContain(...)` для перевірки динамічних посилань"
+        ],
+        tipsRu: [
+            "Используйте `expect(href).toContain(...)` для проверки динамических ссылок"
+        ],
+        tipsEn: [
+            "Use `expect(href).toContain(...)` to verify dynamic link attributes"
         ]
     },
 
@@ -184,9 +246,27 @@ def test_authorized_certificates_response_schema():
             "Перевірка структури JSON-відповіді з авторизацією",
             "Валідація полів: tier.id, totalTasks, percentage, isUnlocked"
         ],
+        acceptanceCriteriaRu: [
+            "Проверка статуса ответа без авторизации (401/403/Redirect)",
+            "Проверка структуры JSON-ответа с авторизацией",
+            "Валидация полей: tier.id, totalTasks, percentage, isUnlocked"
+        ],
+        acceptanceCriteriaEn: [
+            "Verify response status without authorization (401/403/Redirect)",
+            "Verify JSON response structure with authorization",
+            "Validate fields: tier.id, totalTasks, percentage, isUnlocked"
+        ],
         tips: [
             "Запускайте за допомогою `pytest -v tests/test_api_certs.py`",
             "Використовуйте pytest fixtures для підготовки авторизованого контексту"
+        ],
+        tipsRu: [
+            "Запускайте с помощью `pytest -v tests/test_api_certs.py`",
+            "Используйте pytest fixtures для подготовки авторизованного контекста"
+        ],
+        tipsEn: [
+            "Run with `pytest -v tests/test_api_certs.py`",
+            "Use pytest fixtures to prepare an authorized request context"
         ]
     },
 
@@ -220,8 +300,24 @@ def test_update_user_profile(authenticated_request_context):
             "Перевірка збереження контактів",
             "Валідація некоректного формату даних"
         ],
+        acceptanceCriteriaRu: [
+            "Проверка PATCH-запроса на `/api/user/profile`",
+            "Проверка сохранения контактов",
+            "Валидация некорректного формата данных"
+        ],
+        acceptanceCriteriaEn: [
+            "Verify PATCH request to `/api/user/profile`",
+            "Verify contacts are saved correctly",
+            "Validate error handling for incorrect data format"
+        ],
         tips: [
             "Перевіряйте зміну даних повторним GET-запитом (Idempotency / Verification)"
+        ],
+        tipsRu: [
+            "Проверяйте изменение данных повторным GET-запросом (Idempotency / Verification)"
+        ],
+        tipsEn: [
+            "Verify data changes with a follow-up GET request (Idempotency / Verification)"
         ]
     },
 
@@ -276,9 +372,29 @@ namespace PlaywrightTests
             "Введення коду в редактор та запуск симуляції",
             "Перевірка появи результату в терміналі"
         ],
+        acceptanceCriteriaRu: [
+            "Проект собран на .NET 8 / C# с пакетом Microsoft.Playwright.NUnit",
+            "Тест открывает страницу задания `/tasks/1`",
+            "Ввод кода в редактор и запуск симуляции",
+            "Проверка появления результата в терминале"
+        ],
+        acceptanceCriteriaEn: [
+            "Project built on .NET 8 / C# with Microsoft.Playwright.NUnit package",
+            "Test opens task page `/tasks/1`",
+            "Code entered into editor and simulation launched",
+            "Terminal output verified after execution"
+        ],
         tips: [
             "Використовуйте `dotnet test` для запуску тестів",
             "Завантажте браузери через `pwsh bin/Debug/net8.0/playwright.ps1 install`"
+        ],
+        tipsRu: [
+            "Используйте `dotnet test` для запуска тестов",
+            "Загрузите браузеры через `pwsh bin/Debug/net8.0/playwright.ps1 install`"
+        ],
+        tipsEn: [
+            "Use `dotnet test` to run your tests",
+            "Install browsers via `pwsh bin/Debug/net8.0/playwright.ps1 install`"
         ]
     },
 
@@ -320,9 +436,27 @@ test.describe('Network Interception & Mentor Notifications', () => {
             "Мокування відповіді зі статусом 'reviewed' та коментарем ментора",
             "Перевірка відображення глобального сповіщення на клієнті"
         ],
+        acceptanceCriteriaRu: [
+            "Использование `page.route` для перехвата HTTP-запроса",
+            "Мокирование ответа со статусом 'reviewed' и комментарием ментора",
+            "Проверка отображения глобального уведомления на клиенте"
+        ],
+        acceptanceCriteriaEn: [
+            "Use `page.route` to intercept HTTP requests",
+            "Mock response with 'reviewed' status and mentor comment",
+            "Verify global notification banner appears on the client"
+        ],
         tips: [
             "Встановлюйте route до виклику `page.goto()`",
             "Можна мокувати як успішні (200), так і помилкові відповіді (500) для перевірки стійкості UI"
+        ],
+        tipsRu: [
+            "Устанавливайте route до вызова `page.goto()`",
+            "Можно мокировать как успешные (200), так и ошибочные ответы (500) для проверки устойчивости UI"
+        ],
+        tipsEn: [
+            "Set up route before calling `page.goto()`",
+            "Mock both success (200) and error (500) responses to verify UI resilience"
         ]
     },
 
@@ -356,8 +490,24 @@ test.describe('Mobile Viewport & Navigation', () => {
             "Перевірка приховування десктопного меню",
             "Перевірка відкриття мобільного меню та клікабельності посилань"
         ],
+        acceptanceCriteriaRu: [
+            "Эмуляция `devices['iPhone 14 Pro']` или `devices['Pixel 7']`",
+            "Проверка скрытия десктопного меню",
+            "Проверка открытия мобильного меню и кликабельности ссылок"
+        ],
+        acceptanceCriteriaEn: [
+            "Emulate `devices['iPhone 14 Pro']` or `devices['Pixel 7']`",
+            "Verify desktop menu is hidden on mobile viewport",
+            "Verify mobile hamburger menu opens and links are clickable"
+        ],
         tips: [
             "Додайте конфігурацію мобільних девайсів у `playwright.config.ts` у розділ `projects`"
+        ],
+        tipsRu: [
+            "Добавьте конфигурацию мобильных устройств в `playwright.config.ts` в раздел `projects`"
+        ],
+        tipsEn: [
+            "Add mobile device configs to the `projects` section in `playwright.config.ts`"
         ]
     },
 
@@ -388,8 +538,24 @@ test.describe('Visual Regression Testing', () => {
             "Вимкнення CSS анімацій перед знімком (`animations: 'disabled'`)",
             "Порівняння скріншоту через `toHaveScreenshot` з допустимим threshold"
         ],
+        acceptanceCriteriaRu: [
+            "Фиксация viewport 1280x800",
+            "Отключение CSS анимаций перед снимком (`animations: 'disabled'`)",
+            "Сравнение скриншота через `toHaveScreenshot` с допустимым threshold"
+        ],
+        acceptanceCriteriaEn: [
+            "Fix viewport at 1280x800",
+            "Disable CSS animations before snapshot (`animations: 'disabled'`)",
+            "Compare screenshot via `toHaveScreenshot` with acceptable threshold"
+        ],
         tips: [
             "Для першого створення знімка запустіть `npx playwright test --update-snapshots`"
+        ],
+        tipsRu: [
+            "Для первого создания снимка запустите `npx playwright test --update-snapshots`"
+        ],
+        tipsEn: [
+            "Run `npx playwright test --update-snapshots` to create the initial baseline snapshot"
         ]
     },
 
@@ -469,8 +635,26 @@ jobs:
             "Інсталяція браузерів через `npx playwright install --with-deps`",
             "Збереження HTML артефактів після завершення тестів"
         ],
+        acceptanceCriteriaRu: [
+            "Пайплайн запускается на Push и Pull Request",
+            "Использование Matrix strategy для 3 стеков",
+            "Установка браузеров через `npx playwright install --with-deps`",
+            "Сохранение HTML артефактов после завершения тестов"
+        ],
+        acceptanceCriteriaEn: [
+            "Pipeline triggers on Push and Pull Request",
+            "Matrix strategy used for 3 stacks (TS / Python / C#)",
+            "Browsers installed via `npx playwright install --with-deps`",
+            "HTML test report artifacts uploaded after test run"
+        ],
         tips: [
             "Прапорець `fail-fast: false` дозволяє продовжити тестування інших стеків у разі падіння одного"
+        ],
+        tipsRu: [
+            "Флаг `fail-fast: false` позволяет продолжить тестирование других стеков при падении одного"
+        ],
+        tipsEn: [
+            "`fail-fast: false` allows other matrix stacks to continue even if one fails"
         ]
     },
 
@@ -525,9 +709,29 @@ export { expect };`,
             "Тести не містять ручних викликів `new BasePage(page)`",
             "Усі сторінки наслідують BasePage"
         ],
+        acceptanceCriteriaRu: [
+            "Класс BasePage содержит методы open(), waitForLoaded(), getTitle()",
+            "Фикстура calendarPage автоматически инициализирует страницу перед тестом",
+            "Тесты не содержат ручных вызовов `new BasePage(page)`",
+            "Все страницы наследуют BasePage"
+        ],
+        acceptanceCriteriaEn: [
+            "BasePage class contains open(), waitForLoaded(), getTitle() methods",
+            "calendarPage fixture automatically initializes the page before each test",
+            "Tests do not contain manual `new BasePage(page)` calls",
+            "All page objects extend BasePage"
+        ],
         tips: [
             "Використовуйте Custom Fixtures для інкапсуляції сетапу та тірдауну сторінок",
             "BasePage повинна бути абстрактною (abstract class) або містити захищений конструктор"
+        ],
+        tipsRu: [
+            "Используйте Custom Fixtures для инкапсуляции сетапа и тирдауна страниц",
+            "BasePage должна быть абстрактным классом (abstract class) или содержать защищённый конструктор"
+        ],
+        tipsEn: [
+            "Use Custom Fixtures to encapsulate page setup and teardown logic",
+            "BasePage should be abstract or have a protected constructor"
         ]
     },
 
@@ -579,8 +783,24 @@ export class EventCalendarPage extends BasePage {
             "Web-first assertions (expect(locator).toBeVisible())",
             "Перевірка відсутності жорстких таймаутів (waitForTimeout заборонено)"
         ],
+        acceptanceCriteriaRu: [
+            "Инкапсуляция селекторов поиска и фильтрации в соответствующие методы",
+            "Web-first assertions (expect(locator).toBeVisible())",
+            "Проверка отсутствия жёстких таймаутов (waitForTimeout запрещён)"
+        ],
+        acceptanceCriteriaEn: [
+            "Search and filter selectors encapsulated into dedicated methods",
+            "Web-first assertions used (expect(locator).toBeVisible())",
+            "No hard timeouts present (waitForTimeout is forbidden)"
+        ],
         tips: [
             "Використовуйте `page.getByRole('button', { name: ... })` замість ненадійних CSS-класів"
+        ],
+        tipsRu: [
+            "Используйте `page.getByRole('button', { name: ... })` вместо ненадёжных CSS-классов"
+        ],
+        tipsEn: [
+            "Prefer `page.getByRole('button', { name: ... })` over fragile CSS class selectors"
         ]
     },
 
@@ -623,8 +843,24 @@ export class EventDetailsPage extends BasePage {
             "Кнопка 'Register Now' доступна тільки для відкритих категорій",
             "Для категорій 'Sold Out' відображається статус або кнопка вимкнена"
         ],
+        acceptanceCriteriaRu: [
+            "Выбор дистанции обновляет отображаемую цену",
+            "Кнопка 'Register Now' доступна только для открытых категорий",
+            "Для категорий 'Sold Out' отображается статус или кнопка отключена"
+        ],
+        acceptanceCriteriaEn: [
+            "Selecting a distance updates the displayed price",
+            "'Register Now' button is active only for open categories",
+            "'Sold Out' categories show a status badge or disabled button"
+        ],
         tips: [
             "Парсіть числове значення ціни за допомогою `parseFloat(priceText.replace(/[^0-9.]/g, ''))`"
+        ],
+        tipsRu: [
+            "Парсите числовое значение цены с помощью `parseFloat(priceText.replace(/[^0-9.]/g, ''))`"
+        ],
+        tipsEn: [
+            "Parse the numeric price value using `parseFloat(priceText.replace(/[^0-9.]/g, ''))`"
         ]
     },
 
@@ -669,8 +905,24 @@ export class CheckoutPage extends BasePage {
             "Валідація повідомлення про помилку при недійсному промокоді",
             "Округлення фінансових сум до 2 знаків"
         ],
+        acceptanceCriteriaRu: [
+            "Проверка итога: Total = Subtotal + VAT + ServiceFee",
+            "Валидация сообщения об ошибке при недействительном промокоде",
+            "Округление финансовых сумм до 2 знаков"
+        ],
+        acceptanceCriteriaEn: [
+            "Verify total: Total = Subtotal + VAT + ServiceFee",
+            "Validate error message for invalid promo code",
+            "Financial amounts rounded to 2 decimal places"
+        ],
         tips: [
             "Перевіряйте зміну Total після застосування успішного промокоду"
+        ],
+        tipsRu: [
+            "Проверяйте изменение Total после применения успешного промокода"
+        ],
+        tipsEn: [
+            "Verify that Total updates correctly after applying a valid promo code"
         ]
     },
 
@@ -716,8 +968,26 @@ export class PaymentMockHelper {
             "Перевірка показу червоного алерта користувачу без падіння сторінки",
             "Мокування 200 OK з генерацією успішного номера замовлення"
         ],
+        acceptanceCriteriaRu: [
+            "Перехват POST запроса к платёжному шлюзу через page.route",
+            "Мокирование статуса 402 с телом отклонённой карты",
+            "Проверка показа красного алерта пользователю без падения страницы",
+            "Мокирование 200 OK с генерацией успешного номера заказа"
+        ],
+        acceptanceCriteriaEn: [
+            "Intercept POST request to payment gateway via page.route",
+            "Mock 402 status with declined card response body",
+            "Verify red alert shown to user without page crash",
+            "Mock 200 OK with generated successful order number"
+        ],
         tips: [
             "Використовуйте `await page.unroute('**/payment/process')` для очищення моків"
+        ],
+        tipsRu: [
+            "Используйте `await page.unroute('**/payment/process')` для очистки моков"
+        ],
+        tipsEn: [
+            "Use `await page.unroute('**/payment/process')` to clean up mocks after the test"
         ]
     }
 };

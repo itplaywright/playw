@@ -94,6 +94,19 @@ export default function TaskDialog({
 
     const taskHelper = getTaskHelper(title, description)
 
+    // Criteria & tips in selected language (follows same langMode as title/description)
+    const currentCriteria = (langMode === 'en' && taskHelper.acceptanceCriteriaEn?.length)
+        ? taskHelper.acceptanceCriteriaEn
+        : (locale === 'ru' && taskHelper.acceptanceCriteriaRu?.length)
+            ? taskHelper.acceptanceCriteriaRu
+            : taskHelper.acceptanceCriteria
+
+    const currentTips = (langMode === 'en' && taskHelper.tipsEn?.length)
+        ? taskHelper.tipsEn
+        : (locale === 'ru' && taskHelper.tipsRu?.length)
+            ? taskHelper.tipsRu
+            : taskHelper.tips
+
     // Load existing submission for this task
     useEffect(() => {
         if (!task?.id || mode !== 'view') return
@@ -397,14 +410,14 @@ export default function TaskDialog({
                                     </div>
 
                                     {/* Acceptance Criteria */}
-                                    {taskHelper.acceptanceCriteria?.length > 0 && (
+                                    {currentCriteria?.length > 0 && (
                                         <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
                                             <h3 className="text-xs font-black uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
                                                 <CheckCircle2 className="w-3.5 h-3.5" />
                                                 <span>{t("acceptanceCriteria")}</span>
                                             </h3>
                                             <ul className="space-y-1.5">
-                                                {taskHelper.acceptanceCriteria.map((crit, idx) => (
+                                                {currentCriteria.map((crit, idx) => (
                                                     <li key={idx} className="flex items-start gap-2 text-xs text-slate-300">
                                                         <span className="text-emerald-400 font-bold">•</span>
                                                         <span>{crit}</span>
@@ -415,14 +428,14 @@ export default function TaskDialog({
                                     )}
 
                                     {/* Tips */}
-                                    {taskHelper.tips?.length > 0 && (
+                                    {currentTips?.length > 0 && (
                                         <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20">
                                             <h3 className="text-xs font-black uppercase tracking-wider text-indigo-400 mb-2 flex items-center gap-1.5">
                                                 <Sparkles className="w-3.5 h-3.5" />
                                                 <span>{t("mentorTips")}</span>
                                             </h3>
                                             <ul className="space-y-1.5">
-                                                {taskHelper.tips.map((tip, idx) => (
+                                                {currentTips.map((tip, idx) => (
                                                     <li key={idx} className="flex items-start gap-2 text-xs text-slate-300">
                                                         <span className="text-indigo-400 font-bold">•</span>
                                                         <span>{tip}</span>

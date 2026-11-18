@@ -68,7 +68,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
             </div>
 
             {/* Top Navigation Bar */}
-            <header className="flex-shrink-0 h-14 bg-[#0B1120]/80 backdrop-blur-xl border-b border-white/10 flex items-center px-4 sm:px-6 justify-between">
+            <header className="relative z-40 flex-shrink-0 h-14 bg-[#0B1120]/80 backdrop-blur-xl border-b border-white/10 flex items-center px-4 sm:px-6 justify-between">
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     <Link
                         href="/projects"

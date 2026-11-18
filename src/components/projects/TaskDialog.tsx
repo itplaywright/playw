@@ -74,7 +74,21 @@ export default function TaskDialog({
     const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
     const [langMode, setLangMode] = useState<'en' | 'native'>(locale === 'en' ? 'en' : 'native')
 
-    const taskHelper = getTaskHelper(title, description)
+    useEffect(() => {
+        setLangMode(locale === 'en' ? 'en' : 'native')
+    }, [locale, task?.id])
+
+    useEffect(() => {
+        if (task) {
+            setTitle(task.title || "")
+            setDescription(task.description || "")
+            setPriority(task.priority || "medium")
+            setAssigneeId(task.assigneeId || "")
+            setCurrentColumnId(task.columnId || columnId)
+        }
+    }, [task?.id])
+
+    const taskHelper = getTaskHelper(task?.title || title, task?.description || description)
 
     // Criteria & tips in selected language (follows same langMode as title/description)
     const currentCriteria = (langMode === 'en' && taskHelper.acceptanceCriteriaEn?.length)
@@ -363,6 +377,7 @@ export default function TaskDialog({
                             {/* View Tabs */}
                             <div className="flex border-b border-white/10 gap-4">
                                 <button
+                                    type="button"
                                     onClick={() => setActiveTab('details')}
                                     className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all ${
                                         activeTab === 'details'
@@ -373,6 +388,7 @@ export default function TaskDialog({
                                     {t("taskDesc")}
                                 </button>
                                 <button
+                                    type="button"
                                     onClick={() => setActiveTab('code')}
                                     className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 ${
                                         activeTab === 'code'
@@ -384,6 +400,7 @@ export default function TaskDialog({
                                     <span>{t("starterCode")}</span>
                                 </button>
                                 <button
+                                    type="button"
                                     onClick={() => setActiveTab('submit')}
                                     className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 ${
                                         activeTab === 'submit'

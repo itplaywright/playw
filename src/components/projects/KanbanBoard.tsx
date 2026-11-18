@@ -391,6 +391,7 @@ export default function KanbanBoard({
 
             {showTaskDialog && (
                 <TaskDialog
+                    key={editingTask ? `task-${editingTask.id}` : 'new-task'}
                     boardId={boardId}
                     columnId={activeColumnId || (localColumns.length > 0 ? localColumns[0].id : 0)}
                     columns={localColumns}

@@ -72,7 +72,7 @@ export default function TaskDialog({
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
     const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
-    const [langMode, setLangMode] = useState<'en' | 'native'>('en')
+    const [langMode, setLangMode] = useState<'en' | 'native'>(locale === 'en' ? 'en' : 'native')
 
     const taskHelper = getTaskHelper(title, description)
 

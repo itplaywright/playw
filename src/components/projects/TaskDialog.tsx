@@ -270,7 +270,7 @@ export default function TaskDialog({
                         <>
                             {/* Title & Category Badge */}
                             <div>
-                                {hasEnglish && (
+                                {hasEnglish && locale !== 'en' && (
                                     <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/[0.04] border border-white/10 mb-3">
                                         <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
                                             <Globe className="w-3.5 h-3.5 text-blue-400" />
@@ -308,7 +308,7 @@ export default function TaskDialog({
                                 <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-bold mb-2">
                                     <Code2 className="w-3.5 h-3.5" />
                                     <span>{taskHelper.category}</span>
-                                    {hasEnglish && (
+                                    {hasEnglish && locale !== 'en' && (
                                         <span className="ml-1 text-[10px] text-slate-400 border-l border-white/10 pl-2">
                                             {langMode === 'en' ? t("jiraOriginal") : t("nativeTranslation")}
                                         </span>

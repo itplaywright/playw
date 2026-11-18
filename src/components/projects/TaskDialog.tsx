@@ -74,7 +74,22 @@ export default function TaskDialog({
     const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
     const [langMode, setLangMode] = useState<'en' | 'native'>('en')
 
-    const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn)
+    const taskHelper = getTaskHelper(title, description)
+
+    // Criteria & tips in selected language (follows same langMode as title/description)
+    const currentCriteria = (langMode === 'en' && taskHelper.acceptanceCriteriaEn?.length)
+        ? taskHelper.acceptanceCriteriaEn
+        : (locale === 'ru' && taskHelper.acceptanceCriteriaRu?.length)
+            ? taskHelper.acceptanceCriteriaRu
+            : taskHelper.acceptanceCriteria
+
+    const currentTips = (langMode === 'en' && taskHelper.tipsEn?.length)
+        ? taskHelper.tipsEn
+        : (locale === 'ru' && taskHelper.tipsRu?.length)
+            ? taskHelper.tipsRu
+            : taskHelper.tips
+
+    const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn || taskHelper.acceptanceCriteriaEn?.length)
     const nativeTitle = locale === 'ru' ? (task?.titleRu || task?.title || title) : (task?.title || title)
     const nativeDesc = locale === 'ru' ? (task?.descriptionRu || task?.description || description) : (task?.description || description)
     const currentTitle = (langMode === 'en' && task?.titleEn) ? task.titleEn : nativeTitle
@@ -91,21 +106,6 @@ export default function TaskDialog({
     const [isSubmittingReview, setIsSubmittingReview] = useState(false)
     const [mySubmission, setMySubmission] = useState<any>(null)
     const [isLoadingSubmission, setIsLoadingSubmission] = useState(false)
-
-    const taskHelper = getTaskHelper(title, description)
-
-    // Criteria & tips in selected language (follows same langMode as title/description)
-    const currentCriteria = (langMode === 'en' && taskHelper.acceptanceCriteriaEn?.length)
-        ? taskHelper.acceptanceCriteriaEn
-        : (locale === 'ru' && taskHelper.acceptanceCriteriaRu?.length)
-            ? taskHelper.acceptanceCriteriaRu
-            : taskHelper.acceptanceCriteria
-
-    const currentTips = (langMode === 'en' && taskHelper.tipsEn?.length)
-        ? taskHelper.tipsEn
-        : (locale === 'ru' && taskHelper.tipsRu?.length)
-            ? taskHelper.tipsRu
-            : taskHelper.tips
 
     // Load existing submission for this task
     useEffect(() => {

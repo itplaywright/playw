@@ -73,9 +73,9 @@ export default function TaskDialog({
     const [copiedCode, setCopiedCode] = useState(false)
     const taskHelper = getTaskHelper(task?.title || title, task?.description || description)
     const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn || taskHelper.acceptanceCriteriaEn?.length)
-    const defaultTab = hasEnglish && locale !== 'en' ? 'jira' : 'details'
+    const defaultTab = hasEnglish && locale !== 'en' ? 'native' : (locale === 'en' ? 'jira' : 'details')
     const [activeTab, setActiveTab] = useState<'jira' | 'native' | 'details' | 'code' | 'submit'>(defaultTab)
-    const [lastRequirementsLang, setLastRequirementsLang] = useState<'en' | 'native'>('en')
+    const [lastRequirementsLang, setLastRequirementsLang] = useState<'en' | 'native'>(locale === 'en' ? 'en' : 'native')
 
     useEffect(() => {
         if (activeTab === 'jira') setLastRequirementsLang('en')
@@ -83,7 +83,8 @@ export default function TaskDialog({
     }, [activeTab])
 
     useEffect(() => {
-        setActiveTab(hasEnglish && locale !== 'en' ? 'jira' : 'details')
+        setActiveTab(hasEnglish && locale !== 'en' ? 'native' : (locale === 'en' ? 'jira' : 'details'))
+        setLastRequirementsLang(locale === 'en' ? 'en' : 'native')
     }, [locale, task?.id, hasEnglish])
 
     useEffect(() => {

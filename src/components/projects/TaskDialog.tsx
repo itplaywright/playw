@@ -73,9 +73,9 @@ export default function TaskDialog({
     const [copiedCode, setCopiedCode] = useState(false)
     const taskHelper = getTaskHelper(task?.title || title, task?.description || description)
     const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn || taskHelper.acceptanceCriteriaEn?.length)
-    const defaultTab = hasEnglish && locale !== 'en' ? 'native' : (locale === 'en' ? 'jira' : 'details')
+    const defaultTab = hasEnglish ? 'jira' : 'details'
     const [activeTab, setActiveTab] = useState<'jira' | 'native' | 'details' | 'code' | 'submit'>(defaultTab)
-    const [lastRequirementsLang, setLastRequirementsLang] = useState<'en' | 'native'>(locale === 'en' ? 'en' : 'native')
+    const [lastRequirementsLang, setLastRequirementsLang] = useState<'en' | 'native'>('en')
 
     useEffect(() => {
         if (activeTab === 'jira') setLastRequirementsLang('en')
@@ -83,8 +83,8 @@ export default function TaskDialog({
     }, [activeTab])
 
     useEffect(() => {
-        setActiveTab(hasEnglish && locale !== 'en' ? 'native' : (locale === 'en' ? 'jira' : 'details'))
-        setLastRequirementsLang(locale === 'en' ? 'en' : 'native')
+        setActiveTab(hasEnglish ? 'jira' : 'details')
+        setLastRequirementsLang('en')
     }, [locale, task?.id, hasEnglish])
 
     useEffect(() => {
@@ -264,7 +264,7 @@ export default function TaskDialog({
                         </div>
                         <div>
                             <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
-                                {mode === 'view' ? t("viewTask") : task ? t("editTask") : t("createTask")}
+                                {mode === 'view' ? (isJiraMode ? "Task Details" : t("viewTask")) : task ? t("editTask") : t("createTask")}
                             </h2>
                             {task && (
                                 <p className="text-[10px] text-slate-400 font-mono">ID: #{task.id}</p>
@@ -305,7 +305,7 @@ export default function TaskDialog({
                                 <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10">
                                     <div className="flex items-center justify-between mb-2">
                                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                            {t("moveToColumn")}:
+                                            {isJiraMode ? "Move to Column:" : `${t("moveToColumn")}:`}
                                         </p>
                                         {mySubmission && (
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
@@ -393,7 +393,7 @@ export default function TaskDialog({
                                     }`}
                                 >
                                     <Code2 className="w-3.5 h-3.5" />
-                                    <span>{t("starterCode")}</span>
+                                    <span>{isJiraMode ? "Starter Code" : t("starterCode")}</span>
                                 </button>
                                 <button
                                     type="button"
@@ -405,7 +405,7 @@ export default function TaskDialog({
                                     }`}
                                 >
                                     <Send className="w-3.5 h-3.5" />
-                                    <span>{t("tabSubmit")}</span>
+                                    <span>{isJiraMode ? "Submit for Review" : t("tabSubmit")}</span>
                                     {mySubmission && (
                                         <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                                     )}
@@ -427,7 +427,7 @@ export default function TaskDialog({
                                         <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
                                             <h3 className="text-xs font-black uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
                                                 <CheckCircle2 className="w-3.5 h-3.5" />
-                                                <span>{t("acceptanceCriteria")}</span>
+                                                <span>{isJiraMode ? "Acceptance Criteria" : t("acceptanceCriteria")}</span>
                                             </h3>
                                             <ul className="space-y-1.5">
                                                 {currentCriteria.map((crit, idx) => (
@@ -445,7 +445,7 @@ export default function TaskDialog({
                                         <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20">
                                             <h3 className="text-xs font-black uppercase tracking-wider text-indigo-400 mb-2 flex items-center gap-1.5">
                                                 <Sparkles className="w-3.5 h-3.5" />
-                                                <span>{t("mentorTips")}</span>
+                                                <span>{isJiraMode ? "Mentor Tips" : t("mentorTips")}</span>
                                             </h3>
                                             <ul className="space-y-1.5">
                                                 {currentTips.map((tip, idx) => (
@@ -472,7 +472,7 @@ export default function TaskDialog({
                                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-bold transition-all border border-blue-500/30"
                                         >
                                             {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                            <span>{copiedCode ? t("copied") : t("copyCode")}</span>
+                                            <span>{copiedCode ? (isJiraMode ? "Copied" : t("copied")) : (isJiraMode ? "Copy Code" : t("copyCode"))}</span>
                                         </button>
                                     </div>
 
@@ -529,13 +529,13 @@ export default function TaskDialog({
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                                                 <GitPullRequest className="w-3.5 h-3.5 text-blue-400" />
-                                                <span>{t("githubUrlLabel")}</span>
+                                                <span>{isJiraMode ? "GitHub PR / Solution URL" : t("githubUrlLabel")}</span>
                                             </label>
                                             <input
                                                 type="url"
                                                 value={githubUrl}
                                                 onChange={(e) => setGithubUrl(e.target.value)}
-                                                placeholder={t("githubUrlPlaceholder")}
+                                                placeholder={isJiraMode ? "https://github.com/username/repo/pull/1" : t("githubUrlPlaceholder")}
                                                 className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-xs outline-none"
                                             />
                                         </div>
@@ -543,13 +543,13 @@ export default function TaskDialog({
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                                                 <Code2 className="w-3.5 h-3.5 text-purple-400" />
-                                                <span>{t("solutionCodeLabel")}</span>
+                                                <span>{isJiraMode ? "Solution Code (optional)" : t("solutionCodeLabel")}</span>
                                             </label>
                                             <textarea
                                                 rows={4}
                                                 value={solutionCode}
                                                 onChange={(e) => setSolutionCode(e.target.value)}
-                                                placeholder={t("solutionCodePlaceholder")}
+                                                placeholder={isJiraMode ? "// Paste your solution code here if needed..." : t("solutionCodePlaceholder")}
                                                 className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-xs font-mono outline-none resize-none"
                                             />
                                         </div>
@@ -557,13 +557,13 @@ export default function TaskDialog({
                                         <div className="space-y-1.5">
                                             <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                                                 <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
-                                                <span>{t("notesLabel")}</span>
+                                                <span>{isJiraMode ? "Notes for Mentor (optional)" : t("notesLabel")}</span>
                                             </label>
                                             <input
                                                 type="text"
                                                 value={studentNotes}
                                                 onChange={(e) => setStudentNotes(e.target.value)}
-                                                placeholder={t("notesPlaceholder")}
+                                                placeholder={isJiraMode ? "e.g. Completed step 1 and step 2" : t("notesPlaceholder")}
                                                 className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500 text-white text-xs outline-none"
                                             />
                                         </div>
@@ -574,7 +574,7 @@ export default function TaskDialog({
                                             className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                                         >
                                             <Send className="w-4 h-4" />
-                                            <span>{isSubmittingReview ? t("sending") : t("submitToMentorBtn")}</span>
+                                            <span>{isSubmittingReview ? (isJiraMode ? "Sending..." : t("sending")) : (isJiraMode ? "Submit to Mentor" : t("submitToMentorBtn"))}</span>
                                         </button>
                                     </form>
                                 </div>
@@ -584,7 +584,7 @@ export default function TaskDialog({
                             <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
                                 <ShieldAlert className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                                 <p className="text-[11px] text-amber-200 leading-relaxed">
-                                    {t("mentorNotice")}
+                                    {isJiraMode ? "Core Rule: Certification and tasks are officially counted only after 100% manual mentor review." : t("mentorNotice")}
                                 </p>
                             </div>
                         </>
@@ -673,7 +673,7 @@ export default function TaskDialog({
                             onClick={onClose}
                             className="px-6 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all"
                         >
-                            {t("close")}
+                            {isJiraMode ? "Close" : t("close")}
                         </button>
                     </div>
                 )}

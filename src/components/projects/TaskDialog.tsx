@@ -71,12 +71,20 @@ export default function TaskDialog({
     const [currentColumnId, setCurrentColumnId] = useState<number>(task?.columnId || columnId)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
-    const [activeTab, setActiveTab] = useState<'details' | 'code' | 'submit'>('details')
-    const [langMode, setLangMode] = useState<'en' | 'native'>(locale === 'en' ? 'en' : 'native')
+    const taskHelper = getTaskHelper(task?.title || title, task?.description || description)
+    const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn || taskHelper.acceptanceCriteriaEn?.length)
+    const defaultTab = hasEnglish && locale !== 'en' ? 'jira' : 'details'
+    const [activeTab, setActiveTab] = useState<'jira' | 'native' | 'details' | 'code' | 'submit'>(defaultTab)
+    const [lastRequirementsLang, setLastRequirementsLang] = useState<'en' | 'native'>('en')
 
     useEffect(() => {
-        setLangMode(locale === 'en' ? 'en' : 'native')
-    }, [locale, task?.id])
+        if (activeTab === 'jira') setLastRequirementsLang('en')
+        if (activeTab === 'native') setLastRequirementsLang('native')
+    }, [activeTab])
+
+    useEffect(() => {
+        setActiveTab(hasEnglish && locale !== 'en' ? 'jira' : 'details')
+    }, [locale, task?.id, hasEnglish])
 
     useEffect(() => {
         if (task) {
@@ -88,26 +96,19 @@ export default function TaskDialog({
         }
     }, [task?.id])
 
-    const taskHelper = getTaskHelper(task?.title || title, task?.description || description)
+    const isJiraMode = activeTab === 'jira' || (activeTab === 'details' && locale === 'en') || (activeTab !== 'native' && lastRequirementsLang === 'en')
+    const currentCriteria = isJiraMode
+        ? (taskHelper.acceptanceCriteriaEn?.length ? taskHelper.acceptanceCriteriaEn : taskHelper.acceptanceCriteria)
+        : (locale === 'ru' && taskHelper.acceptanceCriteriaRu?.length ? taskHelper.acceptanceCriteriaRu : taskHelper.acceptanceCriteria)
 
-    // Criteria & tips in selected language (follows same langMode as title/description)
-    const currentCriteria = (langMode === 'en' && taskHelper.acceptanceCriteriaEn?.length)
-        ? taskHelper.acceptanceCriteriaEn
-        : (locale === 'ru' && taskHelper.acceptanceCriteriaRu?.length)
-            ? taskHelper.acceptanceCriteriaRu
-            : taskHelper.acceptanceCriteria
+    const currentTips = isJiraMode
+        ? (taskHelper.tipsEn?.length ? taskHelper.tipsEn : taskHelper.tips)
+        : (locale === 'ru' && taskHelper.tipsRu?.length ? taskHelper.tipsRu : taskHelper.tips)
 
-    const currentTips = (langMode === 'en' && taskHelper.tipsEn?.length)
-        ? taskHelper.tipsEn
-        : (locale === 'ru' && taskHelper.tipsRu?.length)
-            ? taskHelper.tipsRu
-            : taskHelper.tips
-
-    const hasEnglish = Boolean(task?.titleEn || task?.descriptionEn || taskHelper.acceptanceCriteriaEn?.length)
     const nativeTitle = locale === 'ru' ? (task?.titleRu || task?.title || title) : (task?.title || title)
     const nativeDesc = locale === 'ru' ? (task?.descriptionRu || task?.description || description) : (task?.description || description)
-    const currentTitle = (langMode === 'en' && task?.titleEn) ? task.titleEn : nativeTitle
-    const currentDescription = (langMode === 'en' && task?.descriptionEn) ? task.descriptionEn : nativeDesc
+    const currentTitle = isJiraMode && task?.titleEn ? task.titleEn : nativeTitle
+    const currentDescription = isJiraMode ? (task?.descriptionEn || task?.description || description) : nativeDesc
 
     useEffect(() => {
         setMounted(true)
@@ -284,47 +285,12 @@ export default function TaskDialog({
                         <>
                             {/* Title & Category Badge */}
                             <div>
-                                {hasEnglish && locale !== 'en' && (
-                                    <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/[0.04] border border-white/10 mb-3">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-                                            <Globe className="w-3.5 h-3.5 text-blue-400" />
-                                            <span>{t("ticketLanguage")}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                            <button
-                                                type="button"
-                                                onClick={() => setLangMode('en')}
-                                                className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 ${
-                                                    langMode === 'en'
-                                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/40'
-                                                        : 'text-slate-400 hover:text-white'
-                                                }`}
-                                            >
-                                                <span>🇬🇧</span>
-                                                <span>{t("jiraOriginal")}</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setLangMode('native')}
-                                                className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 ${
-                                                    langMode === 'native'
-                                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/40'
-                                                        : 'text-slate-400 hover:text-white'
-                                                }`}
-                                            >
-                                                <span>{locale === 'ru' ? '🇷🇺' : '🇺🇦'}</span>
-                                                <span>{t("nativeTranslation")}</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
                                 <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-bold mb-2">
                                     <Code2 className="w-3.5 h-3.5" />
                                     <span>{taskHelper.category}</span>
                                     {hasEnglish && locale !== 'en' && (
                                         <span className="ml-1 text-[10px] text-slate-400 border-l border-white/10 pl-2">
-                                            {langMode === 'en' ? t("jiraOriginal") : t("nativeTranslation")}
+                                            {isJiraMode ? t("jiraOriginal") : t("nativeTranslation")}
                                         </span>
                                     )}
                                 </div>
@@ -375,22 +341,51 @@ export default function TaskDialog({
                             )}
 
                             {/* View Tabs */}
-                            <div className="flex border-b border-white/10 gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveTab('details')}
-                                    className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all ${
-                                        activeTab === 'details'
-                                            ? "border-blue-500 text-blue-400"
-                                            : "border-transparent text-slate-400 hover:text-white"
-                                    }`}
-                                >
-                                    {t("taskDesc")}
-                                </button>
+                            <div className="flex border-b border-white/10 gap-3 sm:gap-4 overflow-x-auto scrollbar-none">
+                                {hasEnglish && locale !== 'en' ? (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveTab('jira')}
+                                            className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                                                activeTab === 'jira'
+                                                    ? "border-blue-500 text-blue-400"
+                                                    : "border-transparent text-slate-400 hover:text-white"
+                                            }`}
+                                        >
+                                            <span>🇬🇧</span>
+                                            <span>{t("jiraOriginal")}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveTab('native')}
+                                            className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                                                activeTab === 'native'
+                                                    ? "border-blue-500 text-blue-400"
+                                                    : "border-transparent text-slate-400 hover:text-white"
+                                            }`}
+                                        >
+                                            <span>{locale === 'ru' ? '🇷🇺' : '🇺🇦'}</span>
+                                            <span>{t("nativeTranslation")}</span>
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveTab('details')}
+                                        className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all whitespace-nowrap ${
+                                            activeTab === 'details'
+                                                ? "border-blue-500 text-blue-400"
+                                                : "border-transparent text-slate-400 hover:text-white"
+                                        }`}
+                                    >
+                                        {locale === 'en' ? '🇬🇧 Jira Requirements' : t("taskDesc")}
+                                    </button>
+                                )}
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab('code')}
-                                    className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 ${
+                                    className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
                                         activeTab === 'code'
                                             ? "border-blue-500 text-blue-400"
                                             : "border-transparent text-slate-400 hover:text-white"
@@ -402,7 +397,7 @@ export default function TaskDialog({
                                 <button
                                     type="button"
                                     onClick={() => setActiveTab('submit')}
-                                    className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 ${
+                                    className={`pb-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
                                         activeTab === 'submit'
                                             ? "border-purple-500 text-purple-400"
                                             : "border-transparent text-slate-400 hover:text-white"
@@ -416,8 +411,8 @@ export default function TaskDialog({
                                 </button>
                             </div>
 
-                            {/* TAB 1: DETAILS */}
-                            {activeTab === 'details' && (
+                            {/* TAB 1: DETAILS (Jira / Native / Details) */}
+                            {(activeTab === 'jira' || activeTab === 'native' || activeTab === 'details') && (
                                 <div className="space-y-4">
                                     {/* Description */}
                                     <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10">

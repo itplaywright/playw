@@ -803,7 +803,8 @@
     "columnInProgress": "В процессе",
     "columnReview": "Ревью",
     "columnDone": "Готово",
-    "saveChanges": "Сохранить изменения"
+    "saveChanges": "Сохранить изменения",
+    "managementSystem": "Система управления проектами"
   },
   "Verify": {
     "certNotFound": "Сертификат не найден",

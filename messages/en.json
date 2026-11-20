@@ -803,7 +803,8 @@
     "columnInProgress": "In Progress",
     "columnReview": "Review",
     "columnDone": "Done",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "managementSystem": "Project Management System"
   },
   "Verify": {
     "certNotFound": "Certificate Not Found",

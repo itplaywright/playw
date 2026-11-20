@@ -12,13 +12,19 @@ import Sidebar from "@/components/layout/Sidebar"
 interface Board {
     id: number
     title: string
+    titleEn?: string | null
+    titleRu?: string | null
     description: string | null
+    descriptionEn?: string | null
+    descriptionRu?: string | null
     createdAt: string | Date
 }
 
 interface Track {
     id: number
     title: string
+    titleEn?: string | null
+    titleRu?: string | null
     order: number | null
 }
 
@@ -98,7 +104,7 @@ export default function ProjectsClient({
                                     <h1 className="text-3xl font-black text-white tracking-tight">{t("title")}</h1>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Project Management System</p>
+                                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">{t("managementSystem")}</p>
                                     </div>
                                 </div>
                             </div>

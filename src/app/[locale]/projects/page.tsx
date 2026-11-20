@@ -6,7 +6,8 @@ import { eq, desc, asc, or, and, isNull, inArray } from "drizzle-orm"
 import ProjectsClient from "@/components/projects/ProjectsClient"
 import { checkHasAccess } from "@/lib/access"
 
-export default async function ProjectsPage() {
+export default async function ProjectsPage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params
     const session = await auth()
     if (!session?.user) {
         redirect("/")
@@ -80,7 +81,20 @@ export default async function ProjectsPage() {
             .where(or(...conditions))
             .orderBy(desc(projectBoards.createdAt));
     }
-    const visibleTracks = isAdmin ? allTracks : allTracks.filter(t => t.isActive)
+
+    const localizedTracks = allTracks.map(t => ({
+        ...t,
+        title: locale === 'en' ? (t.titleEn || t.title) : locale === 'ru' ? (t.titleRu || t.title) : t.title,
+        description: locale === 'en' ? (t.descriptionEn || t.description) : locale === 'ru' ? (t.descriptionRu || t.description) : t.description,
+    }))
+
+    const localizedBoards = boards.map(b => ({
+        ...b,
+        title: locale === 'en' ? (b.titleEn || b.title) : locale === 'ru' ? (b.titleRu || b.title) : b.title,
+        description: locale === 'en' ? (b.descriptionEn || b.description) : locale === 'ru' ? (b.descriptionRu || b.description) : b.description,
+    }))
+
+    const visibleTracks = isAdmin ? localizedTracks : localizedTracks.filter(t => t.isActive)
     const visibleTasks = isAdmin ? allTasks : allTasks.filter(t => t.isActive)
 
     // Pre-compute status map
@@ -101,7 +115,7 @@ export default async function ProjectsPage() {
 
     return (
         <ProjectsClient
-            initialBoards={boards as any}
+            initialBoards={localizedBoards as any}
             isAdmin={isAdmin}
             tracks={visibleTracks as any}
             tasks={visibleTasks as any}

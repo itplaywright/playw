@@ -1,7 +1,7 @@
 "use client"
 
 import { Link } from "@/i18n/routing"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import {
     Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock, Award
 } from "lucide-react"
@@ -9,6 +9,8 @@ import {
 interface Track {
     id: number
     title: string
+    titleEn?: string | null
+    titleRu?: string | null
     order: number | null
 }
 
@@ -40,6 +42,14 @@ export default function Sidebar({
     overallPct
 }: SidebarProps) {
     const t = useTranslations("Sidebar")
+    const locale = useLocale()
+
+    const getTrackTitle = (track: Track) => {
+        if (locale === 'en' && track.titleEn) return track.titleEn
+        if (locale === 'ru' && track.titleRu) return track.titleRu
+        return track.title
+    }
+
     // Extract level number from track title (e.g. "Рівень 2 — ..." / "Level 2 — ..." / "Уровень 2 — ..." -> 2)
     const getLevelNum = (title: string, order: number | null) => {
         const match = title.match(/(?:[Рр][іи]вень|[Уу]ровень|Level)\s*(\d+)/i)
@@ -144,12 +154,13 @@ export default function Sidebar({
                     const { done, total } = getTrackProgress(track.id)
                     const pct = total > 0 ? Math.round((done / total) * 100) : 0
                     const isSelected = track.id === selectedTrackId
-                    const isPro = isProTrack(track.title, track.order)
+                    const localizedTitle = getTrackTitle(track)
+                    const isPro = isProTrack(localizedTitle, track.order)
 
                     const content = (
                         <div className="flex flex-col gap-1.5 w-full">
                             <div className="flex items-center gap-2">
-                                <span className={`text-xs font-bold tracking-wide truncate flex-1 ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>{track.title}</span>
+                                <span className={`text-xs font-bold tracking-wide truncate flex-1 ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>{localizedTitle}</span>
                                 {isPro && !isAdmin && (
                                     <Lock className="w-3 h-3 text-amber-500 flex-shrink-0" />
                                 )}

@@ -272,7 +272,11 @@ export const taskSubmissions = mysqlTable("task_submissions", {
 export const projectBoards = mysqlTable("project_boards", {
     id: int("id").primaryKey().autoincrement(),
     title: varchar("title", { length: 255 }).notNull(),
+    titleEn: varchar("title_en", { length: 255 }),
+    titleRu: varchar("title_ru", { length: 255 }),
     description: text("description"),
+    descriptionEn: text("description_en"),
+    descriptionRu: text("description_ru"),
     createdAt: timestamp("created_at").defaultNow(),
 })
 

@@ -5,13 +5,13 @@ import { eq, asc, and, or } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
 import ProjectBoardContent from "@/components/projects/ProjectBoardContent"
 
-export default async function ProjectBoardPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProjectBoardPage({ params }: { params: Promise<{ id: string, locale: string }> }) {
     const session = await auth()
     if (!session?.user) {
         redirect("/")
     }
 
-    const { id } = await params
+    const { id, locale } = await params
     const boardId = parseInt(id)
 
     const userRecord = await db.query.users.findFirst({
@@ -46,6 +46,8 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
 
     let board = (await db.select().from(projectBoards).where(eq(projectBoards.id, boardId)))[0] as any;
     if (board) {
+        board.title = locale === 'en' ? (board.titleEn || board.title) : locale === 'ru' ? (board.titleRu || board.title) : board.title
+        board.description = locale === 'en' ? (board.descriptionEn || board.description) : locale === 'ru' ? (board.descriptionRu || board.description) : board.description
         board.columns = await db.select().from(projectColumns)
             .where(eq(projectColumns.boardId, boardId))
             .orderBy(asc(projectColumns.order));

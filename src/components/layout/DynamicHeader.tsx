@@ -6,7 +6,7 @@ import { Link } from "@/i18n/routing"
 import {
     Menu, X, LogOut, User, LayoutGrid, Key, Settings,
     ChevronDown, Terminal, BookOpen, FolderKanban, GraduationCap,
-    Shield, CreditCard, Bot
+    Shield, CreditCard, Briefcase
 } from "lucide-react"
 import { logoutAction } from "@/app/actions"
 import { signOut } from "next-auth/react"
@@ -331,7 +331,7 @@ export default function DynamicHeader({ user }: { user?: any }) {
         { href: "/dashboard", label: t('dashboard'), icon: LayoutGrid },
         { href: "/theory", label: t('theory'), icon: BookOpen },
         { href: "/projects", label: t('projects'), icon: FolderKanban },
-        { href: "/interview", label: t('interview') || "Interview", icon: Bot },
+        { href: "/interview", label: t('interview') || "Interview", icon: Briefcase },
         { href: "/cabinet", label: t('myDashboard'), icon: User },
         { href: "/pricing", label: t('pricing'), icon: CreditCard },
     ]

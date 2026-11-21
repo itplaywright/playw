@@ -263,7 +263,7 @@
     "certMilestoneJunior": "Level 3 Finish: Junior Certificate",
     "certMilestoneMiddle": "Level 7 Finish: Middle Certificate",
     "certMilestoneSenior": "Level 10 Finish: Lead Architect Diploma",
-    "interview": "Mock Interview"
+    "interview": "Technical Interview"
   },
   "TaskView": {
     "back": "Back",
@@ -840,9 +840,9 @@
     "sampleStudentName": "Alex Kovalenko (Sample)"
   },
   "Interview": {
-    "title": "AI Mock Interview",
-    "subtitle": "Simulate technical interviews and evaluate your Playwright automation skills.",
-    "startInterview": "Start AI Interview",
+    "title": "Technical Interview Simulator",
+    "subtitle": "Simulate technical interviews with a Lead QA Engineer and evaluate your Playwright automation skills.",
+    "startInterview": "Start Technical Interview",
     "juniorTitle": "Junior QA Automation",
     "juniorDesc": "Core Playwright locators, auto-waiting, basic assertions, browser contexts, and trace debugging.",
     "middleTitle": "Middle QA Automation",
@@ -858,6 +858,6 @@
     "readiness": "Market Readiness",
     "strengths": "Demonstrated Strengths",
     "improvements": "Recommended Practice Areas",
-    "tryAgain": "Start Another Mock Interview"
+    "tryAgain": "Start Another Technical Interview"
   }
 }

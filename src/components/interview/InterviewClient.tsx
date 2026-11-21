@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/routing"
 import {
     Mic, MicOff, Send, Award, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, RotateCcw,
-    ChevronRight, BookOpen, Clock, Bot, User, BarChart2, HelpCircle, Layers, Check, Copy, Flame
+    ChevronRight, BookOpen, Clock, User, BarChart2, HelpCircle, Layers, Check, Copy, Flame,
+    Briefcase, UserCheck
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -271,18 +272,18 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                                 <div className="space-y-3 max-w-2xl">
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold">
-                                        <Bot className="w-4 h-4" />
-                                        <span>AI Mock Interview Simulator</span>
+                                        <Briefcase className="w-4 h-4" />
+                                        <span>Technical Interview Simulator</span>
                                     </div>
                                     <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                                        {locale === 'en' && "Simulate Technical Interviews & Assess Your Skills"}
-                                        {locale === 'uk' && "Симуляція технічних співбесід та оцінка готовності"}
-                                        {locale === 'ru' && "Симуляция технических собеседований и оценка готовности"}
+                                        {locale === 'en' && "Technical Interview & Skills Assessment"}
+                                        {locale === 'uk' && "Технічна співбесіда та оцінка кваліфікації"}
+                                        {locale === 'ru' && "Техническое собеседование и оценка квалификации"}
                                     </h1>
                                     <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-                                        {locale === 'en' && "Practice real interview questions asked at top tech companies. Questions are presented in authentic English with instant Ukrainian and Russian translations, evaluated by AI."}
-                                        {locale === 'uk' && "Тренуйтеся відповідати на реальні запитання топ-компаній. Запитання подаються живою англійською мовою з миттєвим перекладом, а штучний інтелект оцінює глибину ваших відповідей."}
-                                        {locale === 'ru' && "Тренируйтесь отвечать на реальные вопросы топ-компаний. Вопросы подаются на живом английском языке с моментальным переводом, а ИИ оценивает глубину ваших ответов."}
+                                        {locale === 'en' && "Practice real interview questions asked at top tech companies. Questions are presented in authentic English with instant Ukrainian and Russian translations, reviewed according to enterprise automation standards."}
+                                        {locale === 'uk' && "Тренуйтеся відповідати на реальні запитання топ-компаній. Запитання подаються професійною англійською мовою з миттєвим перекладом, а ваші відповіді оцінюються за критеріями реального технічного інтерв'ю."}
+                                        {locale === 'ru' && "Тренируйтесь отвечать на реальные вопросы топ-компаний. Вопросы подаются на профессиональном английском языке с моментальным переводом, а ваши ответы оцениваются по критериям реального технического интервью."}
                                     </p>
                                 </div>
                                 <div className="flex-shrink-0">
@@ -385,7 +386,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                     className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm shadow-xl shadow-blue-600/25 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                                 >
                                     <Sparkles className="w-4 h-4" />
-                                    <span>{locale === 'en' ? "Start AI Interview Now" : "Розпочати співбесіду з AI"}</span>
+                                    <span>{locale === 'en' ? "Start Technical Interview" : (locale === 'ru' ? "Начать собеседование" : "Розпочати співбесіду")}</span>
                                     <ArrowRight className="w-4 h-4" />
                                 </button>
                             </div>
@@ -507,8 +508,8 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                             {/* Question Content */}
                             <div className="space-y-2">
                                 <div className="flex items-start gap-3">
-                                    <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 mt-0.5">
-                                        <Bot className="w-4 h-4" />
+                                    <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 mt-0.5" title="Lead Interviewer">
+                                        <UserCheck className="w-4 h-4" />
                                     </div>
                                     <h2 className="text-lg sm:text-xl font-bold text-white leading-relaxed">
                                         {displayedQuestionText}
@@ -549,7 +550,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
 
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                         <p className="text-[11px] text-slate-500">
-                                            {locale === 'en' ? "Tip: You can answer in English, Ukrainian, or Russian. AI evaluates your technical depth." : "Підказка: Ви можете відповідати українською чи англійською. AI оцінює технічну суть."}
+                                            {locale === 'en' ? "Tip: You can answer in English, Ukrainian, or Russian. Your answer is evaluated against enterprise automation standards." : (locale === 'ru' ? "Подсказка: Вы можете отвечать на русском или английском. Ответ оценивается по стандартам реального технического интервью." : "Підказка: Ви можете відповідати українською чи англійською. Відповідь оцінюється за стандартами реального технічного інтерв'ю.")}
                                         </p>
 
                                         <button
@@ -561,7 +562,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                             {isSubmitting ? (
                                                 <>
                                                     <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    <span>{locale === 'en' ? "Evaluating..." : "Оцінювання..."}</span>
+                                                    <span>{locale === 'en' ? "Reviewing answer..." : (locale === 'ru' ? "Проверка ответа..." : "Перевірка відповіді...")}</span>
                                                 </>
                                             ) : (
                                                 <>
@@ -601,7 +602,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                     <div className="space-y-3">
                                         <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 space-y-1">
                                             <p className="text-xs font-bold uppercase tracking-wider text-blue-400">
-                                                {locale === 'en' ? "AI Feedback & Strengths:" : "Фідбек від інтерв'юера:"}
+                                                {locale === 'en' ? "Interviewer Feedback & Key Strengths:" : (locale === 'ru' ? "Фидбек интервьюера:" : "Фідбек від інтерв'юера:")}
                                             </p>
                                             <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
                                                 {getEvaluationText(currentEvaluation)}
@@ -758,7 +759,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                 className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center gap-2"
                             >
                                 <RotateCcw className="w-4 h-4" />
-                                <span>{locale === 'en' ? "Start Another Mock Interview" : "Пройти ще одну співбесіду"}</span>
+                                <span>{locale === 'en' ? "Start Another Technical Interview" : (locale === 'ru' ? "Пройти еще одно собеседование" : "Пройти ще одну співбесіду")}</span>
                             </button>
 
                             <Link

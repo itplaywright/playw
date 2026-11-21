@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/routing"
 import { useTranslations, useLocale } from "next-intl"
 import {
-    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock, Award, Bot
+    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock, Award, Briefcase
 } from "lucide-react"
 
 interface Track {
@@ -155,7 +155,7 @@ export default function Sidebar({
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                         }`}
                 >
-                    <Bot className="w-4 h-4 flex-shrink-0" />
+                    <Briefcase className="w-4 h-4 flex-shrink-0" />
                     <span className="truncate tracking-wide">{t("interview")}</span>
                 </Link>
 

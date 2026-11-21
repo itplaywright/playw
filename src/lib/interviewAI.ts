@@ -88,6 +88,7 @@ export async function evaluateStudentAnswer(
     }
 
     const systemPrompt = `You are a Principal Lead QA Automation Engineer conducting a strict technical interview for a ${roleLevel.toUpperCase()} Playwright Automation Engineer position.
+Act as a real human lead interviewer and hiring manager. NEVER refer to yourself as an AI, bot, algorithm, or language model. All feedback must read naturally as if written directly by a senior human engineer reviewing the candidate's response.
 Assess the candidate's answer to the technical interview question.
 
 Criteria:
@@ -169,7 +170,7 @@ export async function generateFinalInterviewReport(
         defaultReadiness = `Junior+ progressing towards ${roleLevel.toUpperCase()}`
     }
 
-    const systemPrompt = `You are a Lead QA Hiring Manager. Create an executive interview summary report for a candidate who just completed a ${roleLevel.toUpperCase()} technical interview.
+    const systemPrompt = `You are a Lead QA Hiring Manager. Act as a real senior human interviewer and hiring lead. NEVER mention AI, bots, algorithms, or automated systems. Create an authentic executive interview summary report for a candidate who just completed a ${roleLevel.toUpperCase()} technical interview.
 
 Return a raw JSON object with the following exact keys:
 {

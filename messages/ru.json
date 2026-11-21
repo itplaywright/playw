@@ -263,7 +263,7 @@
     "certMilestoneJunior": "Финиш Уровня 3: Сертификат Junior",
     "certMilestoneMiddle": "Финиш Уровня 7: Сертификат Middle",
     "certMilestoneSenior": "Финиш Уровня 10: Диплом Lead Architect",
-    "interview": "AI Собеседование"
+    "interview": "Техническое собеседование"
   },
   "TaskView": {
     "back": "Назад",
@@ -840,9 +840,9 @@
     "sampleStudentName": "Александр Коваленко (Образец)"
   },
   "Interview": {
-    "title": "AI-Тренажер Собеседований",
-    "subtitle": "Симуляция технических интервью и комплексная оценка готовности к офферу.",
-    "startInterview": "Начать собеседование с ИИ",
+    "title": "Тренажер технических собеседований",
+    "subtitle": "Симуляция технического интервью с Lead QA инженером и оценка готовности к офферу.",
+    "startInterview": "Начать собеседование",
     "juniorTitle": "Junior QA Automation",
     "juniorDesc": "Локаторы Playwright, auto-waiting, базовые ассерты, изоляция сессий и дебаг.",
     "middleTitle": "Middle QA Automation",

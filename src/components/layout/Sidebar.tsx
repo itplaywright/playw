@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/routing"
 import { useTranslations, useLocale } from "next-intl"
 import {
-    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock, Award
+    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock, Award, Bot
 } from "lucide-react"
 
 interface Track {
@@ -146,6 +146,17 @@ export default function Sidebar({
                 >
                     <LayoutGrid className="w-4 h-4 flex-shrink-0" />
                     <span className="truncate tracking-wide">{t("projects")}</span>
+                </Link>
+
+                <Link
+                    href="/interview"
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/interview"
+                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                        }`}
+                >
+                    <Bot className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate tracking-wide">{t("interview")}</span>
                 </Link>
 
                 <div className="pt-4 pb-2 border-t border-border mx-2 my-2" />

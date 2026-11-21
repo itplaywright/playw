@@ -517,3 +517,65 @@ export const certificateRelations = relations(certificates, ({ one }) => ({
         references: [users.id],
     }),
 }))
+
+export const interviewSessions = mysqlTable("interview_sessions", {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    userId: varchar("user_id", { length: 255 })
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    roleLevel: varchar("role_level", { length: 50 }).default("junior").notNull(),
+    stack: varchar("stack", { length: 50 }).default("typescript").notNull(),
+    status: varchar("status", { length: 50 }).default("in_progress").notNull(),
+    totalScore: int("total_score"),
+    feedback: json("feedback").$type<{
+        readinessLevel?: string
+        summaryEn?: string
+        summaryUk?: string
+        summaryRu?: string
+        strengths?: string[]
+        improvements?: string[]
+    }>(),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+})
+
+export const interviewQuestions = mysqlTable("interview_questions", {
+    id: int("id").primaryKey().autoincrement(),
+    sessionId: varchar("session_id", { length: 255 })
+        .notNull()
+        .references(() => interviewSessions.id, { onDelete: "cascade" }),
+    questionOrder: int("question_order").notNull(),
+    category: varchar("category", { length: 100 }),
+    questionEn: text("question_en").notNull(),
+    questionUk: text("question_uk"),
+    questionRu: text("question_ru"),
+    studentAnswer: text("student_answer"),
+    score: int("score"),
+    aiEvaluation: json("ai_evaluation").$type<{
+        evaluationEn?: string
+        evaluationUk?: string
+        evaluationRu?: string
+        mistakesEn?: string
+        mistakesUk?: string
+        mistakesRu?: string
+    }>(),
+    idealAnswerEn: text("ideal_answer_en"),
+    idealAnswerUk: text("ideal_answer_uk"),
+    idealAnswerRu: text("ideal_answer_ru"),
+    createdAt: timestamp("created_at").defaultNow(),
+})
+
+export const interviewSessionRelations = relations(interviewSessions, ({ one, many }) => ({
+    user: one(users, {
+        fields: [interviewSessions.userId],
+        references: [users.id],
+    }),
+    questions: many(interviewQuestions),
+}))
+
+export const interviewQuestionRelations = relations(interviewQuestions, ({ one }) => ({
+    session: one(interviewSessions, {
+        fields: [interviewQuestions.sessionId],
+        references: [interviewSessions.id],
+    }),
+}))

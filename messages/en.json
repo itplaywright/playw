@@ -160,7 +160,8 @@
     "theory": "Theory",
     "tasks": "Tasks",
     "pricing": "Pricing",
-    "adminPanel": "Admin"
+    "adminPanel": "Admin",
+    "interview": "Interview"
   },
   "LayoutFooter": {
     "desc": "Professional platform for learning test automation based on a modern technology stack.",
@@ -261,7 +262,8 @@
     "tabCertificates": "Certificates",
     "certMilestoneJunior": "Level 3 Finish: Junior Certificate",
     "certMilestoneMiddle": "Level 7 Finish: Middle Certificate",
-    "certMilestoneSenior": "Level 10 Finish: Lead Architect Diploma"
+    "certMilestoneSenior": "Level 10 Finish: Lead Architect Diploma",
+    "interview": "Mock Interview"
   },
   "TaskView": {
     "back": "Back",
@@ -836,5 +838,26 @@
     "tier2": "Tier 2: Specialist (Levels 4-7)",
     "tier3": "Tier 3: Architect (Levels 8-10)",
     "sampleStudentName": "Alex Kovalenko (Sample)"
+  },
+  "Interview": {
+    "title": "AI Mock Interview",
+    "subtitle": "Simulate technical interviews and evaluate your Playwright automation skills.",
+    "startInterview": "Start AI Interview",
+    "juniorTitle": "Junior QA Automation",
+    "juniorDesc": "Core Playwright locators, auto-waiting, basic assertions, browser contexts, and trace debugging.",
+    "middleTitle": "Middle QA Automation",
+    "middleDesc": "Page Object Model, custom fixtures, storageState, network route mocking, and API request context.",
+    "seniorTitle": "Senior / Lead QA",
+    "seniorDesc": "CI/CD matrix sharding, flakiness root-cause analysis, custom reporters, Docker, visual regression.",
+    "questionScore": "Question Score",
+    "idealAnswer": "Ideal Model Answer",
+    "yourAnswer": "Your Answer",
+    "nextQuestion": "Next Question",
+    "finalReport": "View Final Report",
+    "exitInterview": "Exit Interview",
+    "readiness": "Market Readiness",
+    "strengths": "Demonstrated Strengths",
+    "improvements": "Recommended Practice Areas",
+    "tryAgain": "Start Another Mock Interview"
   }
 }

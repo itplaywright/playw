@@ -160,7 +160,8 @@
     "theory": "Теория",
     "tasks": "Задания",
     "pricing": "Тарифы",
-    "adminPanel": "Админ"
+    "adminPanel": "Админ",
+    "interview": "Собеседование"
   },
   "LayoutFooter": {
     "desc": "Профессиональная платформа для изучения автоматизации тестирования на базе современного стека технологий.",
@@ -261,7 +262,8 @@
     "tabCertificates": "Сертификация",
     "certMilestoneJunior": "Финиш Уровня 3: Сертификат Junior",
     "certMilestoneMiddle": "Финиш Уровня 7: Сертификат Middle",
-    "certMilestoneSenior": "Финиш Уровня 10: Диплом Lead Architect"
+    "certMilestoneSenior": "Финиш Уровня 10: Диплом Lead Architect",
+    "interview": "AI Собеседование"
   },
   "TaskView": {
     "back": "Назад",
@@ -836,5 +838,26 @@
     "tier2": "Ступень 2: Specialist (Уровни 4-7)",
     "tier3": "Ступень 3: Architect (Уровни 8-10)",
     "sampleStudentName": "Александр Коваленко (Образец)"
+  },
+  "Interview": {
+    "title": "AI-Тренажер Собеседований",
+    "subtitle": "Симуляция технических интервью и комплексная оценка готовности к офферу.",
+    "startInterview": "Начать собеседование с ИИ",
+    "juniorTitle": "Junior QA Automation",
+    "juniorDesc": "Локаторы Playwright, auto-waiting, базовые ассерты, изоляция сессий и дебаг.",
+    "middleTitle": "Middle QA Automation",
+    "middleDesc": "Архитектура POM, кастомные фикстуры, storageState, мокирование сети и API тесты.",
+    "seniorTitle": "Senior / Lead QA",
+    "seniorDesc": "Масштабирование CI/CD, шардинг, борьба с flakiness, кастомные репортеры и Docker.",
+    "questionScore": "Оценка ответа",
+    "idealAnswer": "Эталонный ответ",
+    "yourAnswer": "Ваш ответ",
+    "nextQuestion": "Следующий вопрос",
+    "finalReport": "Посмотреть итоговый отчет",
+    "exitInterview": "Завершить",
+    "readiness": "Готовность к рынку",
+    "strengths": "Сильные стороны кандидата",
+    "improvements": "Зоны для практики и повторения",
+    "tryAgain": "Пройти еще одно собеседование"
   }
 }

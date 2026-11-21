@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import {
     LayoutDashboard, Award, ExternalLink, Lock, MessageCircle, BarChart2, CheckCircle2,
     Clock, Target, Zap, TrendingUp, ChevronRight, ArrowRight,
-    User, BookOpen, UserCircle, Phone, Send, Save, Loader2
+    User, BookOpen, UserCircle, Phone, Send, Save, Loader2, Briefcase
 } from "lucide-react"
 import { Link } from "@/i18n/routing"
 import Image from "next/image"
@@ -373,6 +373,21 @@ export default function CabinetClient({ user }: { user?: any }) {
                                         </div>
                                         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
                                     </button>
+
+                                    <Link href="/interview" className="group flex items-center gap-4 bg-card border border-border rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-purple-500/30 transition-all sm:col-span-2">
+                                        <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/20">
+                                            <Briefcase className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="font-bold text-foreground text-sm">
+                                                {locale === 'en' ? "Technical Interview & Knowledge Assessment" : (locale === 'ru' ? "Техническое собеседование и самооценка" : "Технічна співбесіда та оцінка знань")}
+                                            </p>
+                                            <p className="text-muted-foreground text-xs font-medium">
+                                                {locale === 'en' ? "Simulator, Knowledge Matrix & Timed Live Coding Challenges" : "Тренажер співбесід, матриця компетенцій та практичний лайв-кодинг"}
+                                            </p>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
+                                    </Link>
                                 </div>
                             </div>
                         )}

@@ -6,10 +6,11 @@ import { Link } from "@/i18n/routing"
 import {
     Mic, MicOff, Send, Award, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, RotateCcw,
     ChevronRight, BookOpen, Clock, User, BarChart2, HelpCircle, Layers, Check, Copy, Flame,
-    Briefcase, UserCheck
+    Briefcase, UserCheck, Code2
 } from "lucide-react"
 import { toast } from "sonner"
 import KnowledgeMatrix from "./KnowledgeMatrix"
+import LiveCodingChallenge from "./LiveCodingChallenge"
 
 interface QuestionData {
     order: number
@@ -62,7 +63,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
 
     // State machine: 'setup' | 'interviewing' | 'completed'
     const [viewMode, setViewMode] = useState<'setup' | 'interviewing' | 'completed'>('setup')
-    const [mainTab, setMainTab] = useState<'interview' | 'matrix'>('interview')
+    const [mainTab, setMainTab] = useState<'interview' | 'matrix' | 'coding'>('interview')
     const [selectedLevel, setSelectedLevel] = useState<'junior' | 'middle' | 'senior'>('junior')
     const [sessionId, setSessionId] = useState<string | null>(null)
     const [history, setHistory] = useState<InterviewSessionHistory[]>(initialHistory)
@@ -268,33 +269,50 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                 {/* Mode Switcher Tabs */}
                 {viewMode === 'setup' && (
                     <div className="flex items-center justify-center">
-                        <div className="inline-flex items-center p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 shadow-lg backdrop-blur-md gap-2">
+                        <div className="inline-flex flex-wrap items-center justify-center p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 shadow-lg backdrop-blur-md gap-2">
                             <button
                                 type="button"
                                 onClick={() => setMainTab('interview')}
-                                className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+                                className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
                                     mainTab === 'interview'
                                         ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25"
                                         : "text-slate-400 hover:text-white"
                                 }`}
                             >
                                 <Briefcase className="w-4 h-4" />
-                                <span>{locale === 'en' ? "1. Live Interview Simulator" : (locale === 'ru' ? "1. Тренажер собеседования" : "1. Тренажер співбесіди")}</span>
+                                <span>{locale === 'en' ? "1. Live Interview" : (locale === 'ru' ? "1. Собеседование" : "1. Співбесіда")}</span>
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setMainTab('matrix')}
-                                className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+                                className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
                                     mainTab === 'matrix'
                                         ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-purple-500/25"
                                         : "text-slate-400 hover:text-white"
                                 }`}
                             >
                                 <Layers className="w-4 h-4" />
-                                <span>{locale === 'en' ? "2. Knowledge Matrix & Flashcards" : (locale === 'ru' ? "2. Матрица знаний и флеш-карты" : "2. Матриця знань та флеш-картки")}</span>
+                                <span>{locale === 'en' ? "2. Knowledge Matrix" : (locale === 'ru' ? "2. Матрица знаний" : "2. Матриця знань")}</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMainTab('coding')}
+                                className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+                                    mainTab === 'coding'
+                                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md shadow-purple-500/25"
+                                        : "text-slate-400 hover:text-white"
+                                }`}
+                            >
+                                <Code2 className="w-4 h-4" />
+                                <span>{locale === 'en' ? "3. Live Coding Challenge" : (locale === 'ru' ? "3. Лайв-кодинг" : "3. Лайв-кодинг")}</span>
                             </button>
                         </div>
                     </div>
+                )}
+
+                {/* 3. LIVE CODING CHALLENGE TAB */}
+                {viewMode === 'setup' && mainTab === 'coding' && (
+                    <LiveCodingChallenge locale={locale} />
                 )}
 
                 {/* 2. KNOWLEDGE MATRIX / FLASHCARDS TAB */}

@@ -11,7 +11,7 @@ import KanbanBoard from "@/components/projects/KanbanBoard"
 import TaskDialog from "@/components/projects/TaskDialog"
 import EditProjectDialog from "@/components/projects/EditProjectDialog"
 import { useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher"
 
 interface Props {
@@ -25,6 +25,8 @@ interface Props {
 
 export default function ProjectBoardContent({ board, initialTasks, isAdmin, users, roles, userLanguage }: Props) {
     const t = useTranslations("Projects")
+    const locale = useLocale()
+    const localizedBoardTitle = locale === 'en' ? (board.titleEn || board.title_en || board.title) : (locale === 'ru' ? (board.titleRu || board.title_ru || board.title) : board.title)
     const [showAddDialog, setShowAddDialog] = useState(false)
     const [showSettingsDialog, setShowSettingsDialog] = useState(false)
     const [showGuideDialog, setShowGuideDialog] = useState(false)
@@ -86,7 +88,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                             <LayoutGrid className="w-3.5 h-3.5 text-white" />
                         </div>
                         <div className="truncate">
-                            <h1 className="text-white text-xs sm:text-sm font-bold tracking-tight truncate">{board.title}</h1>
+                            <h1 className="text-white text-xs sm:text-sm font-bold tracking-tight truncate">{localizedBoardTitle}</h1>
                             <p className="text-slate-400 text-[9px] font-semibold uppercase tracking-wider hidden sm:block">
                                 {t("projectBoard")} • {initialTasks.length} {t("tasksPlural")}
                             </p>

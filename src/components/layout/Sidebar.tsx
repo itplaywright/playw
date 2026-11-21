@@ -45,8 +45,10 @@ export default function Sidebar({
     const locale = useLocale()
 
     const getTrackTitle = (track: Track) => {
-        if (locale === 'en' && track.titleEn) return track.titleEn
-        if (locale === 'ru' && track.titleRu) return track.titleRu
+        const titleEn = track.titleEn || (track as any).title_en
+        const titleRu = track.titleRu || (track as any).title_ru
+        if (locale === 'en' && titleEn) return titleEn
+        if (locale === 'ru' && titleRu) return titleRu
         return track.title
     }
 

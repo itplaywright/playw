@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { Link } from "@/i18n/routing"
 import {
     LayoutGrid, Plus, ArrowRight, FolderOpen, Calendar
@@ -57,8 +57,25 @@ export default function ProjectsClient({
     allUsers
 }: Props) {
     const t = useTranslations("Projects")
+    const locale = useLocale()
     const [boards, setBoards] = useState<Board[]>(initialBoards)
     const [showCreateDialog, setShowCreateDialog] = useState(false)
+
+    const getBoardTitle = (board: Board) => {
+        const titleEn = board.titleEn || (board as any).title_en
+        const titleRu = board.titleRu || (board as any).title_ru
+        if (locale === 'en' && titleEn) return titleEn
+        if (locale === 'ru' && titleRu) return titleRu
+        return board.title
+    }
+
+    const getBoardDesc = (board: Board) => {
+        const descEn = board.descriptionEn || (board as any).description_en
+        const descRu = board.descriptionRu || (board as any).description_ru
+        if (locale === 'en' && descEn) return descEn
+        if (locale === 'ru' && descRu) return descRu
+        return board.description
+    }
 
     const getTrackProgress = (trackId: number) => {
         const tTasks = tasks.filter(t => t.trackId === trackId)
@@ -150,10 +167,10 @@ export default function ProjectsClient({
                                                 </div>
                                             </div>
                                             <h3 className="text-xl font-bold text-white group-hover:text-blue-300 transition-colors mb-3">
-                                                {board.title}
+                                                {getBoardTitle(board)}
                                             </h3>
                                             <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 mb-8 min-h-[44px]">
-                                                {board.description || t("noDesc")}
+                                                {getBoardDesc(board) || t("noDesc")}
                                             </p>
                                             <div className="flex items-center justify-between opacity-60 group-hover:opacity-100 transition-opacity pt-6 border-t border-white/5">
                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-400 transition-colors">{t("viewBoard")}</span>

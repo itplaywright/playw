@@ -9,6 +9,7 @@ import {
     Briefcase, UserCheck
 } from "lucide-react"
 import { toast } from "sonner"
+import KnowledgeMatrix from "./KnowledgeMatrix"
 
 interface QuestionData {
     order: number
@@ -61,6 +62,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
 
     // State machine: 'setup' | 'interviewing' | 'completed'
     const [viewMode, setViewMode] = useState<'setup' | 'interviewing' | 'completed'>('setup')
+    const [mainTab, setMainTab] = useState<'interview' | 'matrix'>('interview')
     const [selectedLevel, setSelectedLevel] = useState<'junior' | 'middle' | 'senior'>('junior')
     const [sessionId, setSessionId] = useState<string | null>(null)
     const [history, setHistory] = useState<InterviewSessionHistory[]>(initialHistory)
@@ -262,9 +264,46 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                 <div className="mesh-blob mesh-blob-3" />
             </div>
 
-            <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-8">
-                {/* 1. SETUP / HOME SCREEN */}
+            <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
+                {/* Mode Switcher Tabs */}
                 {viewMode === 'setup' && (
+                    <div className="flex items-center justify-center">
+                        <div className="inline-flex items-center p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 shadow-lg backdrop-blur-md gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setMainTab('interview')}
+                                className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+                                    mainTab === 'interview'
+                                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25"
+                                        : "text-slate-400 hover:text-white"
+                                }`}
+                            >
+                                <Briefcase className="w-4 h-4" />
+                                <span>{locale === 'en' ? "1. Live Interview Simulator" : (locale === 'ru' ? "1. Тренажер собеседования" : "1. Тренажер співбесіди")}</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMainTab('matrix')}
+                                className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+                                    mainTab === 'matrix'
+                                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-purple-500/25"
+                                        : "text-slate-400 hover:text-white"
+                                }`}
+                            >
+                                <Layers className="w-4 h-4" />
+                                <span>{locale === 'en' ? "2. Knowledge Matrix & Flashcards" : (locale === 'ru' ? "2. Матрица знаний и флеш-карты" : "2. Матриця знань та флеш-картки")}</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* 2. KNOWLEDGE MATRIX / FLASHCARDS TAB */}
+                {viewMode === 'setup' && mainTab === 'matrix' && (
+                    <KnowledgeMatrix locale={locale} />
+                )}
+
+                {/* 1. SETUP / HOME SCREEN */}
+                {viewMode === 'setup' && mainTab === 'interview' && (
                     <div className="space-y-8 animate-in fade-in duration-300">
                         {/* Hero Header */}
                         <div className="p-8 sm:p-10 rounded-3xl glass-card-premium border border-white/10 shadow-2xl relative overflow-hidden">
@@ -301,7 +340,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                     {locale === 'en' ? "1. Select Target Seniority Level" : (locale === 'ru' ? "1. Выберите желаемый грейд" : "1. Оберіть бажаний грейд")}
                                 </h2>
                                 <p className="text-slate-400 text-xs">
-                                    {locale === 'en' ? "Questions and criteria will adapt to the expected depth for this level." : "Запитання та критерії оцінки адаптуються під очікувану глибину рівня."}
+                                    {locale === 'en' ? "Questions and criteria will adapt to the expected depth for this level." : (locale === 'ru' ? "Вопросы и критерии адаптируются под ожидаемую глубину грейда." : "Запитання та критерії оцінки адаптуються під очікувану глибину рівня.")}
                                 </p>
                             </div>
 
@@ -324,7 +363,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                     </div>
                                     <h3 className="text-base font-bold text-white mb-1">Junior QA Automation</h3>
                                     <p className="text-slate-400 text-xs leading-relaxed">
-                                        {locale === 'en' ? "Core Playwright locators, auto-waiting, basic assertions, browser contexts, and trace debugging." : "Локатори Playwright, auto-waiting, базові асершни, ізоляція сесій та дебаг."}
+                                        {locale === 'en' ? "Core Playwright locators, auto-waiting, basic assertions, browser contexts, and trace debugging." : (locale === 'ru' ? "Локаторы Playwright, auto-waiting, базовые ассерты, изоляция сессий и дебаг." : "Локатори Playwright, auto-waiting, базові асершни, ізоляція сесій та дебаг.")}
                                     </p>
                                 </button>
 
@@ -346,7 +385,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                     </div>
                                     <h3 className="text-base font-bold text-white mb-1">Middle QA Automation</h3>
                                     <p className="text-slate-400 text-xs leading-relaxed">
-                                        {locale === 'en' ? "Page Object Model, custom fixtures, storageState, network route mocking, and API request context." : "Архітектура POM, кастомні фікстури, storageState, мокування мережі та API тести."}
+                                        {locale === 'en' ? "Page Object Model, custom fixtures, storageState, network route mocking, and API request context." : (locale === 'ru' ? "Архитектура POM, кастомные фикстуры, storageState, мокирование сети и API тесты." : "Архітектура POM, кастомні фікстури, storageState, мокування мережі та API тести.")}
                                     </p>
                                 </button>
 
@@ -368,7 +407,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                     </div>
                                     <h3 className="text-base font-bold text-white mb-1">Senior / Lead QA</h3>
                                     <p className="text-slate-400 text-xs leading-relaxed">
-                                        {locale === 'en' ? "CI/CD matrix sharding, flakiness root-cause analysis, custom reporters, Docker, visual regression." : "Масштабування CI/CD, шардинг, боротьба з flakiness, кастомні репортери та Docker."}
+                                        {locale === 'en' ? "CI/CD matrix sharding, flakiness root-cause analysis, custom reporters, Docker, visual regression." : (locale === 'ru' ? "Масштабирование CI/CD, шардинг, борьба с flakiness, кастомные репортеры и Docker." : "Масштабування CI/CD, шардинг, боротьба з flakiness, кастомні репортери та Docker.")}
                                     </p>
                                 </button>
                             </div>
@@ -377,7 +416,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                             <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-white/5">
                                 <div className="flex items-center gap-2 text-xs text-slate-400">
                                     <Clock className="w-4 h-4 text-blue-400" />
-                                    <span>5 {locale === 'en' ? "technical questions • ~10-15 minutes" : "технічних питань • ~10-15 хвилин"}</span>
+                                    <span>5 {locale === 'en' ? "technical questions • ~10-15 minutes" : (locale === 'ru' ? "технических вопросов • ~10-15 минут" : "технічних питань • ~10-15 хвилин")}</span>
                                 </div>
                                 <button
                                     type="button"
@@ -397,7 +436,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                             <div className="p-8 rounded-3xl glass-card-premium border border-white/10 shadow-xl space-y-4">
                                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                     <BarChart2 className="w-5 h-5 text-blue-400" />
-                                    <span>{locale === 'en' ? "Your Past Interview Sessions" : "Історія ваших співбесід"}</span>
+                                    <span>{locale === 'en' ? "Your Past Interview Sessions" : (locale === 'ru' ? "История ваших собеседований" : "Історія ваших співбесід")}</span>
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {history.map(s => (
@@ -441,7 +480,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                     {selectedLevel.toUpperCase()}
                                 </span>
                                 <span className="text-xs font-bold text-slate-300">
-                                    {locale === 'en' ? "Question" : "Питання"} {currentQuestion.order} {locale === 'en' ? "of" : "з"} {totalQuestions}
+                                    {locale === 'en' ? "Question" : (locale === 'ru' ? "Вопрос" : "Питання")} {currentQuestion.order} {locale === 'en' ? "of" : (locale === 'ru' ? "из" : "з")} {totalQuestions}
                                 </span>
                             </div>
 
@@ -460,7 +499,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                 onClick={() => setViewMode('setup')}
                                 className="text-xs text-slate-400 hover:text-white transition-colors"
                             >
-                                {locale === 'en' ? "Exit Interview" : "Завершити"}
+                                {locale === 'en' ? "Exit Interview" : (locale === 'ru' ? "Завершить" : "Завершити")}
                             </button>
                         </div>
 
@@ -491,7 +530,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                             questionLang === 'uk' ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
                                         }`}
                                     >
-                                        🇺🇦 Переклад (UA)
+                                        {locale === 'en' ? "🇺🇦 Translation (UA)" : "🇺🇦 Переклад (UA)"}
                                     </button>
                                     <button
                                         type="button"
@@ -500,7 +539,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                             questionLang === 'ru' ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
                                         }`}
                                     >
-                                        🇷🇺 Перевод (RU)
+                                        {locale === 'en' ? "🇷🇺 Translation (RU)" : "🇷🇺 Перевод (RU)"}
                                     </button>
                                 </div>
                             </div>
@@ -526,9 +565,11 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                             onChange={e => setStudentAnswer(e.target.value)}
                                             rows={6}
                                             placeholder={
-                                                questionLang === 'en'
+                                                locale === 'en'
                                                     ? "Type your answer here in English or your native language. Mention core mechanisms, best practices, or architectural reasoning..."
-                                                    : "Введіть вашу відповідь тут. Опишіть механізми, найкращі практики чи архітектурний підхід..."
+                                                    : (locale === 'ru'
+                                                        ? "Введите ваш ответ здесь. Опишите механизмы, лучшие практики или архитектурный подход..."
+                                                        : "Введіть вашу відповідь тут. Опишіть механізми, найкращі практики чи архітектурний підхід...")
                                             }
                                             className="w-full p-4 rounded-2xl bg-black/40 border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all font-sans leading-relaxed resize-y"
                                         />
@@ -613,7 +654,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                             <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-1">
                                                 <p className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                                                     <AlertTriangle className="w-3.5 h-3.5" />
-                                                    <span>{locale === 'en' ? "Missing Points or Gaps:" : "Чого не вистачило або що виправити:"}</span>
+                                                    <span>{locale === 'en' ? "Missing Points or Gaps:" : (locale === 'ru' ? "Чего не хватило или что исправить:" : "Чого не вистачило або що виправити:")}</span>
                                                 </p>
                                                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                                                     {getMistakesText(currentEvaluation)}
@@ -626,7 +667,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                             <div className="flex items-center justify-between">
                                                 <p className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
                                                     <CheckCircle2 className="w-3.5 h-3.5" />
-                                                    <span>{locale === 'en' ? "Ideal Model Answer:" : "Еталонна відповідь на співбесіді:"}</span>
+                                                    <span>{locale === 'en' ? "Ideal Model Answer:" : (locale === 'ru' ? "Эталонный ответ на собеседовании:" : "Еталонна відповідь на співбесіді:")}</span>
                                                 </p>
                                                 <button
                                                     type="button"
@@ -650,7 +691,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                             onClick={proceedToNextQuestion}
                                             className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                                         >
-                                            <span>{nextQuestionPending ? (locale === 'en' ? "Next Question" : "Наступне питання") : (locale === 'en' ? "View Final Report" : "Отримати підсумковий звіт")}</span>
+                                            <span>{nextQuestionPending ? (locale === 'en' ? "Next Question" : (locale === 'ru' ? "Следующий вопрос" : "Наступне питання")) : (locale === 'en' ? "View Final Report" : (locale === 'ru' ? "Итоговый отчет" : "Отримати підсумковий звіт"))}</span>
                                             <ArrowRight className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -691,7 +732,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                             <div className="p-6 rounded-3xl glass-card-premium border border-emerald-500/20 shadow-xl space-y-3">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
                                     <CheckCircle2 className="w-4 h-4" />
-                                    <span>{locale === 'en' ? "Demonstrated Strengths" : "Сильні сторони кандидата"}</span>
+                                    <span>{locale === 'en' ? "Demonstrated Strengths" : (locale === 'ru' ? "Сильные стороны кандидата" : "Сильні сторони кандидата")}</span>
                                 </h3>
                                 <ul className="space-y-2">
                                     {finalReport.strengths.map((s, idx) => (
@@ -706,7 +747,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                             <div className="p-6 rounded-3xl glass-card-premium border border-amber-500/20 shadow-xl space-y-3">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4" />
-                                    <span>{locale === 'en' ? "Recommended Areas for Practice" : "Зони для покращення та практики"}</span>
+                                    <span>{locale === 'en' ? "Recommended Areas for Practice" : (locale === 'ru' ? "Зоны для улучшения и практики" : "Зони для покращення та практики")}</span>
                                 </h3>
                                 <ul className="space-y-2">
                                     {finalReport.improvements.map((imp, idx) => (
@@ -723,7 +764,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                         {allReviewedQuestions.length > 0 && (
                             <div className="p-6 sm:p-8 rounded-3xl glass-card-premium border border-white/10 shadow-xl space-y-4">
                                 <h3 className="text-lg font-bold text-white mb-2">
-                                    {locale === 'en' ? "Full Interview Transcript" : "Детальний розбір усіх відповідей"}
+                                    {locale === 'en' ? "Full Interview Transcript" : (locale === 'ru' ? "Детальный разбор всех ответов" : "Детальний розбір усіх відповідей")}
                                 </h3>
                                 <div className="space-y-4">
                                     {allReviewedQuestions.map((q, idx) => (
@@ -766,7 +807,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                 href="/dashboard"
                                 className="px-8 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition-all"
                             >
-                                {locale === 'en' ? "Return to Dashboard" : "Повернутися до навчання"}
+                                {locale === 'en' ? "Return to Dashboard" : (locale === 'ru' ? "Вернуться к обучению" : "Повернутися до навчання")}
                             </Link>
                         </div>
                     </div>

@@ -5,7 +5,7 @@ import {
     Code2, Play, Pause, RotateCcw, CheckCircle2, AlertTriangle,
     Clock, Send, Sparkles, Eye, EyeOff, Copy, Check, ChevronRight,
     Terminal, Layers, ShieldCheck, GripVertical, ChevronDown, ChevronUp,
-    CheckCheck, XCircle, RefreshCw, Cpu
+    CheckCheck, XCircle, RefreshCw, Cpu, MessageSquare, GraduationCap, X
 } from "lucide-react"
 import { CODING_CHALLENGES, CodingChallenge } from "@/lib/codingChallengesBank"
 import CodeEditor from "@/components/editor/Monaco"
@@ -19,6 +19,14 @@ interface TerminalLog {
     text: string
     type: 'cmd' | 'info' | 'success' | 'warn' | 'error'
     timestamp?: string
+}
+
+interface InterviewerQA {
+    question: string
+    answerEn: string
+    answerUk: string
+    answerRu: string
+    timestamp: string
 }
 
 export default function LiveCodingChallenge({ locale }: Props) {
@@ -40,6 +48,17 @@ export default function LiveCodingChallenge({ locale }: Props) {
     const [showSolution, setShowSolution] = useState<boolean>(false)
     const [showHints, setShowHints] = useState<boolean>(false)
     const [copiedSolution, setCopiedSolution] = useState<boolean>(false)
+
+    // Interviewer Clarification Q&A state
+    const [qaList, setQaList] = useState<InterviewerQA[]>([])
+    const [candidateQuestion, setCandidateQuestion] = useState<string>("")
+    const [isAskingInterviewer, setIsAskingInterviewer] = useState<boolean>(false)
+
+    // Send to Platform Mentor state
+    const [showMentorModal, setShowMentorModal] = useState<boolean>(false)
+    const [mentorNotes, setMentorNotes] = useState<string>("")
+    const [isSendingToMentor, setIsSendingToMentor] = useState<boolean>(false)
+    const [hasSentToMentor, setHasSentToMentor] = useState<boolean>(false)
 
     // Terminal Drawer state
     const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(true)
@@ -63,7 +82,7 @@ export default function LiveCodingChallenge({ locale }: Props) {
         return () => window.removeEventListener('resize', check)
     }, [])
 
-    // Reset code, timer and logs when changing challenge
+    // Reset code, timer, logs and Q&A when changing challenge
     useEffect(() => {
         setCode(currentChallenge.starterCode)
         setSecondsLeft(currentChallenge.timeLimitMinutes * 60)
@@ -71,6 +90,9 @@ export default function LiveCodingChallenge({ locale }: Props) {
         setEvaluation(null)
         setShowSolution(false)
         setShowHints(false)
+        setQaList([])
+        setCandidateQuestion("")
+        setHasSentToMentor(false)
         setTerminalTab('console')
         setTerminalLogs([
             { text: "$ npx playwright test --project=chromium", type: "cmd" },
@@ -161,6 +183,75 @@ export default function LiveCodingChallenge({ locale }: Props) {
         toast.success(locale === 'en' ? "Model solution copied!" : "Еталонне рішення скопійовано!")
     }
 
+    // Ask Interviewer Action
+    const askInterviewerAction = async () => {
+        if (!candidateQuestion || candidateQuestion.trim().length < 3) {
+            toast.error(locale === 'en' ? "Please type a question for the interviewer." : "Будь ласка, введіть запитання до інтерв'ювера.")
+            return
+        }
+
+        setIsAskingInterviewer(true)
+        try {
+            const res = await fetch("/api/interview/ask-interviewer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    challengeTitle: currentChallenge.titleEn,
+                    challengeGoal: currentChallenge.goalEn,
+                    candidateQuestion: candidateQuestion.trim()
+                })
+            })
+
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Failed to get answer")
+
+            const newQA: InterviewerQA = {
+                question: candidateQuestion.trim(),
+                answerEn: data.response.answerEn,
+                answerUk: data.response.answerUk,
+                answerRu: data.response.answerRu,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+
+            setQaList(prev => [...prev, newQA])
+            setCandidateQuestion("")
+            toast.success(locale === 'en' ? "Lead Interviewer answered!" : "Інтерв'ювер відповів на запитання!")
+        } catch (e: any) {
+            toast.error(e.message || "Failed to contact interviewer")
+        } finally {
+            setIsAskingInterviewer(false)
+        }
+    }
+
+    // Send Solution to Platform Mentor
+    const sendSolutionToMentor = async () => {
+        setIsSendingToMentor(true)
+        try {
+            const res = await fetch("/api/interview/send-to-mentor", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "coding_challenge",
+                    title: `${currentChallenge.titleEn} (${currentChallenge.level.toUpperCase()})`,
+                    score: evaluation?.score || 0,
+                    details: code,
+                    candidateNotes: mentorNotes.trim()
+                })
+            })
+
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Failed to submit to mentor")
+
+            setHasSentToMentor(true)
+            setShowMentorModal(false)
+            toast.success(locale === 'en' ? "Solution sent to platform mentor!" : "Рішення надіслано ментору платформи!")
+        } catch (e: any) {
+            toast.error(e.message || "Failed to send to mentor")
+        } finally {
+            setIsSendingToMentor(false)
+        }
+    }
+
     // Local Test Simulation Runner
     const runPlaywrightTest = async () => {
         if (!code || code.trim().length < 15) {
@@ -180,7 +271,6 @@ export default function LiveCodingChallenge({ locale }: Props) {
 
         await new Promise(r => setTimeout(r, 600))
 
-        // Check for common Playwright anti-patterns in the user's code
         const hasWaitForTimeout = /waitForTimeout\s*\(/.test(code)
         const hasBrittleXpath = /xpath=|\/\/[a-zA-Z]/.test(code)
         const hasImperativeInnerText = /expect\s*\(\s*await.*\.innerText\s*\(\s*\)\s*\)\.toBe/.test(code)
@@ -270,7 +360,6 @@ export default function LiveCodingChallenge({ locale }: Props) {
                 { text: "Audit report ready. Switching to Lead Review tab...", type: "info" }
             ])
 
-            // Switch to Review tab to show detailed scorecard
             setTerminalTab('review')
 
             if (data.evaluation.pass) {
@@ -402,7 +491,7 @@ export default function LiveCodingChallenge({ locale }: Props) {
                 ref={containerRef}
                 className="flex flex-col lg:flex-row gap-0 items-stretch relative min-h-[720px]"
             >
-                {/* Left Column: Requirements & Solution drawers */}
+                {/* Left Column: Requirements, Solution drawers & Interviewer Clarification */}
                 <div
                     style={isDesktop ? { width: `${leftPanelWidth}%` } : undefined}
                     className="w-full flex-shrink-0 space-y-4 pr-0 lg:pr-3"
@@ -467,6 +556,75 @@ export default function LiveCodingChallenge({ locale }: Props) {
                                     </li>
                                 ))}
                             </ul>
+                        </div>
+
+                        {/* Clarify with Lead Interviewer Card */}
+                        <div className="p-4 rounded-2xl bg-blue-500/[0.03] border border-blue-500/20 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <MessageSquare className="w-4 h-4 text-blue-400" />
+                                    <span className="text-xs font-bold text-white">
+                                        {locale === 'en' ? "Clarify with Lead Interviewer" : "Уточнити у інтерв'ювера"}
+                                    </span>
+                                </div>
+                                <span className="text-[10px] text-blue-400/80 font-medium">
+                                    {locale === 'en' ? "Soft Skills practice" : "Практика комунікації"}
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 leading-relaxed">
+                                {locale === 'en'
+                                    ? "Senior engineers always ask clarifying questions before coding. Ask about constraints, test data, or mocking rules."
+                                    : "Senior спеціалісти завжди уточнюють вимоги перед кодингом. Запитайте про обмеження, тестові дані чи моки."}
+                            </p>
+
+                            {/* Q&A Dialog History */}
+                            {qaList.length > 0 && (
+                                <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                                    {qaList.map((qa, i) => (
+                                        <div key={i} className="space-y-1.5 text-xs">
+                                            <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-200">
+                                                <span className="text-[10px] uppercase font-bold text-purple-400 block mb-0.5">
+                                                    {locale === 'en' ? "You asked:" : "Ваше запитання:"}
+                                                </span>
+                                                {qa.question}
+                                            </div>
+                                            <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-slate-200">
+                                                <span className="text-[10px] uppercase font-bold text-blue-400 block mb-0.5">
+                                                    {locale === 'en' ? "Lead QA answered:" : "Відповідь Lead QA:"}
+                                                </span>
+                                                {locale === 'uk' ? qa.answerUk : (locale === 'ru' ? qa.answerRu : qa.answerEn)}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Question Input Form */}
+                            <div className="flex items-center gap-2 pt-1">
+                                <input
+                                    type="text"
+                                    value={candidateQuestion}
+                                    onChange={e => setCandidateQuestion(e.target.value)}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter') askInterviewerAction()
+                                    }}
+                                    placeholder={
+                                        locale === 'en'
+                                            ? "e.g. Can we use testId or role-based locators only?"
+                                            : "напр., Чи можемо ми мокувати бекенд через page.route?"
+                                    }
+                                    className="flex-1 px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500"
+                                />
+                                <button
+                                    type="button"
+                                    disabled={isAskingInterviewer || !candidateQuestion.trim()}
+                                    onClick={askInterviewerAction}
+                                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all disabled:opacity-50 flex items-center gap-1.5 flex-shrink-0 shadow-md shadow-blue-500/20"
+                                >
+                                    <Send className="w-3 h-3" />
+                                    <span>{isAskingInterviewer ? "..." : (locale === 'en' ? "Ask" : "Запитати")}</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Hints Drawer */}
@@ -727,7 +885,7 @@ export default function LiveCodingChallenge({ locale }: Props) {
                                 <span>{locale === 'en' ? "Chromium headless sandbox environment" : "Середовище тестування Chromium Headless"}</span>
                             </span>
 
-                            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                                 <button
                                     type="button"
                                     disabled={isRunningTests || isSubmitting}
@@ -742,16 +900,100 @@ export default function LiveCodingChallenge({ locale }: Props) {
                                     type="button"
                                     disabled={isSubmitting || isRunningTests}
                                     onClick={submitForReview}
-                                    className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+                                    className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
                                 >
                                     <Send className="w-3.5 h-3.5" />
                                     <span>{isSubmitting ? (locale === 'en' ? "Reviewing..." : "Перевірка...") : (locale === 'en' ? "Submit for Lead Review" : (locale === 'ru' ? "Сдать на проверку Lead QA" : "Здати на перевірку Lead QA"))}</span>
+                                </button>
+
+                                {/* Send to Mentor Button */}
+                                <button
+                                    type="button"
+                                    onClick={() => setShowMentorModal(true)}
+                                    className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 border ${
+                                        hasSentToMentor
+                                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                                            : "bg-indigo-600/20 text-indigo-300 border-indigo-500/30 hover:bg-indigo-600/30"
+                                    }`}
+                                >
+                                    <GraduationCap className="w-3.5 h-3.5" />
+                                    <span>{hasSentToMentor ? (locale === 'en' ? "Sent to Mentor ✓" : "Надіслано ментору ✓") : (locale === 'en' ? "Send to Mentor" : "Надіслати ментору")}</span>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Mentor Submission Modal */}
+            {showMentorModal && (
+                <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="w-full max-w-lg p-6 rounded-3xl glass-card-premium border border-white/10 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                            <div className="flex items-center gap-2">
+                                <GraduationCap className="w-5 h-5 text-indigo-400" />
+                                <h3 className="text-base font-bold text-white">
+                                    {locale === 'en' ? "Send Solution to Platform Mentor" : "Надіслати розв'язок ментору курсу"}
+                                </h3>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowMentorModal(false)}
+                                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                            {locale === 'en'
+                                ? "Your code, test structure, and Lead QA evaluation score will be forwarded directly to your personal mentor for review and personalized feedback."
+                                : "Ваш код та результати перевірки будуть надіслані особистому ментору платформи для детального ручного фідбеку."}
+                        </p>
+
+                        <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 space-y-1 text-xs">
+                            <span className="text-slate-400 font-semibold block">
+                                {locale === 'en' ? "Task:" : "Завдання:"} {currentChallenge.titleEn}
+                            </span>
+                            <span className="text-purple-400 font-mono font-bold block">
+                                {evaluation ? `Score: ${evaluation.score}/100 (${evaluation.pass ? 'PASSED' : 'NEEDS IMPROVEMENT'})` : "Status: Not evaluated yet"}
+                            </span>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-300 block">
+                                {locale === 'en' ? "Questions or notes for mentor (optional):" : "Ваш коментар чи запитання до ментора (необов'язково):"}
+                            </label>
+                            <textarea
+                                value={mentorNotes}
+                                onChange={e => setMentorNotes(e.target.value)}
+                                rows={3}
+                                placeholder={locale === 'en' ? "e.g. Please check if my Page Object architecture is clean..." : "напр., Зверніть увагу на структуру фікстур та чи немає зайвих очікувань..."}
+                                className="w-full p-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 resize-none font-sans"
+                            />
+                        </div>
+
+                        <div className="pt-2 flex justify-end gap-2.5">
+                            <button
+                                type="button"
+                                onClick={() => setShowMentorModal(false)}
+                                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                            >
+                                {locale === 'en' ? "Cancel" : "Скасувати"}
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isSendingToMentor}
+                                onClick={sendSolutionToMentor}
+                                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                            >
+                                <Send className="w-3.5 h-3.5" />
+                                <span>{isSendingToMentor ? (locale === 'en' ? "Sending..." : "Надсилання...") : (locale === 'en' ? "Send to Mentor" : "Відправити ментору")}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

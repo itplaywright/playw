@@ -305,3 +305,49 @@ ${studentCode}
         }
     }
 }
+
+export interface InterviewerClarification {
+    answerEn: string
+    answerUk: string
+    answerRu: string
+}
+
+export async function askInterviewer(
+    challengeTitle: string,
+    challengeGoal: string,
+    candidateQuestion: string
+): Promise<InterviewerClarification> {
+    const systemPrompt = `You are a Principal Lead QA Engineer interviewing a candidate in a live technical interview.
+Act strictly as a senior human engineer and technical interviewer. NEVER mention AI, bots, algorithms, machine learning, or language models.
+A candidate is asking you a clarifying question regarding the requirements or implementation of the task: "${challengeTitle}".
+Answer realistically, encouragingly, and clearly in 2-3 concise sentences, as an experienced hiring manager.
+
+Return a raw JSON object with the following exact keys:
+{
+  "answerEn": "<concise answer in English>",
+  "answerUk": "<exact Ukrainian translation>",
+  "answerRu": "<exact Russian translation>"
+}`
+
+    const userPrompt = `Task: ${challengeTitle}
+Goal: ${challengeGoal}
+Candidate's Clarifying Question: "${candidateQuestion}"`
+
+    try {
+        const raw = await callGemini(systemPrompt, userPrompt)
+        const parsed = JSON.parse(raw)
+        return {
+            answerEn: parsed.answerEn || "Great question. Focus on resilient role-based locators and standard auto-waiting mechanisms.",
+            answerUk: parsed.answerUk || "Гарне запитання. Зосередьтеся на надійних рольових локаторах та стандартних механізмах авто-очікування.",
+            answerRu: parsed.answerRu || "Хороший вопрос. Сфокусируйтесь на надежных ролевых локаторах и стандартных механизмах авто-ожидания."
+        }
+    } catch (e) {
+        console.error("Failed to get interviewer answer:", e)
+        return {
+            answerEn: "Good point. Ensure you follow enterprise Playwright best practices and eliminate all arbitrary delays.",
+            answerUk: "Слушне зауваження. Переконайтеся, що дотримуєтесь практик Playwright і уникаєте фіксованих пауз.",
+            answerRu: "Хорошее замечание. Убедитесь, что следуете практикам Playwright и избегаете фиксированных пауз."
+        }
+    }
+}
+

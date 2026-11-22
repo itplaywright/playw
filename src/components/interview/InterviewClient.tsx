@@ -6,7 +6,7 @@ import { Link } from "@/i18n/routing"
 import {
     Mic, MicOff, Send, Award, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, RotateCcw,
     ChevronRight, BookOpen, Clock, User, BarChart2, HelpCircle, Layers, Check, Copy, Flame,
-    Briefcase, UserCheck, Code2
+    Briefcase, UserCheck, Code2, GraduationCap, X
 } from "lucide-react"
 import { toast } from "sonner"
 import KnowledgeMatrix from "./KnowledgeMatrix"
@@ -83,6 +83,38 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
     const [isRecording, setIsRecording] = useState(false)
     const recognitionRef = useRef<any>(null)
     const [copiedAnswer, setCopiedAnswer] = useState(false)
+    const [isSendingReportToMentor, setIsSendingReportToMentor] = useState(false)
+    const [hasSentReportToMentor, setHasSentReportToMentor] = useState(false)
+    const [showReportModal, setShowReportModal] = useState(false)
+    const [mentorNotes, setMentorNotes] = useState("")
+
+    const sendReportToMentor = async () => {
+        if (!finalReport) return
+        setIsSendingReportToMentor(true)
+        try {
+            const res = await fetch("/api/interview/send-to-mentor", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "interview_report",
+                    title: `${selectedLevel.toUpperCase()} QA Technical Interview`,
+                    score: finalReport.totalScore,
+                    details: finalReport,
+                    candidateNotes: mentorNotes.trim()
+                })
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Failed to send")
+
+            setHasSentReportToMentor(true)
+            setShowReportModal(false)
+            toast.success(locale === 'en' ? "Report sent to platform mentor!" : "Звіт надіслано ментору платформи!")
+        } catch (e: any) {
+            toast.error(e.message || "Failed to send report")
+        } finally {
+            setIsSendingReportToMentor(false)
+        }
+    }
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -814,8 +846,21 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                             <button
                                 type="button"
+                                onClick={() => setShowReportModal(true)}
+                                className={`px-8 py-3.5 rounded-2xl font-black text-sm transition-all flex items-center gap-2 border shadow-xl ${
+                                    hasSentReportToMentor
+                                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                                        : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white border-purple-500/30 shadow-purple-600/25 hover:scale-[1.02] active:scale-[0.98]"
+                                }`}
+                            >
+                                <GraduationCap className="w-4 h-4" />
+                                <span>{hasSentReportToMentor ? (locale === 'en' ? "Report Sent to Mentor ✓" : "Звіт надіслано ментору ✓") : (locale === 'en' ? "Send Report to Platform Mentor" : "Надіслати звіт ментору курсу")}</span>
+                            </button>
+
+                            <button
+                                type="button"
                                 onClick={() => setViewMode('setup')}
-                                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center gap-2"
+                                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                             >
                                 <RotateCcw className="w-4 h-4" />
                                 <span>{locale === 'en' ? "Start Another Technical Interview" : (locale === 'ru' ? "Пройти еще одно собеседование" : "Пройти ще одну співбесіду")}</span>
@@ -828,6 +873,75 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                                 {locale === 'en' ? "Return to Dashboard" : (locale === 'ru' ? "Вернуться к обучению" : "Повернутися до навчання")}
                             </Link>
                         </div>
+
+                        {/* Report to Mentor Modal */}
+                        {showReportModal && (
+                            <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+                                <div className="w-full max-w-lg p-6 rounded-3xl glass-card-premium border border-white/10 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                                    <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                                        <div className="flex items-center gap-2">
+                                            <GraduationCap className="w-5 h-5 text-purple-400" />
+                                            <h3 className="text-base font-bold text-white">
+                                                {locale === 'en' ? "Send Interview Report to Mentor" : "Надіслати звіт співбесіди ментору"}
+                                            </h3>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowReportModal(false)}
+                                            className="p-1 rounded-lg text-slate-400 hover:text-white"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+
+                                    <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                                        {locale === 'en'
+                                            ? "Your total score, readiness level, answered questions, and detailed feedback will be submitted to the mentor for verification and advisory."
+                                            : "Ваш підсумковий бал, рівень готовності, відповіді на всі запитання та рекомендації будуть надіслані ментору для оцінки."}
+                                    </p>
+
+                                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1 text-xs">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-slate-400 font-semibold">{selectedLevel.toUpperCase()} QA Automation</span>
+                                            <span className="text-emerald-400 font-mono font-black text-sm">{finalReport.totalScore}%</span>
+                                        </div>
+                                        <p className="text-slate-300 font-medium text-[11px] truncate">{finalReport.readinessLevel}</p>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-300 block">
+                                            {locale === 'en' ? "Message for mentor (optional):" : "Коментар для ментора (необов'язково):"}
+                                        </label>
+                                        <textarea
+                                            value={mentorNotes}
+                                            onChange={e => setMentorNotes(e.target.value)}
+                                            rows={3}
+                                            placeholder={locale === 'en' ? "e.g. Please advise on how to improve my system architecture answers..." : "напр., Підкажіть, на які теми звернути більше уваги перед реальними співбесідами..."}
+                                            className="w-full p-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-purple-500 resize-none font-sans"
+                                        />
+                                    </div>
+
+                                    <div className="pt-2 flex justify-end gap-2.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowReportModal(false)}
+                                            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                                        >
+                                            {locale === 'en' ? "Cancel" : "Скасувати"}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={isSendingReportToMentor}
+                                            onClick={sendReportToMentor}
+                                            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                                        >
+                                            <Send className="w-3.5 h-3.5" />
+                                            <span>{isSendingReportToMentor ? (locale === 'en' ? "Sending..." : "Надсилання...") : (locale === 'en' ? "Send Report" : "Надіслати звіт")}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

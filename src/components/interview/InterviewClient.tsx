@@ -265,7 +265,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                 <div className="mesh-blob mesh-blob-3" />
             </div>
 
-            <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
+            <div className="relative z-10 w-full max-w-[1750px] 2xl:max-w-[1900px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-8">
                 {/* Mode Switcher Tabs */}
                 {viewMode === 'setup' && (
                     <div className="flex items-center justify-center">

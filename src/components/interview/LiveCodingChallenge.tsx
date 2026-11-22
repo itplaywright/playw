@@ -413,7 +413,7 @@ export default function LiveCodingChallenge({ locale }: Props) {
 
                 {/* Right Column: Code Editor & Actions (7 cols) */}
                 <div className="lg:col-span-7 flex flex-col space-y-4">
-                    <div className="p-4 rounded-3xl glass-card-premium border border-white/10 shadow-xl flex-1 flex flex-col min-h-[520px]">
+                    <div className="p-4 rounded-3xl glass-card-premium border border-white/10 shadow-xl flex-1 flex flex-col min-h-[620px] lg:min-h-[680px]">
                         {/* Editor Header Bar */}
                         <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/5 text-xs">
                             <div className="flex items-center gap-2">
@@ -433,7 +433,7 @@ export default function LiveCodingChallenge({ locale }: Props) {
                         </div>
 
                         {/* Monaco Editor Container */}
-                        <div className="flex-1 rounded-2xl overflow-hidden border border-white/5 bg-[#1e1e1e] min-h-[420px]">
+                        <div className="flex-1 rounded-2xl overflow-hidden border border-white/5 bg-[#1e1e1e] min-h-[500px] lg:min-h-[580px]">
                             <CodeEditor
                                 value={code}
                                 onChange={(val) => setCode(val || "")}

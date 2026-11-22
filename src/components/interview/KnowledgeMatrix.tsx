@@ -572,7 +572,7 @@ export default function KnowledgeMatrix({ locale }: Props) {
                             </button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {filteredQuestions.map((q) => {
                                 const cardLang = cardLangs[q.id] || 'en'
                                 const isRevealed = revealedCards[q.id] || false

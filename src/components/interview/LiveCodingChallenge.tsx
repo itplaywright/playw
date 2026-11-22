@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import {
     Code2, Play, Pause, RotateCcw, CheckCircle2, AlertTriangle,
     Clock, Send, Sparkles, Eye, EyeOff, Copy, Check, ChevronRight,
-    Terminal, Layers, ShieldCheck
+    Terminal, Layers, ShieldCheck, GripVertical, ChevronDown, ChevronUp,
+    CheckCheck, XCircle, RefreshCw, Cpu
 } from "lucide-react"
 import { CODING_CHALLENGES, CodingChallenge } from "@/lib/codingChallengesBank"
 import CodeEditor from "@/components/editor/Monaco"
@@ -12,6 +13,12 @@ import { toast } from "sonner"
 
 interface Props {
     locale: string
+}
+
+interface TerminalLog {
+    text: string
+    type: 'cmd' | 'info' | 'success' | 'warn' | 'error'
+    timestamp?: string
 }
 
 export default function LiveCodingChallenge({ locale }: Props) {
@@ -26,14 +33,37 @@ export default function LiveCodingChallenge({ locale }: Props) {
     const [secondsLeft, setSecondsLeft] = useState<number>(currentChallenge.timeLimitMinutes * 60)
     const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false)
 
-    // Review state
+    // Review & Terminal state
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+    const [isRunningTests, setIsRunningTests] = useState<boolean>(false)
     const [evaluation, setEvaluation] = useState<any | null>(null)
     const [showSolution, setShowSolution] = useState<boolean>(false)
     const [showHints, setShowHints] = useState<boolean>(false)
     const [copiedSolution, setCopiedSolution] = useState<boolean>(false)
 
-    // Reset code and timer when changing challenge
+    // Terminal Drawer state
+    const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(true)
+    const [terminalTab, setTerminalTab] = useState<'console' | 'review'>('console')
+    const [terminalLogs, setTerminalLogs] = useState<TerminalLog[]>([
+        { text: "$ npx playwright test --project=chromium", type: "cmd" },
+        { text: "Playwright test runner initialized. TypeScript environment ready.", type: "info" },
+        { text: `Loaded challenge: ${currentChallenge.titleEn}`, type: "info" }
+    ])
+
+    // Resizable Split View state (Desktop width percentage for left panel)
+    const [leftPanelWidth, setLeftPanelWidth] = useState<number>(38)
+    const [isDragging, setIsDragging] = useState<boolean>(false)
+    const [isDesktop, setIsDesktop] = useState<boolean>(false)
+    const containerRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const check = () => setIsDesktop(window.innerWidth >= 1024)
+        check()
+        window.addEventListener('resize', check)
+        return () => window.removeEventListener('resize', check)
+    }, [])
+
+    // Reset code, timer and logs when changing challenge
     useEffect(() => {
         setCode(currentChallenge.starterCode)
         setSecondsLeft(currentChallenge.timeLimitMinutes * 60)
@@ -41,6 +71,12 @@ export default function LiveCodingChallenge({ locale }: Props) {
         setEvaluation(null)
         setShowSolution(false)
         setShowHints(false)
+        setTerminalTab('console')
+        setTerminalLogs([
+            { text: "$ npx playwright test --project=chromium", type: "cmd" },
+            { text: `Loaded challenge: ${currentChallenge.titleEn} (${currentChallenge.level.toUpperCase()})`, type: "info" },
+            { text: "Write your solution and click 'Run Test' or 'Submit for Lead Review'.", type: "info" }
+        ])
     }, [selectedChallengeId])
 
     // Timer countdown effect
@@ -63,6 +99,39 @@ export default function LiveCodingChallenge({ locale }: Props) {
         }
     }, [isTimerRunning, secondsLeft, locale])
 
+    // Resizable Splitter mouse events
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDragging || !containerRef.current) return
+            const containerRect = containerRef.current.getBoundingClientRect()
+            const newPercentage = ((e.clientX - containerRect.left) / containerRect.width) * 100
+            if (newPercentage >= 25 && newPercentage <= 60) {
+                setLeftPanelWidth(newPercentage)
+            }
+        }
+
+        const handleMouseUp = () => {
+            setIsDragging(false)
+        }
+
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove)
+            window.addEventListener('mouseup', handleMouseUp)
+            document.body.style.cursor = 'col-resize'
+            document.body.style.userSelect = 'none'
+        } else {
+            document.body.style.cursor = ''
+            document.body.style.userSelect = ''
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove)
+            window.removeEventListener('mouseup', handleMouseUp)
+            document.body.style.cursor = ''
+            document.body.style.userSelect = ''
+        }
+    }, [isDragging])
+
     const formatTime = (secs: number) => {
         const m = Math.floor(secs / 60)
         const s = secs % 60
@@ -76,6 +145,11 @@ export default function LiveCodingChallenge({ locale }: Props) {
         if (window.confirm(confirmMsg)) {
             setCode(currentChallenge.starterCode)
             setEvaluation(null)
+            setTerminalLogs(prev => [
+                ...prev,
+                { text: "$ git checkout -- test.spec.ts", type: "cmd" },
+                { text: "Code reverted to starting state.", type: "warn" }
+            ])
             toast.success(locale === 'en' ? "Code reset" : "Код скинуто")
         }
     }
@@ -87,6 +161,70 @@ export default function LiveCodingChallenge({ locale }: Props) {
         toast.success(locale === 'en' ? "Model solution copied!" : "Еталонне рішення скопійовано!")
     }
 
+    // Local Test Simulation Runner
+    const runPlaywrightTest = async () => {
+        if (!code || code.trim().length < 15) {
+            toast.error(locale === 'en' ? "Please write some code first." : "Будь ласка, напишіть код перед запуском.")
+            return
+        }
+
+        setIsRunningTests(true)
+        setIsTerminalOpen(true)
+        setTerminalTab('console')
+
+        const logs: TerminalLog[] = [
+            { text: `$ npx playwright test tests/challenge.spec.ts --reporter=list`, type: "cmd" },
+            { text: `Running 1 test using 1 worker (Chromium Headless)...`, type: "info" }
+        ]
+        setTerminalLogs(logs)
+
+        await new Promise(r => setTimeout(r, 600))
+
+        // Check for common Playwright anti-patterns in the user's code
+        const hasWaitForTimeout = /waitForTimeout\s*\(/.test(code)
+        const hasBrittleXpath = /xpath=|\/\/[a-zA-Z]/.test(code)
+        const hasImperativeInnerText = /expect\s*\(\s*await.*\.innerText\s*\(\s*\)\s*\)\.toBe/.test(code)
+
+        if (hasWaitForTimeout) {
+            setTerminalLogs(prev => [
+                ...prev,
+                { text: `  ✘ 1 [chromium] › tests/challenge.spec.ts:12:5 › ${currentChallenge.titleEn} (1.9s)`, type: "error" },
+                { text: `Error: Anti-pattern 'page.waitForTimeout()' detected.`, type: "error" },
+                { text: `Enterprise QA Standard: Hardcoded sleeps are forbidden in CI pipelines. Use web-first auto-retrying assertions instead.`, type: "warn" },
+                { text: `1 failed (1.9s)`, type: "error" }
+            ])
+            toast.error(locale === 'en' ? "Test failed: remove waitForTimeout!" : "Тест не пройшов: видаліть waitForTimeout!")
+        } else if (hasBrittleXpath && currentChallenge.id === 'challenge-flaky-checkout') {
+            setTerminalLogs(prev => [
+                ...prev,
+                { text: `  ✘ 1 [chromium] › tests/challenge.spec.ts:15:5 › ${currentChallenge.titleEn} (2.1s)`, type: "error" },
+                { text: `Warning: Brittle XPath locator detected. Replace with getByRole() or getByTestId().`, type: "warn" },
+                { text: `1 test completed with architectural warnings.`, type: "warn" }
+            ])
+            toast.warning(locale === 'en' ? "Brittle locators detected. Use role-based locators." : "Виявлено крихкий XPath. Використайте getByRole().")
+        } else if (hasImperativeInnerText && currentChallenge.id === 'challenge-flaky-checkout') {
+            setTerminalLogs(prev => [
+                ...prev,
+                { text: `  ✘ 1 [chromium] › tests/challenge.spec.ts:18:5 › ${currentChallenge.titleEn} (2.4s)`, type: "error" },
+                { text: `Error: Race condition detected. 'expect(await loc.innerText()).toBe()' does not auto-retry.`, type: "error" },
+                { text: `Replace with web-first 'await expect(loc).toHaveText(...)'.`, type: "info" }
+            ])
+            toast.error(locale === 'en' ? "Race condition: use await expect(locator).toHaveText()" : "Race condition: використайте await expect(locator).toHaveText()")
+        } else {
+            setTerminalLogs(prev => [
+                ...prev,
+                { text: `  ✓ 1 [chromium] › tests/challenge.spec.ts:5:5 › ${currentChallenge.titleEn} (1.4s)`, type: "success" },
+                { text: `✓ Clean test execution: All assertions resolved within auto-waiting timeout.`, type: "success" },
+                { text: `Ready for Lead QA review. Click 'Submit for Lead Review' to receive full enterprise evaluation.`, type: "info" },
+                { text: `1 passed (1.4s)`, type: "success" }
+            ])
+            toast.success(locale === 'en' ? "Test passed cleanly! Ready for Lead review." : "Тест пройшов успішно! Готовий до перевірки лідом.")
+        }
+
+        setIsRunningTests(false)
+    }
+
+    // Lead QA Review Submission
     const submitForReview = async () => {
         if (!code || code.trim().length < 20) {
             toast.error(locale === 'en' ? "Please write a solution before submitting." : "Будь ласка, напишіть рішення перед відправкою.")
@@ -94,6 +232,15 @@ export default function LiveCodingChallenge({ locale }: Props) {
         }
 
         setIsSubmitting(true)
+        setIsTerminalOpen(true)
+        setTerminalTab('console')
+
+        setTerminalLogs(prev => [
+            ...prev,
+            { text: "$ git push origin review/candidate-submission", type: "cmd" },
+            { text: "Triggering Principal Lead QA code audit pipeline...", type: "info" }
+        ])
+
         try {
             const res = await fetch("/api/interview/coding-review", {
                 method: "POST",
@@ -111,6 +258,21 @@ export default function LiveCodingChallenge({ locale }: Props) {
 
             setEvaluation(data.evaluation)
             setIsTimerRunning(false)
+
+            setTerminalLogs(prev => [
+                ...prev,
+                {
+                    text: data.evaluation.pass
+                        ? `✓ Lead QA Audit PASSED: Score ${data.evaluation.score}/100`
+                        : `✘ Lead QA Audit REVISION REQUIRED: Score ${data.evaluation.score}/100`,
+                    type: data.evaluation.pass ? "success" : "error"
+                },
+                { text: "Audit report ready. Switching to Lead Review tab...", type: "info" }
+            ])
+
+            // Switch to Review tab to show detailed scorecard
+            setTerminalTab('review')
+
             if (data.evaluation.pass) {
                 toast.success(locale === 'en' ? "Lead Review: Passed! Excellent solution." : "Рев'ю ліда: Зараховано! Відмінне рішення.")
             } else {
@@ -118,6 +280,10 @@ export default function LiveCodingChallenge({ locale }: Props) {
             }
         } catch (e: any) {
             toast.error(e.message || "Failed to submit code for review")
+            setTerminalLogs(prev => [
+                ...prev,
+                { text: `Error: ${e.message || "Pipeline failed"}`, type: "error" }
+            ])
         } finally {
             setIsSubmitting(false)
         }
@@ -231,11 +397,16 @@ export default function LiveCodingChallenge({ locale }: Props) {
                 </div>
             </div>
 
-            {/* Split Workspace: Left = Task Description & Lead Review, Right = Monaco Code Editor */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Left Column: Requirements & Feedback (5 cols) */}
-                <div className="lg:col-span-5 space-y-4">
-                    {/* Task Overview Card */}
+            {/* Resizable Workspace Container */}
+            <div
+                ref={containerRef}
+                className="flex flex-col lg:flex-row gap-0 items-stretch relative min-h-[720px]"
+            >
+                {/* Left Column: Requirements & Solution drawers */}
+                <div
+                    style={isDesktop ? { width: `${leftPanelWidth}%` } : undefined}
+                    className="w-full flex-shrink-0 space-y-4 pr-0 lg:pr-3"
+                >
                     <div className="p-6 rounded-3xl glass-card-premium border border-white/10 shadow-xl space-y-4">
                         {/* Task Header & Language Switcher */}
                         <div className="flex items-center justify-between gap-2 border-b border-white/5 pb-3">
@@ -362,58 +533,28 @@ export default function LiveCodingChallenge({ locale }: Props) {
                             )}
                         </div>
                     </div>
-
-                    {/* Lead Review Result Card */}
-                    {evaluation && (
-                        <div className={`p-6 rounded-3xl glass-card-premium border shadow-xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 ${
-                            evaluation.pass ? "border-emerald-500/30 bg-emerald-500/[0.02]" : "border-amber-500/30 bg-amber-500/[0.02]"
-                        }`}>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    {evaluation.pass ? (
-                                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                                    ) : (
-                                        <AlertTriangle className="w-5 h-5 text-amber-400" />
-                                    )}
-                                    <span className="text-sm font-bold text-white">
-                                        {evaluation.pass
-                                            ? (locale === 'en' ? "Lead Review: Passed" : "Перевірка пройдена")
-                                            : (locale === 'en' ? "Lead Review: Needs Improvement" : "Потрібні доопрацювання")}
-                                    </span>
-                                </div>
-                                <span className={`text-xs font-black px-2.5 py-1 rounded-lg ${
-                                    evaluation.pass ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                                }`}>
-                                    {evaluation.score}/100
-                                </span>
-                            </div>
-
-                            <p className="text-xs text-slate-200 leading-relaxed font-sans">
-                                {getLocalizedFeedback(evaluation)}
-                            </p>
-
-                            {evaluation.codeReviewHighlights?.length > 0 && (
-                                <div className="space-y-1.5 pt-2 border-t border-white/5">
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                                        {locale === 'en' ? "Review Notes:" : "Коментарі ліда:"}
-                                    </span>
-                                    <ul className="space-y-1">
-                                        {evaluation.codeReviewHighlights.map((h: string, idx: number) => (
-                                            <li key={idx} className="flex items-start gap-1.5 text-xs text-slate-300">
-                                                <span className="text-purple-400">•</span>
-                                                <span>{h}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </div>
 
-                {/* Right Column: Code Editor & Actions (7 cols) */}
-                <div className="lg:col-span-7 flex flex-col space-y-4">
-                    <div className="p-4 rounded-3xl glass-card-premium border border-white/10 shadow-xl flex-1 flex flex-col min-h-[620px] lg:min-h-[680px]">
+                {/* Resizable Divider Handle (Desktop) */}
+                <div
+                    onMouseDown={(e) => {
+                        e.preventDefault()
+                        setIsDragging(true)
+                    }}
+                    onDoubleClick={() => setLeftPanelWidth(38)}
+                    className="hidden lg:flex items-center justify-center w-3 cursor-col-resize group relative z-20 select-none hover:bg-purple-500/10 transition-colors rounded-full"
+                    title={locale === 'en' ? "Drag to resize panels (Double-click to reset)" : "Потягніть для зміни ширини (Подвійний клік - скидання)"}
+                >
+                    <div className={`w-1 h-16 rounded-full transition-all ${
+                        isDragging ? "bg-purple-400 shadow-lg shadow-purple-500/50 scale-y-125" : "bg-white/10 group-hover:bg-purple-400/70"
+                    }`} />
+                </div>
+
+                {/* Right Column: Monaco Code Editor + Integrated Terminal */}
+                <div
+                    className="w-full flex-1 flex flex-col space-y-4 pl-0 lg:pl-3 min-w-0"
+                >
+                    <div className="p-4 rounded-3xl glass-card-premium border border-white/10 shadow-xl flex-1 flex flex-col">
                         {/* Editor Header Bar */}
                         <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/5 text-xs">
                             <div className="flex items-center gap-2">
@@ -421,39 +562,192 @@ export default function LiveCodingChallenge({ locale }: Props) {
                                 <span className="font-mono text-slate-300 text-xs font-semibold">
                                     test.spec.ts
                                 </span>
+                                <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">
+                                    TypeScript • @playwright/test
+                                </span>
                             </div>
-                            <button
-                                type="button"
-                                onClick={resetCode}
-                                className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 text-[11px] font-bold"
-                            >
-                                <RotateCcw className="w-3 h-3" />
-                                <span>{locale === 'en' ? "Reset Code" : (locale === 'ru' ? "Сбросить" : "Скинути")}</span>
-                            </button>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={resetCode}
+                                    className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 text-[11px] font-bold"
+                                >
+                                    <RotateCcw className="w-3 h-3" />
+                                    <span>{locale === 'en' ? "Reset Code" : (locale === 'ru' ? "Сбросить" : "Скинути")}</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Monaco Editor Container */}
-                        <div className="flex-1 rounded-2xl overflow-hidden border border-white/5 bg-[#1e1e1e] min-h-[500px] lg:min-h-[580px]">
+                        <div className="rounded-2xl overflow-hidden border border-white/5 bg-[#1e1e1e] min-h-[380px] lg:min-h-[440px]">
                             <CodeEditor
                                 value={code}
                                 onChange={(val) => setCode(val || "")}
                             />
                         </div>
 
+                        {/* Integrated Terminal Drawer */}
+                        <div className="mt-4 rounded-2xl bg-black/60 border border-white/10 overflow-hidden flex flex-col">
+                            {/* Terminal Top Tabs Bar */}
+                            <div className="flex items-center justify-between bg-white/[0.03] px-3 py-2 border-b border-white/5 text-xs">
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setTerminalTab('console')
+                                            setIsTerminalOpen(true)
+                                        }}
+                                        className={`px-3 py-1 rounded-lg font-bold flex items-center gap-1.5 transition-all text-xs ${
+                                            terminalTab === 'console' && isTerminalOpen
+                                                ? "bg-purple-600/30 text-purple-300 border border-purple-500/30"
+                                                : "text-slate-400 hover:text-white"
+                                        }`}
+                                    >
+                                        <Terminal className="w-3.5 h-3.5" />
+                                        <span>Terminal & Test Runner</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setTerminalTab('review')
+                                            setIsTerminalOpen(true)
+                                        }}
+                                        className={`px-3 py-1 rounded-lg font-bold flex items-center gap-1.5 transition-all text-xs relative ${
+                                            terminalTab === 'review' && isTerminalOpen
+                                                ? "bg-purple-600/30 text-purple-300 border border-purple-500/30"
+                                                : "text-slate-400 hover:text-white"
+                                        }`}
+                                    >
+                                        <ShieldCheck className="w-3.5 h-3.5" />
+                                        <span>Lead QA Score & Review</span>
+                                        {evaluation && (
+                                            <span className={`w-2 h-2 rounded-full ${evaluation.pass ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                                        )}
+                                    </button>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setIsTerminalOpen(!isTerminalOpen)}
+                                    className="p-1 rounded text-slate-400 hover:text-white transition-colors"
+                                    title={isTerminalOpen ? "Collapse terminal" : "Expand terminal"}
+                                >
+                                    {isTerminalOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                                </button>
+                            </div>
+
+                            {/* Terminal Body */}
+                            {isTerminalOpen && (
+                                <div className="p-3.5 max-h-56 overflow-y-auto font-mono text-[11px] space-y-1.5">
+                                    {terminalTab === 'console' && (
+                                        <div className="space-y-1">
+                                            {terminalLogs.map((log, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className={`leading-relaxed break-all ${
+                                                        log.type === 'cmd'
+                                                            ? "text-blue-400 font-bold"
+                                                            : log.type === 'success'
+                                                                ? "text-emerald-400 font-bold"
+                                                                : log.type === 'error'
+                                                                    ? "text-rose-400 font-bold"
+                                                                    : log.type === 'warn'
+                                                                        ? "text-amber-300"
+                                                                        : "text-slate-400"
+                                                    }`}
+                                                >
+                                                    {log.text}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {terminalTab === 'review' && (
+                                        <div>
+                                            {!evaluation ? (
+                                                <div className="text-slate-500 py-3 text-center font-sans text-xs">
+                                                    {locale === 'en'
+                                                        ? "No review report yet. Submit your code using 'Submit for Lead Review' below."
+                                                        : "Рев'ю ще не проводилося. Натисніть 'Здати на перевірку Lead QA' нижче."}
+                                                </div>
+                                            ) : (
+                                                <div className="font-sans space-y-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            {evaluation.pass ? (
+                                                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                                            ) : (
+                                                                <AlertTriangle className="w-4 h-4 text-amber-400" />
+                                                            )}
+                                                            <span className="text-xs font-bold text-white">
+                                                                {evaluation.pass
+                                                                    ? (locale === 'en' ? "Lead Review: Passed" : "Перевірка пройдена")
+                                                                    : (locale === 'en' ? "Lead Review: Needs Improvement" : "Потрібні доопрацювання")}
+                                                            </span>
+                                                        </div>
+                                                        <span className={`text-xs font-black px-2 py-0.5 rounded-md ${
+                                                            evaluation.pass ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                                        }`}>
+                                                            {evaluation.score}/100
+                                                        </span>
+                                                    </div>
+
+                                                    <p className="text-xs text-slate-200 leading-relaxed">
+                                                        {getLocalizedFeedback(evaluation)}
+                                                    </p>
+
+                                                    {evaluation.codeReviewHighlights?.length > 0 && (
+                                                        <div className="space-y-1 pt-2 border-t border-white/5">
+                                                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                                                                {locale === 'en' ? "Lead QA Highlights:" : "Зауваження Lead QA:"}
+                                                            </span>
+                                                            <ul className="space-y-1">
+                                                                {evaluation.codeReviewHighlights.map((h: string, idx: number) => (
+                                                                    <li key={idx} className="flex items-start gap-1.5 text-xs text-slate-300">
+                                                                        <span className="text-purple-400">•</span>
+                                                                        <span>{h}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
                         {/* Action CTA Bar */}
-                        <div className="pt-4 mt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/5">
-                            <span className="text-[11px] text-slate-500">
-                                {locale === 'en' ? "TypeScript • Playwright test runner environment" : "Середовище TypeScript • Playwright test runner"}
+                        <div className="pt-4 mt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/5">
+                            <span className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                                <Cpu className="w-3.5 h-3.5 text-blue-400" />
+                                <span>{locale === 'en' ? "Chromium headless sandbox environment" : "Середовище тестування Chromium Headless"}</span>
                             </span>
-                            <button
-                                type="button"
-                                disabled={isSubmitting}
-                                onClick={submitForReview}
-                                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                <Send className="w-3.5 h-3.5" />
-                                <span>{isSubmitting ? (locale === 'en' ? "Reviewing..." : "Перевірка...") : (locale === 'en' ? "Submit for Lead Review" : (locale === 'ru' ? "Сдать на проверку Lead QA" : "Здати на перевірку Lead QA"))}</span>
-                            </button>
+
+                            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                                <button
+                                    type="button"
+                                    disabled={isRunningTests || isSubmitting}
+                                    onClick={runPlaywrightTest}
+                                    className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white font-bold text-xs border border-white/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    <Play className="w-3.5 h-3.5 text-emerald-400" />
+                                    <span>{isRunningTests ? (locale === 'en' ? "Running..." : "Виконання...") : (locale === 'en' ? "Run Test" : "Запустити тест")}</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    disabled={isSubmitting || isRunningTests}
+                                    onClick={submitForReview}
+                                    className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-purple-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    <Send className="w-3.5 h-3.5" />
+                                    <span>{isSubmitting ? (locale === 'en' ? "Reviewing..." : "Перевірка...") : (locale === 'en' ? "Submit for Lead Review" : (locale === 'ru' ? "Сдать на проверку Lead QA" : "Здати на перевірку Lead QA"))}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

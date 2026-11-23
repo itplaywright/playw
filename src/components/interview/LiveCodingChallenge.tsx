@@ -233,6 +233,7 @@ export default function LiveCodingChallenge({ locale }: Props) {
                 body: JSON.stringify({
                     type: "coding_challenge",
                     title: `${currentChallenge.titleEn} (${currentChallenge.level.toUpperCase()})`,
+                    roleLevel: currentChallenge.level,
                     score: evaluation?.score || 0,
                     details: code,
                     candidateNotes: mentorNotes.trim()

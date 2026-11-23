@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { taskSubmissions } from "@/db/schema"
+import { taskSubmissions, projectSubmissions, interviewSessions } from "@/db/schema"
 import { NextResponse } from "next/server"
 import { eq, count } from "drizzle-orm"
 
@@ -11,11 +11,21 @@ export async function GET() {
     }
 
     try {
-        const [result] = await db.select({ value: count() })
+        const [taskResult] = await db.select({ value: count() })
             .from(taskSubmissions)
             .where(eq(taskSubmissions.status, "pending"))
 
-        return NextResponse.json({ count: result.value })
+        const [projResult] = await db.select({ value: count() })
+            .from(projectSubmissions)
+            .where(eq(projectSubmissions.status, "pending"))
+
+        const [interviewResult] = await db.select({ value: count() })
+            .from(interviewSessions)
+            .where(eq(interviewSessions.status, "pending_review"))
+
+        const totalPending = (taskResult?.value || 0) + (projResult?.value || 0) + (interviewResult?.value || 0)
+
+        return NextResponse.json({ count: totalPending })
     } catch (error) {
         console.error("Fetch submissions count error:", error)
         return NextResponse.json({ error: "Internal server error" }, { status: 500 })

@@ -98,6 +98,8 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                 body: JSON.stringify({
                     type: "interview_report",
                     title: `${selectedLevel.toUpperCase()} QA Technical Interview`,
+                    roleLevel: selectedLevel,
+                    sessionId: sessionId,
                     score: finalReport.totalScore,
                     details: finalReport,
                     candidateNotes: mentorNotes.trim()

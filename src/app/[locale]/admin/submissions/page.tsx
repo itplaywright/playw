@@ -6,7 +6,7 @@ import CodeEditor from "@/components/editor/Monaco"
 import { CheckCircle2, Clock, User, BookOpen, Send, ChevronRight, Search } from "lucide-react"
 
 interface Submission {
-    id: number
+    id: number | string
     code: string
     status: "pending" | "reviewed" | "rejected"
     mentorFeedback: string | null
@@ -14,7 +14,9 @@ interface Submission {
     userName: string
     userEmail: string
     taskTitle: string
-    taskId: number
+    taskId: number | string
+    isProject?: boolean
+    isInterview?: boolean
 }
 
 export default function AdminSubmissionsPage() {
@@ -68,7 +70,8 @@ export default function AdminSubmissionsPage() {
                     submissionId: selectedSubmission.id,
                     feedback,
                     status,
-                    isProject: (selectedSubmission as any).isProject
+                    isProject: (selectedSubmission as any).isProject,
+                    isInterview: (selectedSubmission as any).isInterview
                 })
             })
 

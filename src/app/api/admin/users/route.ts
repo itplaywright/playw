@@ -1,4 +1,3 @@
-
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { users } from "@/db/schema"
@@ -13,14 +12,25 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, isBlocked } = body
+        const { id, isBlocked, role, dynamicRoleId } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
         }
 
+        const updateData: any = {}
+        if (typeof isBlocked === "boolean") updateData.isBlocked = isBlocked
+        if (role && (role === "admin" || role === "user")) updateData.role = role
+        if (dynamicRoleId !== undefined) {
+            updateData.dynamicRoleId = dynamicRoleId === "none" || dynamicRoleId === null ? null : Number(dynamicRoleId)
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return NextResponse.json({ error: "No fields to update" }, { status: 400 })
+        }
+
         await db.update(users)
-            .set({ isBlocked })
+            .set(updateData)
             .where(eq(users.id, id))
 
         const updatedUser = await db.select().from(users).where(eq(users.id, id))

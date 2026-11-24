@@ -30,7 +30,11 @@ import {
     Sparkles,
     UserCheck,
     Lock,
-    ShieldCheck
+    ShieldCheck,
+    KeyRound,
+    Wand2,
+    Eye,
+    EyeOff
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -133,7 +137,20 @@ const translations = {
         showing: "Показано",
         to: "—",
         of: "из",
-        reviewSubmissions: "Проверить работы студента"
+        reviewSubmissions: "Проверить работы студента",
+        passwordSecurity: "Пароль и безопасность",
+        passwordSecurityDesc: "Сброс или установка нового пароля для пользователя",
+        setNewPassword: "Установить пароль",
+        sendResetLink: "Отправить ссылку",
+        changePasswordModalTitle: "Смена пароля пользователя",
+        newPasswordLabel: "Новый пароль",
+        newPasswordPlaceholder: "Минимум 6 символов",
+        generatePassword: "Сгенерировать",
+        savePassword: "Сохранить пароль",
+        cancel: "Отмена",
+        passwordResetSuccess: "Пароль успешно обновлен!",
+        resetLinkSentSuccess: "Ссылка для сброса отправлена на почту пользователя!",
+        resetPasswordTooltip: "Сбросить / изменить пароль"
     },
     uk: {
         title: "Користувачі",
@@ -201,7 +218,20 @@ const translations = {
         showing: "Показано",
         to: "—",
         of: "з",
-        reviewSubmissions: "Перевірити роботи студента"
+        reviewSubmissions: "Перевірити роботи студента",
+        passwordSecurity: "Пароль та безпека",
+        passwordSecurityDesc: "Скидання або встановлення нового пароля для користувача",
+        setNewPassword: "Встановити пароль",
+        sendResetLink: "Надіслати посилання",
+        changePasswordModalTitle: "Зміна пароля користувача",
+        newPasswordLabel: "Новий пароль",
+        newPasswordPlaceholder: "Мінімум 6 символів",
+        generatePassword: "Згенерувати",
+        savePassword: "Зберегти пароль",
+        cancel: "Скасувати",
+        passwordResetSuccess: "Пароль успішно оновлено!",
+        resetLinkSentSuccess: "Посилання для скидання надіслано на пошту користувача!",
+        resetPasswordTooltip: "Скинути / змінити пароль"
     },
     en: {
         title: "Users Management",
@@ -269,7 +299,20 @@ const translations = {
         showing: "Showing",
         to: "to",
         of: "of",
-        reviewSubmissions: "Review Submissions"
+        reviewSubmissions: "Review Submissions",
+        passwordSecurity: "Password & Security",
+        passwordSecurityDesc: "Reset or set a new password for this user",
+        setNewPassword: "Set Password",
+        sendResetLink: "Send Reset Link",
+        changePasswordModalTitle: "Change User Password",
+        newPasswordLabel: "New Password",
+        newPasswordPlaceholder: "Minimum 6 characters",
+        generatePassword: "Generate",
+        savePassword: "Save Password",
+        cancel: "Cancel",
+        passwordResetSuccess: "Password successfully updated!",
+        resetLinkSentSuccess: "Reset link sent to user's email!",
+        resetPasswordTooltip: "Reset / change password"
     }
 }
 
@@ -286,6 +329,101 @@ export default function UsersClient({ initialUsers, roles, totalTasks }: UsersCl
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null)
     const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({})
     const [copiedId, setCopiedId] = useState<string | null>(null)
+
+    // Password Reset Modal states
+    const [passwordModalUser, setPasswordModalUser] = useState<UserData | null>(null)
+    const [adminNewPassword, setAdminNewPassword] = useState("")
+    const [showAdminPassword, setShowAdminPassword] = useState(false)
+    const [isSavingPassword, setIsSavingPassword] = useState(false)
+    const [isSendingResetEmail, setIsSendingResetEmail] = useState(false)
+
+    const generateRandomPassword = () => {
+        const letters = "abcdefghjkmnpqrstuvwxyz"
+        const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+        const numbers = "23456789"
+        const specials = "!@#$%^&*"
+        let pwd = ""
+        pwd += upper.charAt(Math.floor(Math.random() * upper.length))
+        for (let i = 0; i < 5; i++) pwd += letters.charAt(Math.floor(Math.random() * letters.length))
+        for (let i = 0; i < 2; i++) pwd += numbers.charAt(Math.floor(Math.random() * numbers.length))
+        pwd += specials.charAt(Math.floor(Math.random() * specials.length))
+        setAdminNewPassword(pwd)
+    }
+
+    const openPasswordModal = (user: UserData) => {
+        setPasswordModalUser(user)
+        setAdminNewPassword("")
+        setShowAdminPassword(false)
+    }
+
+    const handleAdminSetPassword = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault()
+        if (!passwordModalUser || !adminNewPassword.trim()) {
+            toast.error("Введіть новий пароль")
+            return
+        }
+
+        if (adminNewPassword.length < 6) {
+            toast.error("Пароль має містити мінімум 6 символів")
+            return
+        }
+
+        setIsSavingPassword(true)
+        try {
+            const res = await fetch("/api/admin/users/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: passwordModalUser.id,
+                    newPassword: adminNewPassword.trim()
+                })
+            })
+
+            const data = await res.json()
+            if (res.ok) {
+                toast.success(t.passwordResetSuccess)
+                setPasswordModalUser(null)
+                setAdminNewPassword("")
+            } else {
+                toast.error(data.error || "Помилка при збереженні пароля")
+            }
+        } catch {
+            toast.error("Помилка мережі")
+        } finally {
+            setIsSavingPassword(false)
+        }
+    }
+
+    const handleSendResetEmail = async (user: UserData) => {
+        if (!user.email) {
+            toast.error("У користувача відсутній email")
+            return
+        }
+
+        setIsSendingResetEmail(true)
+        try {
+            const res = await fetch("/api/admin/users/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: user.id,
+                    sendResetEmail: true,
+                    locale
+                })
+            })
+
+            const data = await res.json()
+            if (res.ok) {
+                toast.success(t.resetLinkSentSuccess)
+            } else {
+                toast.error(data.error || "Помилка при надсиланні посилання")
+            }
+        } catch {
+            toast.error("Помилка мережі")
+        } finally {
+            setIsSendingResetEmail(false)
+        }
+    }
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1)
@@ -926,6 +1064,14 @@ export default function UsersClient({ initialUsers, roles, totalTasks }: UsersCl
                                                         <UserCheck className="w-4 h-4" />
                                                     </button>
                                                     <button
+                                                        onClick={() => openPasswordModal(user)}
+                                                        disabled={isRowUpdating}
+                                                        className="p-2 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all"
+                                                        title={t.resetPasswordTooltip}
+                                                    >
+                                                        <KeyRound className="w-4 h-4" />
+                                                    </button>
+                                                    <button
                                                         onClick={() => resetProgress(user.id)}
                                                         disabled={isRowUpdating}
                                                         className="p-2 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all"
@@ -999,6 +1145,13 @@ export default function UsersClient({ initialUsers, roles, totalTasks }: UsersCl
                                         </div>
 
                                         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                            <button
+                                                onClick={() => openPasswordModal(user)}
+                                                className="p-1.5 text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-all"
+                                                title={t.resetPasswordTooltip}
+                                            >
+                                                <KeyRound className="w-4 h-4" />
+                                            </button>
                                             <button
                                                 onClick={() => toggleBlock(user)}
                                                 className={`p-1.5 rounded-lg transition-all ${user.isBlocked ? "text-rose-500 bg-rose-500/10" : "text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"}`}
@@ -1304,6 +1457,36 @@ export default function UsersClient({ initialUsers, roles, totalTasks }: UsersCl
                                 </div>
                             </div>
 
+                            {/* Password & Security Card */}
+                            <div className="space-y-3 p-4 rounded-2xl bg-secondary/30 border border-border">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                        <KeyRound className="w-4 h-4 text-amber-500" />
+                                        {t.passwordSecurity}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                    {t.passwordSecurityDesc}
+                                </p>
+                                <div className="grid grid-cols-2 gap-2 pt-1">
+                                    <button
+                                        onClick={() => openPasswordModal(selectedUser)}
+                                        className="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                                    >
+                                        <KeyRound className="w-3.5 h-3.5" />
+                                        {t.setNewPassword}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSendResetEmail(selectedUser)}
+                                        disabled={isSendingResetEmail}
+                                        className="py-2.5 px-3 rounded-xl border border-border hover:bg-secondary text-foreground font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
+                                    >
+                                        <Mail className="w-3.5 h-3.5 text-blue-500" />
+                                        {t.sendResetLink}
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* Danger Zone */}
                             <div className="space-y-2 p-4 rounded-2xl bg-rose-500/5 border border-rose-500/20">
                                 <span className="text-xs font-black uppercase tracking-wider text-rose-500 block">
@@ -1335,6 +1518,98 @@ export default function UsersClient({ initialUsers, roles, totalTasks }: UsersCl
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ─── ADMIN PASSWORD RESET MODAL ─── */}
+            {passwordModalUser && (
+                <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+                    <div
+                        className="w-full max-w-md bg-card border border-border rounded-3xl shadow-2xl overflow-hidden p-6 space-y-5 animate-in zoom-in-95 duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center">
+                                    <KeyRound className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-foreground">{t.changePasswordModalTitle}</h3>
+                                    <p className="text-xs text-muted-foreground font-mono">{passwordModalUser.email}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setPasswordModalUser(null)}
+                                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleAdminSetPassword} className="space-y-4">
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-foreground">
+                                        {t.newPasswordLabel}
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={generateRandomPassword}
+                                        className="text-[11px] text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1 transition-colors"
+                                    >
+                                        <Wand2 className="w-3 h-3" />
+                                        {t.generatePassword}
+                                    </button>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        type={showAdminPassword ? "text" : "password"}
+                                        value={adminNewPassword}
+                                        onChange={(e) => setAdminNewPassword(e.target.value)}
+                                        placeholder={t.newPasswordPlaceholder}
+                                        required
+                                        className="w-full h-11 bg-secondary/50 border border-border rounded-xl px-3.5 pr-10 text-xs font-mono font-semibold text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAdminPassword(!showAdminPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    >
+                                        {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="pt-2 flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setPasswordModalUser(null)}
+                                    className="flex-1 py-2.5 rounded-xl border border-border text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+                                >
+                                    {t.cancel}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSavingPassword || !adminNewPassword.trim()}
+                                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20"
+                                >
+                                    {isSavingPassword ? "..." : t.savePassword}
+                                </button>
+                            </div>
+                        </form>
+
+                        <div className="pt-3 border-t border-border/50 text-center">
+                            <button
+                                type="button"
+                                onClick={() => handleSendResetEmail(passwordModalUser)}
+                                disabled={isSendingResetEmail}
+                                className="text-xs text-blue-500 hover:underline font-semibold inline-flex items-center gap-1.5"
+                            >
+                                <Mail className="w-3.5 h-3.5" />
+                                {t.sendResetLink}
+                            </button>
                         </div>
                     </div>
                 </div>

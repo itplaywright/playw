@@ -85,3 +85,71 @@ export async function sendMentorFeedbackEmail({ toEmail, userName, taskTitle, fe
         return false
     }
 }
+
+interface SendPasswordResetEmailProps {
+    toEmail: string
+    userName?: string
+    resetLink: string
+}
+
+export async function sendPasswordResetEmail({ toEmail, userName, resetLink }: SendPasswordResetEmailProps) {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+        console.warn("Email wasn't sent because SMTP credentials are not configured in .env.local")
+        console.log("Password reset link:", resetLink)
+        return false
+    }
+
+    const name = userName || toEmail.split("@")[0]
+    const htmlContent = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0f172a; padding: 24px; border-radius: 16px; color: #f8fafc;">
+            <div style="text-align: center; padding: 20px 0;">
+                <h1 style="color: #60a5fa; font-size: 24px; margin: 0; font-weight: 800; letter-spacing: -0.025em;">Playwright Platform</h1>
+                <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">Відновлення доступу до акаунту</p>
+            </div>
+            
+            <div style="background-color: #1e293b; padding: 32px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h2 style="color: #ffffff; font-size: 18px; margin-top: 0;">Привіт, ${name}! 👋</h2>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">
+                    Ми отримали запит на скидання пароля для вашого акаунту <strong>${toEmail}</strong>.
+                </p>
+                <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">
+                    Щоб встановити новий пароль, натисніть на кнопку нижче. Посилання дійсне протягом <strong>1 години</strong>:
+                </p>
+                
+                <div style="text-align: center; margin: 32px 0;">
+                    <a href="${resetLink}" style="background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);">
+                        Встановити новий пароль
+                    </a>
+                </div>
+
+                <p style="color: #94a3b8; font-size: 13px; line-height: 1.5; margin-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 16px;">
+                    Якщо кнопка не працює, скопіюйте це посилання у браузер:<br />
+                    <a href="${resetLink}" style="color: #60a5fa; word-break: break-all;">${resetLink}</a>
+                </p>
+                
+                <p style="color: #64748b; font-size: 12px; margin-top: 16px; margin-bottom: 0;">
+                    Якщо ви не надсилали цей запит, просто проігноруйте цей лист. Ваш пароль залишиться незмінним.
+                </p>
+            </div>
+            
+            <p style="text-align: center; color: #64748b; font-size: 12px; margin-top: 24px;">
+                © ${new Date().getFullYear()} Playwright Platform. Усі права захищено.
+            </p>
+        </div>
+    `
+
+    try {
+        const info = await transporter.sendMail({
+            from: process.env.SMTP_FROM || '"Playwright Platform" <noreply@itplatform.local>',
+            to: toEmail,
+            subject: "Скидання пароля | Playwright Platform 🔐",
+            text: `Привіт, ${name}!\n\nДля скидання пароля перейдіть за посиланням:\n${resetLink}\n\nПосилання дійсне 1 годину.\nЯкщо ви не надсилали цей запит, проігноруйте це повідомлення.`,
+            html: htmlContent,
+        })
+        console.log("Password reset email sent: %s", info.messageId)
+        return true
+    } catch (error) {
+        console.error("Error sending password reset email:", error)
+        return false
+    }
+}

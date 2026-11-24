@@ -6,10 +6,11 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Link } from "@/i18n/routing"
 import { motion } from "framer-motion"
 import { LogIn, Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 
 export default function LoginPage() {
     const t = useTranslations('Auth')
+    const locale = useLocale()
     const router = useRouter()
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
@@ -94,9 +95,17 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-muted-foreground ml-1" htmlFor="password">
-                                    {t('password')}
-                                </label>
+                                <div className="flex items-center justify-between ml-1">
+                                    <label className="text-sm font-medium text-muted-foreground" htmlFor="password">
+                                        {t('password')}
+                                    </label>
+                                    <Link
+                                        href="/forgot-password"
+                                        className="text-xs text-blue-500 hover:text-blue-400 font-semibold transition-colors"
+                                    >
+                                        {locale === "ru" ? "Забыли пароль?" : locale === "en" ? "Forgot password?" : "Забули пароль?"}
+                                    </Link>
+                                </div>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
                                     <input

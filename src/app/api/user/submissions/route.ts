@@ -28,27 +28,44 @@ export async function GET() {
         .where(eq(taskSubmissions.userId, session.user.id))
         .orderBy(desc(taskSubmissions.createdAt))
 
-        // 2. Project submissions
-        const projSubmissions = await db.select({
+        // 2. Project submissions (mapped in JS to prevent MySQL collation mismatch)
+        const rawProjSubmissions = await db.select({
             id: projectSubmissions.id as any,
             taskId: projectSubmissions.taskId as any,
-            taskTitle: sql<string>`CONCAT('🏢 [', COALESCE(${projectBoards.title}, 'Проєкт'), '] ', ${projectTasks.title})`,
-            code: sql<string>`CONCAT(
-                COALESCE(CONCAT('// 🔗 GitHub / Pull Request: ', ${projectSubmissions.githubUrl}, '\n\n'), ''),
-                COALESCE(CONCAT('// 📝 Нотатки:\n// ', ${projectSubmissions.notes}, '\n\n'), ''),
-                COALESCE(${projectSubmissions.code}, '// Рішення через посилання на GitHub')
-            )`,
+            boardTitle: projectBoards.title,
+            taskTitle: projectTasks.title,
+            githubUrl: projectSubmissions.githubUrl,
+            notes: projectSubmissions.notes,
+            code: projectSubmissions.code,
             mentorFeedback: projectSubmissions.mentorFeedback,
             status: projectSubmissions.status,
             createdAt: projectSubmissions.createdAt,
             reviewedAt: projectSubmissions.reviewedAt,
-            isProject: sql<boolean>`true`
         })
         .from(projectSubmissions)
         .innerJoin(projectTasks, eq(projectSubmissions.taskId, projectTasks.id))
         .leftJoin(projectBoards, eq(projectSubmissions.boardId, projectBoards.id))
         .where(eq(projectSubmissions.userId, session.user.id))
         .orderBy(desc(projectSubmissions.createdAt))
+
+        const projSubmissions = rawProjSubmissions.map(p => {
+            const parts: string[] = []
+            if (p.githubUrl) parts.push(`// 🔗 GitHub / Pull Request: ${p.githubUrl}\n\n`)
+            if (p.notes) parts.push(`// 📝 Нотатки:\n// ${p.notes}\n\n`)
+            parts.push(p.code || '// Рішення через посилання на GitHub')
+
+            return {
+                id: p.id,
+                taskId: p.taskId,
+                taskTitle: `🏢 [${p.boardTitle || 'Проєкт'}] ${p.taskTitle}`,
+                code: parts.join(''),
+                mentorFeedback: p.mentorFeedback,
+                status: p.status,
+                createdAt: p.createdAt,
+                reviewedAt: p.reviewedAt,
+                isProject: true
+            }
+        })
 
         // 3. Interview & Live Coding submissions sent to mentor
         const interviewRecords = await db.select({

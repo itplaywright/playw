@@ -30,29 +30,47 @@ export async function GET() {
         .innerJoin(tasks, eq(taskSubmissions.taskId, tasks.id))
         .orderBy(desc(taskSubmissions.createdAt))
 
-        // 2. Project board task submissions
-        const projSubmissions = await db.select({
+        // 2. Project board task submissions (mapped in JS to avoid MySQL collation errors)
+        const rawProjSubmissions = await db.select({
             id: projectSubmissions.id as any,
-            code: sql<string>`CONCAT(
-                COALESCE(CONCAT('// 🔗 GitHub / Pull Request: ', ${projectSubmissions.githubUrl}, '\n\n'), ''),
-                COALESCE(CONCAT('// 📝 Коментар студента:\n// ', ${projectSubmissions.notes}, '\n\n'), ''),
-                COALESCE(${projectSubmissions.code}, '// Код не прикріплено (перевірте посилання на GitHub)')
-            )`,
+            githubUrl: projectSubmissions.githubUrl,
+            notes: projectSubmissions.notes,
+            code: projectSubmissions.code,
             status: projectSubmissions.status,
             mentorFeedback: projectSubmissions.mentorFeedback,
             createdAt: projectSubmissions.createdAt,
             userName: users.name,
             userEmail: users.email,
-            taskTitle: sql<string>`CONCAT('🏢 [', COALESCE(${projectBoards.title}, 'Проєкт'), '] ', ${projectTasks.title})`,
+            boardTitle: projectBoards.title,
+            taskTitle: projectTasks.title,
             taskId: projectTasks.id as any,
-            isProject: sql<boolean>`true`,
-            isInterview: sql<boolean>`false`
         })
         .from(projectSubmissions)
         .innerJoin(users, eq(projectSubmissions.userId, users.id))
         .innerJoin(projectTasks, eq(projectSubmissions.taskId, projectTasks.id))
         .leftJoin(projectBoards, eq(projectSubmissions.boardId, projectBoards.id))
         .orderBy(desc(projectSubmissions.createdAt))
+
+        const projSubmissions = rawProjSubmissions.map(p => {
+            const parts: string[] = []
+            if (p.githubUrl) parts.push(`// 🔗 GitHub / Pull Request: ${p.githubUrl}\n\n`)
+            if (p.notes) parts.push(`// 📝 Коментар студента:\n// ${p.notes}\n\n`)
+            parts.push(p.code || '// Код не прикріплено (перевірте посилання на GitHub)')
+
+            return {
+                id: p.id,
+                code: parts.join(''),
+                status: p.status,
+                mentorFeedback: p.mentorFeedback,
+                createdAt: p.createdAt,
+                userName: p.userName,
+                userEmail: p.userEmail,
+                taskTitle: `🏢 [${p.boardTitle || 'Проєкт'}] ${p.taskTitle}`,
+                taskId: p.taskId,
+                isProject: true,
+                isInterview: false
+            }
+        })
 
         // 3. Interview & Live Coding submissions
         const interviewRecords = await db.select({
@@ -212,7 +230,7 @@ export async function PATCH(req: Request) {
                     status: finalStatus,
                     reviewedAt: new Date()
                 })
-                .where(eq(projectSubmissions.id, submissionId))
+                .where(eq(projectSubmissions.id, Number(submissionId)))
 
             // Fetch details for notification
             const projWithUser = await db.select({
@@ -225,7 +243,7 @@ export async function PATCH(req: Request) {
             .from(projectSubmissions)
             .innerJoin(users, eq(projectSubmissions.userId, users.id))
             .innerJoin(projectTasks, eq(projectSubmissions.taskId, projectTasks.id))
-            .where(eq(projectSubmissions.id, submissionId))
+            .where(eq(projectSubmissions.id, Number(submissionId)))
             .then(res => res[0])
 
             if (projWithUser) {
@@ -265,7 +283,7 @@ export async function PATCH(req: Request) {
                 reviewedAt: new Date(),
                 isSeen: false
             })
-            .where(eq(taskSubmissions.id, submissionId))
+            .where(eq(taskSubmissions.id, Number(submissionId)))
 
         // Get details to send email and telegram
         const submissionWithUser = await db.select({
@@ -278,7 +296,7 @@ export async function PATCH(req: Request) {
         .from(taskSubmissions)
         .innerJoin(users, eq(taskSubmissions.userId, users.id))
         .innerJoin(tasks, eq(taskSubmissions.taskId, tasks.id))
-        .where(eq(taskSubmissions.id, submissionId))
+        .where(eq(taskSubmissions.id, Number(submissionId)))
         .then(res => res[0])
 
         if (submissionWithUser) {

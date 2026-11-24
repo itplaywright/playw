@@ -163,7 +163,9 @@ export default function DynamicHeader({ user }: { user?: any }) {
         }
     }
 
-    if (settings.header_visible === "false" || isTaskPage) {
+    const isAdmin = cleanPath.startsWith("/admin")
+
+    if (settings.header_visible === "false" || isTaskPage || isAdmin) {
         return null
     }
 

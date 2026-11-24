@@ -98,10 +98,10 @@ export default function AdminSubmissionsPage() {
     })
 
     return (
-        <div className="min-h-screen bg-premium-dark text-slate-100 flex flex-col pt-16">
+        <div className="rounded-3xl border border-white/10 bg-slate-950/80 backdrop-blur-xl text-slate-100 overflow-hidden flex flex-col h-[calc(100vh-13rem)] min-h-[750px] shadow-2xl">
             <div className="flex flex-1 overflow-hidden">
                 {/* List Sidebar */}
-                <div className="w-full md:w-1/3 xl:w-1/4 border-r border-white/5 flex flex-col bg-slate-950/50">
+                <div className="w-full md:w-80 lg:w-96 border-r border-white/5 flex flex-col bg-slate-950/60 shrink-0">
                     <div className="p-6 border-b border-white/5">
                         <div className="flex items-center justify-between mb-6">
                             <h1 className="text-xl font-black text-white tracking-tight">Review Queue</h1>

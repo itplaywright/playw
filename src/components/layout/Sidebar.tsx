@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/routing"
 import { useTranslations, useLocale } from "next-intl"
 import {
-    Terminal, Layers, LayoutGrid, BarChart2, Star, ArrowRight, Lock, Award, Briefcase
+    Terminal, Layers, LayoutGrid, BarChart2, ArrowRight, Lock, Award, Briefcase
 } from "lucide-react"
 
 interface Track {
@@ -52,7 +52,6 @@ export default function Sidebar({
         return track.title
     }
 
-    // Extract level number from track title (e.g. "Рівень 2 — ..." / "Level 2 — ..." / "Уровень 2 — ..." -> 2)
     const getLevelNum = (title: string, order: number | null) => {
         const match = title.match(/(?:[Рр][іи]вень|[Уу]ровень|Level)\s*(\d+)/i)
         return match ? parseInt(match[1]) : (order ?? 0)
@@ -60,30 +59,34 @@ export default function Sidebar({
 
     const isProTrack = (title: string, order: number | null) => {
         if (isAdmin) return false
-        const maxOrder = role?.maxTrackOrder ?? 1 // allow up to Level 1 by default
+        const maxOrder = role?.maxTrackOrder ?? 1
         return getLevelNum(title, order) > maxOrder
     }
 
     const isDemo = !role || role.name?.toLowerCase().includes("демо") || role.name?.toLowerCase().includes("demo") || (role.maxTrackOrder !== null && role.maxTrackOrder <= 1)
+
     return (
         <aside className="w-full h-full bg-secondary/5 flex flex-col z-40">
-            {/* Logo area */}
-            <div className="px-4 pt-2 pb-2 border-b border-border/50 space-y-2">
-                <div className="flex items-center gap-2.5 group cursor-default">
-                    <div className="w-7 h-7 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                        <Terminal className="w-3.5 h-3.5 text-white" />
+            {/* Logo + plan badge */}
+            <div className="px-5 pt-3 pb-3 border-b border-border/50 space-y-2.5">
+                <div className="flex items-center gap-3 group cursor-default">
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                        <Terminal className="w-4 h-4 text-white" />
                     </div>
                     <div>
                         <p className="text-foreground font-bold text-xs leading-tight tracking-tight">Playwright Course</p>
-                        <p className="text-muted-foreground text-[9px] font-medium">IT Automation Platform</p>
+                        <p className="text-muted-foreground text-[10px] font-medium">IT Automation Platform</p>
                     </div>
                 </div>
 
-                {/* User Plan Badge / Upgrade Card */}
+                {/* Plan badge */}
                 {!isDemo ? (
                     <div className="px-3 py-2 rounded-xl bg-gradient-to-br from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20 flex items-center justify-between gap-2">
-                        <span className="text-xs font-bold text-foreground tracking-tight truncate">{role?.name || "PRO"}</span>
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                        <div>
+                            <p className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">{t("currentAccess")}</p>
+                            <p className="text-xs font-bold text-foreground tracking-tight">{role?.name || "PRO"}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
                             <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">{t("fullAccess")}</span>
                         </div>
@@ -91,19 +94,21 @@ export default function Sidebar({
                 ) : (
                     <Link
                         href="/pricing"
-                        className="group relative flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/25 hover:border-amber-500/50 transition-all duration-300 overflow-hidden"
+                        className="group relative block px-3 py-2.5 rounded-xl bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/25 hover:border-amber-500/50 transition-all duration-300 overflow-hidden"
                     >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] font-black text-amber-500 dark:text-amber-400 uppercase tracking-wider flex-shrink-0">
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-[9px] font-black text-amber-500 dark:text-amber-400 uppercase tracking-wider">
                                 ⚡ {t("demoMode")}
                             </span>
-                            <span className="text-[10px] font-bold text-foreground truncate">{t("unlockAllLevels")}</span>
+                            <span className="text-[10px] font-bold text-amber-500 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                                {t("pricingLink")} <ArrowRight className="w-3 h-3" />
+                            </span>
                         </div>
-                        <ArrowRight className="w-3 h-3 text-amber-500 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                        <p className="text-xs font-bold text-foreground leading-tight">{t("unlockAllLevels")}</p>
                     </Link>
                 )}
-                
-                {/* Thin Overall Progress Bar */}
+
+                {/* Overall progress */}
                 {overallPct !== undefined && (
                     <div className="w-full flex flex-col gap-1">
                         <div className="flex justify-between items-center px-0.5">
@@ -111,52 +116,53 @@ export default function Sidebar({
                             <span className="text-[9px] font-black text-blue-600 dark:text-blue-400">{overallPct}%</span>
                         </div>
                         <div className="w-full h-[3px] bg-secondary border border-border/50 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.3)] dark:shadow-[0_0_8px_rgba(59,130,246,0.5)] transition-all duration-1000" style={{ width: `${overallPct}%` }} />
+                            <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: `${overallPct}%` }} />
                         </div>
                     </div>
                 )}
             </div>
 
             {/* Track navigation */}
-            <nav className="flex-1 px-2 py-2 overflow-y-auto space-y-0.5 custom-scrollbar">
-                <p className="px-3 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1.5 mt-1">{t("courseLevels")}</p>
+            <nav className="flex-1 px-2.5 py-2.5 overflow-y-auto space-y-0.5 custom-scrollbar">
+                <p className="px-2 text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-1.5">{t("courseLevels")}</p>
 
-                {/* Setup link */}
+                {/* Static links */}
                 <Link
                     href="/setup"
-                    className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/setup"
-                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${currentPath === "/setup"
+                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                        }`}
+                    }`}
                 >
                     <Layers className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate tracking-wide">{t("setup")}</span>
+                    <span className="truncate">{t("setup")}</span>
                 </Link>
 
                 <Link
                     href="/projects"
-                    className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/projects"
-                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${currentPath === "/projects"
+                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                        }`}
+                    }`}
                 >
                     <LayoutGrid className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate tracking-wide">{t("projects")}</span>
+                    <span className="truncate">{t("projects")}</span>
                 </Link>
 
                 <Link
                     href="/interview"
-                    className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/interview"
-                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${currentPath === "/interview"
+                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                        }`}
+                    }`}
                 >
                     <Briefcase className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate tracking-wide">{t("interview")}</span>
+                    <span className="truncate">{t("interview")}</span>
                 </Link>
 
-                <div className="pt-2 pb-1 border-t border-border mx-2 my-1" />
+                <div className="border-t border-border/50 mx-1 my-1.5" />
 
+                {/* Course level tracks — compact 2-line layout */}
                 {tracks.map(track => {
                     const { done, total } = getTrackProgress(track.id)
                     const pct = total > 0 ? Math.round((done / total) * 100) : 0
@@ -166,73 +172,67 @@ export default function Sidebar({
 
                     const content = (
                         <div className="flex flex-col gap-1 w-full">
+                            {/* Title row + counter */}
                             <div className="flex items-center justify-between gap-1.5">
-                                <span className={`text-[11px] font-bold tracking-tight truncate flex-1 leading-tight ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>{localizedTitle}</span>
+                                <span className={`text-[11px] font-bold truncate flex-1 leading-snug ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                                    {localizedTitle}
+                                </span>
                                 <div className="flex items-center gap-1 flex-shrink-0">
-                                    {isPro && !isAdmin && (
-                                        <Lock className="w-2.5 h-2.5 text-amber-500" />
-                                    )}
-                                    <span className={`text-[9px] font-bold ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/60"}`}>{done}/{total}</span>
+                                    {isPro && !isAdmin && <Lock className="w-2.5 h-2.5 text-amber-500" />}
+                                    <span className={`text-[9px] font-bold tabular-nums ${isSelected ? "text-blue-500" : "text-muted-foreground/50"}`}>
+                                        {done}/{total}
+                                    </span>
                                 </div>
                             </div>
-                            {/* Mini progress bar */}
-                            <div className={`w-full h-[3px] rounded-full overflow-hidden ${isSelected ? "bg-primary/20" : "bg-secondary"}`}>
+                            {/* Progress bar */}
+                            <div className={`w-full h-[3px] rounded-full overflow-hidden ${isSelected ? "bg-blue-500/20" : "bg-secondary"}`}>
                                 <div
-                                    className={`h-full rounded-full transition-all duration-1000 ${isSelected ? "bg-blue-600 dark:bg-blue-500 animate-wave" : "bg-muted-foreground/30"}`}
+                                    className={`h-full rounded-full transition-all duration-700 ${isSelected ? "bg-blue-500" : "bg-muted-foreground/25"}`}
                                     style={{ width: `${pct}%` }}
                                 />
                             </div>
                         </div>
                     )
 
-                    const baseClass = `flex flex-col gap-1 px-3 py-2 rounded-xl transition-colors duration-200 text-left group relative ${isSelected
+                    const baseClass = `w-full flex flex-col gap-1 px-3 py-2 rounded-xl transition-colors duration-200 text-left group ${isSelected
                         ? "sidebar-active-item text-blue-600 dark:text-blue-400"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 border-l-[3px] border-transparent"
-                        } ${isPro && !isAdmin ? "opacity-60 grayscale" : ""}`
+                        : "hover:bg-secondary/50 border-l-2 border-transparent"
+                    } ${isPro && !isAdmin ? "opacity-50 grayscale" : ""}`
 
                     if (setSelectedTrackId) {
                         return (
-                            <button
-                                key={track.id}
-                                onClick={() => setSelectedTrackId(track.id)}
-                                className={baseClass}
-                            >
+                            <button key={track.id} onClick={() => setSelectedTrackId(track.id)} className={baseClass}>
                                 {content}
                             </button>
                         )
                     }
-
                     return (
-                        <Link
-                            key={track.id}
-                            href={`/dashboard?trackId=${track.id}`}
-                            className={baseClass}
-                        >
+                        <Link key={track.id} href={`/dashboard?trackId=${track.id}`} className={baseClass}>
                             {content}
                         </Link>
                     )
                 })}
             </nav>
 
-            {/* Bottom: cabinet link */}
-            <div className="px-2 pb-3 border-t border-border pt-2 space-y-1">
+            {/* Bottom links */}
+            <div className="px-2.5 py-2.5 border-t border-border/50 space-y-1">
                 <Link
                     href="/cabinet?tab=certificates"
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-amber-500/10 border border-blue-500/20 hover:border-amber-500/40 text-xs font-bold text-foreground transition-all group shadow-sm"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-amber-500/10 border border-blue-500/20 hover:border-amber-500/40 text-xs font-bold text-foreground transition-all group"
                 >
                     <Award className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                    <span className="truncate tracking-wide">{t("tabCertificates")}</span>
+                    <span className="truncate">{t("tabCertificates")}</span>
                     <ArrowRight className="w-3 h-3 ml-auto text-amber-400 opacity-60 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
                 <Link
                     href="/cabinet"
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/cabinet"
-                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20 shadow-blue-500/5"
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${currentPath === "/cabinet"
+                        ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                        }`}
+                    }`}
                 >
                     <BarChart2 className="w-3.5 h-3.5" />
-                    <span className="tracking-wide">{t("cabinet")}</span>
+                    <span>{t("cabinet")}</span>
                     <ArrowRight className="w-3 h-3 ml-auto opacity-40 group-hover:opacity-100 transition-all" />
                 </Link>
             </div>

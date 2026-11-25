@@ -98,7 +98,7 @@ export default function ProjectsClient({
 
             {/* Below header: Sidebar + Main Content (Floating Layout) */}
             <div className="flex px-4 pt-6 pb-4 gap-4 relative z-10 w-full max-w-[1600px] mx-auto">
-                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-[5.5rem] self-start h-[calc(100vh-6.5rem)]">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-4 self-start h-[calc(100vh-2.5rem)] -mt-6 lg:-mt-10">
                     <Sidebar
                         tracks={tracks}
                         getTrackProgress={getTrackProgress}

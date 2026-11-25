@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Link } from "@/i18n/routing"
 import { motion } from "framer-motion"
-import { LogIn, Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
+import { LogIn, Mail, Lock, ArrowRight, Loader2, KeyRound } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
 
 export default function LoginPage() {
@@ -69,9 +69,18 @@ export default function LoginPage() {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl text-sm text-center"
+                                className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl text-sm text-center space-y-1.5"
                             >
-                                {error}
+                                <p>{error}</p>
+                                <div>
+                                    <Link
+                                        href="/forgot-password"
+                                        className="text-xs text-blue-500 hover:text-blue-400 font-bold inline-flex items-center gap-1.5 underline-offset-4 hover:underline"
+                                    >
+                                        <KeyRound className="w-3.5 h-3.5" />
+                                        {locale === "ru" ? "Забыли пароль? Восстановить" : locale === "en" ? "Forgot password? Reset here" : "Забули пароль? Відновити тут"}
+                                    </Link>
+                                </div>
                             </motion.div>
                         )}
 

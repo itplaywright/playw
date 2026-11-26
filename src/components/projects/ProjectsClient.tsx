@@ -93,7 +93,7 @@ export default function ProjectsClient({
     const overallPct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#020617] overflow-x-hidden font-sans relative">
+        <div className="flex flex-col min-h-screen bg-[#020617] font-sans relative">
             {/* Mesh Gradient Background */}
             <div className="mesh-gradient-container">
                 <div className="mesh-blob mesh-blob-1" />

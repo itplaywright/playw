@@ -343,7 +343,7 @@ export default function DashboardClient({
     }, [t])
 
     return (
-        <div className="flex flex-col min-h-screen bg-background overflow-x-hidden font-sans relative">
+        <div className="flex flex-col min-h-screen bg-background font-sans relative">
             {/* Mesh Gradient Background */}
             <div className="mesh-gradient-container">
                 <div className="mesh-blob mesh-blob-1" />

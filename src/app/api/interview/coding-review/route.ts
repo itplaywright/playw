@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { evaluateCodingChallenge } from "@/lib/interviewAI"
+import { getUserPermissions } from "@/lib/permissions"
 
 export async function POST(req: Request) {
     try {
         const session = await auth()
         if (!session?.user?.id) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        const permissions = await getUserPermissions(session.user.id, (session.user as any).role)
+        if (!permissions.hasInterviewAccess) {
+            return NextResponse.json(
+                { error: "Access Denied: Live Coding Challenge requires PRO or VIP subscription", upgradeRequired: true },
+                { status: 403 }
+            )
         }
 
         const body = await req.json()

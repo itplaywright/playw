@@ -1,9 +1,9 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { interviewSessions, users, roles } from "@/db/schema"
+import { interviewSessions } from "@/db/schema"
 import { redirect } from "next/navigation"
 import { eq, desc } from "drizzle-orm"
-import { checkHasAccess } from "@/lib/access"
+import { getUserPermissions } from "@/lib/permissions"
 import InterviewClient from "@/components/interview/InterviewClient"
 
 export default async function InterviewPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -13,28 +13,7 @@ export default async function InterviewPage({ params }: { params: Promise<{ loca
         redirect("/login")
     }
 
-    const userWithRole = (await db.select({
-        id: users.id,
-        createdAt: users.createdAt,
-        dynamicRole: {
-            id: roles.id,
-            name: roles.name,
-            maxTrackOrder: roles.maxTrackOrder,
-            hasPracticeAccess: roles.hasPracticeAccess,
-        }
-    })
-        .from(users)
-        .leftJoin(roles, eq(users.dynamicRoleId, roles.id))
-        .where(eq(users.id, session.user.id)))[0] as any
-
-    const hasAccess = await checkHasAccess(
-        session.user.id,
-        (session.user as any).role,
-        userWithRole?.createdAt ?? null
-    )
-    if (!hasAccess) {
-        redirect("/pricing")
-    }
+    const permissions = await getUserPermissions(session.user.id, (session.user as any).role)
 
     // Load past sessions
     const pastSessions = await db
@@ -49,6 +28,7 @@ export default async function InterviewPage({ params }: { params: Promise<{ loca
             locale={locale}
             userName={session.user.name || "Candidate"}
             initialHistory={pastSessions as any}
+            hasInterviewAccess={permissions.hasInterviewAccess}
         />
     )
 }

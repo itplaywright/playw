@@ -102,6 +102,8 @@ export const roles = mysqlTable("roles", {
     description: text("description"),
     maxTrackOrder: int("max_track_order").default(0),
     hasPracticeAccess: boolean("has_practice_access").default(false),
+    hasInterviewAccess: boolean("has_interview_access").default(false),
+    hasMentorReview: boolean("has_mentor_review").default(false),
     hasAiReview: boolean("has_ai_review").default(false),
     isDefault: boolean("is_default").default(false),
     createdAt: timestamp("created_at").defaultNow(),

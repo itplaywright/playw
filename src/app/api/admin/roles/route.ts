@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json()
-        const { name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview } = body
+        const { name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasInterviewAccess, hasMentorReview, hasAiReview } = body
 
         if (!name) {
             return NextResponse.json({ error: "Name is required" }, { status: 400 })
@@ -37,7 +37,16 @@ export async function POST(req: Request) {
             await db.update(roles).set({ isDefault: false })
         }
 
-        const [results] = await db.insert(roles).values({ name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview })
+        const [results] = await db.insert(roles).values({
+            name,
+            description,
+            maxTrackOrder: Number(maxTrackOrder) || 0,
+            isDefault: Boolean(isDefault),
+            hasPracticeAccess: Boolean(hasPracticeAccess),
+            hasInterviewAccess: Boolean(hasInterviewAccess),
+            hasMentorReview: Boolean(hasMentorReview),
+            hasAiReview: Boolean(hasAiReview)
+        })
         const newRole = await db.select().from(roles).where(eq(roles.id, results.insertId))
 
         return NextResponse.json(newRole[0])
@@ -54,7 +63,7 @@ export async function PATCH(req: Request) {
 
     try {
         const body = await req.json()
-        const { id, name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview } = body
+        const { id, name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasInterviewAccess, hasMentorReview, hasAiReview } = body
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 })
@@ -65,7 +74,16 @@ export async function PATCH(req: Request) {
         }
 
         await db.update(roles)
-            .set({ name, description, maxTrackOrder, isDefault, hasPracticeAccess, hasAiReview })
+            .set({
+                name,
+                description,
+                maxTrackOrder: Number(maxTrackOrder) || 0,
+                isDefault: Boolean(isDefault),
+                hasPracticeAccess: Boolean(hasPracticeAccess),
+                hasInterviewAccess: Boolean(hasInterviewAccess),
+                hasMentorReview: Boolean(hasMentorReview),
+                hasAiReview: Boolean(hasAiReview)
+            })
             .where(eq(roles.id, id))
 
         const updatedRole = await db.select().from(roles).where(eq(roles.id, id))

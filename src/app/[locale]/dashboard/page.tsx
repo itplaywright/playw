@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { eq, asc, desc } from "drizzle-orm"
 import DashboardClient from "@/components/dashboard/DashboardClient"
 import { checkHasAccess } from "@/lib/access"
+import { getUserPermissions } from "@/lib/permissions"
 
 import { getLocale } from "next-intl/server"
 
@@ -47,6 +48,8 @@ export default async function Dashboard() {
         userWithRole?.createdAt ?? null
     )
     if (!hasAccess) redirect("/pricing")
+
+    const permissions = await getUserPermissions(session.user.id!, (session.user as any).role)
 
     const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))
     const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order), asc(tasks.id))
@@ -175,6 +178,8 @@ export default async function Dashboard() {
             realLinesOfCode={totalLinesOfCode}
             pendingReviewCount={pendingReviewCount}
             rejectedCount={rejectedCount}
+            hasPracticeAccess={permissions.hasPracticeAccess}
+            hasInterviewAccess={permissions.hasInterviewAccess}
         />
     )
 }

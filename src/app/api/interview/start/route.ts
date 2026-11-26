@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { interviewSessions, interviewQuestions } from "@/db/schema"
 import { getQuestionsForLevel } from "@/lib/interviewBank"
+import { getUserPermissions } from "@/lib/permissions"
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
@@ -9,6 +10,14 @@ export async function POST(req: Request) {
         const session = await auth()
         if (!session?.user?.id) {
             return new NextResponse("Unauthorized", { status: 401 })
+        }
+
+        const permissions = await getUserPermissions(session.user.id, (session.user as any).role)
+        if (!permissions.hasInterviewAccess) {
+            return NextResponse.json(
+                { error: "Access Denied: Technical Interview requires PRO or VIP subscription", upgradeRequired: true },
+                { status: 403 }
+            )
         }
 
         const body = await req.json().catch(() => ({}))

@@ -3,6 +3,7 @@ import { db } from "@/db"
 import { projectSubmissions, projectTasks, projectBoards, users } from "@/db/schema"
 import { NextResponse } from "next/server"
 import { eq, and, desc } from "drizzle-orm"
+import { getUserPermissions } from "@/lib/permissions"
 
 export async function GET(req: Request) {
     const session = await auth()
@@ -46,6 +47,14 @@ export async function POST(req: Request) {
     const session = await auth()
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const permissions = await getUserPermissions(session.user.id, (session.user as any).role)
+    if (!permissions.hasPracticeAccess) {
+        return NextResponse.json({
+            error: "Практичні проєкти доступні у тарифах Base, PRO та VIP. Оновіть ваш тариф для здачі робіт.",
+            upgradeRequired: true
+        }, { status: 403 })
     }
 
     try {

@@ -3,11 +3,21 @@ import { db } from "@/db"
 import { taskSubmissions, tasks } from "@/db/schema"
 import { NextResponse } from "next/server"
 import { eq } from "drizzle-orm"
+import { getUserPermissions } from "@/lib/permissions"
 
 export async function POST(req: Request) {
     const session = await auth()
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const permissions = await getUserPermissions(session.user.id, (session.user as any).role)
+
+    if (!permissions.hasMentorReview) {
+        return NextResponse.json({
+            error: "Ручна перевірка коду ментором доступна у тарифах PRO та VIP. У вашому тарифі використовуйте перевірку через 'Запустити тести'.",
+            upgradeRequired: true
+        }, { status: 403 })
     }
 
     try {
@@ -17,13 +27,21 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing code or taskId" }, { status: 400 })
         }
 
-        // Check if task exists
+        // Check if task exists and check track permissions
         const task = await db.query.tasks.findFirst({
-            where: eq(tasks.id, taskId)
+            where: eq(tasks.id, taskId),
+            with: { track: true }
         })
 
         if (!task) {
             return NextResponse.json({ error: "Task not found" }, { status: 404 })
+        }
+
+        if (task.track?.order && !permissions.canAccessTrack(task.track.order)) {
+            return NextResponse.json({
+                error: "Access Denied: This task belongs to a level locked in your current plan.",
+                upgradeRequired: true
+            }, { status: 403 })
         }
 
         // Create submission

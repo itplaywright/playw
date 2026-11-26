@@ -13,6 +13,7 @@ import { toast } from "sonner"
 
 interface Props {
     locale: string
+    hasInterviewAccess?: boolean
 }
 
 interface TerminalLog {
@@ -29,7 +30,7 @@ interface InterviewerQA {
     timestamp: string
 }
 
-export default function LiveCodingChallenge({ locale }: Props) {
+export default function LiveCodingChallenge({ locale, hasInterviewAccess = true }: Props) {
     const [selectedChallengeId, setSelectedChallengeId] = useState<string>(CODING_CHALLENGES[0].id)
     const currentChallenge = CODING_CHALLENGES.find(c => c.id === selectedChallengeId) || CODING_CHALLENGES[0]
 
@@ -317,6 +318,16 @@ export default function LiveCodingChallenge({ locale }: Props) {
 
     // Lead QA Review Submission
     const submitForReview = async () => {
+        if (!hasInterviewAccess) {
+            toast.error(locale === 'en' ? "Code Audit is available in PRO and Team plans. Please upgrade." : "AI-аудит коду доступний у тарифах PRO та B2B. Будь ласка, оновіть тариф.")
+            setIsTerminalOpen(true)
+            setTerminalLogs(prev => [
+                ...prev,
+                { text: "✘ 403 Forbidden: Upgrade to PRO or B2B to run AI Code Review.", type: "error" }
+            ])
+            return
+        }
+
         if (!code || code.trim().length < 20) {
             toast.error(locale === 'en' ? "Please write a solution before submitting." : "Будь ласка, напишіть рішення перед відправкою.")
             return
@@ -343,6 +354,15 @@ export default function LiveCodingChallenge({ locale }: Props) {
                     studentCode: code
                 })
             })
+
+            if (res.status === 403) {
+                toast.error(locale === 'en' ? "Access denied: Upgrade to PRO or B2B." : "Доступ обмежено: оновіть тариф до PRO або B2B.")
+                setTerminalLogs(prev => [
+                    ...prev,
+                    { text: "✘ 403 Forbidden: Your current role lacks interview access.", type: "error" }
+                ])
+                return
+            }
 
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || "Review failed")

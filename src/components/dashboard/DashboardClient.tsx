@@ -61,6 +61,8 @@ interface Props {
     realLinesOfCode?: number
     pendingReviewCount?: number
     rejectedCount?: number
+    hasPracticeAccess?: boolean
+    hasInterviewAccess?: boolean
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -78,7 +80,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 
 
 export default function DashboardClient({
- tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode, pendingReviewCount, rejectedCount }: Props) {
+ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode, pendingReviewCount, rejectedCount, hasPracticeAccess, hasInterviewAccess }: Props) {
 
   const locale = useLocale();
   const t = useTranslations("Dashboard");
@@ -352,8 +354,8 @@ export default function DashboardClient({
             {/* Header removed in favor of global DynamicHeader */}
 
             {/* Below header: Sidebar + Main Content (Floating Layout) */}
-            <div className="flex px-4 pt-6 pb-4 gap-4 relative z-10 w-full max-w-[1600px] mx-auto">
-                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-4 self-start h-[calc(100vh-2.5rem)] -mt-6 lg:-mt-10">
+            <div className="flex px-4 pt-3 lg:pt-4 pb-4 gap-4 relative z-10 w-full max-w-[1600px] mx-auto">
+                <div className="flex-shrink-0 w-80 rounded-[2rem] overflow-hidden glass-card-premium border border-white/5 shadow-2xl sticky top-[4.75rem] self-start h-[calc(100vh-5.5rem)]">
                     <Sidebar
                         tracks={tracks}
                         getTrackProgress={getTrackProgress}
@@ -363,11 +365,13 @@ export default function DashboardClient({
                         role={role}
                         currentPath="/dashboard"
                         overallPct={overallPct}
+                        hasPracticeAccess={hasPracticeAccess}
+                        hasInterviewAccess={hasInterviewAccess}
                     />
                 </div>
 
                 {/* Main content Area */}
-                <main className="flex-1 glass-card-premium rounded-3xl border border-white/5 shadow-2xl relative">
+                <main className="flex-1 glass-card-premium rounded-3xl border border-white/5 shadow-2xl relative min-w-0">
                     {selectedTrack && (
                         <div className="p-6 sm:p-8 w-full">
                             {/* Track header */}

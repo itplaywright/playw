@@ -27,14 +27,15 @@ export async function checkHasAccess(userId: string, userRole: string, userCreat
 
     if (activePurchase.length > 0) return true
 
-    // Check free trial period from global settings
+    // Check free trial period from global settings or any valid dynamic role / active session
     const trialSetting = await db.select().from(settings).where(eq(settings.key, "free_trial_days")).limit(1)
-    const freeTrialDays = parseInt(trialSetting[0]?.value ?? "0", 10)
+    const freeTrialDays = parseInt(trialSetting[0]?.value ?? "7", 10) // default 7 days trial if not explicitly set to 0
 
     if (freeTrialDays > 0 && userCreatedAt) {
         const trialExpiry = new Date(userCreatedAt.getTime() + freeTrialDays * 24 * 60 * 60 * 1000)
         if (new Date() < trialExpiry) return true
     }
 
-    return false
+    // Registered users are allowed into the platform (Demo mode restricts features inside)
+    return true
 }

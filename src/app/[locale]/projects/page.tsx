@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { eq, desc, asc, or, and, isNull, inArray } from "drizzle-orm"
 import ProjectsClient from "@/components/projects/ProjectsClient"
 import { checkHasAccess } from "@/lib/access"
+import { getUserPermissions } from "@/lib/permissions"
 
 export default async function ProjectsPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params
@@ -34,6 +35,8 @@ export default async function ProjectsPage({ params }: { params: Promise<{ local
         userWithRole?.createdAt ?? null
     )
     if (!hasAccess) redirect("/pricing")
+
+    const permissions = await getUserPermissions(session.user.id!, (session.user as any).role)
 
     const allTracks = await db.select().from(tracks).orderBy(asc(tracks.order))
     const allTasks = await db.select().from(tasks).orderBy(asc(tasks.order))
@@ -125,6 +128,8 @@ export default async function ProjectsPage({ params }: { params: Promise<{ local
             role={userWithRole?.dynamicRole}
             allRoles={allRoles as any}
             allUsers={allUsers as any}
+            hasPracticeAccess={permissions.hasPracticeAccess}
+            hasInterviewAccess={permissions.hasInterviewAccess}
         />
     )
 }

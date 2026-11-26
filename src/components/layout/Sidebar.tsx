@@ -29,6 +29,8 @@ interface SidebarProps {
     role?: Role | null
     currentPath: string
     overallPct?: number
+    hasPracticeAccess?: boolean
+    hasInterviewAccess?: boolean
 }
 
 export default function Sidebar({
@@ -39,7 +41,9 @@ export default function Sidebar({
     isAdmin,
     role,
     currentPath,
-    overallPct
+    overallPct,
+    hasPracticeAccess,
+    hasInterviewAccess
 }: SidebarProps) {
     const t = useTranslations("Sidebar")
     const locale = useLocale()
@@ -143,66 +147,75 @@ export default function Sidebar({
                 {/* Projects (Jira) */}
                 <Link
                     href="/projects"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/projects"
+                    className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/projects"
                         ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20 shadow-blue-500/5"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                     }`}
                 >
-                    <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate tracking-wide">{t("projects")}</span>
+                    <div className="flex items-center gap-3 truncate">
+                        <LayoutGrid className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate tracking-wide">{t("projects")}</span>
+                    </div>
+                    {hasPracticeAccess === false && !isAdmin && (
+                        <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                    )}
                 </Link>
 
                 {/* Technical Interview */}
                 <Link
                     href="/interview"
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/interview"
+                    className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${currentPath === "/interview"
                         ? "glass-panel text-blue-600 dark:text-blue-400 border-blue-500/20 shadow-blue-500/5"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                     }`}
                 >
-                    <Briefcase className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate tracking-wide">{t("interview")}</span>
+                    <div className="flex items-center gap-3 truncate">
+                        <Briefcase className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate tracking-wide">{t("interview")}</span>
+                    </div>
+                    {hasInterviewAccess === false && !isAdmin && (
+                        <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                    )}
                 </Link>
 
                 <div className="pt-2 pb-1 border-t border-border mx-2 my-1.5" />
                 <p className="px-3 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-2">{t("courseLevels")}</p>
 
-                {/* Levels list with original spacious design */}
+                {/* Levels list with elegant compact design */}
                 {tracks.map(track => {
                     const { done, total } = getTrackProgress(track.id)
                     const pct = total > 0 ? Math.round((done / total) * 100) : 0
                     const isSelected = track.id === selectedTrackId
                     const localizedTitle = getTrackTitle(track)
                     const isPro = isProTrack(localizedTitle, track.order)
+                    const isDone = done === total && total > 0
 
                     const content = (
-                        <div className="flex flex-col gap-1.5 w-full">
-                            <div className="flex items-center gap-2">
-                                <span className={`text-xs font-bold tracking-wide truncate flex-1 ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>{localizedTitle}</span>
-                                {isPro && !isAdmin && (
+                        <div className="flex flex-col gap-1 w-full">
+                            <div className="flex items-center justify-between gap-2">
+                                <span className={`text-xs font-bold tracking-tight truncate flex-1 ${isSelected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                                    {localizedTitle}
+                                </span>
+                                {isPro && !isAdmin ? (
                                     <Lock className="w-3 h-3 text-amber-500 flex-shrink-0" />
+                                ) : (
+                                    <span className={`text-[10px] font-bold flex-shrink-0 ${isDone ? "text-emerald-500" : isSelected ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/70"}`}>
+                                        {isDone ? `✓ ${done}/${total}` : `${done}/${total}`}
+                                    </span>
                                 )}
                             </div>
-                            {/* Progress bar */}
-                            <div className={`w-full h-1 rounded-full overflow-hidden ${isSelected ? "bg-primary/20" : "bg-secondary"}`}>
+                            {/* Micro Progress Bar */}
+                            <div className={`w-full h-[2.5px] rounded-full overflow-hidden ${isSelected ? "bg-primary/20" : "bg-secondary"}`}>
                                 <div
-                                    className={`h-1 rounded-full transition-all duration-1000 ${isSelected ? "bg-blue-600 dark:bg-blue-500 animate-wave" : "bg-muted-foreground/30"}`}
+                                    className={`h-full rounded-full transition-all duration-700 ${isDone ? "bg-emerald-500" : isSelected ? "bg-blue-600 dark:bg-blue-500" : "bg-muted-foreground/30"}`}
                                     style={{ width: `${pct}%` }}
                                 />
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className={`text-[9px] font-bold uppercase tracking-wider ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/60"}`}>
-                                    {done}/{total} {t("done")}
-                                </span>
-                                {pct > 0 && (
-                                    <span className={`text-[9px] font-bold ${isSelected ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground/60"}`}>{pct}%</span>
-                                )}
                             </div>
                         </div>
                     )
 
-                    const baseClass = `flex flex-col gap-1.5 px-4 py-2.5 rounded-2xl transition-colors duration-200 text-left group relative ${isSelected
-                        ? "sidebar-active-item text-blue-600 dark:text-blue-400"
+                    const baseClass = `flex flex-col px-3.5 py-2 rounded-xl transition-all duration-200 text-left group relative ${isSelected
+                        ? "sidebar-active-item text-blue-600 dark:text-blue-400 font-bold"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 border-l-[3px] border-transparent"
                     } ${isPro && !isAdmin ? "opacity-60 grayscale" : ""}`
 

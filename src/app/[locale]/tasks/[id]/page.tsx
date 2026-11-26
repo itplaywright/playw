@@ -7,6 +7,7 @@ import { notFound, redirect } from "next/navigation"
 import TaskView from "@/components/task/TaskView"
 import AdBlock from "@/components/ads/AdBlock"
 import { checkHasAccess } from "@/lib/access"
+import { getUserPermissions } from "@/lib/permissions"
 import { getLocale } from "next-intl/server"
 
 export const revalidate = 0
@@ -67,25 +68,10 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
         }
     }
 
-    let hasAiReview = false; // Default
-    let maxOrder = 2; // Default for normal subscription
+    const permissions = await getUserPermissions(session.user.id!, (session.user as any).role)
 
-    // Fetch user's dynamic role permissions
-    if (userRecord?.dynamicRoleId) {
-        const role = await db.query.roles.findFirst({
-            where: eq(roles.id, userRecord.dynamicRoleId)
-        })
-        maxOrder = role?.maxTrackOrder ?? 2
-        hasAiReview = role?.hasAiReview ?? false
-    }
-
-    // Admins always have AI review access
-    if ((session.user as any).role === "admin") {
-        hasAiReview = true;
-    }
-
-    // Access control: non-admins cannot see inactive tasks or tasks in inactive tracks
-    if ((session.user as any).role !== "admin") {
+    // Access control: non-admins cannot see inactive tasks or tasks in inactive tracks or locked tracks
+    if (!permissions.isAdmin) {
         if (!task.isActive) notFound()
 
         if (task.trackId) {
@@ -94,11 +80,13 @@ export default async function TaskPage({ params }: { params: Promise<{ id: strin
             })
             if (!track || !track.isActive) notFound()
 
-            if ((track.order ?? 0) > maxOrder) {
+            if (!permissions.canAccessTrack(track.order)) {
                 redirect("/pricing") // Redirect if track is above user's max level
             }
         }
     }
+
+    const hasAiReview = permissions.hasAiReview
 
     const isProduction = process.env.NODE_ENV === "production"
 

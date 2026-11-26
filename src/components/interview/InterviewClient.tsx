@@ -56,9 +56,10 @@ interface Props {
     locale: string
     userName: string
     initialHistory: InterviewSessionHistory[]
+    hasInterviewAccess?: boolean
 }
 
-export default function InterviewClient({ locale, userName, initialHistory }: Props) {
+export default function InterviewClient({ locale, userName, initialHistory, hasInterviewAccess = true }: Props) {
     const t = useTranslations("Interview")
 
     // State machine: 'setup' | 'interviewing' | 'completed'
@@ -67,6 +68,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
     const [selectedLevel, setSelectedLevel] = useState<'junior' | 'middle' | 'senior'>('junior')
     const [sessionId, setSessionId] = useState<string | null>(null)
     const [history, setHistory] = useState<InterviewSessionHistory[]>(initialHistory)
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
     // Active session state
     const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null)
@@ -170,6 +172,11 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
     }
 
     const startInterview = async () => {
+        if (!hasInterviewAccess) {
+            setShowUpgradeModal(true)
+            return
+        }
+
         setIsSubmitting(true)
         try {
             const res = await fetch("/api/interview/start", {
@@ -177,6 +184,11 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ roleLevel: selectedLevel, stack: "typescript" })
             })
+
+            if (res.status === 403) {
+                setShowUpgradeModal(true)
+                return
+            }
 
             if (!res.ok) throw new Error("Failed to start")
             const data = await res.json()
@@ -346,7 +358,7 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
 
                 {/* 3. LIVE CODING CHALLENGE TAB */}
                 {viewMode === 'setup' && mainTab === 'coding' && (
-                    <LiveCodingChallenge locale={locale} />
+                    <LiveCodingChallenge locale={locale} hasInterviewAccess={hasInterviewAccess} />
                 )}
 
                 {/* 2. KNOWLEDGE MATRIX / FLASHCARDS TAB */}
@@ -357,6 +369,31 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                 {/* 1. SETUP / HOME SCREEN */}
                 {viewMode === 'setup' && mainTab === 'interview' && (
                     <div className="space-y-8 animate-in fade-in duration-300">
+                        {/* PRO Paywall Banner if restricted */}
+                        {!hasInterviewAccess && (
+                            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-blue-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
+                                        <Briefcase className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-bold text-white">
+                                            {locale === 'en' ? "Technical Interview is a PRO Feature" : (locale === 'ru' ? "Техническое собеседование доступно в PRO" : "Технічна співбесіда доступна у тарифі PRO")}
+                                        </h4>
+                                        <p className="text-xs text-slate-300">
+                                            {locale === 'en' ? "Upgrade your plan to run AI simulations, voice interview, and live coding." : (locale === 'ru' ? "Обновите тариф для AI-симуляций и лайв-кодинга." : "Оновіть тариф для проходження AI-симуляцій, голосових відповідей та лайв-кодингу.")}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link
+                                    href="/pricing"
+                                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-black text-xs shadow-md shadow-amber-500/20 whitespace-nowrap text-center transition-all flex items-center justify-center gap-1.5"
+                                >
+                                    <span>{locale === 'en' ? "Upgrade to PRO" : (locale === 'ru' ? "Перейти к тарифам" : "Перейти до тарифів")}</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                            </div>
+                        )}
                         {/* Hero Header */}
                         <div className="p-8 sm:p-10 rounded-3xl glass-card-premium border border-white/10 shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -947,6 +984,57 @@ export default function InterviewClient({ locale, userName, initialHistory }: Pr
                     </div>
                 )}
             </div>
+
+            {/* Paywall Upgrade Modal */}
+            {showUpgradeModal && (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-amber-500/30 p-6 sm:p-8 shadow-2xl shadow-amber-500/10 space-y-6">
+                        <button
+                            type="button"
+                            onClick={() => setShowUpgradeModal(false)}
+                            className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+                            <Briefcase className="w-6 h-6 text-white" />
+                        </div>
+
+                        <div className="space-y-2">
+                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-wider">
+                                {locale === 'en' ? "PRO & Team Feature" : (locale === 'ru' ? "Тариф PRO / B2B" : "Тариф PRO / B2B")}
+                            </span>
+                            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                                {locale === 'en' ? "Unlock Technical Interview Simulator" : (locale === 'ru' ? "Разблокируйте Техническое собеседование" : "Розблокуйте Технічну співбесіду")}
+                            </h3>
+                            <p className="text-sm text-slate-300 leading-relaxed">
+                                {locale === 'en'
+                                    ? "Full mock interview simulation with AI Lead Architect, voice answering, live coding challenges, and personal readiness reports are available in PRO and Team plans."
+                                    : (locale === 'ru'
+                                        ? "Симуляция реального собеседования с AI-лидом, голосовые ответы, лайв-кодинг и персональные отчеты готовности доступны в тарифах PRO и Team."
+                                        : "Симуляція реальної співбесіди з AI-лід архітектором Playwright, голосові відповіді, перевірка лайв-кодингу та персональний звіт готовності доступні у тарифах PRO та B2B (Team).")}
+                            </p>
+                        </div>
+
+                        <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                            <Link
+                                href="/pricing"
+                                className="flex-1 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-black text-sm shadow-xl shadow-amber-500/20 text-center transition-all flex items-center justify-center gap-2"
+                            >
+                                <span>{locale === 'en' ? "View Pricing Plans" : (locale === 'ru' ? "Посмотреть тарифы" : "Переглянути тарифи")}</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                            <Link
+                                href="/activate"
+                                className="py-3.5 px-5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold text-sm text-center border border-white/10 transition-colors"
+                            >
+                                {locale === 'en' ? "Activate Code" : (locale === 'ru' ? "Активировать код" : "Активувати код")}
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

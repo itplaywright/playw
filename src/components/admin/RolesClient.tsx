@@ -21,6 +21,8 @@ interface Role {
     description: string | null
     maxTrackOrder: number | null
     hasPracticeAccess: boolean | null
+    hasInterviewAccess: boolean | null
+    hasMentorReview: boolean | null
     hasAiReview: boolean | null
     isDefault: boolean | null
 }
@@ -34,6 +36,8 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
         description: "",
         maxTrackOrder: 0,
         hasPracticeAccess: false,
+        hasInterviewAccess: false,
+        hasMentorReview: false,
         hasAiReview: false,
         isDefault: false
     })
@@ -47,6 +51,8 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                 description: role.description || "",
                 maxTrackOrder: role.maxTrackOrder || 0,
                 hasPracticeAccess: role.hasPracticeAccess || false,
+                hasInterviewAccess: role.hasInterviewAccess || false,
+                hasMentorReview: role.hasMentorReview || false,
                 hasAiReview: role.hasAiReview || false,
                 isDefault: role.isDefault || false
             })
@@ -57,6 +63,8 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                 description: "",
                 maxTrackOrder: 0,
                 hasPracticeAccess: false,
+                hasInterviewAccess: false,
+                hasMentorReview: false,
                 hasAiReview: false,
                 isDefault: false
             })
@@ -169,30 +177,52 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                             {role.description || "No description provided"}
                         </p>
 
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border/50">
-                                <div className="flex items-center gap-3">
+                        <div className="space-y-2.5">
+                            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-2.5">
                                     <Lock className="w-4 h-4 text-muted-foreground/50" />
-                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Tracks Access</span>
+                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Рівні (Tracks)</span>
                                 </div>
-                                <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Up to {role.maxTrackOrder}</span>
+                                <span className="text-xs font-black text-blue-600 uppercase tracking-widest">До Level {role.maxTrackOrder}</span>
                             </div>
-                            <div className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border/50">
-                                <div className="flex items-center gap-3">
+
+                            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-2.5">
                                     {role.hasPracticeAccess ? <Unlock className="w-4 h-4 text-emerald-500" /> : <Lock className="w-4 h-4 text-muted-foreground/30" />}
-                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Practice Access</span>
+                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Проєкти (Jira)</span>
                                 </div>
                                 <span className={`text-[10px] font-black uppercase tracking-widest ${role.hasPracticeAccess ? "text-emerald-500" : "text-muted-foreground/40"}`}>
-                                    {role.hasPracticeAccess ? "Enabled" : "Disabled"}
+                                    {role.hasPracticeAccess ? "Доступно" : "Закрито"}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border/50">
-                                <div className="flex items-center gap-3">
-                                    {role.hasAiReview ? <Unlock className="w-4 h-4 text-purple-500" /> : <Lock className="w-4 h-4 text-muted-foreground/30" />}
+
+                            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-2.5">
+                                    {role.hasInterviewAccess ? <Unlock className="w-4 h-4 text-purple-500" /> : <Lock className="w-4 h-4 text-muted-foreground/30" />}
+                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Співбесіда & Live Coding</span>
+                                </div>
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${role.hasInterviewAccess ? "text-purple-600" : "text-muted-foreground/40"}`}>
+                                    {role.hasInterviewAccess ? "Доступно" : "Закрито"}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-2.5">
+                                    {role.hasMentorReview ? <Unlock className="w-4 h-4 text-amber-500" /> : <Lock className="w-4 h-4 text-muted-foreground/30" />}
+                                    <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">Рев'ю ментором</span>
+                                </div>
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${role.hasMentorReview ? "text-amber-500" : "text-muted-foreground/40"}`}>
+                                    {role.hasMentorReview ? "Включено" : "Вимкнено"}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-2xl border border-border/50">
+                                <div className="flex items-center gap-2.5">
+                                    {role.hasAiReview ? <Unlock className="w-4 h-4 text-indigo-500" /> : <Lock className="w-4 h-4 text-muted-foreground/30" />}
                                     <span className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest">AI Expert Review</span>
                                 </div>
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${role.hasAiReview ? "text-purple-600" : "text-muted-foreground/40"}`}>
-                                    {role.hasAiReview ? "Enabled" : "Disabled"}
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${role.hasAiReview ? "text-indigo-500" : "text-muted-foreground/40"}`}>
+                                    {role.hasAiReview ? "Включено" : "Вимкнено"}
                                 </span>
                             </div>
                         </div>
@@ -244,32 +274,52 @@ export default function RolesClient({ initialRoles }: { initialRoles: Role[] }) 
                                 />
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 <div 
                                     onClick={() => setFormData({ ...formData, hasPracticeAccess: !formData.hasPracticeAccess })}
-                                    className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
+                                    className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
                                 >
-                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Practice Projects Access</span>
-                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasPracticeAccess ? "bg-blue-600" : "bg-muted"}`}>
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Доступ до Проєктів (Jira Boards)</span>
+                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasPracticeAccess ? "bg-emerald-600" : "bg-muted"}`}>
                                         <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.hasPracticeAccess ? "left-6" : "left-1"}`} />
                                     </div>
                                 </div>
 
                                 <div 
-                                    onClick={() => setFormData({ ...formData, hasAiReview: !formData.hasAiReview })}
-                                    className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
+                                    onClick={() => setFormData({ ...formData, hasInterviewAccess: !formData.hasInterviewAccess })}
+                                    className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
                                 >
-                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">AI Expert Mentor Access</span>
-                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasAiReview ? "bg-purple-600" : "bg-muted"}`}>
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Співбесіда & Live Coding (AI Interviewer)</span>
+                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasInterviewAccess ? "bg-purple-600" : "bg-muted"}`}>
+                                        <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.hasInterviewAccess ? "left-6" : "left-1"}`} />
+                                    </div>
+                                </div>
+
+                                <div 
+                                    onClick={() => setFormData({ ...formData, hasMentorReview: !formData.hasMentorReview })}
+                                    className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
+                                >
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Ручне рев'ю коду ментором</span>
+                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasMentorReview ? "bg-amber-600" : "bg-muted"}`}>
+                                        <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.hasMentorReview ? "left-6" : "left-1"}`} />
+                                    </div>
+                                </div>
+
+                                <div 
+                                    onClick={() => setFormData({ ...formData, hasAiReview: !formData.hasAiReview })}
+                                    className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
+                                >
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">AI Expert Mentor (Аналіз коду)</span>
+                                    <div className={`w-11 h-6 rounded-full transition-all relative ${formData.hasAiReview ? "bg-indigo-600" : "bg-muted"}`}>
                                         <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.hasAiReview ? "left-6" : "left-1"}`} />
                                     </div>
                                 </div>
 
                                 <div 
                                     onClick={() => setFormData({ ...formData, isDefault: !formData.isDefault })}
-                                    className="flex items-center justify-between p-4 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
+                                    className="flex items-center justify-between p-3.5 bg-secondary/50 rounded-2xl border border-border cursor-pointer hover:bg-secondary transition-all"
                                 >
-                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Set as Default Role</span>
+                                    <span className="text-xs font-black text-foreground uppercase tracking-tight">Роль за замовчуванням (Default Role)</span>
                                     <div className={`w-11 h-6 rounded-full transition-all relative ${formData.isDefault ? "bg-blue-600" : "bg-muted"}`}>
                                         <div className={`absolute top-1 w-4 h-4 bg-background rounded-full transition-all ${formData.isDefault ? "left-6" : "left-1"}`} />
                                     </div>

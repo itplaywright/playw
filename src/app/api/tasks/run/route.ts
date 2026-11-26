@@ -6,9 +6,10 @@ import os from "os"
 import { exec } from "child_process"
 import { promisify } from "util"
 import { db } from "@/db"
-import { results, tasks } from "@/db/schema"
+import { results, tasks, tracks } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import vm from "node:vm"
+import { getUserPermissions } from "@/lib/permissions"
 
 const execAsync = promisify(exec)
 
@@ -17,6 +18,8 @@ export async function POST(req: Request) {
     if (!session?.user?.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    const permissions = await getUserPermissions(session.user.id, (session.user as any).role)
 
     let taskId: number | undefined;
     try {
@@ -27,8 +30,16 @@ export async function POST(req: Request) {
         let taskRecord: any = null;
         if (taskId) {
             taskRecord = await db.query.tasks.findFirst({
-                where: eq(tasks.id, Number(taskId))
+                where: eq(tasks.id, Number(taskId)),
+                with: { track: true }
             });
+
+            if (taskRecord?.track?.order && !permissions.canAccessTrack(taskRecord.track.order)) {
+                return NextResponse.json({
+                    error: "Access Denied: This task belongs to a level locked in your current plan. Please upgrade to PRO.",
+                    upgradeRequired: true
+                }, { status: 403 })
+            }
         }
 
         // HYBRID APPROACH:

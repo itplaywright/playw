@@ -125,11 +125,18 @@ export default async function ProjectsPage({ params }: { params: Promise<{ local
             statusMap={statusMap}
             userName={session.user.name}
             userImage={session.user.image}
-            role={userWithRole?.dynamicRole}
+            role={{
+                id: permissions.roleId ?? 1,
+                name: permissions.roleName,
+                maxTrackOrder: permissions.maxTrackOrder,
+                hasPracticeAccess: permissions.hasPracticeAccess,
+            }}
             allRoles={allRoles as any}
             allUsers={allUsers as any}
             hasPracticeAccess={permissions.hasPracticeAccess}
             hasInterviewAccess={permissions.hasInterviewAccess}
+            isSubscriptionExpired={permissions.isSubscriptionExpired}
+            subscriptionExpiresAt={permissions.subscriptionExpiresAt}
         />
     )
 }

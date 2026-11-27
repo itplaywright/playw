@@ -63,6 +63,8 @@ interface Props {
     rejectedCount?: number
     hasPracticeAccess?: boolean
     hasInterviewAccess?: boolean
+    isSubscriptionExpired?: boolean
+    subscriptionExpiresAt?: Date | null
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -80,7 +82,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 
 
 export default function DashboardClient({
- tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode, pendingReviewCount, rejectedCount, hasPracticeAccess, hasInterviewAccess }: Props) {
+ tracks, tasks, statusMap, isAdmin, userName, userImage, firstName, hasContacts, projects, role, userId, botUsername, realStreak, realLinesOfCode, pendingReviewCount, rejectedCount, hasPracticeAccess, hasInterviewAccess, isSubscriptionExpired, subscriptionExpiresAt }: Props) {
 
   const locale = useLocale();
   const t = useTranslations("Dashboard");
@@ -367,11 +369,40 @@ export default function DashboardClient({
                         overallPct={overallPct}
                         hasPracticeAccess={hasPracticeAccess}
                         hasInterviewAccess={hasInterviewAccess}
+                        isSubscriptionExpired={isSubscriptionExpired}
+                        subscriptionExpiresAt={subscriptionExpiresAt}
                     />
                 </div>
 
                 {/* Main content Area */}
                 <main className="flex-1 glass-card-premium rounded-3xl border border-white/5 shadow-2xl relative min-w-0">
+                    {/* Subscription Expired Alert Banner */}
+                    {isSubscriptionExpired && (
+                        <div className="mx-6 sm:mx-8 mt-6 sm:mt-8 p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3.5">
+                                <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 flex-shrink-0">
+                                    <AlertTriangle className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-foreground">
+                                        {locale === 'en' ? "Your Pro subscription has ended" : locale === 'ru' ? "Ваша подписка Pro завершилась" : "Ваша підписка Pro закінчилася"}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        {locale === 'en' ? "All your progress, code solutions, and certificates are safely preserved. Renew to unlock levels 4–10, interview simulator, and mentor reviews." :
+                                         locale === 'ru' ? "Весь ваш прогресс и сертификаты сохранены. Продлите подписку, чтобы разблокировать уровни 4–10, симулятор собеседований и проверку ментора." :
+                                         "Весь ваш прогрес, написаний код та сертифікати збережено! Поновіть підписку, щоб розблокувати рівні 4–10, симулятор співбесід та рев'ю ментора."}
+                                    </p>
+                                </div>
+                            </div>
+                            <Link
+                                href="/pricing"
+                                className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-amber-500/20 active:scale-95"
+                            >
+                                <Sparkles className="w-3.5 h-3.5" />
+                                {locale === 'en' ? "Renew Pro" : locale === 'ru' ? "Продлить Pro" : "Поновити Pro"}
+                            </Link>
+                        </div>
+                    )}
                     {selectedTrack && (
                         <div className="p-6 sm:p-8 w-full">
                             {/* Track header */}

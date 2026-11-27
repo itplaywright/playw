@@ -173,13 +173,19 @@ export default async function Dashboard() {
             firstName={userWithRole?.firstName}
             hasContacts={hasContacts}
             projects={boards as any}
-            role={userWithRole?.dynamicRole}
+            role={{
+                id: permissions.roleId ?? 1,
+                name: permissions.roleName,
+                maxTrackOrder: permissions.maxTrackOrder
+            }}
             realStreak={streakDays}
             realLinesOfCode={totalLinesOfCode}
             pendingReviewCount={pendingReviewCount}
             rejectedCount={rejectedCount}
             hasPracticeAccess={permissions.hasPracticeAccess}
             hasInterviewAccess={permissions.hasInterviewAccess}
+            isSubscriptionExpired={permissions.isSubscriptionExpired}
+            subscriptionExpiresAt={permissions.subscriptionExpiresAt}
         />
     )
 }

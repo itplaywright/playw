@@ -31,6 +31,8 @@ interface SidebarProps {
     overallPct?: number
     hasPracticeAccess?: boolean
     hasInterviewAccess?: boolean
+    isSubscriptionExpired?: boolean
+    subscriptionExpiresAt?: Date | null
 }
 
 export default function Sidebar({
@@ -43,7 +45,9 @@ export default function Sidebar({
     currentPath,
     overallPct,
     hasPracticeAccess,
-    hasInterviewAccess
+    hasInterviewAccess,
+    isSubscriptionExpired,
+    subscriptionExpiresAt
 }: SidebarProps) {
     const t = useTranslations("Sidebar")
     const locale = useLocale()
@@ -87,7 +91,27 @@ export default function Sidebar({
                 </div>
 
                 {/* User Plan Badge / Upgrade Card */}
-                {!isDemo ? (
+                {isSubscriptionExpired ? (
+                    <Link
+                        href="/pricing"
+                        className="group relative block p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 hover:border-amber-500/60 transition-all duration-300 shadow-lg shadow-amber-500/5 overflow-hidden"
+                    >
+                        <div className="flex items-center justify-between mb-1">
+                            <span className="inline-flex items-center gap-1 text-[9px] font-black text-amber-500 uppercase tracking-wider">
+                                ⚠️ {locale === 'en' ? "PRO ENDED" : locale === 'ru' ? "PRO ЗАВЕРШЕНА" : "PRO ЗАКІНЧИЛАСЯ"}
+                            </span>
+                            <span className="text-[10px] font-bold text-amber-500 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                                {locale === 'en' ? "Renew" : locale === 'ru' ? "Продлить" : "Поновити"} <ArrowRight className="w-3 h-3" />
+                            </span>
+                        </div>
+                        <p className="text-xs font-bold text-foreground">
+                            {locale === 'en' ? "Renew Pro Access" : locale === 'ru' ? "Продлить тариф Pro" : "Поновити доступ Pro"}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {locale === 'en' ? "Progress saved • Unlock 10 levels" : locale === 'ru' ? "Прогресс сохранен • Разблокировать" : "Прогрес збережено • Розблокувати"}
+                        </p>
+                    </Link>
+                ) : !isDemo ? (
                     <div className="px-4 py-3 rounded-2xl bg-gradient-to-br from-blue-600/10 via-indigo-600/10 to-purple-600/10 border border-blue-500/20 flex flex-col gap-1 shadow-lg shadow-blue-500/5">
                         <div className="flex items-center justify-between">
                             <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] opacity-80">{t("currentAccess")}</span>

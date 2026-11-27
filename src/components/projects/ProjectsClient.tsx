@@ -46,6 +46,8 @@ interface Props {
     allUsers: { id: string, name: string | null, email: string | null }[]
     hasPracticeAccess?: boolean
     hasInterviewAccess?: boolean
+    isSubscriptionExpired?: boolean
+    subscriptionExpiresAt?: Date | null
 }
 
 export default function ProjectsClient({
@@ -58,7 +60,9 @@ export default function ProjectsClient({
     allRoles,
     allUsers,
     hasPracticeAccess = true,
-    hasInterviewAccess = true
+    hasInterviewAccess = true,
+    isSubscriptionExpired = false,
+    subscriptionExpiresAt = null
 }: Props) {
     const t = useTranslations("Projects")
     const locale = useLocale()
@@ -113,6 +117,8 @@ export default function ProjectsClient({
                         overallPct={overallPct}
                         hasPracticeAccess={hasPracticeAccess}
                         hasInterviewAccess={hasInterviewAccess}
+                        isSubscriptionExpired={isSubscriptionExpired}
+                        subscriptionExpiresAt={subscriptionExpiresAt}
                     />
                 </div>
 

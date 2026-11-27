@@ -126,6 +126,21 @@ export default function TaskCard({ task, isOverlay, isAdmin, canManageTasks = tr
                         {priority.label}
                     </span>
 
+                    {/* Personal task indicator */}
+                    {currentUserId && (task as any).creatorId === currentUserId && (
+                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            Моя
+                        </span>
+                    )}
+
+                    {/* Admin role restriction indicator */}
+                    {isAdmin && (task as any).targetRoleIds && (
+                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                            🔒 Ролі
+                        </span>
+                    )}
+
                     {tags.slice(0, 3).map((tag, idx) => (
                         <span key={idx} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${tag.color}`}>
                             {tag.label}

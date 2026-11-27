@@ -29,6 +29,7 @@ interface Task {
     descriptionRu?: string | null
     priority: "low" | "medium" | "high" | "critical"
     assigneeId: string | null
+    targetRoleIds?: string | null
 }
 
 interface ColumnData {
@@ -43,6 +44,7 @@ interface Props {
     columnId: number
     columns?: ColumnData[]
     users: User[]
+    roles?: { id: number; name: string }[]
     task?: Task
     mode?: 'create' | 'edit' | 'view'
     isAdmin?: boolean
@@ -58,6 +60,7 @@ export default function TaskDialog({
     columnId,
     columns = [],
     users,
+    roles = [],
     task,
     mode = 'create',
     isAdmin = false,
@@ -76,6 +79,12 @@ export default function TaskDialog({
     const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">(task?.priority || "medium")
     const [assigneeId, setAssigneeId] = useState<string>(task?.assigneeId || "")
     const [currentColumnId, setCurrentColumnId] = useState<number>(task?.columnId || columnId)
+    const [selectedRoles, setSelectedRoles] = useState<number[]>(() => {
+        if (task && (task as any).targetRoleIds) {
+            return (task as any).targetRoleIds.split(',').map((s: string) => parseInt(s.replace(/[^0-9]/g, ''))).filter((n: number) => !isNaN(n))
+        }
+        return []
+    })
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
     const taskHelper = getTaskHelper(task?.title || title, task?.description || description)
@@ -105,6 +114,13 @@ export default function TaskDialog({
             setPriority(task.priority || "medium")
             setAssigneeId(task.assigneeId || "")
             setCurrentColumnId(task.columnId || columnId)
+            if ((task as any).targetRoleIds) {
+                setSelectedRoles((task as any).targetRoleIds.split(',').map((s: string) => parseInt(s.replace(/[^0-9]/g, ''))).filter((n: number) => !isNaN(n)))
+            } else {
+                setSelectedRoles([])
+            }
+        } else {
+            setSelectedRoles([])
         }
     }, [task?.id])
 
@@ -244,7 +260,8 @@ export default function TaskDialog({
                     title,
                     description,
                     priority,
-                    assigneeId: assigneeId || null,
+                    assigneeId: isAdmin ? (assigneeId || null) : currentUserId,
+                    targetRoleIds: isAdmin ? (selectedRoles.length > 0 ? selectedRoles.join(',') : null) : null,
                 }),
             })
 
@@ -666,24 +683,85 @@ export default function TaskDialog({
                                     </select>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-wider text-slate-400">
-                                        {t("taskAssignee")}
-                                    </label>
-                                    <select
-                                        value={assigneeId}
-                                        onChange={(e) => setAssigneeId(e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xs outline-none cursor-pointer"
-                                    >
-                                        <option value="" className="bg-slate-900">{t("taskUnassigned")}</option>
-                                        {users.map(u => (
-                                            <option key={u.id} value={u.id} className="bg-slate-900">
-                                                {u.name || u.email || u.id}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                {!isAdmin ? (
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black uppercase tracking-wider text-slate-400">
+                                            {t("taskAssignee")}
+                                        </label>
+                                        <div className="w-full px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-slate-300 font-bold text-xs flex items-center gap-2">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                                            <span>Особиста задача (Лише для мене)</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black uppercase tracking-wider text-slate-400">
+                                            {t("taskAssignee")}
+                                        </label>
+                                        <select
+                                            value={assigneeId}
+                                            onChange={(e) => setAssigneeId(e.target.value)}
+                                            className="w-full px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xs outline-none cursor-pointer"
+                                        >
+                                            <option value="" className="bg-slate-900">{t("taskUnassigned")}</option>
+                                            {users.map(u => (
+                                                <option key={u.id} value={u.id} className="bg-slate-900">
+                                                    {u.name || u.email || u.id}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
+
+                            {/* Admin-only Role Visibility Restrictions */}
+                            {isAdmin && roles.length > 0 && (
+                                <div className="space-y-2 pt-3 border-t border-white/10">
+                                    <label className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                                        <span>Обмеження видимості за ролями</span>
+                                        <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">Адмін-доступ</span>
+                                    </label>
+                                    <p className="text-[11px] text-slate-400 leading-snug">
+                                        Оберіть, які ролі студентів бачать цю задачу в проєкті (або залиште &quot;Всі ролі&quot;):
+                                    </p>
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedRoles([])}
+                                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                                selectedRoles.length === 0
+                                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                                                    : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white'
+                                            }`}
+                                        >
+                                            🌐 Всі ролі (Спільна для всіх)
+                                        </button>
+                                        {roles.map(r => {
+                                            const isSelected = selectedRoles.includes(r.id)
+                                            return (
+                                                <button
+                                                    key={r.id}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (isSelected) {
+                                                            setSelectedRoles(selectedRoles.filter(id => id !== r.id))
+                                                        } else {
+                                                            setSelectedRoles([...selectedRoles, r.id])
+                                                        }
+                                                    }}
+                                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                                                        isSelected
+                                                            ? 'bg-purple-600/30 border-purple-500 text-purple-200 shadow-sm'
+                                                            : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                                                    }`}
+                                                >
+                                                    {isSelected ? "✓ " : ""}{r.name}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="pt-2">
                                 <button

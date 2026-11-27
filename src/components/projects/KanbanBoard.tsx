@@ -56,9 +56,11 @@ interface Props {
     isAdmin: boolean
     boardId: number
     users: any[]
+    roles?: any[]
     searchQuery?: string
     selectedLanguage?: string
     selectedPriority?: string
+    selectedRoleFilter?: string
     currentUserId?: string
     canManageTasks?: boolean
 }
@@ -69,9 +71,11 @@ export default function KanbanBoard({
     isAdmin,
     boardId,
     users,
+    roles = [],
     searchQuery = "",
     selectedLanguage = "all",
     selectedPriority = "all",
+    selectedRoleFilter = "all",
     currentUserId,
     canManageTasks = true
 }: Props) {
@@ -280,9 +284,28 @@ export default function KanbanBoard({
                 if (task.priority !== selectedPriority) return false
             }
 
+            // Admin Role & Personal Task Filter
+            if (isAdmin && selectedRoleFilter && selectedRoleFilter !== "all") {
+                if (selectedRoleFilter === "personal") {
+                    const isStudentPersonal = (task as any).creator && (task as any).creator.role !== "admin"
+                    if (!isStudentPersonal) return false
+                } else if (selectedRoleFilter.startsWith("role-")) {
+                    const roleId = parseInt(selectedRoleFilter.replace("role-", ""))
+                    if (!isNaN(roleId)) {
+                        const targetRoleIds = (task as any).targetRoleIds
+                        if (!targetRoleIds || targetRoleIds === "all" || targetRoleIds.trim() === "") {
+                            // general task, visible to all roles
+                        } else {
+                            const ids = targetRoleIds.split(',').map((s: string) => parseInt(s.replace(/[^0-9]/g, ''))).filter((n: number) => !isNaN(n))
+                            if (!ids.includes(roleId)) return false
+                        }
+                    }
+                }
+            }
+
             return true
         })
-    }, [tasks, searchQuery, selectedLanguage, selectedPriority])
+    }, [tasks, searchQuery, selectedLanguage, selectedPriority, selectedRoleFilter, isAdmin])
 
     const handleTaskMove = (taskId: number, newColumnId: number) => {
         setTasks(prev => {
@@ -405,8 +428,10 @@ export default function KanbanBoard({
                     columnId={activeColumnId || (localColumns.length > 0 ? localColumns[0].id : 0)}
                     columns={localColumns}
                     users={users}
+                    roles={roles}
                     task={editingTask as any}
                     mode={taskDialogMode}
+                    isAdmin={isAdmin}
                     currentUserId={currentUserId}
                     canManageTasks={canManageTasks}
                     onMoveToColumn={(colId) => {

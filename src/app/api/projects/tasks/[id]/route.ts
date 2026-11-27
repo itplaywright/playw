@@ -26,11 +26,24 @@ export async function PATCH(
         return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
+    const isAdmin = (session.user as any).role === "admin"
+    const updatePayload: Record<string, any> = {
+        ...data,
+        updatedAt: new Date()
+    }
+
+    // Security: Non-admin users cannot alter targetRoleIds or assign tasks to other students
+    if (!isAdmin) {
+        delete updatePayload.targetRoleIds
+        if (task.creatorId === session.user.id) {
+            updatePayload.assigneeId = session.user.id
+        } else {
+            delete updatePayload.assigneeId
+        }
+    }
+
     try {
-        await db.update(projectTasks).set({
-            ...data,
-            updatedAt: new Date()
-        }).where(eq(projectTasks.id, taskId))
+        await db.update(projectTasks).set(updatePayload).where(eq(projectTasks.id, taskId))
         const updatedTask = (await db.select().from(projectTasks).where(eq(projectTasks.id, taskId)))[0]
 
         return NextResponse.json(updatedTask)

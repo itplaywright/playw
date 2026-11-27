@@ -48,6 +48,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
         : "typescript"
     const [selectedLanguage, setSelectedLanguage] = useState<string>(defaultLanguage)
     const [selectedPriority, setSelectedPriority] = useState<string>("all")
+    const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("all")
     const router = useRouter()
 
     const getTargetUrl = () => {
@@ -255,6 +256,26 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                         <option value="medium" className="bg-slate-900 text-white">{t("priorityMedium")}</option>
                         <option value="low" className="bg-slate-900 text-white">{t("priorityLow")}</option>
                     </select>
+
+                    {/* Admin Role Visibility Filter */}
+                    {isAdmin && (
+                        <>
+                            <div className="h-4 w-px bg-white/10 mx-1 hidden sm:block" />
+                            <select
+                                value={selectedRoleFilter}
+                                onChange={(e) => setSelectedRoleFilter(e.target.value)}
+                                className="px-2.5 py-1 rounded-lg bg-purple-600/20 border border-purple-500/40 text-purple-200 hover:text-white text-[11px] font-bold outline-none cursor-pointer"
+                            >
+                                <option value="all" className="bg-slate-900 text-white">🎭 Всі ролі та задачі</option>
+                                {roles.map((r: any) => (
+                                    <option key={r.id} value={`role-${r.id}`} className="bg-slate-900 text-white">
+                                        Задачі для: {r.name}
+                                    </option>
+                                ))}
+                                <option value="personal" className="bg-slate-900 text-white">👤 Особисті задачі студентів</option>
+                            </select>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -266,9 +287,11 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     isAdmin={isAdmin}
                     boardId={board.id}
                     users={users}
+                    roles={roles}
                     searchQuery={searchQuery}
                     selectedLanguage={selectedLanguage}
                     selectedPriority={selectedPriority}
+                    selectedRoleFilter={selectedRoleFilter}
                     currentUserId={currentUserId}
                     canManageTasks={canManageTasks}
                 />
@@ -494,6 +517,7 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     columnId={board.columns[0]?.id}
                     columns={board.columns}
                     users={users}
+                    roles={roles}
                     isAdmin={isAdmin}
                     canManageTasks={canManageTasks}
                     currentUserId={currentUserId}

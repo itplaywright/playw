@@ -59,6 +59,8 @@ interface Props {
     searchQuery?: string
     selectedLanguage?: string
     selectedPriority?: string
+    currentUserId?: string
+    canManageTasks?: boolean
 }
 
 export default function KanbanBoard({
@@ -69,7 +71,9 @@ export default function KanbanBoard({
     users,
     searchQuery = "",
     selectedLanguage = "all",
-    selectedPriority = "all"
+    selectedPriority = "all",
+    currentUserId,
+    canManageTasks = true
 }: Props) {
     const t = useTranslations("Projects")
     const [tasks, setTasks] = useState<Task[]>(initialTasks)
@@ -306,6 +310,8 @@ export default function KanbanBoard({
                                 column={col}
                                 tasks={filteredTasks.filter((t) => t.columnId === col.id)}
                                 isAdmin={isAdmin}
+                                canManageTasks={canManageTasks}
+                                currentUserId={currentUserId}
                                 onEditTask={(t) => {
                                     setEditingTask(t)
                                     setTaskDialogMode('edit')
@@ -323,6 +329,9 @@ export default function KanbanBoard({
                                         if (res.ok) {
                                             setTasks(prev => prev.filter(t => t.id !== id))
                                             toast.success(t("deleted"))
+                                        } else {
+                                            const err = await res.json()
+                                            toast.error(err.error || t("errorDeleting"))
                                         }
                                     } catch (e) { toast.error(t("errorDeleting")) }
                                 }}
@@ -331,7 +340,7 @@ export default function KanbanBoard({
                                     setEditingTask(null)
                                     setTaskDialogMode('create')
                                     setShowTaskDialog(true)
-                                    }}
+                                }}
                                 onRemoveColumn={async (id) => {
                                     if (!confirm(t("deleteColumnConfirm"))) return
                                     try {
@@ -398,6 +407,8 @@ export default function KanbanBoard({
                     users={users}
                     task={editingTask as any}
                     mode={taskDialogMode}
+                    currentUserId={currentUserId}
+                    canManageTasks={canManageTasks}
                     onMoveToColumn={(colId) => {
                         if (editingTask) {
                             handleTaskMove(editingTask.id, colId)

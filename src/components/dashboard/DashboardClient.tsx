@@ -122,13 +122,13 @@ export default function DashboardClient({
 
     // Extract level number from track title (e.g. "Рівень 2 — ..." -> 2)
     const getLevelNum = (title: string, order: number | null) => {
-        const match = title.match(/[Рр][іи]вень\s*(\d+)/)
+        const match = title.match(/(?:[Рр][іи]вень|[Уу]ровень|Level)\s*(\d+)/i)
         return match ? parseInt(match[1]) : (order ?? 0)
     }
 
     const isProTrack = (order: number | null, title?: string) => {
         if (isAdmin) return false
-        const maxOrder = role?.maxTrackOrder ?? 1
+        const maxOrder = role?.maxTrackOrder ?? 2
         return getLevelNum(title ?? "", order) > maxOrder
     }
 

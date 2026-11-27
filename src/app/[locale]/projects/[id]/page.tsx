@@ -103,7 +103,7 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
         .where(eq(projectTasks.boardId, boardId))
 
     const isAdmin = (session.user as any).role === "admin"
-    const allUsersList = isAdmin ? await db.select({ id: usersTable.id, name: usersTable.name, email: usersTable.email }).from(usersTable).orderBy(asc(usersTable.name)) : []
+    const allUsersList = await db.select({ id: usersTable.id, name: usersTable.name, email: usersTable.email }).from(usersTable).orderBy(asc(usersTable.name)).limit(100)
     const allRolesList = isAdmin ? await db.select().from(roles).orderBy(asc(roles.name)) : []
 
     // Filter tasks strictly by student's programming language (TypeScript by default)
@@ -127,6 +127,8 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
             users={allUsersList as any}
             roles={allRolesList as any}
             userLanguage={userLanguage}
+            currentUserId={session.user.id}
+            canManageTasks={true}
         />
     )
 }

@@ -1,4 +1,3 @@
-
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
 import { projectTasks } from "@/db/schema"
@@ -18,7 +17,7 @@ export async function PATCH(
     const taskId = parseInt(id)
     const data = await req.json()
 
-    // Authorization check: Only admin or the assignee can update the task
+    // Authorization check
     const task = await db.query.projectTasks.findFirst({
         where: eq(projectTasks.id, taskId),
     })
@@ -27,14 +26,11 @@ export async function PATCH(
         return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
-    // Any authenticated user can currently update tasks (move across columns, etc.)
-    // In a more complex system, we would check project membership here.
-
     try {
         await db.update(projectTasks).set({
-                ...data,
-                updatedAt: new Date()
-            }).where(eq(projectTasks.id, taskId))
+            ...data,
+            updatedAt: new Date()
+        }).where(eq(projectTasks.id, taskId))
         const updatedTask = (await db.select().from(projectTasks).where(eq(projectTasks.id, taskId)))[0]
 
         return NextResponse.json(updatedTask)
@@ -48,13 +44,29 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth()
-    if (!session?.user || (session.user as any).role !== "admin") {
+    if (!session?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     try {
         const { id } = await params
-        await db.delete(projectTasks).where(eq(projectTasks.id, parseInt(id)))
+        const taskId = parseInt(id)
+        const task = await db.query.projectTasks.findFirst({
+            where: eq(projectTasks.id, taskId),
+        })
+
+        if (!task) {
+            return NextResponse.json({ error: "Task not found" }, { status: 404 })
+        }
+
+        const isAdmin = (session.user as any).role === "admin"
+        const isCreator = task.creatorId === session.user.id
+
+        if (!isAdmin && !isCreator) {
+            return NextResponse.json({ error: "Forbidden: Only admin or the task creator can delete this task" }, { status: 403 })
+        }
+
+        await db.delete(projectTasks).where(eq(projectTasks.id, taskId))
         return NextResponse.json({ success: true })
     } catch (error) {
         return NextResponse.json({ error: "Failed to delete task" }, { status: 500 })

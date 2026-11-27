@@ -67,14 +67,14 @@ export default function Sidebar({
 
     const isProTrack = (title: string, order: number | null) => {
         if (isAdmin) return false
-        const maxOrder = role?.maxTrackOrder ?? 1
+        const maxOrder = role?.maxTrackOrder ?? 2
         return getLevelNum(title, order) > maxOrder
     }
 
     const isDemo = !role
         || role.name?.toLowerCase().includes("демо")
         || role.name?.toLowerCase().includes("demo")
-        || (role.maxTrackOrder !== null && role.maxTrackOrder <= 1)
+        || (role.maxTrackOrder !== null && role.maxTrackOrder <= 2 && !(role as any).hasInterviewAccess)
 
     return (
         <aside className="w-full h-full bg-secondary/5 flex flex-col z-40">

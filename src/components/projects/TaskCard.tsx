@@ -23,6 +23,8 @@ interface Props {
     task: Task
     isOverlay?: boolean
     isAdmin?: boolean
+    canManageTasks?: boolean
+    currentUserId?: string
     onEdit?: (task: Task) => void
     onDelete?: (id: number) => void
     onView?: (task: Task) => void
@@ -57,7 +59,7 @@ function parseTags(title: string) {
     return { tags, cleanTitle }
 }
 
-export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, onView }: Props) {
+export default function TaskCard({ task, isOverlay, isAdmin, canManageTasks = true, currentUserId, onEdit, onDelete, onView }: Props) {
     const locale = useLocale()
     const t = useTranslations("Projects")
     const {
@@ -131,7 +133,7 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
                     ))}
                 </div>
 
-                {isAdmin && (
+                {(isAdmin || canManageTasks) && (
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onPointerDown={(e) => e.stopPropagation()}
@@ -144,17 +146,19 @@ export default function TaskCard({ task, isOverlay, isAdmin, onEdit, onDelete, o
                         >
                             <Edit className="w-3 h-3" />
                         </button>
-                        <button
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onDelete?.(task.id)
-                            }}
-                            className="p-1 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
-                            title={t("delete")}
-                        >
-                            <Trash2 className="w-3 h-3" />
-                        </button>
+                        {(isAdmin || (currentUserId && (task as any).creatorId === currentUserId)) && (
+                            <button
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDelete?.(task.id)
+                                }}
+                                className="p-1 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+                                title={t("delete")}
+                            >
+                                <Trash2 className="w-3 h-3" />
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

@@ -31,6 +31,8 @@ interface Props {
     column: ColumnData
     tasks: Task[]
     isAdmin: boolean
+    canManageTasks?: boolean
+    currentUserId?: string
     onEditTask?: (task: Task) => void
     onDeleteTask?: (id: number) => void
     onAddTask?: (columnId: number) => void
@@ -45,7 +47,7 @@ const COLUMN_COLORS: Record<string, { dot: string; glow: string; border: string 
     "Done": { dot: "bg-emerald-500", glow: "shadow-emerald-500/30", border: "border-emerald-500/30" },
 }
 
-export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTask, onAddTask, onRemoveColumn, onViewTask }: Props) {
+export default function Column({ column, tasks, isAdmin, canManageTasks = true, currentUserId, onEditTask, onDeleteTask, onAddTask, onRemoveColumn, onViewTask }: Props) {
     const t = useTranslations("Projects")
 
     const getColumnTitle = (title: string) => {
@@ -106,7 +108,7 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
                     </span>
                 </div>
 
-                {isAdmin && (
+                {(isAdmin || canManageTasks) && (
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => onAddTask?.(column.id)}
@@ -115,17 +117,19 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
                         >
                             <Plus className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                            onClick={() => {
-                                if (confirm(t("deleteColumnConfirm"))) {
-                                    onRemoveColumn?.(column.id)
-                                }
-                            }}
-                            className="p-1 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors"
-                            title={t("deleteColumn")}
-                        >
-                            <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {isAdmin && onRemoveColumn && (
+                            <button
+                                onClick={() => {
+                                    if (confirm(t("deleteColumnConfirm"))) {
+                                        onRemoveColumn?.(column.id)
+                                    }
+                                }}
+                                className="p-1 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors"
+                                title={t("deleteColumn")}
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
@@ -138,6 +142,8 @@ export default function Column({ column, tasks, isAdmin, onEditTask, onDeleteTas
                             key={task.id}
                             task={task}
                             isAdmin={isAdmin}
+                            canManageTasks={canManageTasks}
+                            currentUserId={currentUserId}
                             onEdit={onEditTask}
                             onDelete={onDeleteTask}
                             onView={onViewTask}

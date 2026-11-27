@@ -1,7 +1,7 @@
 
 import { auth } from "@/lib/auth"
 import { db } from "@/db"
-import { projectTasks, users as usersTable } from "@/db/schema"
+import { projectTasks, users as usersTable, projectBoardUsers, projectBoardRoles, roles } from "@/db/schema"
 import { NextResponse } from "next/server"
 import { eq, and, asc } from "drizzle-orm"
 
@@ -51,14 +51,48 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
     const session = await auth()
-    if (!session?.user || (session.user as any).role !== "admin") {
+    if (!session?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     try {
         const data = await req.json()
+        const boardId = Number(data.boardId)
+        if (!boardId) {
+            return NextResponse.json({ error: "Board ID is required" }, { status: 400 })
+        }
+
+        const isAdmin = (session.user as any).role === "admin"
+
+        if (!isAdmin) {
+            const userRecord = await db.query.users.findFirst({
+                where: eq(usersTable.id, session.user.id!)
+            })
+            let effectiveRoleId = userRecord?.dynamicRoleId
+            if (!effectiveRoleId) {
+                const [defaultRole] = await db
+                    .select({ id: roles.id })
+                    .from(roles)
+                    .where(eq(roles.isDefault, true))
+                    .limit(1)
+                effectiveRoleId = defaultRole?.id
+            }
+
+            // Verify user has access to this board
+            const userAccess = await db.select().from(projectBoardUsers)
+                .where(and(eq(projectBoardUsers.boardId, boardId), eq(projectBoardUsers.userId, session.user.id!)))
+
+            const roleAccess = effectiveRoleId ? await db.select().from(projectBoardRoles)
+                .where(and(eq(projectBoardRoles.boardId, boardId), eq(projectBoardRoles.roleId, effectiveRoleId))) : []
+
+            if (userAccess.length === 0 && roleAccess.length === 0) {
+                return NextResponse.json({ error: "Forbidden: You do not have access to this board" }, { status: 403 })
+            }
+        }
+
         const [__ir4] = await db.insert(projectTasks).values({
             ...data,
+            boardId,
             creatorId: session.user.id,
         })
         const newTask = (await db.select().from(projectTasks).where(eq(projectTasks.id, __ir4.insertId)))[0]

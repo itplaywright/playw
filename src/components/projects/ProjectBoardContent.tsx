@@ -21,9 +21,11 @@ interface Props {
     users: any[]
     roles: any[]
     userLanguage?: string
+    currentUserId?: string
+    canManageTasks?: boolean
 }
 
-export default function ProjectBoardContent({ board, initialTasks, isAdmin, users, roles, userLanguage }: Props) {
+export default function ProjectBoardContent({ board, initialTasks, isAdmin, users, roles, userLanguage, currentUserId, canManageTasks = true }: Props) {
     const t = useTranslations("Projects")
     const locale = useLocale()
     const localizedBoardTitle = locale === 'en' ? (board.titleEn || board.title_en || board.title) : (locale === 'ru' ? (board.titleRu || board.title_ru || board.title) : board.title)
@@ -127,23 +129,26 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                         <LanguageSwitcher />
                     </div>
 
+                    {/* Add Task Button — accessible to all board members */}
+                    {(isAdmin || canManageTasks) && (
+                        <button
+                            onClick={() => setShowAddDialog(true)}
+                            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-600/25 active:scale-95"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">{t("addTask")}</span>
+                        </button>
+                    )}
+
+                    {/* Board Settings — Admin only */}
                     {isAdmin && (
-                        <>
-                            <button
-                                onClick={() => setShowAddDialog(true)}
-                                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-600/25 active:scale-95"
-                            >
-                                <Plus className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">{t("addTask")}</span>
-                            </button>
-                            <button
-                                onClick={() => setShowSettingsDialog(true)}
-                                className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all border border-white/10"
-                                title={t("accessSettings")}
-                            >
-                                <Settings className="w-4 h-4" />
-                            </button>
-                        </>
+                        <button
+                            onClick={() => setShowSettingsDialog(true)}
+                            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all border border-white/10"
+                            title={t("accessSettings")}
+                        >
+                            <Settings className="w-4 h-4" />
+                        </button>
                     )}
                 </div>
             </header>
@@ -264,6 +269,8 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     searchQuery={searchQuery}
                     selectedLanguage={selectedLanguage}
                     selectedPriority={selectedPriority}
+                    currentUserId={currentUserId}
+                    canManageTasks={canManageTasks}
                 />
             </main>
 
@@ -487,6 +494,9 @@ export default function ProjectBoardContent({ board, initialTasks, isAdmin, user
                     columnId={board.columns[0]?.id}
                     columns={board.columns}
                     users={users}
+                    isAdmin={isAdmin}
+                    canManageTasks={canManageTasks}
+                    currentUserId={currentUserId}
                     onClose={() => setShowAddDialog(false)}
                     onSuccess={() => {
                         setShowAddDialog(false)

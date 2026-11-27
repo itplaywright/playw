@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import {
     Plus, X, User, AlertCircle, Code2, Copy, Check,
     CheckCircle2, ArrowRight, ShieldAlert, Sparkles, Terminal,
-    Send, Clock, ExternalLink, GitPullRequest, MessageSquare, Globe
+    Send, Clock, ExternalLink, GitPullRequest, MessageSquare, Globe, Pencil
 } from "lucide-react"
 import { getTaskHelper } from "@/lib/projectTaskSnippets"
 import { useTranslations, useLocale } from "next-intl"
@@ -45,6 +45,9 @@ interface Props {
     users: User[]
     task?: Task
     mode?: 'create' | 'edit' | 'view'
+    isAdmin?: boolean
+    canManageTasks?: boolean
+    currentUserId?: string
     onMoveToColumn?: (colId: number) => void
     onSuccess?: () => void
     onClose: () => void
@@ -57,6 +60,9 @@ export default function TaskDialog({
     users,
     task,
     mode = 'create',
+    isAdmin = false,
+    canManageTasks = true,
+    currentUserId,
     onMoveToColumn,
     onSuccess,
     onClose
@@ -64,6 +70,7 @@ export default function TaskDialog({
     const t = useTranslations("Projects")
     const locale = useLocale()
     const [mounted, setMounted] = useState(false)
+    const [currentMode, setCurrentMode] = useState<'create' | 'edit' | 'view'>(mode)
     const [title, setTitle] = useState(task?.title || "")
     const [description, setDescription] = useState(task?.description || "")
     const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">(task?.priority || "medium")
@@ -86,6 +93,10 @@ export default function TaskDialog({
         setActiveTab(hasEnglish ? 'jira' : 'details')
         setLastRequirementsLang('en')
     }, [locale, task?.id, hasEnglish])
+
+    useEffect(() => {
+        setCurrentMode(mode)
+    }, [mode])
 
     useEffect(() => {
         if (task) {
@@ -264,7 +275,7 @@ export default function TaskDialog({
                         </div>
                         <div>
                             <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
-                                {mode === 'view' ? (isJiraMode ? "Task Details" : t("viewTask")) : task ? t("editTask") : t("createTask")}
+                                {currentMode === 'view' ? (isJiraMode ? "Task Details" : t("viewTask")) : task ? t("editTask") : t("createTask")}
                             </h2>
                             {task && (
                                 <p className="text-[10px] text-slate-400 font-mono">ID: #{task.id}</p>
@@ -272,17 +283,38 @@ export default function TaskDialog({
                         </div>
                     </div>
 
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {currentMode === 'view' && (isAdmin || canManageTasks) && task && (
+                            <button
+                                type="button"
+                                onClick={() => setCurrentMode('edit')}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-all"
+                            >
+                                <Pencil className="w-3.5 h-3.5" />
+                                <span>{t("edit") || "Редагувати"}</span>
+                            </button>
+                        )}
+                        {currentMode === 'edit' && mode === 'view' && (
+                            <button
+                                type="button"
+                                onClick={() => setCurrentMode('view')}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-400 hover:text-white transition-all"
+                            >
+                                <span>{t("cancel") || "Назад"}</span>
+                            </button>
+                        )}
+                        <button
+                            onClick={onClose}
+                            className="p-1.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 scrollbar-thin scrollbar-thumb-white/10">
-                    {mode === 'view' ? (
+                    {currentMode === 'view' ? (
                         <>
                             {/* Title & Category Badge */}
                             <div>
